@@ -9,6 +9,8 @@ if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
 
     pip3 install pyinstaller
 
+    pip3 install -U -r requirements.txt
+
     pyinstaller --onefile sesam.py
 
     /Users/travis/build/tombech/sesam-py/dist/sesam
@@ -20,6 +22,8 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
     python3 --version
 
     pip3 install pyinstaller
+
+    pip3 install -U -r requirements.txt
 
     pyinstaller --onefile sesam.py
 
