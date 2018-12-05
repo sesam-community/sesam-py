@@ -9,7 +9,7 @@ if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
 
     pip3 install pyinstaller
 
-    pyinstaller --singlefile sesam.py
+    pyinstaller --onefile sesam.py
 fi
 
 if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
@@ -19,5 +19,5 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
 
     pip3 install pyinstaller
 
-    pyinstaller --singlefile sesam.py
+    pyinstaller --onefile sesam.py
 fi
