@@ -4,10 +4,12 @@ matrix:
   - os: linux
     python: 3.6
   - os: osx
-    python: 3.6
+    language: generic
 install:
+- chmod +x install.sh
 - install.sh
 script:
+- chmod +x test.sh
 - test.sh
 before_deploy:
 - if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then cp dist/sesam.dmg /Users/travis/sesam.dmg
