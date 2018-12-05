@@ -6,11 +6,9 @@ matrix:
   - os: osx
     language: generic
 install:
-- chmod +x install.sh
-- install.sh
+- ./install.sh
 script:
-- chmod +x test.sh
-- test.sh
+- ./test.sh
 before_deploy:
 - if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then cp dist/sesam.dmg /Users/travis/sesam.dmg
   ; fi
