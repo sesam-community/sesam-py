@@ -6,10 +6,18 @@ if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
     brew upgrade python
     # make brews python the system default
     python3 --version
+
+    pip3 install pyinstaller
+
+    pyinstaller --singlefile sesam.py
 fi
 
 if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
     echo "Building on Linux.."
 
     python3 --version
+
+    pip3 install pyinstaller
+
+    pyinstaller --singlefile sesam.py
 fi
