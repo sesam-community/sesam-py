@@ -31,9 +31,3 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
 
     /home/travis/build/tombech/sesam-py/dist/sesam
 fi
-
-if [ -n "$TRAVIS_TAG" ] ; then
-    echo "Packaging..."
-    tar -zcf ${TRAVIS_BUILD_DIR}${REPO}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}-${TRAVIS_BUILD_NUMBER}.tar.gz dist/sesam
-fi
-
