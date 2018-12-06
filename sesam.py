@@ -25,6 +25,7 @@ class SesamParser(argparse.ArgumentParser):
     def error(self, message):
         sys.stderr.write('error: %s\n\n' % message)
         self.print_help()
+        print("Exiting 2!")
         sys.exit(2)
 
 
@@ -88,10 +89,11 @@ Commands:
 
     try:
         args = parser.parse_args()
-    except:
+    except SystemExit as e:
+        sys.exit(e.code)
+    except BaseException as e:
         sys.exit(1)
 
     if args.version:
         print("sesam version %s", sesam_version)
         sys.exit(0)
-
