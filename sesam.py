@@ -9,16 +9,19 @@ from tempfile import NamedTemporaryFile
 import time
 import sys
 import os
+import os.path
 import io
 from threading import Thread
 import math
 import glob
 from copy import copy
 import sesamclient
+import configparser
+import itertools
 
 sesam_version = "1.0"
 
-logger = logging.getLogger('gdpr-ms')
+logger = logging.getLogger('sesam')
 
 
 class SesamParser(argparse.ArgumentParser):
@@ -29,6 +32,113 @@ class SesamParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
+class SesamNode:
+    """ Sesam node functions wrapped in a class to facilitate unit tests """
+
+    def __init__(self, node_url, jwt_token, logger, verify_ssl=True):
+        self.logger = logger
+
+        if jwt_token[0] == '"' and jwt_token[-1] == '"':
+            self.jwt_token = jwt_token[1:-1]
+
+        self.jwt_token = self.jwt_token.replace("bearer ", "")
+
+        self.node_url = node_url.replace('"', "")
+        if not self.node_url.startswith("http"):
+            self.node_url = "https://%s/api" % node_url
+
+        self.logger.info("Connecting to Seasam using url '%s' and JWT token '%s'", node_url, jwt_token)
+
+        self.api_connection = sesamclient.Connection(sesamapi_base_url=self.node_url, jwt_auth_token=self.jwt_token,
+                                                     timeout=60 * 10, verify_ssl=verify_ssl)
+
+
+class SesamCmdClient:
+    """ Commands wrapped in a class to make it easier to write unit tests """
+
+    def __init__(self, args, logger):
+        self.args = args
+        self.logger = logger
+        self.sesam_node = None
+
+    def read_config_file(self, filename):
+        parser = configparser.ConfigParser(strict=False)
+
+        with open(filename) as fp:
+            parser.read_file(itertools.chain(['[sesam]'], fp), source=filename)
+            config = {}
+            for key, value in parser.items("sesam"):
+                config[key.lower()] = value
+
+            return config
+
+    def _coalesce(self, items):
+        for item in items:
+            if item is not None:
+                return item
+
+    def get_node_and_jwt_token(self):
+        try:
+            curr_dir = os.getcwd()
+            if curr_dir is None:
+                raise AssertionError("Failed to open current directory. Check your permissions.")
+
+            # Find config on disk, if any
+            try:
+                file_config = {}
+                if os.path.isfile(".syncconfig"):
+                    # Found a local .syncconfig file, read it
+                    file_config = self.read_config_file(".syncconfig")
+                else:
+                    # Look in the parent folder
+                    if os.path.isfile("../.syncconfig"):
+                        file_config = self.read_config_file("../.syncconfig")
+                        if file_config:
+                            curr_dir = os.path.abspath("../")
+                            self.logger.info("Found .syncconfig in parent path. Using %s as base directory", path)
+                            os.chdir(curr_dir)
+
+                self.logger.info("Using %s as base directory", curr_dir)
+
+                node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
+                jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
+
+                return node_url, jwt_token
+            except BaseException as e:
+                logger.exception("Failed to read '.syncconfig' from either the current directory or the "
+                                 "parent directory. Check that you are in the correct directory, that you have the"
+                                 "required permissions to read the files and that the files have the correct format.")
+
+        except BaseException as e:
+            logger.exception("Failed to find node url and/or jwt token")
+
+        return None, None
+
+    def clean(self):
+        pass
+
+    def upload(self):
+        pass
+
+    def download(self):
+        pass
+
+    def status(self):
+        pass
+
+    def verify(self):
+        pass
+
+    def test(self):
+        pass
+
+    def run(self):
+        pass
+
+    def wipe(self):
+        pass
+
+
 if __name__ == '__main__':
     format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
@@ -36,6 +146,7 @@ if __name__ == '__main__':
     stdout_handler = logging.StreamHandler()
     stdout_handler.setFormatter(logging.Formatter(format_string))
     logger.addHandler(stdout_handler)
+    logger.setLevel(logging.INFO)
 
     logger.propagate = False
 
@@ -97,3 +208,44 @@ Commands:
     if args.version:
         print("sesam version %s", sesam_version)
         sys.exit(0)
+
+    command = args.command.lower()
+
+    sesam_cmd_client = SesamCmdClient(args, logger)
+
+    try:
+        node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
+    except:
+        logger.exception("failed to find a valid node url and jwt token")
+        print("jwt and node must be specifed either as parameter, os env or in config file")
+        sys.exit(1)
+
+    try:
+        sesam_cmd_client.sesam_node = SesamNode(node_url, jwt_token, logger,
+                                                verify_ssl=args.skip_tls_verification is False)
+    except:
+        print("failed to connect to the sesam node using the url and jwt token we were given:\n%s\n%s" %
+              (node_url, jwt_token))
+        print("please verify the url and token is correct, and that there isn't any network issues "
+              "(i.e. firewall, internet connection etc)")
+        sys.exit(1)
+
+    if command == "clean":
+        sesam_cmd_client.clean()
+    elif command == "upload":
+        sesam_cmd_client.upload()
+    elif command == "download":
+        sesam_cmd_client.download()
+    elif command == "status":
+        sesam_cmd_client.status()
+    elif command == "verify":
+        sesam_cmd_client.verify()
+    elif command == "test":
+        sesam_cmd_client.test()
+    elif command == "run":
+        sesam_cmd_client.run()
+    elif command == "wipe":
+        sesam_cmd_client.wipe()
+    else:
+        print("unknown command: %s", command)
+        sys.exit(1)
