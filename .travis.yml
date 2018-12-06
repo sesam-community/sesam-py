@@ -4,7 +4,6 @@ matrix:
   - os: linux
     python: 3.6
   - os: osx
-    osx_image: xcode7.3
     language: generic
 before_install:
   - chmod +x install.sh
