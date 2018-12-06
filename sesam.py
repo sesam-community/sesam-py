@@ -14,6 +14,7 @@ from threading import Thread
 import math
 import glob
 from copy import copy
+import sesamclient
 
 sesam_version = "1.0"
 
