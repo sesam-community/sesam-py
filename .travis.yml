@@ -14,6 +14,7 @@ script:
 - bash test.sh
 before_deploy:
 - bash deploy.sh
+- ls -al *.tar.gz
 
 deploy:
   provider: releases
