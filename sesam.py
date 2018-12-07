@@ -21,6 +21,7 @@ import itertools
 import json
 import os
 import zipfile
+import uuid
 
 sesam_version = "1.0"
 
@@ -67,6 +68,14 @@ class SesamNode:
     def get_system(self, system_id):
         self.logger.log(LOGLEVEL_TRACE, "Get system '%s' from %s" % (system_id, self.node_url))
         return self.api_connection.get_system(system_id)
+
+    def add_system(self, config):
+        self.logger.log(LOGLEVEL_TRACE, "Add system '%s' to %s" % (config, self.node_url))
+        return self.api_connection.add_systems([config])
+
+    def add_systems(self, config):
+        self.logger.log(LOGLEVEL_TRACE, "Add systems '%s' to %s" % (config, self.node_url))
+        return self.api_connection.add_systems(config)
 
     def remove_system(self, system_id):
         self.logger.log(LOGLEVEL_TRACE, "Remove system '%s' from %s" % (system_id, self.node_url))
@@ -177,10 +186,10 @@ class SesamCmdClient:
 
                 self.logger.info("Using %s as base directory", curr_dir)
 
-                node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
-                jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
+                self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
+                self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
 
-                return node_url, jwt_token
+                return self.node_url, self.jwt_token
             except BaseException as e:
                 self.logger.error("Failed to read '.syncconfig' from either the current directory or the "
                                   "parent directory. Check that you are in the correct directory, that you have the"
@@ -274,11 +283,60 @@ class SesamCmdClient:
     def verify(self):
         pass
 
+    def update(self):
+        pass
+
     def test(self):
         pass
 
+    def start_scheduler(self):
+        if not self.args.custom_scheduler:
+            self.sesam_node.add_system({
+                "_id": "%s" % self.args.scheduler_id,
+                "type": "system:microservice",
+                "docker": {
+                    "environment": {
+                        "JWT": "%s" % self.jwt_token,
+                        "URL": "%s" % self.node_url,
+                        "DUMMY": "%s" % str(uuid.uuid4())
+                    },
+                    "image":  "sesamcommunity/scheduler:latest",
+                    "port": 5000
+                }
+            })
+
+        # Wait for Microservice system to start up
+#        self.sesam_node.wait_for_microservice(self.args.scheduler_id, timeout=300)
+
+        # Start the microservice
+#        self.sesam.node.microservice_proxy_request(self.args.scheduler_id, "start?reset_pipes=true&delete_datasets=true&compact_execution_datasets=true")
+
+    def get_scheduler_status(self):
+        return "failed"
+
     def run(self):
-        pass
+        self.start_scheduler()
+
+        try:
+            while True:
+                status = self.get_scheduler_status()
+
+                if status == "success":
+                    logger.debug("Scheduler finished successfully")
+                    break
+                elif status == "failed":
+                    logger.error("Scheduler finished with failure")
+                    return
+
+                time.sleep(args.scheduler_poll_frequency/1000)
+
+        except BaseException as e:
+            logger.error("Failed to run scheduler")
+            raise e
+        finally:
+            self.sesam_node.remove_system(args.scheduler_id)
+
+        self.logger.info("Successfully ran all pipes to completion")
 
     def wipe(self):
         try:
@@ -353,7 +411,7 @@ Commands:
     parser.add_argument('-logformat', dest='logformat', type=str, metavar="<string>", required=False, default="short",
                         help="output format (normal or log)")
 
-    parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler-poll-frequency', type=int, required=False,
+    parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
 
     parser.add_argument('command', metavar="command", help="a valid command from the list above")
@@ -429,6 +487,8 @@ Commands:
             sesam_cmd_client.download()
         elif command == "status":
             sesam_cmd_client.status()
+        elif command == "update":
+            sesam_cmd_client.update()
         elif command == "verify":
             sesam_cmd_client.verify()
         elif command == "test":
