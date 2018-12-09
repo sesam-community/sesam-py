@@ -37,6 +37,63 @@ class SesamParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
+class TestSpec:
+    """ Test specification """
+
+    def __init__(self, filename):
+        self._spec = {}
+        self._spec["filename"] = filename
+        self._spec["name"] = filename[:-len(".test.json")]
+        self._spec["file"] = self.name + ".json"
+        self._spec["endpoint"] = "json"
+        if self.name.find("/") > -1:
+            self._spec["pipe"] = self.name.split("/")[:-1]
+
+        with open(filename, "r") as fp:
+            spec_dict = json.load(fp)
+            if isinstance(spec_dict, dict):
+                self._spec.update(spec_dict)
+            else:
+                logger.error("Test spec '%s' not in correct json format" % filename)
+                raise AssertionError("Test spec not a json object")
+
+    @property
+    def spec(self):
+        return self.spec
+
+    @property
+    def filename(self):
+        return self.spec.get("filename")
+
+    @property
+    def name(self):
+        return self.spec.get("name")
+
+    @property
+    def endpoint(self):
+        return self.spec.get("endpoint")
+
+    @property
+    def pipe(self):
+        return self.spec.get("pipe")
+
+    @property
+    def blacklist(self):
+        return self.spec.get("blacklist")
+
+    @property
+    def id(self):
+        return self.spec.get("_id")
+
+    @property
+    def ignore(self):
+        return self.spec.get("ignore", False) is True
+
+    @property
+    def parameters(self):
+        return self.spec.get("parameters")
+
+
 class SesamNode:
     """ Sesam node functions wrapped in a class to facilitate unit tests """
 
@@ -108,6 +165,116 @@ class SesamNode:
                 except BaseException as e:
                     self.logger.error("Failed to delete dataset '%s'" % dataset.id)
                     raise e
+
+    def get_pipe_type(self, pipe):
+        source_config = pipe.config["effective"].get("source",{})
+        sink_config = pipe.config["effective"].get("sink",{})
+        source_type = source_config.get("type", "")
+        sink_type = sink_config.get("type", "")
+
+        if source_type == "embedded":
+            return "input"
+
+        if isinstance(sink_type, str) and sink_type.endswith("_endpoint"):
+            return "endpoint"
+
+        if (source_config.get("dataset") or source_config.get("datasets")) and\
+                sink_type.get("dataset"):
+            return "internal"
+
+        if not sink_type.get("dataset"):
+            return "output"
+
+        return "internal"
+
+    def get_output_pipes(self):
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "output"]
+
+    def get_input_pipes(self):
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "input"]
+
+    def get_endpoint_pipes(self):
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "endpoint"]
+
+    def get_internal_pipes(self):
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "internal"]
+
+    def get_system_status(self, system_id):
+
+        system_url = self.api_connection.get_system_url(system_id)
+
+        resp = self.api_connection.session.get(system_url + "/status")
+        resp.raise_for_status()
+
+        status = resp.json()
+        if isinstance(status, dict):
+            return status
+
+        return None
+
+    def wait_for_microservice(self, microservice_id, timeout=300):
+        """ Polls the microservice status API until it is running (or we time out) """
+
+        system = self.get_system(microservice_id)
+        if system is None:
+            raise AssertionError("Microservice system '%s' doesn't exist" % microservice_id)
+
+        sleep_time = 0.5
+        while timeout > 0:
+            system_status = self.get_system_status(microservice_id)
+            if system_status is not None and system_status.get("running", False) is True:
+                return True
+
+            time.sleep(sleep_time)
+
+            timeout -= sleep_time
+
+        return False
+
+    def microservice_get_proxy_request(self, microservice_id, path, params=None, result_as_json=True):
+
+        system = self.get_system(microservice_id)
+        if system is None:
+            raise AssertionError("Microservice system '%s' doesn't exist" % microservice_id)
+
+        system_url = self.api_connection.get_system_url(microservice_id)
+        resp = self.api_connection.session.get(system_url + "/proxy/" + path, params=params)
+        resp.raise_for_status()
+
+        if result_as_json:
+            return resp.json()
+
+        return resp.text
+
+    def microservice_post_proxy_request(self, microservice_id, path, params=None, data=None, result_as_json=True):
+        return self.microservice_post_put_proxy_request(microservice_id, "POST", path, params=params, data=data,
+                                                        result_as_json=result_as_json)
+
+    def microservice_put_proxy_request(self, microservice_id, path, params=None, data=None, result_as_json=True):
+        return self.microservice_post_put_proxy_request(microservice_id, "PUT", path, params=params, data=data,
+                                                        result_as_json=result_as_json)
+
+    def microservice_post_put_proxy_request(self, microservice_id, method, path, params=None, data=None,
+                                            result_as_json=True):
+
+        system = self.get_system(microservice_id)
+        if system is None:
+            raise AssertionError("Microservice system '%s' doesn't exist" % microservice_id)
+
+        system_url = self.api_connection.get_system_url(microservice_id)
+        if method.lower() == "post":
+            resp = self.api_connection.session.post(system_url + "/proxy/" + path, params=params, data=data)
+        elif method.lower() == "put":
+            resp = self.api_connection.session.put(system_url + "/proxy/" + path, params=params, data=data)
+        else:
+            raise AssertionError("Unknown method '%s'" % method)
+
+        resp.raise_for_status()
+
+        if result_as_json:
+            return resp.json()
+
+        return resp.text
 
 
 class SesamCmdClient:
@@ -278,18 +445,99 @@ class SesamCmdClient:
         self.logger.info("Replaced local config successfully")
 
     def status(self):
-        pass
+        logger.error("The 'status' command is not yet implemented")
+
+    def filter_entity(self, entity):
+        return entity
+
+    def load_test_specs(self, existing_output_pipes, update=False):
+        test_specs = {}
+
+        # Load test specifications
+        for filename in glob.glob("expected/*.test.json"):
+            logger.debug("Processing spec file '%s'" % filename)
+
+            with open(filename, "r") as fp:
+                test_spec = json.load(fp)
+
+                pipe_id = test_spec.get("pipe", filename[:-(len(".test.json"))])
+                logger.debug("Pipe id for spec '%s' is '%s" % pipe_id)
+
+                # If spec says 'ignore' then the corresponding output file should not exist
+                if test_spec.get("ignore") is True:
+                    output_filename = test_spec.get("file")
+                    if not output_filename:
+                        output_filename = pipe_id + ".json"
+
+                    if os.path.isfile("expected/%s" % output_filename):
+                        if update:
+                            logger.debug("Removing existing output file '%s'" % output_filename)
+                            os.remove(output_filename)
+                        else:
+                            logger.warning(
+                                "pipe '%s' is ignored, but output file '%s' still exists" % (pipe_id, filename))
+                elif pipe_id not in existing_output_pipes:
+                    logger.error("Test spec references non-exisiting output "
+                                 "pipe '%s' - remove '%s'" % (pipe_id, filename))
+                    continue
+
+                if pipe_id not in test_specs:
+                    test_specs[pipe_id] = []
+
+                test_specs[pipe_id].append(test_spec)
+
+        if update:
+            for pipe in existing_output_pipes.items():
+                logger.debug("Updating pipe '%s" % pipe.id)
+
+                if pipe.id not in test_specs:
+                    logger.warning("Found no spec for pipe %s - creating empty spec file")
+                    with open("%s.test.json" % pipe.id, "w") as fp:
+                        json.dump(fp, {})
+                        test_specs[pipe.id] = [{}]
+
+                # Download endpoint data, sort each entity on key and store the json output
+                entities = [self.filter_entity(e) for e in self.sesam_node.get_pipe_entities(pipe.id)]
+
+                filename = pipe.id + ".json"
+                with open("expected/%s" % filename, "w") as fp:
+                    json.dump(fp, entities, indent=2, sort_keys=True)
+
+        return test_specs
 
     def verify(self):
-        pass
+        output_pipes = {}
+        for p in self.sesam_node.get_output_pipes():
+            output_pipes[p.id] = p
+
+        test_specs = self.load_test_specs(output_pipes)
+
+        if not test_specs:
+            raise AssertionError("Found no tests (*.test.json) to run")
+
+        for pipe in output_pipes:
+            logger.debug("Verifying pipe '%s" % pipe.id)
+
+
+
+
+
+
 
     def update(self):
-        pass
+        logger.error("The 'update' command is not yet implemented")
 
     def test(self):
-        pass
+        self.upload()
 
-    def start_scheduler(self):
+        for i in range(self.args.runs):
+            self.run()
+            self.verify()
+
+    def start_scheduler(self, timeout=300):
+        if self.sesam_node.get_system(self.args.scheduler_id) is not None:
+            self.sesam_node.remove_system(self.args.scheduler_id)
+
         if not self.args.custom_scheduler:
             self.sesam_node.add_system({
                 "_id": "%s" % self.args.scheduler_id,
@@ -306,13 +554,38 @@ class SesamCmdClient:
             })
 
         # Wait for Microservice system to start up
-#        self.sesam_node.wait_for_microservice(self.args.scheduler_id, timeout=300)
+        if self.sesam_node.wait_for_microservice(self.args.scheduler_id, timeout=timeout) is False:
+            raise RuntimeError("Timed out waiting for scheduler to load")
 
         # Start the microservice
-#        self.sesam.node.microservice_proxy_request(self.args.scheduler_id, "start?reset_pipes=true&delete_datasets=true&compact_execution_datasets=true")
+        params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true"}
+        try:
+            self.sesam_node.microservice_post_request(self.args.scheduler_id, "start", params=params,
+                                                      result_as_json=False)
+        except BaseException as e:
+            logger.error("Failed to start the scheduler microservice")
+            raise e
+
+        sleep_interval = args.scheduler_poll_frequency/1000
+        try:
+            while sleep_interval > 0:
+                status_json = self.get_scheduler_status()
+                if status_json.get("state", "") != "init":
+                    break
+
+                time.sleep(sleep_interval)
+                timeout -= sleep_interval
+        except BaseException as e:
+            logger.error("Scheduler failed to initialise after %s seconds" % timeout)
+            raise e
 
     def get_scheduler_status(self):
-        return "failed"
+
+        try:
+            return self.sesam_node.microservice_get_proxy_request(self.args.scheduler_id, "")
+        except BaseException as e:
+            logger.error("Failed to get scheduler status")
+            raise e
 
     def run(self):
         self.start_scheduler()
