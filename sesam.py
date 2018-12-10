@@ -15,6 +15,7 @@ from threading import Thread
 import math
 import glob
 from copy import copy
+from lxml import etree
 import sesamclient
 import configparser
 import itertools
@@ -22,6 +23,7 @@ import json
 import os
 import zipfile
 import uuid
+from difflib import unified_diff
 
 sesam_version = "1.0"
 
@@ -42,12 +44,16 @@ class TestSpec:
 
     def __init__(self, filename):
         self._spec = {}
-        self._spec["filename"] = filename
+        self._spec_file = filename
+
         self._spec["name"] = filename[:-len(".test.json")]
         self._spec["file"] = self.name + ".json"
         self._spec["endpoint"] = "json"
+
         if self.name.find("/") > -1:
-            self._spec["pipe"] = self.name.split("/")[:-1]
+            self._spec["pipe"] = self.name.split("/")[-1]
+        else:
+            self._spec["pipe"] = self.name
 
         with open(filename, "r") as fp:
             spec_dict = json.load(fp)
@@ -59,39 +65,52 @@ class TestSpec:
 
     @property
     def spec(self):
-        return self.spec
+        return self._spec
 
     @property
-    def filename(self):
-        return self.spec.get("filename")
+    def spec_file(self):
+        return self._spec_file
+
+    @property
+    def file(self):
+        return self._spec.get("file")
 
     @property
     def name(self):
-        return self.spec.get("name")
+        return self._spec.get("name")
 
     @property
     def endpoint(self):
-        return self.spec.get("endpoint")
+        return self._spec.get("endpoint")
 
     @property
     def pipe(self):
-        return self.spec.get("pipe")
+        return self._spec.get("pipe")
 
     @property
     def blacklist(self):
-        return self.spec.get("blacklist")
+        return self._spec.get("blacklist")
 
     @property
     def id(self):
-        return self.spec.get("_id")
+        return self._spec.get("_id")
 
     @property
     def ignore(self):
-        return self.spec.get("ignore", False) is True
+        return self._spec.get("ignore", False) is True
 
     @property
     def parameters(self):
         return self.spec.get("parameters")
+
+    @property
+    def expected_entities(self):
+        filename = self.file
+        if not filename.startswith("expected/"):
+            filename = "expected/" + filename
+
+        with open(filename, "r") as fp:
+            return json.load(fp)
 
 
 class SesamNode:
@@ -100,12 +119,9 @@ class SesamNode:
     def __init__(self, node_url, jwt_token, logger, verify_ssl=True):
         self.logger = logger
 
-        if jwt_token[0] == '"' and jwt_token[-1] == '"':
-            self.jwt_token = jwt_token[1:-1]
+        self.node_url = node_url
+        self.jwt_token = jwt_token.replace("bearer ", "")
 
-        self.jwt_token = self.jwt_token.replace("bearer ", "")
-
-        self.node_url = node_url.replace('"', "")
         if not self.node_url.startswith("http"):
             self.node_url = "https://%s/api" % node_url
 
@@ -179,28 +195,47 @@ class SesamNode:
             return "endpoint"
 
         if (source_config.get("dataset") or source_config.get("datasets")) and\
-                sink_type.get("dataset"):
+                sink_config.get("dataset"):
             return "internal"
 
-        if not sink_type.get("dataset"):
+        if not sink_config.get("dataset"):
             return "output"
 
         return "internal"
 
     def get_output_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "output"]
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "output"]
 
     def get_input_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "input"]
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "input"]
 
     def get_endpoint_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "endpoint"]
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "endpoint"]
 
     def get_internal_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type() == "internal"]
+        return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
+
+    def get_pipe_entities(self, pipe):
+        pipe_url = "%s/pipes/%s/entities" % (self.node_url, pipe.id)
+
+        resp = self.api_connection.session.get(pipe_url)
+        resp.raise_for_status()
+
+        return resp.json()
+
+    def get_published_data(self, pipe, type="entities", params=None, binary=False):
+
+        pipe_url = "%s/publishers/%s/%s" % (self.node_url, pipe.id, type)
+
+        resp = self.api_connection.session.get(pipe_url, params=params)
+        resp.raise_for_status()
+
+        if binary:
+            return resp.content
+
+        return resp.text
 
     def get_system_status(self, system_id):
-
         system_url = self.api_connection.get_system_url(system_id)
 
         resp = self.api_connection.session.get(system_url + "/status")
@@ -212,6 +247,15 @@ class SesamNode:
 
         return None
 
+    def get_system_log(self, system_id, params=None):
+
+        system_url = self.api_connection.get_system_url(system_id)
+
+        resp = self.api_connection.session.get("%s/logs" % system_url, params=params)
+        resp.raise_for_status()
+
+        return resp.text
+
     def wait_for_microservice(self, microservice_id, timeout=300):
         """ Polls the microservice status API until it is running (or we time out) """
 
@@ -219,9 +263,14 @@ class SesamNode:
         if system is None:
             raise AssertionError("Microservice system '%s' doesn't exist" % microservice_id)
 
-        sleep_time = 0.5
+        sleep_time = 5.0
         while timeout > 0:
-            system_status = self.get_system_status(microservice_id)
+            try:
+                system_status = self.get_system_status(microservice_id)
+            except BaseException as e:
+                self.logger.debug("Failed to get system status for microservice '%s'", microservice_id)
+                system_status = None
+
             if system_status is not None and system_status.get("running", False) is True:
                 return True
 
@@ -348,13 +397,18 @@ class SesamCmdClient:
                         file_config = self.read_config_file("../.syncconfig")
                         if file_config:
                             curr_dir = os.path.abspath("../")
-                            self.logger.info("Found .syncconfig in parent path. Using %s as base directory", path)
+                            self.logger.info("Found .syncconfig in parent path. Using %s as base directory" % path)
                             os.chdir(curr_dir)
 
                 self.logger.info("Using %s as base directory", curr_dir)
 
                 self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
                 self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
+
+                if self.jwt_token and self.jwt_token.startswith('"') and self.jwt_token[-1] == '"':
+                    self.jwt_token = self.jwt_token[1:-1]
+
+                self.node_url = self.node_url.replace('"', "")
 
                 return self.node_url, self.jwt_token
             except BaseException as e:
@@ -448,6 +502,13 @@ class SesamCmdClient:
         logger.error("The 'status' command is not yet implemented")
 
     def filter_entity(self, entity):
+        for key, value in list(entity.items()):
+            if key.startswith("_") and key!="_id":
+                if key == "_deleted" and value is True:
+                    continue
+
+                entity.pop(key)
+
         return entity
 
     def load_test_specs(self, existing_output_pipes, update=False):
@@ -457,34 +518,31 @@ class SesamCmdClient:
         for filename in glob.glob("expected/*.test.json"):
             logger.debug("Processing spec file '%s'" % filename)
 
-            with open(filename, "r") as fp:
-                test_spec = json.load(fp)
+            test_spec = TestSpec(filename)
 
-                pipe_id = test_spec.get("pipe", filename[:-(len(".test.json"))])
-                logger.debug("Pipe id for spec '%s' is '%s" % pipe_id)
+            pipe_id = test_spec.pipe
+            logger.debug("Pipe id for spec '%s' is '%s" % (filename, pipe_id))
 
-                # If spec says 'ignore' then the corresponding output file should not exist
-                if test_spec.get("ignore") is True:
-                    output_filename = test_spec.get("file")
-                    if not output_filename:
-                        output_filename = pipe_id + ".json"
+            # If spec says 'ignore' then the corresponding output file should not exist
+            if test_spec.ignore is True:
+                output_filename = test_spec.file
 
-                    if os.path.isfile("expected/%s" % output_filename):
-                        if update:
-                            logger.debug("Removing existing output file '%s'" % output_filename)
-                            os.remove(output_filename)
-                        else:
-                            logger.warning(
-                                "pipe '%s' is ignored, but output file '%s' still exists" % (pipe_id, filename))
-                elif pipe_id not in existing_output_pipes:
-                    logger.error("Test spec references non-exisiting output "
-                                 "pipe '%s' - remove '%s'" % (pipe_id, filename))
-                    continue
+                if os.path.isfile("expected/%s" % output_filename):
+                    if update:
+                        logger.debug("Removing existing output file '%s'" % output_filename)
+                        os.remove(output_filename)
+                    else:
+                        logger.warning(
+                            "pipe '%s' is ignored, but output file '%s' still exists" % (pipe_id, filename))
+            elif pipe_id not in existing_output_pipes:
+                logger.error("Test spec references non-exisiting output "
+                             "pipe '%s' - remove '%s'" % (pipe_id, filename))
+                continue
 
-                if pipe_id not in test_specs:
-                    test_specs[pipe_id] = []
+            if pipe_id not in test_specs:
+                test_specs[pipe_id] = []
 
-                test_specs[pipe_id].append(test_spec)
+            test_specs[pipe_id].append(test_spec)
 
         if update:
             for pipe in existing_output_pipes.items():
@@ -492,9 +550,11 @@ class SesamCmdClient:
 
                 if pipe.id not in test_specs:
                     logger.warning("Found no spec for pipe %s - creating empty spec file")
-                    with open("%s.test.json" % pipe.id, "w") as fp:
+
+                    filename = "%s.test.json" % pipe.id
+                    with open(filename, "w") as fp:
                         json.dump(fp, {})
-                        test_specs[pipe.id] = [{}]
+                        test_specs[pipe.id] = [TestSpec(filename)]
 
                 # Download endpoint data, sort each entity on key and store the json output
                 entities = [self.filter_entity(e) for e in self.sesam_node.get_pipe_entities(pipe.id)]
@@ -505,7 +565,14 @@ class SesamCmdClient:
 
         return test_specs
 
+    def get_diff_string(self, a, b, a_filename, b_filename):
+        a_lines = io.StringIO(a).readlines()
+        b_lines = io.StringIO(b).readlines()
+
+        return "".join(unified_diff(a_lines, b_lines, fromfile=a_filename, tofile=b_filename))
+
     def verify(self):
+        self.logger.info("Verifying that expected output matches current output...")
         output_pipes = {}
         for p in self.sesam_node.get_output_pipes():
             output_pipes[p.id] = p
@@ -515,14 +582,80 @@ class SesamCmdClient:
         if not test_specs:
             raise AssertionError("Found no tests (*.test.json) to run")
 
-        for pipe in output_pipes:
+        failed_tests = []
+        for pipe in output_pipes.values():
             logger.debug("Verifying pipe '%s" % pipe.id)
 
+            if pipe.id in test_specs:
+                # Verify all tests specs for this pipe
+                for test_spec in test_specs[pipe.id]:
+                    expected_output = test_spec.expected_entities
 
+                    if test_spec.endpoint == "json":
+                        # Get current entities from pipe in json form
+                        current_output = sorted([self.filter_entity(e)
+                                                 for e in self.sesam_node.get_pipe_entities(pipe)],
+                                                key=lambda e: e['_id'])
 
+                        if len(current_output) != len(expected_output):
+                            msg = "length mismatch for test spec %s: " \
+                                  "expected %d got %d" % (test_spec.spec_file,
+                                                          len(expected_output), len(current_output))
+                            logger.error(msg)
 
+                            logger.info("Expected output:\n%s", expected_output)
+                            logger.info("Got output:\n%s", current_output)
+                            diff = self.get_diff_string(json.dumps(expected_output, indent=2, sort_keys=True),
+                                                        json.dumps(current_output, indent=2, sort_keys=True),
+                                                        test_spec.file, "current-output.json")
+                            logger.info("Diff:\n%s" % diff)
+                            failed_tests.append(test_spec)
+                        else:
+                            expected_json = json.dumps(expected_output, indent=2, sort_keys=True)
+                            current_json = json.dumps(current_output, indent=2, sort_keys=True)
 
+                            if expected_json != current_json:
+                                logger.error("content mismatch for test spec %s" % test_spec.file)
 
+                                logger.info("Expected output:\n%s", expected_output)
+                                logger.info("Got output:\n%s", current_output)
+                                diff = self.get_diff_string(expected_json, current_json,
+                                                            test_spec.file, "current-output.json")
+                                logger.info("Diff:\n%s" % diff)
+                                failed_tests.append(test_spec)
+
+                    elif test_spec.endpoint == "xml":
+                        # Special case: download and format xml document as a string
+                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters)
+                        xml_doc_root = etree.fromstring(xml_data)
+                        current_output = etree.tostring(xml_doc_root, pretty_print=True)
+
+                        if expected_output != current_output:
+                            logger.error("content mismatch:\n", self.get_diff_string(expected_output, current_output,
+                                                                                     test_spec.file,
+                                                                                     "current_data.xml"))
+
+                        failed_tests.append(test_spec)
+                    else:
+                        # Download contents as-is as a string
+                        current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
+                                                                            params=test_spec.parameters)
+
+                        if expected_output != current_output:
+                            logger.error("content mismatch:\n", self.get_diff_string(expected_output, current_output,
+                                                                                     test_spec.file, "current_data.xml"))
+
+                        failed_tests.append(test_spec)
+
+        if len(failed_tests) > 0:
+            logger.error("Failed %s of %s tests!" % (len(failed_tests), len(list(test_specs.keys()))))
+            logger.error("Failed pipe id (spec file):")
+            for failed_test_spec in failed_tests:
+                logger.error("%s (%s)" % (failed_test_spec.pipe, failed_test_spec.spec_file))
+
+            raise RuntimeError("Verify failed")
+        else:
+            logger.info("All tests passed! Ran %s tests." % len(list(test_specs.keys())))
 
     def update(self):
         logger.error("The 'update' command is not yet implemented")
@@ -536,10 +669,11 @@ class SesamCmdClient:
 
     def start_scheduler(self, timeout=300):
         if self.sesam_node.get_system(self.args.scheduler_id) is not None:
+            logger.debug("Removing existing scheduler system...")
             self.sesam_node.remove_system(self.args.scheduler_id)
 
         if not self.args.custom_scheduler:
-            self.sesam_node.add_system({
+            scheduler_config = {
                 "_id": "%s" % self.args.scheduler_id,
                 "type": "system:microservice",
                 "docker": {
@@ -548,46 +682,77 @@ class SesamCmdClient:
                         "URL": "%s" % self.node_url,
                         "DUMMY": "%s" % str(uuid.uuid4())
                     },
-                    "image":  "sesamcommunity/scheduler:latest",
+#                    "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image,
+                    "image":  "tombech/scheduler:bugtest",
                     "port": 5000
                 }
-            })
+            }
+            self.sesam_node.add_system(scheduler_config)
+            self.logger.debug("Adding scheduler microservice with configuration:\n%s" % scheduler_config)
 
         # Wait for Microservice system to start up
         if self.sesam_node.wait_for_microservice(self.args.scheduler_id, timeout=timeout) is False:
             raise RuntimeError("Timed out waiting for scheduler to load")
 
+        # Check that it really has started up
+        sleep_interval = args.scheduler_poll_frequency/1000
+        while sleep_interval > 0:
+            try:
+                status = self.get_scheduler_status()
+                if status == "init":
+                    break
+            except BaseException as e:
+                pass
+
+            time.sleep(sleep_interval)
+            timeout -= sleep_interval
+
+        if sleep_interval <= 0:
+            logger.error("Scheduler failed to initialise after %s seconds" % timeout)
+            raise RuntimeError("Failed to initialise scheduler")
+
         # Start the microservice
         params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true"}
         try:
-            self.sesam_node.microservice_post_request(self.args.scheduler_id, "start", params=params,
-                                                      result_as_json=False)
+            logger.debug("Starting the scheduler...")
+            self.sesam_node.microservice_post_proxy_request(self.args.scheduler_id, "start", params=params,
+                                                            result_as_json=False)
         except BaseException as e:
-            logger.error("Failed to start the scheduler microservice")
+            self.logger.error("Failed to start the scheduler microservice")
+            self.logger.debug("Scheduler log: %s", self.sesam_node.get_system_log(self.args.scheduler_id))
+            if self.args.dont_remove_scheduler is False:
+                try:
+                    self.logger.debug("Removing scheduler microservice")
+                    self.sesam_node.remove_system(self.args.scheduler_id)
+                except BaseException as e2:
+                    self.logger.error("Failed to remove scheduler microservice")
+                    if self.args.extra_verbose is True:
+                        self.logger.exception(e2)
+            else:
+                logger.debug("Leaving scheduler microservice in sesam")
+
+            if self.args.extra_verbose is True:
+                self.logger.exception(e)
+
             raise e
 
-        sleep_interval = args.scheduler_poll_frequency/1000
-        try:
-            while sleep_interval > 0:
-                status_json = self.get_scheduler_status()
-                if status_json.get("state", "") != "init":
-                    break
-
-                time.sleep(sleep_interval)
-                timeout -= sleep_interval
-        except BaseException as e:
-            logger.error("Scheduler failed to initialise after %s seconds" % timeout)
-            raise e
 
     def get_scheduler_status(self):
 
         try:
-            return self.sesam_node.microservice_get_proxy_request(self.args.scheduler_id, "")
+            status_json = self.sesam_node.microservice_get_proxy_request(self.args.scheduler_id, "")
+            if isinstance(status_json, dict):
+                return status_json["state"]
+
+            logger.debug("The scheduler status endpoint returned a non-json reply! %s" % str(status_json))
         except BaseException as e:
             logger.error("Failed to get scheduler status")
             raise e
 
+        return "unknown"
+
     def run(self):
+        self.logger.info("Running scheduler...")
         self.start_scheduler()
 
         try:
@@ -660,6 +825,9 @@ Commands:
     parser.add_argument('-skip-tls-verification', dest='skip_tls_verification', required=False, action='store_true',
                         help="skip verifying the TLS certificate")
 
+    parser.add_argument('-dont-remove-scheduler', dest='dont_remove_scheduler', required=False, action='store_true',
+                        help="don't remove scheduler after failure")
+
     parser.add_argument('-dump', dest='dump', required=False, help="dump zip content to disk", action='store_true')
 
     parser.add_argument('-print-scheduler-log', dest='print_scheduler_log', required=False,
@@ -668,6 +836,10 @@ Commands:
     parser.add_argument('-custom-scheduler', dest='custom_scheduler', required=False,
                         help="by default a scheduler system will be added, enable this flag if you have configured a "
                              "custom scheduler as part of the config", action='store_true')
+
+    parser.add_argument('-scheduler-image-tag', dest='scheduler_image_tag', required=False,
+                        help="the scheduler image tag to use", type=str,
+                        metavar="<string>", default="latest")
 
     parser.add_argument('-node', dest='node', metavar="<string>", required=False, help="service url")
     parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
@@ -776,7 +948,7 @@ Commands:
             logger.error("unknown command: %s", command)
             raise AssertionError("unknown command: %s" % command)
     except BaseException as e:
-        if args.verbose or args.extra_verbose:
-            logger.exception(e)
+        if args.extra_verbose is True:
+            logger.exception("Underlying exception was: %s" % str(e))
 
         sys.exit(1)
