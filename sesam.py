@@ -12,9 +12,8 @@ import os
 import os.path
 import io
 from threading import Thread
-import math
+import copy
 import glob
-from copy import copy
 from lxml import etree
 import sesamclient
 import configparser
@@ -24,6 +23,7 @@ import os
 import zipfile
 import uuid
 from difflib import unified_diff
+from fnmatch import fnmatch
 
 sesam_version = "1.0"
 
@@ -104,6 +104,15 @@ class TestSpec:
         return self.spec.get("parameters")
 
     @property
+    def expected_data(self):
+        filename = self.file
+        if not filename.startswith("expected/"):
+            filename = "expected/" + filename
+
+        with open(filename, "r") as fp:
+            return fp.read()
+
+    @property
     def expected_entities(self):
         filename = self.file
         if not filename.startswith("expected/"):
@@ -111,6 +120,24 @@ class TestSpec:
 
         with open(filename, "r") as fp:
             return json.load(fp)
+
+    def update_expected_data(self, data):
+        filename = self.file
+        if not filename.startswith("expected/"):
+            filename = "expected/" + filename
+        with open(filename, "w") as fp:
+            fp.write(data)
+
+    def is_path_blacklisted(self, path):
+        blacklist = self.blacklist
+        if blacklist and isinstance(blacklist, list):
+            prop_path = "".join(path). replace("\.", ".")
+
+            for pattern in blacklist:
+                if fnmatch(prop_path, pattern):
+                    return True
+
+        return False
 
 
 class SesamNode:
@@ -499,17 +526,81 @@ class SesamCmdClient:
         self.logger.info("Replaced local config successfully")
 
     def status(self):
-        logger.error("The 'status' command is not yet implemented")
+        logger.error("Comparing local and node config...")
 
-    def filter_entity(self, entity):
-        for key, value in list(entity.items()):
-            if key.startswith("_") and key!="_id":
-                if key == "_deleted" and value is True:
-                    continue
+        if not self.args.custom_scheduler:
+            # Remove the scheduler, if it exists
+            system = self.sesam_node.get_system(args.scheduler_id)
+            if system is not None:
+                try:
+                    self.sesam_node.remove_system(args.scheduler_id)
+                except BaseException as e:
+                    self.logger.error("Failed to remove the scheduler system '%s'" % self.args.scheduler_id)
+                    raise e
 
-                entity.pop(key)
+        local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
+        if self.args.dump:
+            zip_data = self.sesam_node.get_config(filename="sesam-config.zip")
+            self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
+            remote_config = zipfile.ZipFile(io.BytesIO(zip_data))
+        else:
+            remote_config = self.sesam_node.get_config()
 
-        return entity
+        remote_files = sorted(remote_config.namelist())
+        local_files = sorted(local_config.namelist())
+
+        diff_found = False
+        for remote_file in remote_files:
+            if remote_file not in local_files:
+                self.logger.info("Sesam file '%s' was not found locally" % remote_file)
+                diff_found = True
+
+        for local_file in local_files:
+            if local_file not in remote_files:
+                self.logger.info("Local file '%s' was not found in Sesam" % local_file)
+                diff_found = True
+            else:
+                local_file_data = str(local_config.read(local_file), encoding="utf-8")
+                remote_file_data = str(remote_config.read(local_file), encoding="utf-8")
+
+                if local_file_data != remote_file_data:
+                    self.logger.info("File '%s' differs from Sesam!" % local_file)
+
+                    diff = self.get_diff_string(local_file_data, remote_file_data, local_file, local_file)
+                    logger.info("Diff:\n%s" % diff)
+
+                    diff_found = True
+
+        if diff_found:
+            logger.info("Sesam config is NOT in sync with local config!")
+        else:
+            logger.info("Sesam config is up-to-date with local config!")
+
+    def filter_entity(self, entity, test_spec):
+        """ Remove most underscore keys and filter potential blacklisted keys """
+        def filter_item(parent_path, item):
+            result = copy.deepcopy(item)
+            if isinstance(item, dict):
+                for key, value in item.items():
+                    path = parent_path + [key]
+                    if key.startswith("_"):
+                        if key == "_id" or (key == "_deleted" and value is True):
+                            continue
+                        result.pop(key)
+                    elif test_spec.is_path_blacklisted(path):
+                        result.pop(key)
+                    else:
+                        result[key] = filter_item(parent_path, value)
+                return result
+            elif isinstance(item, list):
+                result = []
+                for list_item in item:
+                    result.append(filter_item(parent_path, list_item))
+                return result
+
+            return item
+
+        return filter_item([], entity)
 
     def load_test_specs(self, existing_output_pipes, update=False):
         test_specs = {}
@@ -574,7 +665,8 @@ class SesamCmdClient:
     def verify(self):
         self.logger.info("Verifying that expected output matches current output...")
         output_pipes = {}
-        for p in self.sesam_node.get_output_pipes():
+
+        for p in self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes():
             output_pipes[p.id] = p
 
         test_specs = self.load_test_specs(output_pipes)
@@ -584,21 +676,21 @@ class SesamCmdClient:
 
         failed_tests = []
         for pipe in output_pipes.values():
-            logger.debug("Verifying pipe '%s" % pipe.id)
+            logger.debug("Verifying pipe '%s'.." % pipe.id)
 
             if pipe.id in test_specs:
                 # Verify all tests specs for this pipe
                 for test_spec in test_specs[pipe.id]:
-                    expected_output = test_spec.expected_entities
-
                     if test_spec.endpoint == "json":
                         # Get current entities from pipe in json form
-                        current_output = sorted([self.filter_entity(e)
+                        expected_output = test_spec.expected_entities
+
+                        current_output = sorted([self.filter_entity(e, test_spec)
                                                  for e in self.sesam_node.get_pipe_entities(pipe)],
                                                 key=lambda e: e['_id'])
 
                         if len(current_output) != len(expected_output):
-                            msg = "length mismatch for test spec %s: " \
+                            msg = "Pipe verify failed! Length mismatch for test spec %s: " \
                                   "expected %d got %d" % (test_spec.spec_file,
                                                           len(expected_output), len(current_output))
                             logger.error(msg)
@@ -615,7 +707,7 @@ class SesamCmdClient:
                             current_json = json.dumps(current_output, indent=2, sort_keys=True)
 
                             if expected_json != current_json:
-                                logger.error("content mismatch for test spec %s" % test_spec.file)
+                                logger.error("Pipe verify failed! Content mismatch for test spec %s" % test_spec.file)
 
                                 logger.info("Expected output:\n%s", expected_output)
                                 logger.info("Got output:\n%s", current_output)
@@ -626,39 +718,81 @@ class SesamCmdClient:
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
+                        expected_output = test_spec.expected_data
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters)
                         xml_doc_root = etree.fromstring(xml_data)
                         current_output = etree.tostring(xml_doc_root, pretty_print=True)
 
                         if expected_output != current_output:
-                            logger.error("content mismatch:\n", self.get_diff_string(expected_output, current_output,
-                                                                                     test_spec.file,
-                                                                                     "current_data.xml"))
+                            logger.error("Pipe verify failed! Content mismatch:\n",
+                                         self.get_diff_string(expected_output, current_output, test_spec.file,
+                                                              "current_data.xml"))
 
-                        failed_tests.append(test_spec)
+                            failed_tests.append(test_spec)
                     else:
                         # Download contents as-is as a string
+                        expected_output = test_spec.expected_data
                         current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
                                                                             params=test_spec.parameters)
 
                         if expected_output != current_output:
-                            logger.error("content mismatch:\n", self.get_diff_string(expected_output, current_output,
-                                                                                     test_spec.file, "current_data.xml"))
+                            self.logger.error("Pipe verify failed! Content mismatch:\n",
+                                              self.get_diff_string(expected_output, current_output, test_spec.file,
+                                                                   "current_data.txt"))
 
-                        failed_tests.append(test_spec)
+                            failed_tests.append(test_spec)
 
         if len(failed_tests) > 0:
-            logger.error("Failed %s of %s tests!" % (len(failed_tests), len(list(test_specs.keys()))))
-            logger.error("Failed pipe id (spec file):")
+            self.logger.error("Failed %s of %s tests!" % (len(failed_tests), len(list(test_specs.keys()))))
+            self.logger.error("Failed pipe id (spec file):")
             for failed_test_spec in failed_tests:
-                logger.error("%s (%s)" % (failed_test_spec.pipe, failed_test_spec.spec_file))
+                self.logger.error("%s (%s)" % (failed_test_spec.pipe, failed_test_spec.spec_file))
 
             raise RuntimeError("Verify failed")
         else:
             logger.info("All tests passed! Ran %s tests." % len(list(test_specs.keys())))
 
     def update(self):
-        logger.error("The 'update' command is not yet implemented")
+        self.logger.info("Updating expected output from current output...")
+        output_pipes = {}
+
+        for p in self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes():
+            output_pipes[p.id] = p
+
+        test_specs = self.load_test_specs(output_pipes, update=True)
+
+        if not test_specs:
+            raise AssertionError("Found no tests (*.test.json) to update")
+
+        i = 0
+        for pipe in output_pipes.values():
+            if pipe.id in test_specs:
+                self.logger.debug("Updating pipe '%s'.." % pipe.id)
+
+                # Process all tests specs for this pipe
+                for test_spec in test_specs[pipe.id]:
+                    self.logger.debug("Updating spec '%s' for pipe '%s'.." % (test_spec.name, pipe.id))
+                    if test_spec.endpoint == "json":
+                        # Get current entities from pipe in json form
+                        current_output = sorted([self.filter_entity(e, test_spec)
+                                                 for e in self.sesam_node.get_pipe_entities(pipe)],
+                                                key=lambda e: e['_id'])
+                        current_output = json.dumps(current_output, indent="  ")
+
+                    elif test_spec.endpoint == "xml":
+                        # Special case: download and format xml document as a string
+                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters)
+                        xml_doc_root = etree.fromstring(xml_data)
+                        current_output = etree.tostring(xml_doc_root, pretty_print=True)
+                    else:
+                        # Download contents as-is as a string
+                        current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
+                                                                            params=test_spec.parameters)
+
+                    test_spec.update_expected_data(current_output)
+                    i += 1
+
+        self.logger.info("%s tests updated!" % i)
 
     def test(self):
         self.upload()
@@ -669,7 +803,7 @@ class SesamCmdClient:
 
     def start_scheduler(self, timeout=300):
         if self.sesam_node.get_system(self.args.scheduler_id) is not None:
-            logger.debug("Removing existing scheduler system...")
+            self.logger.debug("Removing existing scheduler system...")
             self.sesam_node.remove_system(self.args.scheduler_id)
 
         if not self.args.custom_scheduler:
@@ -708,13 +842,13 @@ class SesamCmdClient:
             timeout -= sleep_interval
 
         if sleep_interval <= 0:
-            logger.error("Scheduler failed to initialise after %s seconds" % timeout)
+            self.logger.error("Scheduler failed to initialise after %s seconds" % timeout)
             raise RuntimeError("Failed to initialise scheduler")
 
         # Start the microservice
         params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true"}
         try:
-            logger.debug("Starting the scheduler...")
+            self.logger.debug("Starting the scheduler...")
             self.sesam_node.microservice_post_proxy_request(self.args.scheduler_id, "start", params=params,
                                                             result_as_json=False)
         except BaseException as e:
@@ -729,22 +863,20 @@ class SesamCmdClient:
                     if self.args.extra_verbose is True:
                         self.logger.exception(e2)
             else:
-                logger.debug("Leaving scheduler microservice in sesam")
+                self.logger.debug("Leaving scheduler microservice in sesam")
 
             if self.args.extra_verbose is True:
                 self.logger.exception(e)
 
             raise e
 
-
     def get_scheduler_status(self):
-
         try:
             status_json = self.sesam_node.microservice_get_proxy_request(self.args.scheduler_id, "")
             if isinstance(status_json, dict):
                 return status_json["state"]
 
-            logger.debug("The scheduler status endpoint returned a non-json reply! %s" % str(status_json))
+            self.logger.debug("The scheduler status endpoint returned a non-json reply! %s" % str(status_json))
         except BaseException as e:
             logger.error("Failed to get scheduler status")
             raise e
@@ -760,16 +892,16 @@ class SesamCmdClient:
                 status = self.get_scheduler_status()
 
                 if status == "success":
-                    logger.debug("Scheduler finished successfully")
+                    self.logger.debug("Scheduler finished successfully")
                     break
                 elif status == "failed":
-                    logger.error("Scheduler finished with failure")
+                    self.logger.error("Scheduler finished with failure")
                     return
 
                 time.sleep(args.scheduler_poll_frequency/1000)
 
         except BaseException as e:
-            logger.error("Failed to run scheduler")
+            self.logger.error("Failed to run scheduler")
             raise e
         finally:
             self.sesam_node.remove_system(args.scheduler_id)
@@ -795,10 +927,10 @@ class SesamCmdClient:
             self.sesam_node.remove_all_datasets()
             self.logger.info("Removed datasets")
         except BaseException as e:
-            logger.error("Failed to delete datasets")
+            self.logger.error("Failed to delete datasets")
             raise e
 
-        logger.info("Successfully wiped node")
+        self.logger.info("Successfully wiped node")
 
 
 if __name__ == '__main__':
