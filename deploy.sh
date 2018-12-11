@@ -2,7 +2,7 @@
 
 if [ -n "$TRAVIS_TAG" ] ; then
     echo "Packaging..."
-    export SESAM_ARTIFACT_NAME=${TRAVIS_BUILD_DIR}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}-${TRAVIS_BUILD_NUMBER}.tar.gz
+    export SESAM_ARTIFACT_NAME=${TRAVIS_BUILD_DIR}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.tar.gz
     pushd dist
     tar -zcf ${SESAM_ARTIFACT_NAME} sesam
     popd

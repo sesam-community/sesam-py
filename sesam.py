@@ -3,9 +3,6 @@ import argparse
 import logging
 import shutil
 import logging.handlers
-from datetime import datetime, date, timedelta
-from pprint import pformat, pprint
-from tempfile import NamedTemporaryFile
 import time
 import sys
 import os
@@ -35,7 +32,6 @@ class SesamParser(argparse.ArgumentParser):
     def error(self, message):
         sys.stderr.write('error: %s\n\n' % message)
         self.print_help()
-        print("Exiting 2!")
         sys.exit(2)
 
 
@@ -424,7 +420,7 @@ class SesamCmdClient:
                         file_config = self.read_config_file("../.syncconfig")
                         if file_config:
                             curr_dir = os.path.abspath("../")
-                            self.logger.info("Found .syncconfig in parent path. Using %s as base directory" % path)
+                            self.logger.info("Found .syncconfig in parent path. Using %s as base directory" % curr_dir)
                             os.chdir(curr_dir)
 
                 self.logger.info("Using %s as base directory", curr_dir)
@@ -607,12 +603,12 @@ class SesamCmdClient:
 
         # Load test specifications
         for filename in glob.glob("expected/*.test.json"):
-            logger.debug("Processing spec file '%s'" % filename)
+            self.logger.debug("Processing spec file '%s'" % filename)
 
             test_spec = TestSpec(filename)
 
             pipe_id = test_spec.pipe
-            logger.debug("Pipe id for spec '%s' is '%s" % (filename, pipe_id))
+            self.logger.log(LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id))
 
             # If spec says 'ignore' then the corresponding output file should not exist
             if test_spec.ignore is True:
@@ -620,10 +616,10 @@ class SesamCmdClient:
 
                 if os.path.isfile("expected/%s" % output_filename):
                     if update:
-                        logger.debug("Removing existing output file '%s'" % output_filename)
+                        self.logger.debug("Removing existing output file '%s'" % output_filename)
                         os.remove(output_filename)
                     else:
-                        logger.warning(
+                        self.logger.warning(
                             "pipe '%s' is ignored, but output file '%s' still exists" % (pipe_id, filename))
             elif pipe_id not in existing_output_pipes:
                 logger.error("Test spec references non-exisiting output "
@@ -637,10 +633,10 @@ class SesamCmdClient:
 
         if update:
             for pipe in existing_output_pipes.items():
-                logger.debug("Updating pipe '%s" % pipe.id)
+                self.logger.debug("Updating pipe '%s" % pipe.id)
 
                 if pipe.id not in test_specs:
-                    logger.warning("Found no spec for pipe %s - creating empty spec file")
+                    self.logger.warning("Found no spec for pipe %s - creating empty spec file")
 
                     filename = "%s.test.json" % pipe.id
                     with open(filename, "w") as fp:
@@ -676,7 +672,7 @@ class SesamCmdClient:
 
         failed_tests = []
         for pipe in output_pipes.values():
-            logger.debug("Verifying pipe '%s'.." % pipe.id)
+            self.logger.debug("Verifying pipe '%s'.." % pipe.id)
 
             if pipe.id in test_specs:
                 # Verify all tests specs for this pipe
@@ -750,7 +746,7 @@ class SesamCmdClient:
 
             raise RuntimeError("Verify failed")
         else:
-            logger.info("All tests passed! Ran %s tests." % len(list(test_specs.keys())))
+            self.logger.info("All tests passed! Ran %s tests." % len(list(test_specs.keys())))
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
@@ -1080,6 +1076,7 @@ Commands:
             logger.error("unknown command: %s", command)
             raise AssertionError("unknown command: %s" % command)
     except BaseException as e:
+        logger.error("Sesam client failed!")
         if args.extra_verbose is True:
             logger.exception("Underlying exception was: %s" % str(e))
 
