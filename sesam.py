@@ -22,7 +22,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.1"
+sesam_version = "1.14.2"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -444,14 +444,6 @@ class SesamCmdClient:
             logger.error("Failed to find node url and/or jwt token")
             raise e
 
-    def clean(self):
-        try:
-            if os.path.isdir("./build"):
-                shutil.rmtree("./build")
-        except BaseException as e:
-            self.logger.error("Failed to remove 'build' directory. Check permissions.")
-            raise e
-
     def upload(self):
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -812,8 +804,8 @@ class SesamCmdClient:
                         "URL": "%s" % self.node_url,
                         "DUMMY": "%s" % str(uuid.uuid4())
                     },
-#                    "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image,
-                    "image":  "tombech/scheduler:bugtest",
+                    "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
+                    #"image":  "tombech/scheduler:bugtest",
                     "port": 5000
                 }
             }
@@ -879,12 +871,30 @@ class SesamCmdClient:
 
         return "unknown"
 
+    def print_scheduler_log(self, since=None):
+        if since is not None:
+            log_output = self.sesam_node.get_system_log(self.args.scheduler_id, params={"since": since})
+        else:
+            log_output = self.sesam_node.get_system_log(self.args.scheduler_id)
+
+        last_since = None
+        for log_line in [e for e in log_output.split("\n") if e]:
+            log_line = log_line.split(" ")
+            last_since = log_line[0]
+            logger.info(" ".join(log_line[1:]))
+
+        return last_since
+
     def run(self):
         self.logger.info("Running scheduler...")
         self.start_scheduler()
 
         try:
+            since = None
             while True:
+                if self.args.print_scheduler_log:
+                    since = self.print_scheduler_log(since=since)
+
                 status = self.get_scheduler_status()
 
                 if status == "success":
@@ -932,7 +942,6 @@ class SesamCmdClient:
 if __name__ == '__main__':
     parser = SesamParser(prog="sesam", description="""
 Commands:
-  clean     Clean the build folder
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   upload    Replace node config with local config
   download  Replace local config with node config
@@ -1036,7 +1045,7 @@ Commands:
     except BaseException as e:
         if args.verbose or args.extra_verbose:
             logger.exception(e)
-        logger.error("jwt and node must be specifed either as parameter, os env or in config file")
+        logger.error("jwt and node must be specified either as parameter, os env or in config file")
         sys.exit(1)
 
     try:
@@ -1052,9 +1061,7 @@ Commands:
         sys.exit(1)
 
     try:
-        if command == "clean":
-            sesam_cmd_client.clean()
-        elif command == "upload":
+        if command == "upload":
             sesam_cmd_client.upload()
         elif command == "download":
             sesam_cmd_client.download()
