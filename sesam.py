@@ -105,7 +105,7 @@ class TestSpec:
         if not filename.startswith("expected/"):
             filename = "expected/" + filename
 
-        with open(filename, "r") as fp:
+        with open(filename, "rb") as fp:
             return fp.read()
 
     @property
@@ -719,7 +719,7 @@ class SesamCmdClient:
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
-                        expected_output = test_spec.expected_data
+                        expected_output = str(test_spec.expected_data, encoding="utf-8")
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters)
                         xml_doc_root = etree.fromstring(xml_data)
                         current_output = etree.tostring(xml_doc_root, pretty_print=True)
@@ -731,17 +731,31 @@ class SesamCmdClient:
 
                             failed_tests.append(test_spec)
                     else:
-                        # Download contents as-is as a string
+                        # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
                         current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
                                                                             params=test_spec.parameters)
 
                         if expected_output != current_output:
+                            failed_tests.append(test_spec)
+
+                            # Try to show diffm - first try utf-8 encoding
+                            try:
+                                expected_output = str(expected_output, encoding="utf-8")
+                                current_output = str(current_output, encoding="utf-8")
+                            except UnicodeDecodeError as e:
+                                try:
+                                    expected_output = str(expected_output, encoding="latin-1")
+                                    current_output = str(current_output, encoding="latin-1")
+                                except UnicodeDecodeError as e2:
+                                    logger.error("Pipe verify failed! Content mismatch!")
+                                    logger.warning("Unable to read expected and/or output data as "
+                                                   "unicode text so I can't show diff")
+                                    continue
+
                             self.logger.error("Pipe verify failed! Content mismatch:\n",
                                               self.get_diff_string(expected_output, current_output, test_spec.file,
                                                                    "current_data.txt"))
-
-                            failed_tests.append(test_spec)
 
         if len(failed_tests) > 0:
             self.logger.error("Failed %s of %s tests!" % (len(failed_tests), len(list(test_specs.keys()))))
