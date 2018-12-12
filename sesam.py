@@ -735,8 +735,14 @@ class SesamCmdClient:
                                 else:
                                     xml_declaration = False
 
+                                if expected_output.find('standalone=') > -1:
+                                    standalone = True
+                                else:
+                                    standalone = None
+
                                 current_output = str(etree.tostring(xml_doc_root, encoding="utf-8",
                                                                     xml_declaration=xml_declaration,
+                                                                    standalone=standalone,
                                                                     pretty_print=True), encoding="utf-8")
                             except UnicodeEncodeError as e:
                                 try:
@@ -747,8 +753,14 @@ class SesamCmdClient:
                                     else:
                                         xml_declaration = False
 
+                                    if expected_output.find('standalone=') > -1:
+                                        standalone = True
+                                    else:
+                                        standalone = None
+
                                     current_output = str(etree.tostring(xml_doc_root, encoding="latin-1",
                                                                         xml_declaration=xml_declaration,
+                                                                        standalone=standalone,
                                                                         pretty_print=True),
                                                          encoding="latin-1")
                                 except UnicodeEncodeError as e2:
@@ -839,8 +851,15 @@ class SesamCmdClient:
                         else:
                             xml_declaration = False
 
+                        if xml_data.find(b'standalone=') > -1:
+                            standalone = True
+                        else:
+                            standalone = None
+
                         current_output = etree.tostring(xml_doc_root, encoding="utf-8",
-                                                        xml_declaration=xml_declaration, pretty_print=True)
+                                                        xml_declaration=xml_declaration,
+                                                        standalone=standalone,
+                                                        pretty_print=True)
                     else:
                         # Download contents as-is as a string
                         current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
