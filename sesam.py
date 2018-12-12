@@ -22,7 +22,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.19"
+sesam_version = "1.14.20"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -643,19 +643,6 @@ class SesamCmdClient:
                     with open(filename, "w") as fp:
                         json.dump(fp, {})
                         test_specs[pipe.id] = [TestSpec(filename)]
-
-                for test_spec in test_specs[pipe.id]:
-                    if test_spec.ignore:
-                        self.logger.info("Skipping update for test spec '%s' - "
-                                         "it's marked as 'ignore'" % test_spec.name)
-                        continue
-
-                    # Download endpoint data, sort each entity on key and store the json output
-                    entities = sorted([self.filter_entity(e, test_spec)
-                                       for e in self.sesam_node.get_pipe_entities(pipe)], key=lambda e: e['_id'])
-
-                    test_spec.update_expected_data(json.dumps(entities, indent=2, sort_keys=True).encode("utf-8"))
-                    self.logger.debug("Updated file test spec file '%s'" % test_spec.file)
 
         return test_specs
 
