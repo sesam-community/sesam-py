@@ -766,6 +766,10 @@ class SesamCmdClient:
 
                 # Process all tests specs for this pipe
                 for test_spec in test_specs[pipe.id]:
+                    if test_spec.ignore is True:
+                        self.logger.debug("Skipping test spec '%s' because it was marked as 'ignore'" % test_spec.name)
+                        continue
+
                     self.logger.debug("Updating spec '%s' for pipe '%s'.." % (test_spec.name, pipe.id))
                     if test_spec.endpoint == "json":
                         # Get current entities from pipe in json form
