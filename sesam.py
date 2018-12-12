@@ -723,7 +723,7 @@ class SesamCmdClient:
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
                                                                       binary=True)
                         xml_doc_root = etree.fromstring(xml_data)
-                        current_output = etree.tostring(xml_doc_root, pretty_print=True)
+                        current_output = etree.tostring(xml_doc_root, pretty_print=True).encode("utf-8")
 
                         if expected_output != current_output:
                             logger.error("Pipe verify failed! Content mismatch:\n",
@@ -804,7 +804,7 @@ class SesamCmdClient:
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
                                                                       binary=True)
                         xml_doc_root = etree.fromstring(xml_data)
-                        current_output = etree.tostring(xml_doc_root, pretty_print=True).encode("utf-8")
+                        current_output = etree.tostring(xml_doc_root, pretty_print=True)
                     else:
                         # Download contents as-is as a string
                         current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
