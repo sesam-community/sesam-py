@@ -691,30 +691,31 @@ class SesamCmdClient:
                                                 key=lambda e: e['_id'])
 
                         if len(current_output) != len(expected_output):
-                            msg = "Pipe verify failed! Length mismatch for test spec %s: " \
+                            msg = "Pipe verify failed! Length mismatch for test spec '%s': " \
                                   "expected %d got %d" % (test_spec.spec_file,
                                                           len(expected_output), len(current_output))
-                            logger.error(msg)
+                            self.logger.error(msg)
 
-                            logger.info("Expected output:\n%s", expected_output)
-                            logger.info("Got output:\n%s", current_output)
+                            self.logger.info("Expected output:\n%s", expected_output)
+                            self.logger.info("Got output:\n%s", current_output)
                             diff = self.get_diff_string(json.dumps(expected_output, indent=2, sort_keys=True),
                                                         json.dumps(current_output, indent=2, sort_keys=True),
                                                         test_spec.file, "current-output.json")
-                            logger.info("Diff:\n%s" % diff)
+                            self.logger.info("Diff:\n%s" % diff)
                             failed_tests.append(test_spec)
                         else:
                             expected_json = json.dumps(expected_output, indent=2, sort_keys=True)
                             current_json = json.dumps(current_output, indent=2, sort_keys=True)
 
                             if expected_json != current_json:
-                                logger.error("Pipe verify failed! Content mismatch for test spec %s" % test_spec.file)
+                                self.logger.error("Pipe verify failed! "
+                                                  "Content mismatch for test spec '%s'" % test_spec.file)
 
-                                logger.info("Expected output:\n%s", expected_output)
-                                logger.info("Got output:\n%s", current_output)
+                                self.logger.info("Expected output:\n%s" % expected_output)
+                                self.logger.info("Got output:\n%s" % current_output)
                                 diff = self.get_diff_string(expected_json, current_json,
                                                             test_spec.file, "current-output.json")
-                                logger.info("Diff:\n%s" % diff)
+                                self.logger.info("Diff:\n%s" % diff)
                                 failed_tests.append(test_spec)
 
                     elif test_spec.endpoint == "xml":
@@ -736,14 +737,14 @@ class SesamCmdClient:
                                     current_output = str(etree.tostring(xml_doc_root, pretty_print=True),
                                                          encoding="latin-1")
                                 except UnicodeEncodeError as e2:
-                                    logger.error("Pipe verify failed! Content mismatch!")
-                                    logger.warning("Unable to read expected and/or output data as "
-                                                   "unicode text so I can't show diff")
+                                    self.logger.error("Pipe verify failed! Content mismatch!")
+                                    self.logger.warning("Unable to read expected and/or output data as "
+                                                        "unicode text so I can't show diff")
                                     continue
 
-                            logger.error("Pipe verify failed! Content mismatch:\n",
-                                         self.get_diff_string(expected_output, current_output, test_spec.file,
-                                                              "current_data.xml"))
+                            self.logger.error("Pipe verify failed! Content mismatch:\n%s" %
+                                              self.get_diff_string(expected_output, current_output, test_spec.file,
+                                                                   "current_data.xml"))
                     else:
                         # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
@@ -762,12 +763,12 @@ class SesamCmdClient:
                                     expected_output = str(expected_output, encoding="latin-1")
                                     current_output = str(current_output, encoding="latin-1")
                                 except UnicodeDecodeError as e2:
-                                    logger.error("Pipe verify failed! Content mismatch!")
-                                    logger.warning("Unable to read expected and/or output data as "
-                                                   "unicode text so I can't show diff")
+                                    self.logger.error("Pipe verify failed! Content mismatch!")
+                                    self.logger.warning("Unable to read expected and/or output data as "
+                                                        "unicode text so I can't show diff")
                                     continue
 
-                            self.logger.error("Pipe verify failed! Content mismatch:\n",
+                            self.logger.error("Pipe verify failed! Content mismatch:\n%s" %
                                               self.get_diff_string(expected_output, current_output, test_spec.file,
                                                                    "current_data.txt"))
 
