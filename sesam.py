@@ -121,7 +121,7 @@ class TestSpec:
         filename = self.file
         if not filename.startswith("expected/"):
             filename = "expected/" + filename
-        with open(filename, "w") as fp:
+        with open(filename, "wb") as fp:
             fp.write(data)
 
     def is_path_blacklisted(self, path):
@@ -734,12 +734,12 @@ class SesamCmdClient:
                         # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
                         current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
-                                                                            params=test_spec.parameters)
+                                                                            params=test_spec.parameters, binary=True)
 
                         if expected_output != current_output:
                             failed_tests.append(test_spec)
 
-                            # Try to show diffm - first try utf-8 encoding
+                            # Try to show diff - first try utf-8 encoding
                             try:
                                 expected_output = str(expected_output, encoding="utf-8")
                                 current_output = str(current_output, encoding="utf-8")
@@ -796,17 +796,17 @@ class SesamCmdClient:
                         current_output = sorted([self.filter_entity(e, test_spec)
                                                  for e in self.sesam_node.get_pipe_entities(pipe)],
                                                 key=lambda e: e['_id'])
-                        current_output = json.dumps(current_output, indent="  ")
+                        current_output = json.dumps(current_output, indent="  ").encode("utf-8")
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters)
                         xml_doc_root = etree.fromstring(xml_data)
-                        current_output = etree.tostring(xml_doc_root, pretty_print=True)
+                        current_output = etree.tostring(xml_doc_root, pretty_print=True).encode("utf-8")
                     else:
                         # Download contents as-is as a string
                         current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
-                                                                            params=test_spec.parameters)
+                                                                            params=test_spec.parameters, binary=True)
 
                     test_spec.update_expected_data(current_output)
                     i += 1
