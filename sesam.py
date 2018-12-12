@@ -8,7 +8,6 @@ import sys
 import os
 import os.path
 import io
-from threading import Thread
 import copy
 import glob
 from lxml import etree
@@ -652,6 +651,24 @@ class SesamCmdClient:
 
         return "".join(unified_diff(a_lines, b_lines, fromfile=a_filename, tofile=b_filename))
 
+    def bytes_to_xml_string(self, xml_data):
+
+        xml_declaration, standalone = self.find_xml_header_settings(xml_data)
+        xml_doc_root = etree.fromstring(xml_data)
+
+        try:
+            result = str(etree.tostring(xml_doc_root, encoding="utf-8",
+                                        xml_declaration=xml_declaration,
+                                        standalone=standalone,
+                                        pretty_print=True), encoding="utf-8")
+        except UnicodeEncodeError as e:
+            result = str(etree.tostring(xml_doc_root, encoding="latin-1",
+                                        xml_declaration=xml_declaration,
+                                        standalone=standalone,
+                                        pretty_print=True), encoding="latin-1")
+
+        return result
+
     def verify(self):
         self.logger.info("Verifying that expected output matches current output...")
         output_pipes = {}
@@ -691,8 +708,10 @@ class SesamCmdClient:
 
                             self.logger.info("Expected output:\n%s", expected_output)
                             self.logger.info("Got output:\n%s", current_output)
-                            diff = self.get_diff_string(json.dumps(expected_output, indent=2, sort_keys=True),
-                                                        json.dumps(current_output, indent=2, sort_keys=True),
+                            diff = self.get_diff_string(json.dumps(expected_output, indent=2,
+                                                                   ensure_ascii=False, sort_keys=True),
+                                                        json.dumps(current_output, indent=2, ensure_ascii=False,
+                                                                   sort_keys=True),
                                                         test_spec.file, "current-output.json")
                             self.logger.info("Diff:\n%s" % diff)
                             failed_tests.append(test_spec)
@@ -713,39 +732,37 @@ class SesamCmdClient:
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
+                        self.logger.debug("Comparing XML output..")
                         expected_output = test_spec.expected_data
-                        current_output = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
+                        current_output = self.sesam_node.get_published_data(pipe, "xml",
+                                                                            params=test_spec.parameters,
                                                                             binary=True)
 
-                        if expected_output != current_output:
-                            failed_tests.append(test_spec)
+                        try:
+                            # Compare prettified versions of expected and current output so we have the
+                            # same serialisation to look at (XML documents may be semanticaly identical even if
+                            # their serialisations differ).
+                            expected_output = self.bytes_to_xml_string(expected_output)
+                            current_output = self.bytes_to_xml_string(current_output)
 
-                            xml_declaration, standalone = self.find_xml_header_settings(current_output)
-                            xml_doc_root = etree.fromstring(current_output)
-                            try:
-                                expected_output = str(expected_output, encoding="utf-8")
-                                current_output = str(etree.tostring(xml_doc_root, encoding="utf-8",
-                                                                    xml_declaration=xml_declaration,
-                                                                    standalone=standalone,
-                                                                    pretty_print=True), encoding="utf-8")
-                            except UnicodeEncodeError as e:
-                                try:
-                                    expected_output = str(expected_output, encoding="latin-1")
+                            if expected_output != current_output:
+                                failed_tests.append(test_spec)
 
-                                    current_output = str(etree.tostring(xml_doc_root, encoding="latin-1",
-                                                                        xml_declaration=xml_declaration,
-                                                                        standalone=standalone,
-                                                                        pretty_print=True),
-                                                         encoding="latin-1")
-                                except UnicodeEncodeError as e2:
-                                    self.logger.error("Pipe verify failed! Content mismatch!")
-                                    self.logger.warning("Unable to read expected and/or output data as "
-                                                        "unicode text so I can't show diff")
-                                    continue
+                                self.logger.error("Pipe verify failed! Content mismatch:\n%s" %
+                                                  self.get_diff_string(expected_output, current_output, test_spec.file,
+                                                                       "current_data.xml"))
 
-                            self.logger.error("Pipe verify failed! Content mismatch:\n%s" %
-                                              self.get_diff_string(expected_output, current_output, test_spec.file,
-                                                                   "current_data.xml"))
+                        except BaseException as e:
+                            # Unable to parse the expected input and/or the current output, we'll have to just
+                            # compare them byte-by-byte
+
+                            self.logger.debug("Failed to parse expected output and/or current output as XML")
+                            self.logger.debug("Falling back to byte-level comparison. Note that this might generate "
+                                              "false differences for XML data.")
+
+                            if expected_output != current_output:
+                                failed_tests.append(test_spec)
+                                self.logger.error("Pipe verify failed! Content mismatch!")
                     else:
                         # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
@@ -838,8 +855,9 @@ class SesamCmdClient:
                         current_output = sorted([self.filter_entity(e, test_spec)
                                                  for e in self.sesam_node.get_pipe_entities(pipe)],
                                                 key=lambda e: e['_id'])
-                        current_output = json.dumps(current_output, indent="  ").encode("utf-8")
 
+                        current_output = (json.dumps(current_output, indent="  ", sort_keys=True,
+                                                     ensure_ascii=False) + "\n").encode("utf-8")
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
@@ -863,11 +881,14 @@ class SesamCmdClient:
         self.logger.info("%s tests updated!" % i)
 
     def test(self):
+        self.logger.info("Running test: upload, run and verify..")
         self.upload()
 
         for i in range(self.args.runs):
             self.run()
             self.verify()
+
+        self.logger.info("Test was successful!")
 
     def start_scheduler(self, timeout=300):
         if self.sesam_node.get_system(self.args.scheduler_id) is not None:
@@ -966,7 +987,7 @@ class SesamCmdClient:
         return last_since
 
     def run(self):
-        self.logger.info("Running scheduler...")
+        self.logger.info("Executing scheduler...")
         self.start_scheduler()
 
         try:
@@ -995,6 +1016,8 @@ class SesamCmdClient:
         self.logger.info("Successfully ran all pipes to completion")
 
     def wipe(self):
+        self.logger.info("Wiping node...")
+
         try:
             self.sesam_node.put_config([], force=True)
             self.logger.info("Removed pipes and systems")
@@ -1016,7 +1039,7 @@ class SesamCmdClient:
             self.logger.error("Failed to delete datasets")
             raise e
 
-        self.logger.info("Successfully wiped node")
+        self.logger.info("Successfully wiped node!")
 
 
 if __name__ == '__main__':
