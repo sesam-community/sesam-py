@@ -720,7 +720,8 @@ class SesamCmdClient:
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
                         expected_output = str(test_spec.expected_data, encoding="utf-8")
-                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters)
+                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
+                                                                      binary=True)
                         xml_doc_root = etree.fromstring(xml_data)
                         current_output = etree.tostring(xml_doc_root, pretty_print=True)
 
@@ -800,7 +801,8 @@ class SesamCmdClient:
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
-                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters)
+                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
+                                                                      binary=True)
                         xml_doc_root = etree.fromstring(xml_data)
                         current_output = etree.tostring(xml_doc_root, pretty_print=True).encode("utf-8")
                     else:
