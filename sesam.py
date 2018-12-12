@@ -719,18 +719,31 @@ class SesamCmdClient:
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
-                        expected_output = str(test_spec.expected_data, encoding="utf-8")
-                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
-                                                                      binary=True)
-                        xml_doc_root = etree.fromstring(xml_data)
-                        current_output = etree.tostring(xml_doc_root, pretty_print=True).encode("utf-8")
+                        expected_output = test_spec.expected_data
+                        current_output = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
+                                                                            binary=True)
 
                         if expected_output != current_output:
+                            failed_tests.append(test_spec)
+
+                            xml_doc_root = etree.fromstring(current_output)
+                            try:
+                                expected_output = str(expected_output, encoding="utf-8")
+                                current_output = str(etree.tostring(xml_doc_root, pretty_print=True), encoding="utf-8")
+                            except UnicodeEncodeError as e:
+                                try:
+                                    expected_output = str(expected_output, encoding="latin-1")
+                                    current_output = str(etree.tostring(xml_doc_root, pretty_print=True),
+                                                         encoding="latin-1")
+                                except UnicodeEncodeError as e2:
+                                    logger.error("Pipe verify failed! Content mismatch!")
+                                    logger.warning("Unable to read expected and/or output data as "
+                                                   "unicode text so I can't show diff")
+                                    continue
+
                             logger.error("Pipe verify failed! Content mismatch:\n",
                                          self.get_diff_string(expected_output, current_output, test_spec.file,
                                                               "current_data.xml"))
-
-                            failed_tests.append(test_spec)
                     else:
                         # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
