@@ -22,7 +22,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.17"
+sesam_version = "1.14.18"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -633,7 +633,7 @@ class SesamCmdClient:
             test_specs[pipe_id].append(test_spec)
 
         if update:
-            for pipe in existing_output_pipes.items():
+            for pipe in existing_output_pipes.values():
                 self.logger.debug("Updating pipe '%s" % pipe.id)
 
                 if pipe.id not in test_specs:
