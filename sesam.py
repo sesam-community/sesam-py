@@ -145,9 +145,6 @@ class SesamNode:
         self.node_url = node_url
         self.jwt_token = jwt_token.replace("bearer ", "")
 
-        if not self.node_url.startswith("http"):
-            self.node_url = "https://%s/api" % node_url
-
         self.logger.debug("Connecting to Seasam using url '%s' and JWT token '%s'", node_url, jwt_token)
 
         self.api_connection = sesamclient.Connection(sesamapi_base_url=self.node_url, jwt_auth_token=self.jwt_token,
@@ -432,6 +429,12 @@ class SesamCmdClient:
                     self.jwt_token = self.jwt_token[1:-1]
 
                 self.node_url = self.node_url.replace('"', "")
+
+                if not self.node_url.startswith("http"):
+                    self.node_url = "https://%s" % self.node_url
+
+                if not self.node_url[-4:] == "/api":
+                    self.node_url = "%s/api" % self.node_url
 
                 return self.node_url, self.jwt_token
             except BaseException as e:
