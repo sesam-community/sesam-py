@@ -641,8 +641,8 @@ class SesamCmdClient:
 
                     filename = "%s.test.json" % pipe.id
                     with open(filename, "w") as fp:
-                        json.dump(fp, {})
-                        test_specs[pipe.id] = [TestSpec(filename)]
+                        fp.write("{\n}")
+                    test_specs[pipe.id] = [TestSpec(filename)]
 
         return test_specs
 
