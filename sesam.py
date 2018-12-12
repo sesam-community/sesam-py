@@ -143,7 +143,7 @@ class SesamNode:
         self.logger = logger
 
         self.node_url = node_url
-        self.jwt_token = jwt_token.replace("bearer ", "")
+        self.jwt_token = jwt_token
 
         self.logger.debug("Connecting to Seasam using url '%s' and JWT token '%s'", node_url, jwt_token)
 
@@ -427,6 +427,12 @@ class SesamCmdClient:
 
                 if self.jwt_token and self.jwt_token.startswith('"') and self.jwt_token[-1] == '"':
                     self.jwt_token = self.jwt_token[1:-1]
+
+                if self.jwt_token.startswith("bearer "):
+                    self.jwt_token = self.jwt_token.replace("bearer ", "")
+
+                if self.jwt_token.startswith("Bearer "):
+                    self.jwt_token = self.jwt_token.replace("Bearer ", "")
 
                 self.node_url = self.node_url.replace('"', "")
 
