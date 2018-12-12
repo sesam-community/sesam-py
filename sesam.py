@@ -727,19 +727,10 @@ class SesamCmdClient:
                         if expected_output != current_output:
                             failed_tests.append(test_spec)
 
+                            xml_declaration, standalone = self.find_xml_header_settings(current_output)
                             xml_doc_root = etree.fromstring(current_output)
                             try:
                                 expected_output = str(expected_output, encoding="utf-8")
-                                if expected_output.startswith("<?xml "):
-                                    xml_declaration = True
-                                else:
-                                    xml_declaration = False
-
-                                if expected_output.find('standalone=') > -1:
-                                    standalone = True
-                                else:
-                                    standalone = None
-
                                 current_output = str(etree.tostring(xml_doc_root, encoding="utf-8",
                                                                     xml_declaration=xml_declaration,
                                                                     standalone=standalone,
@@ -747,16 +738,6 @@ class SesamCmdClient:
                             except UnicodeEncodeError as e:
                                 try:
                                     expected_output = str(expected_output, encoding="latin-1")
-
-                                    if expected_output.startswith("<?xml "):
-                                        xml_declaration = True
-                                    else:
-                                        xml_declaration = False
-
-                                    if expected_output.find('standalone=') > -1:
-                                        standalone = True
-                                    else:
-                                        standalone = None
 
                                     current_output = str(etree.tostring(xml_doc_root, encoding="latin-1",
                                                                         xml_declaration=xml_declaration,
@@ -809,6 +790,32 @@ class SesamCmdClient:
         else:
             self.logger.info("All tests passed! Ran %s tests." % len(list(test_specs.keys())))
 
+    def find_xml_header_settings(self, xml_data):
+        xml_declaration = False
+        standalone = None
+
+        if xml_data.startswith(b"<?xml "):
+            xml_declaration = True
+
+            end_decl = xml_data.find("?>")
+            if end_decl > -1:
+                xmldecl = xml_data[0:end_decl]
+                parts = xmldecl.split(b"standalone=")
+
+                if len(parts) > 1:
+                    arg = parts[1]
+                    if arg.startswith('"'):
+                        endix = arg[1:].find('"')
+                        standalone = arg[1:endix]
+                    elif arg.startswith("'"):
+                        endix = arg[1:].find("'")
+                        standalone = arg[1:endix]
+
+        if standalone is not None:
+            standalone = str(standalone, encoding="utf-8")
+
+        return xml_declaration, standalone
+
     def update(self):
         self.logger.info("Updating expected output from current output...")
         output_pipes = {}
@@ -846,15 +853,7 @@ class SesamCmdClient:
                                                                       binary=True)
                         xml_doc_root = etree.fromstring(xml_data)
 
-                        if xml_data.startswith(b"<?xml "):
-                            xml_declaration = True
-                        else:
-                            xml_declaration = False
-
-                        if xml_data.find(b'standalone=') > -1:
-                            standalone = True
-                        else:
-                            standalone = None
+                        xml_declaration, standalone = self.find_xml_header_settings(xml_data)
 
                         current_output = etree.tostring(xml_doc_root, encoding="utf-8",
                                                         xml_declaration=xml_declaration,
