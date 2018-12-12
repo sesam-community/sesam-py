@@ -1028,6 +1028,9 @@ Commands:
 
     parser.add_argument('-vv', dest='extra_verbose', required=False, action='store_true', help="be extra verbose")
 
+    parser.add_argument('-vvv', dest='extra_extra_verbose', required=False, action='store_true',
+                        help="be extra extra verbose")
+
     parser.add_argument('-skip-tls-verification', dest='skip_tls_verification', required=False, action='store_true',
                         help="skip verifying the TLS certificate")
 
@@ -1092,6 +1095,8 @@ Commands:
     if args.verbose:
         logger.setLevel(logging.DEBUG)
     elif args.extra_verbose:
+        logger.setLevel(LOGLEVEL_TRACE)
+    elif args.extra_extra_verbose:
         from http.client import HTTPConnection
         HTTPConnection.debuglevel = 1
         logging.basicConfig()
