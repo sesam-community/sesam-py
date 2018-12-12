@@ -797,18 +797,18 @@ class SesamCmdClient:
         if xml_data.startswith(b"<?xml "):
             xml_declaration = True
 
-            end_decl = xml_data.find("?>")
+            end_decl = xml_data.find(b"?>")
             if end_decl > -1:
                 xmldecl = xml_data[0:end_decl]
                 parts = xmldecl.split(b"standalone=")
 
                 if len(parts) > 1:
                     arg = parts[1]
-                    if arg.startswith('"'):
-                        endix = arg[1:].find('"')
+                    if arg.startswith(b'"'):
+                        endix = arg[1:].find(b'"')
                         standalone = arg[1:endix]
-                    elif arg.startswith("'"):
-                        endix = arg[1:].find("'")
+                    elif arg.startswith(b"'"):
+                        endix = arg[1:].find(b"'")
                         standalone = arg[1:endix]
 
         if standalone is not None:
