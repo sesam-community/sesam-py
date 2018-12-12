@@ -730,11 +730,15 @@ class SesamCmdClient:
                             xml_doc_root = etree.fromstring(current_output)
                             try:
                                 expected_output = str(expected_output, encoding="utf-8")
-                                current_output = str(etree.tostring(xml_doc_root, pretty_print=True), encoding="utf-8")
+                                current_output = str(etree.tostring(xml_doc_root, encoding="utf-8",
+                                                                    xml_declaration=True,
+                                                                    pretty_print=True), encoding="utf-8")
                             except UnicodeEncodeError as e:
                                 try:
                                     expected_output = str(expected_output, encoding="latin-1")
-                                    current_output = str(etree.tostring(xml_doc_root, pretty_print=True),
+                                    current_output = str(etree.tostring(xml_doc_root, encoding="latin-1",
+                                                                        xml_declaration=True,
+                                                                        pretty_print=True),
                                                          encoding="latin-1")
                                 except UnicodeEncodeError as e2:
                                     self.logger.error("Pipe verify failed! Content mismatch!")
@@ -818,7 +822,8 @@ class SesamCmdClient:
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
                                                                       binary=True)
                         xml_doc_root = etree.fromstring(xml_data)
-                        current_output = etree.tostring(xml_doc_root, pretty_print=True)
+                        current_output = etree.tostring(xml_doc_root, encoding="utf-8",
+                                                        xml_declaration=True, pretty_print=True)
                     else:
                         # Download contents as-is as a string
                         current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
