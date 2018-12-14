@@ -21,7 +21,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.20"
+sesam_version = "1.14.23"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1151,7 +1151,7 @@ Commands:
     try:
         node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
     except BaseException as e:
-        if args.verbose or args.extra_verbose:
+        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
             logger.exception(e)
         logger.error("jwt and node must be specified either as parameter, os env or in config file")
         sys.exit(1)
@@ -1192,7 +1192,7 @@ Commands:
             raise AssertionError("unknown command: %s" % command)
     except BaseException as e:
         logger.error("Sesam client failed!")
-        if args.extra_verbose is True:
+        if args.extra_verbose is True or args.extra_extra_verbose is True:
             logger.exception("Underlying exception was: %s" % str(e))
 
         sys.exit(1)
