@@ -50,7 +50,7 @@ class TestSpec:
         else:
             self._spec["pipe"] = self.name
 
-        with open(filename, "r") as fp:
+        with open(filename, "r", encoding="utf-8-sig") as fp:
             spec_dict = json.load(fp)
             if isinstance(spec_dict, dict):
                 self._spec.update(spec_dict)
@@ -113,7 +113,7 @@ class TestSpec:
         if not filename.startswith("expected/"):
             filename = "expected/" + filename
 
-        with open(filename, "r") as fp:
+        with open(filename, "r", encoding="utf-8-sig") as fp:
             return json.load(fp)
 
     def update_expected_data(self, data):
@@ -456,7 +456,7 @@ class SesamCmdClient:
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
         try:
-            with open(profile_file, "r") as fp:
+            with open(profile_file, "r", encoding="utf-8-sig") as fp:
                 json_data = json.load(fp)
         except BaseException as e:
             self.logger.error("Failed to parse profile: '%s'" % profile_file)
@@ -492,7 +492,7 @@ class SesamCmdClient:
 
     def download(self):
         if not self.args.custom_scheduler:
-            # Remove the scheduler, if it exists
+            # Remove the scheduler, if it exists - we never want it in the downloaded config
             system = self.sesam_node.get_system(args.scheduler_id)
             if system is not None:
                 try:
@@ -524,7 +524,7 @@ class SesamCmdClient:
     def status(self):
         logger.error("Comparing local and node config...")
 
-        if not self.args.custom_scheduler:
+        if not self.args.custom_scheduler and self.args.dont_remove_scheduler is False:
             # Remove the scheduler, if it exists
             system = self.sesam_node.get_system(args.scheduler_id)
             if system is not None:
@@ -905,9 +905,10 @@ class SesamCmdClient:
                         "URL": "%s" % self.node_url,
                         "DUMMY": "%s" % str(uuid.uuid4())
                     },
+                    "skip_pull": True,
                     "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
                     #"image":  "tombech/scheduler:bugtest",
-                    "port": 5000
+                    "port": 5555
                 }
             }
             self.sesam_node.add_system(scheduler_config)
@@ -991,6 +992,7 @@ class SesamCmdClient:
         self.start_scheduler()
 
         try:
+            start_time = time.monotonic()
             since = None
             while True:
                 if self.args.print_scheduler_log:
@@ -1011,9 +1013,11 @@ class SesamCmdClient:
             self.logger.error("Failed to run scheduler")
             raise e
         finally:
-            self.sesam_node.remove_system(args.scheduler_id)
+            end_time = time.monotonic()
+            if self.args.dont_remove_scheduler is False:
+                self.sesam_node.remove_system(args.scheduler_id)
 
-        self.logger.info("Successfully ran all pipes to completion")
+        self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(end_time - start_time))
 
     def wipe(self):
         self.logger.info("Wiping node...")
