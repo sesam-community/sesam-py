@@ -21,7 +21,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.23"
+sesam_version = "1.14.24"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
