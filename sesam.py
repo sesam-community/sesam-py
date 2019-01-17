@@ -120,6 +120,10 @@ class TestSpec:
         filename = self.file
         if not filename.startswith("expected/"):
             filename = "expected/" + filename
+
+        if os.path.isfile(filename) is False:
+            logger.debug("Creating new expected data file '%s'" % filename)
+
         with open(filename, "wb") as fp:
             fp.write(data)
 
@@ -636,9 +640,9 @@ class SesamCmdClient:
                 self.logger.debug("Updating pipe '%s" % pipe.id)
 
                 if pipe.id not in test_specs:
-                    self.logger.warning("Found no spec for pipe %s - creating empty spec file")
+                    self.logger.warning("Found no spec for pipe %s - creating empty spec file" % pipe.id)
 
-                    filename = "%s.test.json" % pipe.id
+                    filename = "expected/%s.test.json" % pipe.id
                     with open(filename, "w") as fp:
                         fp.write("{\n}")
                     test_specs[pipe.id] = [TestSpec(filename)]
