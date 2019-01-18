@@ -273,8 +273,15 @@ class SesamNode:
         else:
             if isinstance(value, (Decimal, float)):
                 v = str(value)
+
                 if v and v.endswith(".0"):
                     return int(value)
+            elif isinstance(value, int):
+                v = str(value)
+                if v and len(v) > len("9007199254740991"):
+                    # Simulate go client bug
+                    v = v[:-2] + "00"
+                    return int(v)
 
         return value
 
