@@ -280,6 +280,8 @@ class SesamNode:
                 v = str(value)
                 if v and len(v) > len("9007199254740991"):
                     # Simulate go client bug
+                    if v[-3] != '0':
+                        v = str(value + 100)
                     v = v[:-2] + "00"
                     return int(v)
 
