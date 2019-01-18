@@ -21,7 +21,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.26"
+sesam_version = "1.14.29"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1016,18 +1016,26 @@ class SesamCmdClient:
         return "unknown"
 
     def print_scheduler_log(self, since=None):
-        if since is not None:
-            log_output = self.sesam_node.get_system_log(self.args.scheduler_id, params={"since": since})
-        else:
-            log_output = self.sesam_node.get_system_log(self.args.scheduler_id)
+        try:
+            if since is not None:
+                log_output = self.sesam_node.get_system_log(self.args.scheduler_id, params={"since": since})
+            else:
+                log_output = self.sesam_node.get_system_log(self.args.scheduler_id)
 
-        last_since = None
-        for log_line in [e for e in log_output.split("\n") if e]:
-            log_line = log_line.split(" ")
-            last_since = log_line[0]
-            logger.info(" ".join(log_line[1:]))
+            last_since = None
+            for log_line in [e for e in log_output.split("\n") if e]:
+                log_line = log_line.split(" ")
+                last_since = log_line[0]
+                logger.info(" ".join(log_line[1:]))
 
-        return last_since
+            return last_since
+        except BaseException as e:
+            if since is not None:
+                self.logger.warning("Failed to get scheduler log for since value '%s'.." % since)
+            else:
+                self.logger.warning("Failed to get scheduler log..")
+
+            return since
 
     def run(self):
         self.logger.info("Executing scheduler...")
