@@ -937,7 +937,7 @@ class SesamCmdClient:
                     "docker": {
                         "environment": {
                             "JWT": "%s" % self.jwt_token,
-                            "URL": "http://" % scheduler_node_url,
+                            "URL": "%s" % scheduler_node_url,
                             #"URL": "%s" % self.node_url,
                             "DUMMY": "%s" % str(uuid.uuid4())
                         },
