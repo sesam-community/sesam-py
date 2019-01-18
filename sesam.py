@@ -21,7 +21,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.25"
+sesam_version = "1.14.26"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -926,7 +926,7 @@ class SesamCmdClient:
 
             if not self.args.custom_scheduler:
                 # Override scheduler node url?
-                if self.args.scheduler_node is not None:
+                if self.args.scheduler_node is None:
                     scheduler_node_url = self.node_url
                 else:
                     scheduler_node_url = self.args.scheduler_node
