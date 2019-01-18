@@ -21,7 +21,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 
-sesam_version = "1.14.24"
+sesam_version = "1.14.25"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -165,9 +165,33 @@ class SesamNode:
         self.logger.log(LOGLEVEL_TRACE, "Get system '%s' from %s" % (system_id, self.node_url))
         return self.api_connection.get_system(system_id)
 
-    def add_system(self, config):
+    def add_system(self, config, verify=False, timeout=300):
         self.logger.log(LOGLEVEL_TRACE, "Add system '%s' to %s" % (config, self.node_url))
-        return self.api_connection.add_systems([config])
+
+        self.api_connection.add_systems([config])
+
+        if not verify:
+            return True
+
+        # If verify is set, we wait until the runtime config matches the given config
+        self.logger.debug("Verifying posted system '%s'.." % config["_id"])
+        sleep_time = 5.0
+        while timeout > 0:
+            try:
+                system = self.get_system(config["_id"])
+                # Check if config now matches the config we posted
+                if system.config["original"] == config:
+                    self.logger.debug("Posted system '%s' verified OK!" % config["_id"])
+                    return True
+            except BaseException as e:
+                pass
+
+            time.sleep(sleep_time)
+
+            timeout -= sleep_time
+
+        self.logger.debug("Failed to verify posted system '%s'!" % config["_id"])
+        return False
 
     def add_systems(self, config):
         self.logger.log(LOGLEVEL_TRACE, "Add systems '%s' to %s" % (config, self.node_url))
@@ -179,7 +203,7 @@ class SesamNode:
         if system is not None:
             system.delete()
         else:
-            raise AssertionError("Could not remove system '%s' as it doesn't exist" % system_id)
+            logger.warning("Could not remove system '%s' as it doesn't exist" % system_id)
 
     def get_config(self, filename=None):
         data = self.api_connection.get_config_as_zip()
@@ -895,59 +919,75 @@ class SesamCmdClient:
         self.logger.info("Test was successful!")
 
     def start_scheduler(self, timeout=300):
-        if self.sesam_node.get_system(self.args.scheduler_id) is not None:
-            self.logger.debug("Removing existing scheduler system...")
-            self.sesam_node.remove_system(self.args.scheduler_id)
-
-        if not self.args.custom_scheduler:
-            scheduler_config = {
-                "_id": "%s" % self.args.scheduler_id,
-                "type": "system:microservice",
-                "docker": {
-                    "environment": {
-                        "JWT": "%s" % self.jwt_token,
-                        "URL": "%s" % self.node_url,
-                        "DUMMY": "%s" % str(uuid.uuid4())
-                    },
-                    "skip_pull": True,
-                    "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
-                    #"image":  "tombech/scheduler:bugtest",
-                    "port": 5555
-                }
-            }
-            self.sesam_node.add_system(scheduler_config)
-            self.logger.debug("Adding scheduler microservice with configuration:\n%s" % scheduler_config)
-
-        # Wait for Microservice system to start up
-        if self.sesam_node.wait_for_microservice(self.args.scheduler_id, timeout=timeout) is False:
-            raise RuntimeError("Timed out waiting for scheduler to load")
-
-        # Check that it really has started up
-        sleep_interval = args.scheduler_poll_frequency/1000
-        while sleep_interval > 0:
-            try:
-                status = self.get_scheduler_status()
-                if status == "init":
-                    break
-            except BaseException as e:
-                pass
-
-            time.sleep(sleep_interval)
-            timeout -= sleep_interval
-
-        if sleep_interval <= 0:
-            self.logger.error("Scheduler failed to initialise after %s seconds" % timeout)
-            raise RuntimeError("Failed to initialise scheduler")
-
-        # Start the microservice
-        params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true"}
         try:
+            if self.sesam_node.get_system(self.args.scheduler_id) is not None:
+                self.logger.debug("Removing existing scheduler system...")
+                self.sesam_node.remove_system(self.args.scheduler_id)
+
+            if not self.args.custom_scheduler:
+                if self.args.scheduler_node is not None:
+                    scheduler_node_url = self.node_url
+                else:
+                    scheduler_node_url = self.args.scheduler_node
+
+                scheduler_config = {
+                    "_id": "%s" % self.args.scheduler_id,
+                    "type": "system:microservice",
+                    "docker": {
+                        "environment": {
+                            "JWT": "%s" % self.jwt_token,
+                            "URL": "http://" % scheduler_node_url,
+                            #"URL": "%s" % self.node_url,
+                            "DUMMY": "%s" % str(uuid.uuid4())
+                        },
+                        #"skip_pull": True,
+                        "memory": 512,
+                        "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
+                        #"image":  "tombech/scheduler:bugtest",
+                        #"port": 5555
+                        "port": 5000
+                    }
+                }
+
+                self.logger.debug("Adding scheduler microservice with configuration:\n%s" % scheduler_config)
+                if self.sesam_node.add_system(scheduler_config, verify=True) is False:
+                    self.logger.error("Scheduler config failed to load!")
+                    raise RuntimeError("Failed to initialise scheduler")
+
+            # Wait for Microservice system to start up
+            if self.sesam_node.wait_for_microservice(self.args.scheduler_id, timeout=timeout) is False:
+                raise RuntimeError("Timed out waiting for scheduler to load")
+
+            # Check that it really has started up
+            sleep_interval = args.scheduler_poll_frequency/1000
+            while sleep_interval > 0:
+                try:
+                    status = self.get_scheduler_status()
+                    if status == "init":
+                        break
+                except BaseException as e:
+                    pass
+
+                time.sleep(sleep_interval)
+                timeout -= sleep_interval
+
+            if sleep_interval <= 0:
+                self.logger.error("Scheduler failed to initialise after %s seconds" % timeout)
+                raise RuntimeError("Failed to initialise scheduler")
+
+            # Start the microservice
+            params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true"}
             self.logger.debug("Starting the scheduler...")
             self.sesam_node.microservice_post_proxy_request(self.args.scheduler_id, "start", params=params,
                                                             result_as_json=False)
+            self.logger.debug("Scheduler started")
         except BaseException as e:
             self.logger.error("Failed to start the scheduler microservice")
             self.logger.debug("Scheduler log: %s", self.sesam_node.get_system_log(self.args.scheduler_id))
+
+            if self.args.extra_verbose is True:
+                self.logger.exception(e)
+
             if self.args.dont_remove_scheduler is False:
                 try:
                     self.logger.debug("Removing scheduler microservice")
@@ -958,11 +998,6 @@ class SesamCmdClient:
                         self.logger.exception(e2)
             else:
                 self.logger.debug("Leaving scheduler microservice in sesam")
-
-            if self.args.extra_verbose is True:
-                self.logger.exception(e)
-
-            raise e
 
     def get_scheduler_status(self):
         try:
@@ -1093,6 +1128,7 @@ Commands:
                         metavar="<string>", default="latest")
 
     parser.add_argument('-node', dest='node', metavar="<string>", required=False, help="service url")
+    parser.add_argument('-scheduler-node', dest='scheduler_node', metavar="<string>", required=False, help="service url for scheduler")
     parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
 
     parser.add_argument('-single', dest='single', required=False, metavar="<string>", help="update or verify just a single pipe")
