@@ -926,10 +926,12 @@ class SesamCmdClient:
 
             if not self.args.custom_scheduler:
                 # Override scheduler node url?
-                if self.args.scheduler_node is None:
-                    scheduler_node_url = self.node_url
-                else:
+                if self.args.scheduler_node:
+                    self.logger.debug("Overriding scheduler_node (%s)" % self.args.scheduler_node)
                     scheduler_node_url = self.args.scheduler_node
+                else:
+                    self.logger.debug("Reusing node_url since scheduler_node override not set")
+                    scheduler_node_url = self.node_url
 
                 scheduler_config = {
                     "_id": "%s" % self.args.scheduler_id,
