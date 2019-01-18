@@ -20,6 +20,7 @@ import zipfile
 import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
+from decimal import Decimal
 
 sesam_version = "1.14.29"
 
@@ -262,13 +263,28 @@ class SesamNode:
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
 
+    def _fix_decimal_to_ints(self, value):
+        if isinstance(value, dict):
+            for key, dict_value in value.items():
+                value[key] = self._fix_decimal_to_ints(dict_value)
+        elif isinstance(value, list):
+            for ix, list_item in enumerate(value):
+                value[ix] = self._fix_decimal_to_ints(list_item)
+        else:
+            if isinstance(value, (Decimal, float)):
+                v = str(value)
+                if v and v.endswith(".0"):
+                    return int(value)
+
+        return value
+
     def get_pipe_entities(self, pipe):
         pipe_url = "%s/pipes/%s/entities" % (self.node_url, pipe.id)
 
         resp = self.api_connection.session.get(pipe_url)
         resp.raise_for_status()
 
-        return resp.json()
+        return self._fix_decimal_to_ints(resp.json())
 
     def get_published_data(self, pipe, type="entities", params=None, binary=False):
 
@@ -744,17 +760,21 @@ class SesamCmdClient:
                             self.logger.info("Diff:\n%s" % diff)
                             failed_tests.append(test_spec)
                         else:
-                            expected_json = json.dumps(expected_output, indent=2, sort_keys=True)
-                            current_json = json.dumps(current_output, indent=2, sort_keys=True)
+                            expected_json = json.dumps(expected_output,  ensure_ascii=False, indent=2, sort_keys=True)
+                            current_json = json.dumps(current_output,  ensure_ascii=False, indent=2, sort_keys=True)
 
                             if expected_json != current_json:
                                 self.logger.error("Pipe verify failed! "
                                                   "Content mismatch for test spec '%s'" % test_spec.file)
 
                                 self.logger.info("Expected output:\n%s" % expected_output)
+                                self.logger.debug("Expected output JSON:\n%s" % expected_json)
                                 self.logger.info("Got output:\n%s" % current_output)
+                                self.logger.debug("Got output JSON:\n%s" % current_json)
+
                                 diff = self.get_diff_string(expected_json, current_json,
                                                             test_spec.file, "current-output.json")
+
                                 self.logger.info("Diff:\n%s" % diff)
                                 failed_tests.append(test_spec)
 
@@ -940,15 +960,14 @@ class SesamCmdClient:
                         "environment": {
                             "JWT": "%s" % self.jwt_token,
                             "URL": "%s" % scheduler_node_url,
-                            #"URL": "%s" % self.node_url,
                             "DUMMY": "%s" % str(uuid.uuid4())
                         },
-                        #"skip_pull": True,
+                        "skip_pull": True,
                         "memory": 512,
                         "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
                         #"image":  "tombech/scheduler:bugtest",
-                        #"port": 5555
-                        "port": 5000
+                        "port": 5555
+                        #"port": 5000
                     }
                 }
 
@@ -979,7 +998,8 @@ class SesamCmdClient:
                 raise RuntimeError("Failed to initialise scheduler")
 
             # Start the microservice
-            params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true"}
+            params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true",
+                      "zero_runs": self.args.scheduler_zero_runs}
             self.logger.debug("Starting the scheduler...")
             self.sesam_node.microservice_post_proxy_request(self.args.scheduler_id, "start", params=params,
                                                             result_as_json=False)
@@ -1147,6 +1167,9 @@ Commands:
     parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False, help="env profile to use <profile>-env.json")
 
     parser.add_argument('-scheduler-id', dest='scheduler_id', default="scheduler", metavar="<string>", required=False, help="system id for the scheduler system")
+
+    parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=5, metavar="<int>", type=int, required=False,
+                        help="the number of runs that has to yield zero changes for the scheduler to finish")
 
     parser.add_argument('-runs', dest='runs', type=int, metavar="<int>", required=False, default=1,
                         help="number of test cycles to check for stability")
