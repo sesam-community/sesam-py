@@ -925,6 +925,7 @@ class SesamCmdClient:
                 self.sesam_node.remove_system(self.args.scheduler_id)
 
             if not self.args.custom_scheduler:
+                # Override scheduler node url?
                 if self.args.scheduler_node is not None:
                     scheduler_node_url = self.node_url
                 else:
