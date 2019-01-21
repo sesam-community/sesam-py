@@ -21,6 +21,7 @@ import uuid
 from difflib import unified_diff
 from fnmatch import fnmatch
 from decimal import Decimal
+import pprint
 
 sesam_version = "1.14.29"
 
@@ -131,10 +132,10 @@ class TestSpec:
     def is_path_blacklisted(self, path):
         blacklist = self.blacklist
         if blacklist and isinstance(blacklist, list):
-            prop_path = "".join(path). replace("\.", ".")
+            prop_path = ".".join(path).replace("\.", ".")
 
             for pattern in blacklist:
-                if fnmatch(prop_path, pattern):
+                if fnmatch(prop_path, pattern.replace("[].", ".*.")):
                     return True
 
         return False
@@ -263,37 +264,13 @@ class SesamNode:
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
 
-    def _fix_decimal_to_ints(self, value):
-        if isinstance(value, dict):
-            for key, dict_value in value.items():
-                value[key] = self._fix_decimal_to_ints(dict_value)
-        elif isinstance(value, list):
-            for ix, list_item in enumerate(value):
-                value[ix] = self._fix_decimal_to_ints(list_item)
-        else:
-            if isinstance(value, (Decimal, float)):
-                v = str(value)
-
-                if v and v.endswith(".0"):
-                    return int(value)
-            elif isinstance(value, int):
-                v = str(value)
-                if v and len(v) > len("9007199254740991"):
-                    # Simulate go client bug
-                    if v[-3] != '0':
-                        v = str(value + 100)
-                    v = v[:-2] + "00"
-                    return int(v)
-
-        return value
-
     def get_pipe_entities(self, pipe):
         pipe_url = "%s/pipes/%s/entities" % (self.node_url, pipe.id)
 
         resp = self.api_connection.session.get(pipe_url)
         resp.raise_for_status()
 
-        return self._fix_decimal_to_ints(resp.json())
+        return resp.json()
 
     def get_published_data(self, pipe, type="entities", params=None, binary=False):
 
@@ -639,7 +616,7 @@ class SesamCmdClient:
                     elif test_spec.is_path_blacklisted(path):
                         result.pop(key)
                     else:
-                        result[key] = filter_item(parent_path, value)
+                        result[key] = filter_item(path, value)
                 return result
             elif isinstance(item, list):
                 result = []
@@ -722,6 +699,27 @@ class SesamCmdClient:
 
         return result
 
+    def _fix_decimal_to_ints(self, value):
+        if isinstance(value, dict):
+            for key, dict_value in value.items():
+                value[key] = self._fix_decimal_to_ints(dict_value)
+        elif isinstance(value, list):
+            for ix, list_item in enumerate(value):
+                value[ix] = self._fix_decimal_to_ints(list_item)
+        else:
+            if isinstance(value, (Decimal, float)):
+                v = str(value)
+
+                if v and v.endswith(".0"):
+                    return self._fix_decimal_to_ints(int(value))
+            elif isinstance(value, int):
+                v = str(value)
+                if v and len(v) > len("9007199254740991"):
+                    # Simulate go client bug :P
+                    return int(Decimal(str(float(value))))
+
+        return value
+
     def verify(self):
         self.logger.info("Verifying that expected output matches current output...")
         output_pipes = {}
@@ -747,39 +745,61 @@ class SesamCmdClient:
 
                     if test_spec.endpoint == "json":
                         # Get current entities from pipe in json form
-                        expected_output = test_spec.expected_entities
+                        #expected_output = test_spec.expected_entities
+
+                        expected_output = sorted(test_spec.expected_entities,
+                                                 key=lambda e: (e['_id'],
+                                                                json.dumps(e, ensure_ascii=False,
+                                                                           sort_keys=True)))
 
                         current_output = sorted([self.filter_entity(e, test_spec)
                                                  for e in self.sesam_node.get_pipe_entities(pipe)],
                                                 key=lambda e: e['_id'])
 
-                        if len(current_output) != len(expected_output):
+                        fixed_current_output = self._fix_decimal_to_ints(copy.deepcopy(current_output))
+
+                        fixed_current_output = sorted(fixed_current_output,
+                                                      key=lambda e: (e['_id'],
+                                                                     json.dumps(e, ensure_ascii=False,
+                                                                                sort_keys=True)))
+
+                        if len(fixed_current_output) != len(expected_output):
                             msg = "Pipe verify failed! Length mismatch for test spec '%s': " \
                                   "expected %d got %d" % (test_spec.spec_file,
-                                                          len(expected_output), len(current_output))
+                                                          len(expected_output), len(fixed_current_output))
                             self.logger.error(msg)
 
-                            self.logger.info("Expected output:\n%s", expected_output)
-                            self.logger.info("Got output:\n%s", current_output)
+                            self.logger.info("Expected output:\n%s", pprint.pformat(expected_output))
+
+                            if self.args.extra_extra_verbose:
+                                self.logger.info("Got raw output:\n%s", pprint.pformat(current_output))
+
+                            self.logger.info("Got output:\n%s", pprint.pformat(fixed_current_output))
+
                             diff = self.get_diff_string(json.dumps(expected_output, indent=2,
                                                                    ensure_ascii=False, sort_keys=True),
-                                                        json.dumps(current_output, indent=2, ensure_ascii=False,
+                                                        json.dumps(fixed_current_output, indent=2, ensure_ascii=False,
                                                                    sort_keys=True),
                                                         test_spec.file, "current-output.json")
                             self.logger.info("Diff:\n%s" % diff)
                             failed_tests.append(test_spec)
                         else:
                             expected_json = json.dumps(expected_output,  ensure_ascii=False, indent=2, sort_keys=True)
-                            current_json = json.dumps(current_output,  ensure_ascii=False, indent=2, sort_keys=True)
+                            current_json = json.dumps(fixed_current_output,  ensure_ascii=False, indent=2,
+                                                      sort_keys=True)
 
                             if expected_json != current_json:
                                 self.logger.error("Pipe verify failed! "
                                                   "Content mismatch for test spec '%s'" % test_spec.file)
 
-                                self.logger.info("Expected output:\n%s" % expected_output)
-                                self.logger.debug("Expected output JSON:\n%s" % expected_json)
-                                self.logger.info("Got output:\n%s" % current_output)
-                                self.logger.debug("Got output JSON:\n%s" % current_json)
+                                self.logger.info("Expected output:\n%s" % pprint.pformat(expected_output))
+
+                                if self.args.extra_extra_verbose:
+                                    self.logger.info("Expected output JSON:\n%s" % expected_json)
+                                    self.logger.info("Got raw output:\n%s" % pprint.pformat(current_output))
+                                    self.logger.info("Got output JSON:\n%s" % current_json)
+
+                                self.logger.info("Got output:\n%s" % pprint.pformat(fixed_current_output))
 
                                 diff = self.get_diff_string(expected_json, current_json,
                                                             test_spec.file, "current-output.json")
