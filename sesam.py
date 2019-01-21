@@ -23,7 +23,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.14.33"
+sesam_version = "1.15.0"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1200,7 +1200,7 @@ Commands:
 
     parser.add_argument('-scheduler-id', dest='scheduler_id', default="scheduler", metavar="<string>", required=False, help="system id for the scheduler system")
 
-    parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=5, metavar="<int>", type=int, required=False,
+    parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int, required=False,
                         help="the number of runs that has to yield zero changes for the scheduler to finish")
 
     parser.add_argument('-runs', dest='runs', type=int, metavar="<int>", required=False, default=1,
