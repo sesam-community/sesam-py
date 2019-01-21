@@ -712,7 +712,7 @@ class SesamCmdClient:
 
                 if v and v.endswith(".0"):
                     return self._fix_decimal_to_ints(int(value))
-            elif isinstance(value, int):
+            elif not args.no_large_int_bugs and isinstance(value, int):
                 v = str(value)
                 if v and len(v) > len("9007199254740991"):
                     # Simulate go client bug :P
@@ -1192,6 +1192,9 @@ Commands:
     parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
 
     parser.add_argument('-single', dest='single', required=False, metavar="<string>", help="update or verify just a single pipe")
+
+    parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
+                        help="don't reproduce old large int bugs")
 
     parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False, help="env profile to use <profile>-env.json")
 
