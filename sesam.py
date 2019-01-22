@@ -23,7 +23,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.2"
+sesam_version = "1.15.3"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -989,16 +989,19 @@ class SesamCmdClient:
                         "environment": {
                             "JWT": "%s" % self.jwt_token,
                             "URL": "%s" % scheduler_node_url,
-                            "DUMMY": "%s" % str(uuid.uuid4())
+                            "DUMMY": "%s" % str(uuid.uuid4()),
                         },
-                        "skip_pull": True,
                         "memory": 512,
                         "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
-                        #"image":  "tombech/scheduler:bugtest",
-                        #"port": 5555
-                        "port": 5000
+                        "port": int(os.environ.get("SCHEDULER_PORT", 5000))
                     }
                 }
+
+                if int(os.environ.get("SCHEDULER_SKIP_PULL", 0)) == 1:
+                    scheduler_config["docker"]["skip_pull"] = True
+
+                if os.environ.get("SESAM_NOT_IN_DOCKER") is not None:
+                    scheduler_config["docker"]["environment"]["SESAM_NOT_IN_DOCKER"] = True
 
                 self.logger.debug("Adding scheduler microservice with configuration:\n%s" % scheduler_config)
                 if self.sesam_node.add_system(scheduler_config, verify=True) is False:
@@ -1027,8 +1030,12 @@ class SesamCmdClient:
                 raise RuntimeError("Failed to initialise scheduler")
 
             # Start the microservice
-            params = {"reset_pipes": "true", "delete_datasets": "true", "compact_execution_datasets": "true",
+            params = {"reset_pipes": "true", "delete_datasets": "true",
                       "zero_runs": self.args.scheduler_zero_runs}
+
+            if self.args.compact_execution_datasets:
+                params["compact_execution_datasets"] = "true"
+
             self.logger.debug("Starting the scheduler...")
             self.sesam_node.microservice_post_proxy_request(self.args.scheduler_id, "start", params=params,
                                                             result_as_json=False)
@@ -1195,6 +1202,9 @@ Commands:
 
     parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
                         help="don't reproduce old large int bugs")
+
+    parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False, action='store_true',
+                        help="compact all execution datasets when running scheduler")
 
     parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False, help="env profile to use <profile>-env.json")
 
