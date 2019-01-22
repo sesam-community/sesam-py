@@ -995,8 +995,8 @@ class SesamCmdClient:
                         "memory": 512,
                         "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
                         #"image":  "tombech/scheduler:bugtest",
-                        "port": 5555
-                        #"port": 5000
+                        #"port": 5555
+                        "port": 5000
                     }
                 }
 
