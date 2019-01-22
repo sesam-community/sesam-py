@@ -23,7 +23,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.0"
+sesam_version = "1.15.2"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1212,7 +1212,7 @@ Commands:
     parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
 
-    parser.add_argument('command', metavar="command", help="a valid command from the list above")
+    parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
     try:
         args = parser.parse_args()
@@ -1222,7 +1222,7 @@ Commands:
         sys.exit(1)
 
     if args.version:
-        print("sesam version %s", sesam_version)
+        print("sesam version %s" % sesam_version)
         sys.exit(0)
 
     if args.logformat == "log":
@@ -1254,7 +1254,7 @@ Commands:
 
     logger.propagate = False
 
-    command = args.command.lower()
+    command = args.command and args.command.lower() or ""
 
     sesam_cmd_client = SesamCmdClient(args, logger)
 
