@@ -825,7 +825,7 @@ class SesamCmdClient:
                             if expected_output != current_output:
                                 failed_tests.append(test_spec)
 
-                                self.logger.error("Pipe verify failed! Content mismatch:\n%s" %
+                                self.logger.info("Pipe verify failed! Content mismatch:\n%s" %
                                                   self.get_diff_string(expected_output, current_output, test_spec.file,
                                                                        "current_data.xml"))
 
@@ -839,7 +839,7 @@ class SesamCmdClient:
 
                             if expected_output != current_output:
                                 failed_tests.append(test_spec)
-                                self.logger.error("Pipe verify failed! Content mismatch!")
+                                self.logger.info("Pipe verify failed! Content mismatch!")
                     else:
                         # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
