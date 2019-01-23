@@ -23,7 +23,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.3"
+sesam_version = "1.15.4"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -745,8 +745,6 @@ class SesamCmdClient:
 
                     if test_spec.endpoint == "json":
                         # Get current entities from pipe in json form
-                        #expected_output = test_spec.expected_entities
-
                         expected_output = sorted(test_spec.expected_entities,
                                                  key=lambda e: (e['_id'],
                                                                 json.dumps(e, ensure_ascii=False,
@@ -929,12 +927,26 @@ class SesamCmdClient:
                     self.logger.debug("Updating spec '%s' for pipe '%s'.." % (test_spec.name, pipe.id))
                     if test_spec.endpoint == "json":
                         # Get current entities from pipe in json form
-                        current_output = sorted([self.filter_entity(e, test_spec)
-                                                 for e in self.sesam_node.get_pipe_entities(pipe)],
-                                                key=lambda e: e['_id'])
+                        current_output = self._fix_decimal_to_ints([self.filter_entity(e, test_spec)
+                                                                    for e in self.sesam_node.get_pipe_entities(pipe)])
 
-                        current_output = (json.dumps(current_output, indent="  ", sort_keys=True,
-                                                     ensure_ascii=False) + "\n").encode("utf-8")
+                        current_output = sorted(current_output,
+                                                key=lambda e: (e['_id'],
+                                                                     json.dumps(e,
+                                                                                indent="  ",
+                                                                                ensure_ascii=self.args.unicode_encoding,
+                                                                                sort_keys=True)))
+
+                        current_output = (json.dumps(current_output, indent="  ",
+                                                     sort_keys=True,
+                                                     ensure_ascii=self.args.unicode_encoding) +
+                                          "\n").encode("utf-8")
+
+                        if self.args.disable_json_html_escape is False:
+                            current_output = current_output.replace(b"<", b"\\u003c")
+                            current_output = current_output.replace(b">", b"\\u003e")
+                            current_output = current_output.replace(b"&", b"\\u0026")
+
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
                         xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
@@ -1205,6 +1217,14 @@ Commands:
 
     parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False, action='store_true',
                         help="compact all execution datasets when running scheduler")
+
+    parser.add_argument('-unicode-encoding', dest='unicode_encoding', required=False, action='store_true',
+                        help="store the 'expected output' json files using unicode encoding ('\\uXXXX') - "
+                             "the default is UTF-8")
+
+    parser.add_argument('-disable-json-html-escape', dest='disable_json_html_escape',
+                        required=False, action='store_true',
+                        help="turn off escaping of '<', '>' and '&' characters in 'expected output' json files")
 
     parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False, help="env profile to use <profile>-env.json")
 
