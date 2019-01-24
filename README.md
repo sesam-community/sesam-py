@@ -47,10 +47,12 @@ Verifying output (3/3)...passed!
 | description | A description of the test. | string | No | |
 | ignore | If the output should be ignored during tests. | boolean | No | ``false`` |
 | endpoint | If the output should be fetched from a published endpoint instead. | string | No | By default the json is grabbed from ``/pipes/<my-pipe>/entities``
+| stage | In which pipe stage to get the entities (source/before-transform/after-transform/sink) | string | No | By default the stage is ``sink``
 | file | File that contains the expected results. | string | No | Name of the .test.json file without .test (e.g. foo.test.json looks for foo.json)
 | pipe | Pipe that contains the output to test. | string | No | Same as above |
 | blacklist | Properties to ignore in the output. | Array of strings | No | ``[]`` |
 | parameters | Which parameters to pass as bound parameters. Note that parameters only works for published endpoints. | Object | No | ``{}`` |
+
 
 Example: 
 ```
@@ -110,6 +112,20 @@ Example:
 }
 ```
 This will compare the output of ``/publishers/foo/xml`` with the contents of ``foo.xml``.
+
+
+Example:
+```
+{
+  "_id": "foo",
+  "type": "test",
+  "endpoint": "json",
+  "stage": "source"
+}
+```
+This will compare the output of ``/pipes/foo/entities?stage=source`` with the contents of ``foo.json``, useful
+when the pipe's sink strips away the "_id" property for example.
+
 
 ### Blacklisting
 

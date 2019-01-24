@@ -23,7 +23,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.4"
+sesam_version = "1.15.5"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -83,6 +83,10 @@ class TestSpec:
     @property
     def pipe(self):
         return self._spec.get("pipe")
+
+    @property
+    def stage(self):
+        return self._spec.get("stage")
 
     @property
     def blacklist(self):
@@ -264,8 +268,11 @@ class SesamNode:
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
 
-    def get_pipe_entities(self, pipe):
-        pipe_url = "%s/pipes/%s/entities" % (self.node_url, pipe.id)
+    def get_pipe_entities(self, pipe, stage=None):
+        if stage is None:
+            pipe_url = "%s/pipes/%s/entities" % (self.node_url, pipe.id)
+        else:
+            pipe_url = "%s/pipes/%s/entities?stage=%s" % (self.node_url, pipe.id, stage)
 
         resp = self.api_connection.session.get(pipe_url)
         resp.raise_for_status()
@@ -743,7 +750,7 @@ class SesamCmdClient:
                         self.logger.debug("Skipping test spec '%s' because it was marked as 'ignore'" % test_spec.name)
                         continue
 
-                    if test_spec.endpoint == "json":
+                    if test_spec.endpoint == "json" or test_spec.endpoint == "excel":
                         # Get current entities from pipe in json form
                         expected_output = sorted(test_spec.expected_entities,
                                                  key=lambda e: (e['_id'],
@@ -751,7 +758,8 @@ class SesamCmdClient:
                                                                            sort_keys=True)))
 
                         current_output = sorted([self.filter_entity(e, test_spec)
-                                                 for e in self.sesam_node.get_pipe_entities(pipe)],
+                                                 for e in self.sesam_node.get_pipe_entities(pipe,
+                                                                                            stage=test_spec.stage)],
                                                 key=lambda e: e['_id'])
 
                         fixed_current_output = self._fix_decimal_to_ints(copy.deepcopy(current_output))
@@ -925,17 +933,18 @@ class SesamCmdClient:
                         continue
 
                     self.logger.debug("Updating spec '%s' for pipe '%s'.." % (test_spec.name, pipe.id))
-                    if test_spec.endpoint == "json":
+                    if test_spec.endpoint == "json" or test_spec.endpoint == "excel":
                         # Get current entities from pipe in json form
                         current_output = self._fix_decimal_to_ints([self.filter_entity(e, test_spec)
-                                                                    for e in self.sesam_node.get_pipe_entities(pipe)])
+                                                                    for e in self.sesam_node.get_pipe_entities(
+                                pipe, stage=test_spec.stage)])
 
                         current_output = sorted(current_output,
                                                 key=lambda e: (e['_id'],
-                                                                     json.dumps(e,
-                                                                                indent="  ",
-                                                                                ensure_ascii=self.args.unicode_encoding,
-                                                                                sort_keys=True)))
+                                                               json.dumps(e,
+                                                                          indent="  ",
+                                                                          ensure_ascii=self.args.unicode_encoding,
+                                                                          sort_keys=True)))
 
                         current_output = (json.dumps(current_output, indent="  ",
                                                      sort_keys=True,
@@ -974,10 +983,12 @@ class SesamCmdClient:
         self.upload()
 
         for i in range(self.args.runs):
-            self.run()
-            self.verify()
+            if self.run() == 0:
+                self.verify()
 
-        self.logger.info("Test was successful!")
+                self.logger.info("Test was successful!")
+            else:
+                self.logger.info("Test failed!")
 
     def start_scheduler(self, timeout=300):
         try:
@@ -1123,7 +1134,7 @@ class SesamCmdClient:
                     break
                 elif status == "failed":
                     self.logger.error("Scheduler finished with failure")
-                    return
+                    return -1
 
                 time.sleep(args.scheduler_poll_frequency/1000)
 
@@ -1136,6 +1147,7 @@ class SesamCmdClient:
                 self.sesam_node.remove_system(args.scheduler_id)
 
         self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(end_time - start_time))
+        return 0
 
     def wipe(self):
         self.logger.info("Wiping node...")
