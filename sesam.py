@@ -211,17 +211,9 @@ class SesamNode:
         else:
             logger.warning("Could not remove system '%s' as it doesn't exist" % system_id)
 
-    def get_config(self, filename=None):
+    def get_config(self):
         data = self.api_connection.get_config_as_zip()
-
-        if filename:
-            with open(filename, "wb") as fp:
-                fp.write(data)
-
-            return data
-        else:
-            # Return as zip object
-            return zipfile.ZipFile(io.BytesIO(data))
+        return zipfile.ZipFile(io.BytesIO(data))
 
     def remove_all_datasets(self):
         self.logger.log(LOGLEVEL_TRACE, "Remove alle datasets from %s" % self.node_url)
@@ -434,6 +426,56 @@ class SesamCmdClient:
 
         return zip_data
 
+    def get_zipfile_data_by_filename(self, zip_data, filename):
+        zin = zipfile.ZipFile(io.BytesIO(zip_data))
+
+        for item in zin.infolist():
+            if item.filename == filename:
+                return zin.read(item.filename)
+
+        zin.close()
+        return None
+
+    def replace_file_in_zipfile(self, zip_data, filename, replacement):
+        zin = zipfile.ZipFile(io.BytesIO(zip_data))
+        buffer = io.BytesIO()
+        zout = zipfile.ZipFile(buffer, mode="w")
+
+        for item in zin.infolist():
+            if item.filename == filename:
+                zout.writestr(item, replacement)
+
+        zout.close()
+        zin.close()
+
+        buffer.seek(0)
+        return buffer.read()
+
+    def remove_task_manager_settings(self, zip_data):
+        node_metadata = {}
+        if os.path.isfile("node-metadata.conf.json"):
+            with open("node-metadata.conf.json", "r") as infile:
+                node_metadata = json.load(infile)
+
+        if node_metadata.get("task_manager", {}).get("disable_pump_scheduler", False) is True:
+            # No need to do anything, the setting is originally in the file!
+            return zip_data
+
+        remote_data = self.get_zipfile_data_by_filename(zip_data, "node-metadata.conf.json")
+        if remote_data:
+            remote_metadata = json.loads(str(remote_data, encoding="utf-8"))
+
+            if "task_manager" in remote_metadata and "disable_pump_scheduler" in remote_metadata["task_manager"] and \
+                            remote_metadata["task_manager"]["disable_pump_scheduler"] is True:
+                remote_metadata["task_manager"].pop("disable_pump_scheduler")
+                # Remove the entire task_manager section if its empty
+                if len(remote_metadata["task_manager"]) == 0:
+                    remote_metadata.pop("task_manager")
+
+            # Replace the file and return the new zipfile
+            return self.replace_file_in_zipfile(zip_data, "node-metadata.conf.json",
+                                                json.dumps(remote_metadata).encode("utf-8"))
+
     def get_node_and_jwt_token(self):
         try:
             curr_dir = os.getcwd()
@@ -508,6 +550,18 @@ class SesamCmdClient:
         # Zip the relevant directories and upload to Sesam
         try:
             zip_config = self.get_zip_config(remove_zip=args.dump is False)
+
+            # Modify the node-metadata.conf.json to stop the pipe scheduler
+            if self.args.disable_pump_scheduler and os.path.isfile("node-metadata.conf.json"):
+                with open("node-metadata.conf.json", "r") as infile:
+                    node_metadata = json.load(infile)
+                    if "task_manager" not in node_metadata:
+                        node_metadata["task_manager"] = {}
+
+                    node_metadata["task_manager"]["disable_pump_scheduler"] = True
+
+                    zip_config = self.replace_file_in_zipfile(zip_config, "node-metadata.conf.json",
+                                                              json.dumps(node_metadata).encode("utf-8"))
         except BaseException as e:
             logger.error("Failed to create zip archive of config")
             raise e
@@ -542,11 +596,17 @@ class SesamCmdClient:
             if os.path.isfile("sesam-config.zip"):
                     os.remove("sesam-config.zip")
 
-            zip_data = self.sesam_node.get_config(filename="sesam-config.zip")
+            zip_data = self.sesam_node.get_config()
+            zip_data = self.remove_task_manager_settings(zip_data)
+
+            with open("sesam-config.zip", "wb") as fp:
+                fp.write(zip_data)
+
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
         else:
             zip_config = self.sesam_node.get_config()
+            zip_config = self.remove_task_manager_settings(zip_config)
 
         try:
             zip_config.extractall()
@@ -573,11 +633,17 @@ class SesamCmdClient:
 
         local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
         if self.args.dump:
-            zip_data = self.sesam_node.get_config(filename="sesam-config.zip")
+            zip_data = self.sesam_node.get_config()
+            zip_data = self.remove_task_manager_settings(zip_data)
+
+            with open("sesam-config.zip", "wb") as fp:
+                fp.write(zip_data)
+
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
             remote_config = zipfile.ZipFile(io.BytesIO(zip_data))
         else:
             remote_config = self.sesam_node.get_config()
+            remote_config = self.remove_task_manager_settings(remote_config)
 
         remote_files = sorted(remote_config.namelist())
         local_files = sorted(local_config.namelist())
@@ -1226,6 +1292,9 @@ Commands:
 
     parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
                         help="don't reproduce old large int bugs")
+
+    parser.add_argument('-disable-pump-scheduler', dest='disable_pump_scheduler', required=False, action='store_true',
+                        help="turn off pump scheduling in the target node")
 
     parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False, action='store_true',
                         help="compact all execution datasets when running scheduler")
