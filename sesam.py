@@ -1079,6 +1079,7 @@ class SesamCmdClient:
                             "JWT": "%s" % self.jwt_token,
                             "URL": "%s" % scheduler_node_url,
                             "DUMMY": "%s" % str(uuid.uuid4()),
+                            "SCHEDULER_PORT": int(os.environ.get("SCHEDULER_PORT", 5000))
                         },
                         "memory": 512,
                         "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
@@ -1155,7 +1156,7 @@ class SesamCmdClient:
 
             self.logger.debug("The scheduler status endpoint returned a non-json reply! %s" % str(status_json))
         except BaseException as e:
-            logger.error("Failed to get scheduler status")
+            logger.debug("Failed to get scheduler status")
             raise e
 
         return "unknown"
