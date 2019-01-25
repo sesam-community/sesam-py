@@ -23,7 +23,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.5"
+sesam_version = "1.15.6"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1388,6 +1388,15 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
+    if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe", "dump"]:
+        if command:
+            logger.error("Unknown command: '%s'", command)
+        else:
+            logger.error("No command given")
+
+        parser.print_usage()
+        sys.exit(1)
+
     sesam_cmd_client = SesamCmdClient(args, logger)
 
     try:
@@ -1431,8 +1440,8 @@ Commands:
         elif command == "dump":
             sesam_cmd_client.dump()
         else:
-            logger.error("unknown command: %s", command)
-            raise AssertionError("unknown command: %s" % command)
+            logger.error("Unknown command: %s" % command)
+            sys.exit(1)
     except BaseException as e:
         logger.error("Sesam client failed!")
         if args.extra_verbose is True or args.extra_extra_verbose is True:
