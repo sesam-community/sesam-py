@@ -211,9 +211,12 @@ class SesamNode:
         else:
             logger.warning("Could not remove system '%s' as it doesn't exist" % system_id)
 
-    def get_config(self):
+    def get_config(self, binary=False):
         data = self.api_connection.get_config_as_zip()
-        return zipfile.ZipFile(io.BytesIO(data))
+        if not binary:
+            return zipfile.ZipFile(io.BytesIO(data))
+
+        return data
 
     def remove_all_datasets(self):
         self.logger.log(LOGLEVEL_TRACE, "Remove alle datasets from %s" % self.node_url)
@@ -405,6 +408,9 @@ class SesamCmdClient:
                     zipfile.write(os.path.join(root, file))
 
     def get_zip_config(self, remove_zip=True):
+        """ Create a ZIP file from the local content on disk and return a bytes object
+            If "remove_zip" is False, we dump it to disk as "sesam-config.zip" as well.
+        """
         if os.path.isfile("sesam-config.zip"):
             os.remove("sesam-config.zip")
 
@@ -420,6 +426,7 @@ class SesamCmdClient:
 
         with open("sesam-config.zip", "rb") as fp:
             zip_data = fp.read()
+
 
         if remove_zip:
             os.remove("sesam-config.zip")
@@ -444,6 +451,8 @@ class SesamCmdClient:
         for item in zin.infolist():
             if item.filename == filename:
                 zout.writestr(item, replacement)
+            else:
+                zout.writestr(item, zin.read(item.filename))
 
         zout.close()
         zin.close()
@@ -457,7 +466,7 @@ class SesamCmdClient:
             with open("node-metadata.conf.json", "r") as infile:
                 node_metadata = json.load(infile)
 
-        if node_metadata.get("task_manager", {}).get("disable_pump_scheduler", False) is True:
+        if node_metadata.get("task_manager", {}).get("disable_user_pipes", False) is True:
             # No need to do anything, the setting is originally in the file!
             return zip_data
 
@@ -465,16 +474,19 @@ class SesamCmdClient:
         if remote_data:
             remote_metadata = json.loads(str(remote_data, encoding="utf-8"))
 
-            if "task_manager" in remote_metadata and "disable_pump_scheduler" in remote_metadata["task_manager"] and \
-                            remote_metadata["task_manager"]["disable_pump_scheduler"] is True:
-                remote_metadata["task_manager"].pop("disable_pump_scheduler")
+            if "task_manager" in remote_metadata and "disable_user_pipes" in remote_metadata["task_manager"] and \
+                            remote_metadata["task_manager"]["disable_user_pipes"] is True:
+                remote_metadata["task_manager"].pop("disable_user_pipes")
                 # Remove the entire task_manager section if its empty
                 if len(remote_metadata["task_manager"]) == 0:
                     remote_metadata.pop("task_manager")
 
-            # Replace the file and return the new zipfile
-            return self.replace_file_in_zipfile(zip_data, "node-metadata.conf.json",
-                                                json.dumps(remote_metadata).encode("utf-8"))
+                # Replace the file and return the new zipfile
+                return self.replace_file_in_zipfile(zip_data, "node-metadata.conf.json",
+                                                    json.dumps(remote_metadata, indent=2,
+                                                               ensure_ascii=False).encode("utf-8"))
+
+        return zip_data
 
     def get_node_and_jwt_token(self):
         try:
@@ -552,13 +564,13 @@ class SesamCmdClient:
             zip_config = self.get_zip_config(remove_zip=args.dump is False)
 
             # Modify the node-metadata.conf.json to stop the pipe scheduler
-            if self.args.disable_pump_scheduler and os.path.isfile("node-metadata.conf.json"):
+            if self.args.disable_user_pipes and os.path.isfile("node-metadata.conf.json"):
                 with open("node-metadata.conf.json", "r") as infile:
                     node_metadata = json.load(infile)
                     if "task_manager" not in node_metadata:
                         node_metadata["task_manager"] = {}
 
-                    node_metadata["task_manager"]["disable_pump_scheduler"] = True
+                    node_metadata["task_manager"]["disable_user_pipes"] = True
 
                     zip_config = self.replace_file_in_zipfile(zip_config, "node-metadata.conf.json",
                                                               json.dumps(node_metadata).encode("utf-8"))
@@ -596,7 +608,7 @@ class SesamCmdClient:
             if os.path.isfile("sesam-config.zip"):
                     os.remove("sesam-config.zip")
 
-            zip_data = self.sesam_node.get_config()
+            zip_data = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings(zip_data)
 
             with open("sesam-config.zip", "wb") as fp:
@@ -605,7 +617,7 @@ class SesamCmdClient:
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
         else:
-            zip_config = self.sesam_node.get_config()
+            zip_config = self.sesam_node.get_config(binary=True)
             zip_config = self.remove_task_manager_settings(zip_config)
 
         try:
@@ -633,7 +645,7 @@ class SesamCmdClient:
 
         local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
         if self.args.dump:
-            zip_data = self.sesam_node.get_config()
+            zip_data = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings(zip_data)
 
             with open("sesam-config.zip", "wb") as fp:
@@ -642,7 +654,7 @@ class SesamCmdClient:
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
             remote_config = zipfile.ZipFile(io.BytesIO(zip_data))
         else:
-            remote_config = self.sesam_node.get_config()
+            remote_config = self.sesam_node.get_config(binary=True)
             remote_config = self.remove_task_manager_settings(remote_config)
 
         remote_files = sorted(remote_config.namelist())
@@ -1045,16 +1057,18 @@ class SesamCmdClient:
         self.logger.info("%s tests updated!" % i)
 
     def test(self):
-        self.logger.info("Running test: upload, run and verify..")
-        self.upload()
+        try:
+            self.logger.info("Running test: upload, run and verify..")
+            self.upload()
 
-        for i in range(self.args.runs):
-            if self.run() == 0:
-                self.verify()
+            for i in range(self.args.runs):
+                self.run()
 
-                self.logger.info("Test was successful!")
-            else:
-                self.logger.info("Test failed!")
+            self.verify()
+            self.logger.info("Test was successful!")
+        except BaseException as e:
+            self.logger.info("Test failed!")
+            raise e
 
     def start_scheduler(self, timeout=300):
         try:
@@ -1120,11 +1134,17 @@ class SesamCmdClient:
                 raise RuntimeError("Failed to initialise scheduler")
 
             # Start the microservice
-            params = {"reset_pipes": "true", "delete_datasets": "true",
-                      "zero_runs": self.args.scheduler_zero_runs}
+            params = {
+                "reset_pipes": "true", "delete_datasets": "true",
+                "zero_runs": self.args.scheduler_zero_runs
+            }
 
             if self.args.compact_execution_datasets:
                 params["compact_execution_datasets"] = "true"
+
+            if self.args.disable_user_pipes is True:
+                # If we have stopped all the user pipes globally, the scheduler doesn't have to disable them
+                params["disable_pipes"] = "false"
 
             self.logger.debug("Starting the scheduler...")
             self.sesam_node.microservice_post_proxy_request(self.args.scheduler_id, "start", params=params,
@@ -1294,8 +1314,8 @@ Commands:
     parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
                         help="don't reproduce old large int bugs")
 
-    parser.add_argument('-disable-pump-scheduler', dest='disable_pump_scheduler', required=False, action='store_true',
-                        help="turn off pump scheduling in the target node")
+    parser.add_argument('-disable-user-pipes', dest='disable_user_pipes', required=False, action='store_true',
+                        help="turn off user pipe scheduling in the target node")
 
     parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False, action='store_true',
                         help="compact all execution datasets when running scheduler")
@@ -1390,6 +1410,7 @@ Commands:
                      "(i.e. firewall, internet connection etc)")
         sys.exit(1)
 
+    start_time = time.monotonic()
     try:
         if command == "upload":
             sesam_cmd_client.upload()
@@ -1418,3 +1439,6 @@ Commands:
             logger.exception("Underlying exception was: %s" % str(e))
 
         sys.exit(1)
+    finally:
+        run_time = time.monotonic() - start_time
+        logger.info("Total run time was %d seconds" % run_time)
