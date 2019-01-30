@@ -23,7 +23,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.6"
+sesam_version = "1.15.7"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -615,12 +615,12 @@ class SesamCmdClient:
                 fp.write(zip_data)
 
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
-            zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
         else:
-            zip_config = self.sesam_node.get_config(binary=True)
-            zip_config = self.remove_task_manager_settings(zip_config)
+            zip_data = self.sesam_node.get_config(binary=True)
+            zip_data = self.remove_task_manager_settings(zip_data)
 
         try:
+            zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
             zip_config.extractall()
         except BaseException as e:
             self.logger.error("Failed to unzip config file from Sesam to current directory")
