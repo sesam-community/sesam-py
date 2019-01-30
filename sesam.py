@@ -1,6 +1,7 @@
 import requests
 import argparse
 import logging
+import threading
 import shutil
 import logging.handlers
 import time
@@ -23,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.7"
+sesam_version = "1.15.8"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -262,6 +263,32 @@ class SesamNode:
 
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
+
+    def run_internal_scheduler(self, disable_pipes=True):
+        internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
+
+        if disable_pipes:
+            params = {"disable_pipes": "true"}
+        else:
+            params = None
+
+        resp = self.api_connection.session.post(internal_scheduler_url, params=params)
+        resp.raise_for_status()
+
+        return resp.json()
+
+    def get_internal_scheduler_log(self, since=None):
+        scheduler_log_url  = "%s/pipes/get-run-all-pipes-log" % self.node_url
+
+        if since:
+            params = {"since": since}
+        else:
+            params = None
+
+        resp = self.api_connection.session.get(scheduler_log_url, params=params)
+        resp.raise_for_status()
+
+        return resp.json()
 
     def get_pipe_entities(self, pipe, stage=None):
         if stage is None:
@@ -1203,38 +1230,86 @@ class SesamCmdClient:
 
             return since
 
-    def run(self):
-        self.logger.info("Executing scheduler...")
-        self.start_scheduler()
+    def run_internal_scheduler(self):
+        start_time = time.monotonic()
 
-        try:
-            start_time = time.monotonic()
-            since = None
-            while True:
-                if self.args.print_scheduler_log:
-                    since = self.print_scheduler_log(since=since)
+        disable_pipes = self.args.disable_user_pipes is False
 
-                status = self.get_scheduler_status()
+        class SchedulerRunner(threading.Thread):
+            def __init__(self, sesam_node):
+                super().__init__()
+                self.sesam_node = sesam_node
+                self.status = None
+                self.result = None
 
-                if status == "success":
-                    self.logger.debug("Scheduler finished successfully")
-                    break
-                elif status == "failed":
-                    self.logger.error("Scheduler finished with failure")
-                    return -1
+            def run(self):
+                try:
+                    self.result = self.sesam_node.run_internal_scheduler(disable_pipes=disable_pipes)
+                    self.status = "finished"
+                except BaseException as e:
+                    self.status = "failed"
+                    self.result = e
 
-                time.sleep(args.scheduler_poll_frequency/1000)
+        scheduler_runner = SchedulerRunner(self.sesam_node)
+        scheduler_runner.start()
 
-        except BaseException as e:
-            self.logger.error("Failed to run scheduler")
-            raise e
-        finally:
-            end_time = time.monotonic()
-            if self.args.dont_remove_scheduler is False:
-                self.sesam_node.remove_system(args.scheduler_id)
+        time.sleep(1)
 
-        self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(end_time - start_time))
+        since = None
+        while True:
+            log_lines = self.sesam_node.get_internal_scheduler_log(since=since)
+            for log_line in log_lines:
+                s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
+                logger.info(s)
+
+            if len(log_lines) > 0:
+                since = log_lines[-1]["timestamp"]
+
+            if scheduler_runner.status is not None:
+                break
+
+            time.sleep(1)
+
+        if scheduler_runner.status == "failed":
+            self.logger.info("Failed to run pipes to completion")
+            raise scheduler_runner.result
+
+        self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
+
         return 0
+
+    def run(self):
+        if self.args.use_internal_scheduler:
+            return self.run_internal_scheduler()
+        else:
+            try:
+                start_time = time.monotonic()
+                since = None
+                while True:
+                    if self.args.print_scheduler_log:
+                        since = self.print_scheduler_log(since=since)
+
+                    status = self.get_scheduler_status()
+
+                    if status == "success":
+                        self.logger.debug("Scheduler finished successfully")
+                        break
+                    elif status == "failed":
+                        self.logger.error("Scheduler finished with failure")
+                        return -1
+
+                    time.sleep(args.scheduler_poll_frequency/1000)
+
+            except BaseException as e:
+                self.logger.error("Failed to run scheduler")
+                raise e
+            finally:
+                end_time = time.monotonic()
+                if self.args.dont_remove_scheduler is False:
+                    self.sesam_node.remove_system(args.scheduler_id)
+
+            self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(end_time - start_time))
+            return 0
 
     def wipe(self):
         self.logger.info("Wiping node...")
@@ -1296,6 +1371,9 @@ Commands:
 
     parser.add_argument('-print-scheduler-log', dest='print_scheduler_log', required=False,
                         help="print scheduler log during run", action='store_true')
+
+    parser.add_argument('-use-internal-scheduler', dest='use_internal_scheduler', required=False,
+                        help="use the built-in scheduler in sesam instead of a microservice", action='store_true')
 
     parser.add_argument('-custom-scheduler', dest='custom_scheduler', required=False,
                         help="by default a scheduler system will be added, enable this flag if you have configured a "
@@ -1434,6 +1512,9 @@ Commands:
         elif command == "test":
             sesam_cmd_client.test()
         elif command == "run":
+            if args.disable_user_pipes is True:
+                logger.warning("Note that the -disable-user-pipes flag has no effect on the actual node configuration "
+                               "outside the 'upload' or 'test' commands")
             sesam_cmd_client.run()
         elif command == "wipe":
             sesam_cmd_client.wipe()
