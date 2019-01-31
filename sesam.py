@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.8"
+sesam_version = "1.15.9"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -304,6 +304,11 @@ class SesamNode:
     def get_published_data(self, pipe, type="entities", params=None, binary=False):
 
         pipe_url = "%s/publishers/%s/%s" % (self.node_url, pipe.id, type)
+
+        # Enable the pump, if it is disabled, or else we can't get the data
+        pump = pipe.get_pump()
+        if pump.is_disabled:
+            pump.enable()
 
         resp = self.api_connection.session.get(pipe_url, params=params)
         resp.raise_for_status()
@@ -1256,15 +1261,20 @@ class SesamCmdClient:
         time.sleep(1)
 
         since = None
-        while True:
-            log_lines = self.sesam_node.get_internal_scheduler_log(since=since)
+
+        def print_internal_scheduler_log(since_val):
+            log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val)
             for log_line in log_lines:
                 s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
                 logger.info(s)
 
             if len(log_lines) > 0:
-                since = log_lines[-1]["timestamp"]
+                return log_lines[-1]["timestamp"]
 
+            return since_val
+
+        while True:
+            since = print_internal_scheduler_log(since)
             if scheduler_runner.status is not None:
                 break
 
@@ -1272,8 +1282,10 @@ class SesamCmdClient:
 
         if scheduler_runner.status == "failed":
             self.logger.info("Failed to run pipes to completion")
+            print_internal_scheduler_log(since)
             raise scheduler_runner.result
 
+        print_internal_scheduler_log(since)
         self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
 
         return 0
