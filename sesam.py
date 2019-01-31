@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.9"
+sesam_version = "1.15.10"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -206,11 +206,12 @@ class SesamNode:
 
     def remove_system(self, system_id):
         self.logger.log(LOGLEVEL_TRACE, "Remove system '%s' from %s" % (system_id, self.node_url))
-        system = self.api_connection.get_system(system_id)
-        if system is not None:
-            system.delete()
-        else:
-            logger.warning("Could not remove system '%s' as it doesn't exist" % system_id)
+        try:
+            system = self.api_connection.get_system(system_id)
+            if system is not None:
+                system.delete()
+        except:
+            logger.warning("Could not remove system '%s' - perhaps it doesn't exist" % system_id)
 
     def get_config(self, binary=False):
         data = self.api_connection.get_config_as_zip()
@@ -1294,8 +1295,11 @@ class SesamCmdClient:
         if self.args.use_internal_scheduler:
             return self.run_internal_scheduler()
         else:
+            start_time = time.monotonic()
             try:
-                start_time = time.monotonic()
+                self.logger.info("Executing scheduler...")
+                self.start_scheduler()
+
                 since = None
                 while True:
                     if self.args.print_scheduler_log:
