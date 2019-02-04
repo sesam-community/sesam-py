@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.8"
+sesam_version = "1.15.10"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -206,11 +206,12 @@ class SesamNode:
 
     def remove_system(self, system_id):
         self.logger.log(LOGLEVEL_TRACE, "Remove system '%s' from %s" % (system_id, self.node_url))
-        system = self.api_connection.get_system(system_id)
-        if system is not None:
-            system.delete()
-        else:
-            logger.warning("Could not remove system '%s' as it doesn't exist" % system_id)
+        try:
+            system = self.api_connection.get_system(system_id)
+            if system is not None:
+                system.delete()
+        except:
+            logger.warning("Could not remove system '%s' - perhaps it doesn't exist" % system_id)
 
     def get_config(self, binary=False):
         data = self.api_connection.get_config_as_zip()
@@ -304,6 +305,11 @@ class SesamNode:
     def get_published_data(self, pipe, type="entities", params=None, binary=False):
 
         pipe_url = "%s/publishers/%s/%s" % (self.node_url, pipe.id, type)
+
+        # Enable the pump, if it is disabled, or else we can't get the data
+        pump = pipe.get_pump()
+        if pump.is_disabled:
+            pump.enable()
 
         resp = self.api_connection.session.get(pipe_url, params=params)
         resp.raise_for_status()
@@ -1256,15 +1262,20 @@ class SesamCmdClient:
         time.sleep(1)
 
         since = None
-        while True:
-            log_lines = self.sesam_node.get_internal_scheduler_log(since=since)
+
+        def print_internal_scheduler_log(since_val):
+            log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val)
             for log_line in log_lines:
                 s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
                 logger.info(s)
 
             if len(log_lines) > 0:
-                since = log_lines[-1]["timestamp"]
+                return log_lines[-1]["timestamp"]
 
+            return since_val
+
+        while True:
+            since = print_internal_scheduler_log(since)
             if scheduler_runner.status is not None:
                 break
 
@@ -1272,8 +1283,10 @@ class SesamCmdClient:
 
         if scheduler_runner.status == "failed":
             self.logger.info("Failed to run pipes to completion")
+            print_internal_scheduler_log(since)
             raise scheduler_runner.result
 
+        print_internal_scheduler_log(since)
         self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
 
         return 0
@@ -1282,8 +1295,11 @@ class SesamCmdClient:
         if self.args.use_internal_scheduler:
             return self.run_internal_scheduler()
         else:
+            start_time = time.monotonic()
             try:
-                start_time = time.monotonic()
+                self.logger.info("Executing scheduler...")
+                self.start_scheduler()
+
                 since = None
                 while True:
                     if self.args.print_scheduler_log:
