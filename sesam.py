@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.10"
+sesam_version = "1.15.11"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -522,6 +522,7 @@ class SesamCmdClient:
         return zip_data
 
     def get_node_and_jwt_token(self):
+        syncconfigfilename = self.args.sync_config_file
         try:
             curr_dir = os.getcwd()
             if curr_dir is None:
@@ -531,16 +532,18 @@ class SesamCmdClient:
             # Find config on disk, if any
             try:
                 file_config = {}
-                if os.path.isfile(".syncconfig"):
+                if os.path.isfile(syncconfigfilename):
                     # Found a local .syncconfig file, read it
-                    file_config = self.read_config_file(".syncconfig")
+                    file_config = self.read_config_file(syncconfigfilename)
                 else:
+                    logger.info("Couldn't find sync config file '%s' - looking in parent folder..")
                     # Look in the parent folder
-                    if os.path.isfile("../.syncconfig"):
-                        file_config = self.read_config_file("../.syncconfig")
+                    if os.path.isfile("../" + syncconfigfilename):
+                        file_config = self.read_config_file("../" + syncconfigfilename)
                         if file_config:
                             curr_dir = os.path.abspath("../")
-                            self.logger.info("Found .syncconfig in parent path. Using %s as base directory" % curr_dir)
+                            self.logger.info("Found sync config file '%s' in parent path. Using %s "
+                                             "as base directory" % (syncconfigfilename, curr_dir))
                             os.chdir(curr_dir)
 
                 self.logger.info("Using %s as base directory", curr_dir)
@@ -1379,6 +1382,10 @@ Commands:
 
     parser.add_argument('-skip-tls-verification', dest='skip_tls_verification', required=False, action='store_true',
                         help="skip verifying the TLS certificate")
+
+    parser.add_argument('-sync-config-file', dest='sync_config_file', metavar="<string>",
+                        default=".syncconfig", type=str, help="sync config file to use, the default is "
+                                                              "'.syncconfig' in the current directory")
 
     parser.add_argument('-dont-remove-scheduler', dest='dont_remove_scheduler', required=False, action='store_true',
                         help="don't remove scheduler after failure")
