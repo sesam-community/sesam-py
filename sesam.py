@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.11"
+sesam_version = "1.15.12"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -688,10 +688,11 @@ class SesamCmdClient:
                 fp.write(zip_data)
 
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
-            remote_config = zipfile.ZipFile(io.BytesIO(zip_data))
         else:
             remote_config = self.sesam_node.get_config(binary=True)
-            remote_config = self.remove_task_manager_settings(remote_config)
+            zip_data = self.remove_task_manager_settings(remote_config)
+
+        remote_config = zipfile.ZipFile(io.BytesIO(zip_data))
 
         remote_files = sorted(remote_config.namelist())
         local_files = sorted(local_config.namelist())
@@ -751,6 +752,7 @@ class SesamCmdClient:
 
     def load_test_specs(self, existing_output_pipes, update=False):
         test_specs = {}
+        failed = False
 
         # Load test specifications
         for filename in glob.glob("expected/*.test.json"):
@@ -761,8 +763,18 @@ class SesamCmdClient:
             pipe_id = test_spec.pipe
             self.logger.log(LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id))
 
+            if pipe_id not in existing_output_pipes:
+                logger.error("Test spec '%s' references non-exisiting output "
+                             "pipe '%s' - remove '%s'" % (pipe_id, test_spec.spec_file, test_spec.file))
+                failed = True
+
+            if not os.path.isfile("expected/%s" % test_spec.file):
+                logger.warning("Test spec '%s' references non-exisiting 'expected' output "
+                               "file '%s'" % (test_spec.spec_file, test_spec.file))
+                failed = True
+
             # If spec says 'ignore' then the corresponding output file should not exist
-            if test_spec.ignore is True:
+            if failed is False and test_spec.ignore is True:
                 output_filename = test_spec.file
 
                 if os.path.isfile("expected/%s" % output_filename):
@@ -772,15 +784,15 @@ class SesamCmdClient:
                     else:
                         self.logger.warning(
                             "pipe '%s' is ignored, but output file '%s' still exists" % (pipe_id, filename))
-            elif pipe_id not in existing_output_pipes:
-                logger.error("Test spec references non-exisiting output "
-                             "pipe '%s' - remove '%s'" % (pipe_id, filename))
-                continue
 
             if pipe_id not in test_specs:
                 test_specs[pipe_id] = []
 
             test_specs[pipe_id].append(test_spec)
+
+        if failed:
+            logger.error("Test specs verify failed, correct errors and retry")
+            raise RuntimeError("Test specs verify failed, correct errors and retry")
 
         if update:
             for pipe in existing_output_pipes.values():
@@ -1278,7 +1290,9 @@ class SesamCmdClient:
             return since_val
 
         while True:
-            since = print_internal_scheduler_log(since)
+            if self.args.print_scheduler_log is True:
+                since = print_internal_scheduler_log(since)
+
             if scheduler_runner.status is not None:
                 break
 
@@ -1286,10 +1300,13 @@ class SesamCmdClient:
 
         if scheduler_runner.status == "failed":
             self.logger.info("Failed to run pipes to completion")
-            print_internal_scheduler_log(since)
+            if self.args.print_scheduler_log is True:
+                print_internal_scheduler_log(since)
             raise scheduler_runner.result
 
-        print_internal_scheduler_log(since)
+        if self.args.print_scheduler_log is True:
+            print_internal_scheduler_log(since)
+
         self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
 
         return 0
