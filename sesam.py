@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.13"
+sesam_version = "1.15.14"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -67,11 +67,17 @@ class TestSpec:
 
     @property
     def spec_file(self):
-        return self._spec_file
+        filename = self._spec_file
+        if not filename.startswith("expected/"):
+            filename = "expected/" + filename
+        return filename
 
     @property
     def file(self):
-        return self._spec.get("file")
+        filename = self._spec.get("file")
+        if not filename.startswith("expected/"):
+            filename = "expected/" + filename
+        return filename
 
     @property
     def name(self):
@@ -781,7 +787,7 @@ class SesamCmdClient:
                              "pipe '%s' - remove '%s'" % (pipe_id, test_spec.spec_file, test_spec.file))
                 failed = True
 
-            if not os.path.isfile("expected/%s" % test_spec.file):
+            if not os.path.isfile("%s" % test_spec.file):
                 logger.warning("Test spec '%s' references non-exisiting 'expected' output "
                                "file '%s'" % (test_spec.spec_file, test_spec.file))
                 failed = True
@@ -790,7 +796,7 @@ class SesamCmdClient:
             if failed is False and test_spec.ignore is True:
                 output_filename = test_spec.file
 
-                if os.path.isfile("expected/%s" % output_filename):
+                if os.path.isfile("%s" % output_filename):
                     if update:
                         self.logger.debug("Removing existing output file '%s'" % output_filename)
                         os.remove(output_filename)
