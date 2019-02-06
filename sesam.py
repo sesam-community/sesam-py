@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.12"
+sesam_version = "1.15.13"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -170,7 +170,10 @@ class SesamNode:
 
     def get_system(self, system_id):
         self.logger.log(LOGLEVEL_TRACE, "Get system '%s' from %s" % (system_id, self.node_url))
-        return self.api_connection.get_system(system_id)
+        try:
+            return self.api_connection.get_system(system_id)
+        except:
+            return None
 
     def add_system(self, config, verify=False, timeout=300):
         self.logger.log(LOGLEVEL_TRACE, "Add system '%s' to %s" % (config, self.node_url))
@@ -272,6 +275,16 @@ class SesamNode:
             params = {"disable_pipes": "true"}
         else:
             params = None
+
+        resp = self.api_connection.session.post(internal_scheduler_url, params=params)
+        resp.raise_for_status()
+
+        return resp.json()
+
+    def stop_internal_scheduler(self, terminate_timeout=30):
+        internal_scheduler_url = "%s/pipes/stop-run-all-pipes" % self.node_url
+
+        params = {"terminate_timeout": terminate_timeout}
 
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
         resp.raise_for_status()
@@ -1104,6 +1117,19 @@ class SesamCmdClient:
 
         self.logger.info("%s tests updated!" % i)
 
+    def stop(self):
+        self.logger.info("Trying to stop a previously running scheduler..")
+        try:
+            self.sesam_node.stop_internal_scheduler()
+
+            if self.sesam_node.get_system(self.args.scheduler_id) is not None:
+                self.logger.debug("Removing existing scheduler microservice...")
+                self.sesam_node.remove_system(self.args.scheduler_id)
+
+            self.logger.info("Any previously running scheduler has been stopped")
+        except BaseException as e:
+            self.logger.warning("Failed to stop running schedulers!")
+
     def test(self):
         try:
             self.logger.info("Running test: upload, run and verify..")
@@ -1312,6 +1338,8 @@ class SesamCmdClient:
         return 0
 
     def run(self):
+        self.stop()
+
         if self.args.use_internal_scheduler:
             return self.run_internal_scheduler()
         else:
@@ -1349,6 +1377,7 @@ class SesamCmdClient:
 
     def wipe(self):
         self.logger.info("Wiping node...")
+        self.stop()
 
         try:
             self.sesam_node.put_config([], force=True)
@@ -1386,6 +1415,7 @@ Commands:
   update    Store current output as expected output
   verify    Compare output against expected output
   test      Upload, run and verify output
+  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected) 
 """, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-version', dest='version', required=False, action='store_true', help="print version number")
@@ -1506,7 +1536,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe", "dump"]:
+    if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe", "dump", "stop"]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -1551,6 +1581,8 @@ Commands:
             sesam_cmd_client.verify()
         elif command == "test":
             sesam_cmd_client.test()
+        elif command == "stop":
+            sesam_cmd_client.stop()
         elif command == "run":
             if args.disable_user_pipes is True:
                 logger.warning("Note that the -disable-user-pipes flag has no effect on the actual node configuration "
