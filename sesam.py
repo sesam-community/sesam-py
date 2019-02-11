@@ -274,13 +274,21 @@ class SesamNode:
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
 
-    def run_internal_scheduler(self, disable_pipes=True):
+    def run_internal_scheduler(self, disable_pipes=True, zero_runs=None, max_run_time=None, max_runs=None):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
+        params = {}
         if disable_pipes:
-            params = {"disable_pipes": "true"}
-        else:
-            params = None
+            params["disable_pipes"] = "true"
+
+        if zero_runs is not None:
+            params["extra_zero_runs"] = zero_runs
+
+        if max_run_time is not None:
+            params["max_run_time"] = max_run_time
+
+        if max_runs is not None:
+            params["max_runs"] = max_runs
 
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
         resp.raise_for_status()
@@ -1287,18 +1295,27 @@ class SesamCmdClient:
         start_time = time.monotonic()
 
         disable_pipes = self.args.disable_user_pipes is False
+        zero_runs = self.args.scheduler_zero_runs
+        max_runs = self.args.scheduler_max_runs
+        max_run_time = self.args.scheduler_max_run_time
 
         class SchedulerRunner(threading.Thread):
             def __init__(self, sesam_node):
                 super().__init__()
                 self.sesam_node = sesam_node
                 self.status = None
-                self.result = None
+                self.result = {}
 
             def run(self):
                 try:
-                    self.result = self.sesam_node.run_internal_scheduler(disable_pipes=disable_pipes)
-                    self.status = "finished"
+                    self.result = self.sesam_node.run_internal_scheduler(disable_pipes=disable_pipes,
+                                                                         max_run_time=max_run_time,
+                                                                         max_runs=max_runs,
+                                                                         zero_runs=zero_runs)
+                    if self.result["status"] == "success":
+                        self.status = "finished"
+                    else:
+                        self.status = "failed"
                 except BaseException as e:
                     self.status = "failed"
                     self.result = e
@@ -1488,6 +1505,13 @@ Commands:
 
     parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int, required=False,
                         help="the number of runs that has to yield zero changes for the scheduler to finish")
+
+    parser.add_argument('-scheduler-max-runs', dest='scheduler_max_runs', default=100, metavar="<int>", type=int, required=False,
+                        help=" maximum number of runs that scheduler can do to before exiting (internal scheduler only)")
+
+    parser.add_argument('-scheduler-max-run-time', dest='scheduler_max_run_time', default=15*60, metavar="<int>", type=int, required=False,
+                        help="the maximum time the internal scheduler is allowed to use to finish "
+                             "(in seconds, internal scheduler only)")
 
     parser.add_argument('-runs', dest='runs', type=int, metavar="<int>", required=False, default=1,
                         help="number of test cycles to check for stability")
