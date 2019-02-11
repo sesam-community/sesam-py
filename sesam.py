@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.16"
+sesam_version = "1.15.17"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -683,6 +683,15 @@ class SesamCmdClient:
             zip_data = self.remove_task_manager_settings(zip_data)
 
         try:
+            # Remove all previous pipes and systems
+            for filename in glob.glob("pipes/*.conf.json"):
+                self.logger.debug("Deleting pipe config file '%s'" % filename)
+                os.remove(filename)
+
+            for filename in glob.glob("systems/*.conf.json"):
+                self.logger.debug("Deleting system config file '%s'" % filename)
+                os.remove(filename)
+
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
             zip_config.extractall()
         except BaseException as e:
