@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.20"
+sesam_version = "1.15.21"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -807,7 +807,12 @@ class SesamCmdClient:
             if test_spec.ignore is False and not os.path.isfile("%s" % test_spec.file):
                 logger.warning("Test spec '%s' references non-exisiting 'expected' output "
                                "file '%s'" % (test_spec.spec_file, test_spec.file))
-                failed = True
+                if update is True:
+                    logger.info("Creating empty 'expected' output file '%s'..." % test_spec.file)
+                    with open(test_spec.file, "w") as fp:
+                        fp.write("[]\n")
+                else:
+                    failed = True
 
             # If spec says 'ignore' then the corresponding output file should not exist
             if failed is False and test_spec.ignore is True:
