@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.19"
+sesam_version = "1.15.20"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -799,7 +799,7 @@ class SesamCmdClient:
             pipe_id = test_spec.pipe
             self.logger.log(LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id))
 
-            if pipe_id not in existing_output_pipes:
+            if pipe_id not in existing_output_pipes and update is False:
                 logger.error("Test spec '%s' references a non-exisiting output "
                              "pipe '%s' - remove '%s'" % (test_spec.spec_file, pipe_id, test_spec.spec_file))
                 failed = True
