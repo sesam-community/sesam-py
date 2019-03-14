@@ -800,8 +800,8 @@ class SesamCmdClient:
             self.logger.log(LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id))
 
             if pipe_id not in existing_output_pipes:
-                logger.error("Test spec '%s' references non-exisiting output "
-                             "pipe '%s' - remove '%s'" % (pipe_id, test_spec.spec_file, test_spec.file))
+                logger.error("Test spec '%s' references a non-exisiting output "
+                             "pipe '%s' - remove '%s'" % (test_spec.spec_file, pipe_id, test_spec.spec_file))
                 failed = True
 
             if test_spec.ignore is False and not os.path.isfile("%s" % test_spec.file):
