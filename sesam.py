@@ -902,6 +902,8 @@ class SesamCmdClient:
             raise AssertionError("Found no tests (*.test.json) to run")
 
         failed_tests = []
+        missing_tests = []
+        failed = False
         for pipe in output_pipes.values():
             self.logger.debug("Verifying pipe '%s'.." % pipe.id)
 
@@ -951,6 +953,7 @@ class SesamCmdClient:
                                                         test_spec.file, "current-output.json")
                             self.logger.info("Diff:\n%s" % diff)
                             failed_tests.append(test_spec)
+                            failed = True
                         else:
                             expected_json = json.dumps(expected_output,  ensure_ascii=False, indent=2, sort_keys=True)
                             current_json = json.dumps(fixed_current_output,  ensure_ascii=False, indent=2,
@@ -974,6 +977,7 @@ class SesamCmdClient:
 
                                 self.logger.info("Diff:\n%s" % diff)
                                 failed_tests.append(test_spec)
+                                failed = True
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
@@ -992,6 +996,7 @@ class SesamCmdClient:
 
                             if expected_output != current_output:
                                 failed_tests.append(test_spec)
+                                failed = True
 
                                 self.logger.info("Pipe verify failed! Content mismatch:\n%s" %
                                                   self.get_diff_string(expected_output, current_output, test_spec.file,
@@ -1007,7 +1012,8 @@ class SesamCmdClient:
 
                             if expected_output != current_output:
                                 failed_tests.append(test_spec)
-                                self.logger.info("Pipe verify failed! Content mismatch!")
+                                failed = True
+                                self.logger.error("Pipe verify failed! Content mismatch!")
                     else:
                         # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
@@ -1016,6 +1022,7 @@ class SesamCmdClient:
 
                         if expected_output != current_output:
                             failed_tests.append(test_spec)
+                            failed = True
 
                             # Try to show diff - first try utf-8 encoding
                             try:
@@ -1034,12 +1041,23 @@ class SesamCmdClient:
                             self.logger.error("Pipe verify failed! Content mismatch:\n%s" %
                                               self.get_diff_string(expected_output, current_output, test_spec.file,
                                                                    "current_data.txt"))
+            else:
+                self.logger.error("No tests references pipe '%s'" % pipe.id)
+                missing_tests.append(pipe.id)
+                failed = True
 
-        if len(failed_tests) > 0:
-            self.logger.error("Failed %s of %s tests!" % (len(failed_tests), len(list(test_specs.keys()))))
-            self.logger.error("Failed pipe id (spec file):")
-            for failed_test_spec in failed_tests:
-                self.logger.error("%s (%s)" % (failed_test_spec.pipe, failed_test_spec.spec_file))
+        if failed:
+            if len(failed_tests) > 0:
+                self.logger.error("Failed %s of %s tests!" % (len(failed_tests), len(list(test_specs.keys()))))
+                self.logger.error("Failed pipe id (spec file):")
+                for failed_test_spec in failed_tests:
+                    self.logger.error("%s (%s)" % (failed_test_spec.pipe, failed_test_spec.spec_file))
+
+            if len(missing_tests) > 0:
+                self.logger.error("Missing %s tests!" % len(missing_tests))
+                self.logger.error("Missing test for pipe:")
+                for pipe_id in missing_tests:
+                    self.logger.error(pipe_id)
 
             raise RuntimeError("Verify failed")
         else:
