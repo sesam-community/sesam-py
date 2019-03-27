@@ -31,3 +31,17 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
 
     /home/travis/build/tombech/sesam-py/dist/sesam -h
 fi
+
+if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
+    echo "Building on Windows.."
+
+    python3 --version
+
+    pip3 install pyinstaller
+
+    pip3 install -U -r requirements.txt
+
+    pyinstaller --onefile sesam.py
+
+    /home/travis/build/tombech/sesam-py/dist/sesam.exe -h
+fi

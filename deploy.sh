@@ -2,9 +2,18 @@
 
 if [ -n "$TRAVIS_TAG" ] ; then
     echo "Packaging..."
-    export SESAM_ARTIFACT_NAME=${TRAVIS_BUILD_DIR}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.tar.gz
     pushd dist
-    tar -zcf ${SESAM_ARTIFACT_NAME} sesam
+
+    if [ "$TRAVIS_OS_NAME" == "linux"   ] || [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
+        export SESAM_ARTIFACT_NAME=${TRAVIS_BUILD_DIR}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.tar.gz
+        tar -zcf ${SESAM_ARTIFACT_NAME} sesam
+    fi
+
+    if [ "$TRAVIS_OS_NAME" == "windoes"   ] ; then
+        export SESAM_ARTIFACT_NAME=${TRAVIS_BUILD_DIR}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.zip
+        zip ${SESAM_ARTIFACT_NAME} sesam.exe
+    fi
+
     popd
     echo "Created artifact:"
     ls -al ${SESAM_ARTIFACT_NAME}
