@@ -35,6 +35,9 @@ fi
 if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
     echo "Building on Windows.."
 
+    export PATH=$PY37PATH:$PATH
+    choco install python
+
     python3 --version
 
     pip3 install pyinstaller
