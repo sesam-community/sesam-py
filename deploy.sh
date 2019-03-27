@@ -9,7 +9,7 @@ if [ -n "$TRAVIS_TAG" ] ; then
         tar -zcf ${SESAM_ARTIFACT_NAME} sesam
     fi
 
-    if [ "$TRAVIS_OS_NAME" == "windoes"   ] ; then
+    if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
         export SESAM_ARTIFACT_NAME=${TRAVIS_BUILD_DIR}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.zip
         zip ${SESAM_ARTIFACT_NAME} sesam.exe
     fi
