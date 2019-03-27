@@ -38,7 +38,7 @@ if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
     export PATH=$PY37PATH:$PATH
     choco install python
 
-    python3 --version
+    python --version
 
     pip3 install pyinstaller
 
@@ -46,6 +46,7 @@ if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
 
     pyinstaller --onefile sesam.py
 
+    ls -al /home/travis/build/tombech/sesam-py/
     ls -al /home/travis/build/tombech/sesam-py/dist/
     /home/travis/build/tombech/sesam-py/dist/sesam -h
 fi
