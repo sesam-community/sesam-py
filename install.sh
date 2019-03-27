@@ -46,7 +46,7 @@ if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
 
     pyinstaller --onefile sesam.py
 
-    ls -al /home/travis/build/tombech/sesam-py/
-    ls -al /home/travis/build/tombech/sesam-py/dist/
-    /home/travis/build/tombech/sesam-py/dist/sesam -h
+    ls -al /c/Users/travis/build/tombech/sesam-py/
+    ls -al /c/Users/travis/build/tombech/sesam-py/dist/
+    /c/Users/travis/build/tombech/sesam-py/dist/sesam.exe -h
 fi
