@@ -11,7 +11,7 @@ if [ -n "$TRAVIS_TAG" ] ; then
 
     if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
         export SESAM_ARTIFACT_NAME=${TRAVIS_BUILD_DIR}/sesam-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.zip
-        zip ${SESAM_ARTIFACT_NAME} sesam.exe
+        7z a ${SESAM_ARTIFACT_NAME} sesam.exe
     fi
 
     popd
