@@ -25,7 +25,7 @@ deploy:
     api_key:
       secure: cLkxJ8KdmjpUw/UAsRTfUsrqpB5NOUs9nY9FaiN7+c4ky71cgycCiKNxeun5TS0ygH/6gENub+oye4vzdFR3cCUHxclDm6QyTMWeSnyhbAcowlO83OuiR+BCuKSoG9sgoWBQ4hxHP6i57XlSBcHA4PqVFfr+fT2fDwDSY0jaTkRn46+7ffbVcEkBcSL5QFevt6664UGcZdbtrKKrpYKYw/LAQ53D3MvkWD89tqLrUAZeR9mxrfS0sQTTQZvtEjl0DOKn0hnml53j5stiz+yPl8qBfXgudW1MHoMd2ZgtBSvIpJ/Oar5YmJe3GUQOaCasuVu2wYSch0M6zV1ruRddijj4wFXQMZ65YiNLwGhlP4DuYWdoC5/zjEXJQi3+yX5t9zgMwPDB8kfnJDC070gMdoxybKdMarTx0D7wiOq/oi53pTGJwyv7/AjMX7MONeYwb/t7iwWlb7yI68k9PMF9IvSKvkslWUCFtPKj7AA2+fOFUVxc2okIWj5SdRcUGWfCYi1CNhwkRd8aaH57k7Y7bcRUz3adgzFkm/2oIybOCm0MFXwH0LqlskCHH+GZdux1gXTh+JEahxoyiwRr0WSDTJpRZJjzL76sQEEF6frmDKBD8CHYfSwizJCs0eNGgMed6ODyzR5kw+Wh6rWvlPh6HIGEvWR3P06/V0IxCwW7ipA=
     file_glob: true
-    file: $TRAVIS_BUILD_DIR/artifact/*.*
+    file: $TRAVIS_BUILD_DIR/artifact/*
     on:
       tags: true
       repo: tombech/sesam-py
