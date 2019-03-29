@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.33"
+sesam_version = "1.15.34"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -48,8 +48,8 @@ class TestSpec:
         self._spec["file"] = self.name + ".json"
         self._spec["endpoint"] = "json"
 
-        if self.name.find("/") > -1:
-            self._spec["pipe"] = self.name.split("/")[-1]
+        if self.name.find(os.sep) > -1:
+            self._spec["pipe"] = self.name.split(os.sep)[-1]
         else:
             self._spec["pipe"] = self.name
 
@@ -68,15 +68,15 @@ class TestSpec:
     @property
     def spec_file(self):
         filename = self._spec_file
-        if not filename.startswith("expected/"):
-            filename = "expected/" + filename
+        if not filename.startswith("expected" + os.sep):
+            filename = os.path.join("expected", filename)
         return filename
 
     @property
     def file(self):
         filename = self._spec.get("file")
-        if not filename.startswith("expected/"):
-            filename = "expected/" + filename
+        if not filename.startswith("expected" + os.sep):
+            filename = os.path.join("expected", filename)
         return filename
 
     @property
@@ -114,8 +114,8 @@ class TestSpec:
     @property
     def expected_data(self):
         filename = self.file
-        if not filename.startswith("expected/"):
-            filename = "expected/" + filename
+        if not filename.startswith("expected" + os.sep):
+            filename = os.path.join("expected", filename)
 
         with open(filename, "rb") as fp:
             return fp.read()
@@ -123,16 +123,16 @@ class TestSpec:
     @property
     def expected_entities(self):
         filename = self.file
-        if not filename.startswith("expected/"):
-            filename = "expected/" + filename
+        if not filename.startswith("expected" + os.sep):
+            filename = os.path.join("expected", filename)
 
         with open(filename, "r", encoding="utf-8-sig") as fp:
             return json.load(fp)
 
     def update_expected_data(self, data):
         filename = self.file
-        if not filename.startswith("expected/"):
-            filename = "expected/" + filename
+        if not filename.startswith("expected" + os.sep):
+            filename = os.path.join("expected", filename)
 
         if os.path.isfile(filename) is False:
             logger.debug("Creating new expected data file '%s'" % filename)
@@ -487,7 +487,6 @@ class SesamCmdClient:
         with open("sesam-config.zip", "rb") as fp:
             zip_data = fp.read()
 
-
         if remove_zip:
             os.remove("sesam-config.zip")
 
@@ -565,10 +564,10 @@ class SesamCmdClient:
                 else:
                     logger.info("Couldn't find sync config file '%s' - looking in parent folder..")
                     # Look in the parent folder
-                    if os.path.isfile("../" + syncconfigfilename):
-                        file_config = self.read_config_file("../" + syncconfigfilename)
+                    if os.path.isfile(".." + os.sep + syncconfigfilename):
+                        file_config = self.read_config_file(".." + os.sep + syncconfigfilename)
                         if file_config:
-                            curr_dir = os.path.abspath("../")
+                            curr_dir = os.path.abspath(".." + os.sep)
                             self.logger.info("Found sync config file '%s' in parent path. Using %s "
                                              "as base directory" % (syncconfigfilename, curr_dir))
                             os.chdir(curr_dir)
@@ -684,11 +683,11 @@ class SesamCmdClient:
 
         try:
             # Remove all previous pipes and systems
-            for filename in glob.glob("pipes/*.conf.json"):
+            for filename in glob.glob("pipes%s*.conf.json" % os.sep):
                 self.logger.debug("Deleting pipe config file '%s'" % filename)
                 os.remove(filename)
 
-            for filename in glob.glob("systems/*.conf.json"):
+            for filename in glob.glob("systems%s*.conf.json" % os.sep):
                 self.logger.debug("Deleting system config file '%s'" % filename)
                 os.remove(filename)
 
@@ -791,7 +790,7 @@ class SesamCmdClient:
         failed = False
 
         # Load test specifications
-        for filename in glob.glob("expected/*.test.json"):
+        for filename in glob.glob("expected%s*.test.json" % os.sep):
             self.logger.debug("Processing spec file '%s'" % filename)
 
             test_spec = TestSpec(filename)
@@ -818,7 +817,7 @@ class SesamCmdClient:
             if failed is False and test_spec.ignore is True:
                 output_filename = test_spec.file
 
-                if os.path.isfile("%s" % output_filename):
+                if os.path.isfile(output_filename):
                     if update:
                         self.logger.debug("Removing existing output file '%s'" % output_filename)
                         os.remove(output_filename)
@@ -842,7 +841,7 @@ class SesamCmdClient:
                 if pipe.id not in test_specs:
                     self.logger.warning("Found no spec for pipe %s - creating empty spec file" % pipe.id)
 
-                    filename = "expected/%s.test.json" % pipe.id
+                    filename = os.path.join("expected", "%s.test.json" % pipe.id)
                     with open(filename, "w") as fp:
                         fp.write("{\n}")
                     test_specs[pipe.id] = [TestSpec(filename)]
