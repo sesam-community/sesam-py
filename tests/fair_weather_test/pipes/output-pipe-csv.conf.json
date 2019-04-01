@@ -7,6 +7,6 @@
   },
   "sink": {
     "type": "csv_endpoint",
-    "columns": ["_id","name"]
+    "columns": ["_id", "name"]
   }
 }
