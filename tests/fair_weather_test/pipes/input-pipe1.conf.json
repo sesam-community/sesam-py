@@ -1,0 +1,15 @@
+{
+  "_id": "input-pipe1",
+  "type": "pipe",
+  "source": {
+    "type": "embedded",
+    "entities": [{
+      "_id": "test1",
+      "name": "test1"
+    },{
+      "_id": "test2",
+      "name": "test2"
+    }
+    ]
+  }
+}

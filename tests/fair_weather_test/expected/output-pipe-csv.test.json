@@ -1,0 +1,5 @@
+{
+  "endpoint": "csv",
+  "file": "output-pipe-csv.csv",
+  "pipe": "output-pipe-csv"
+}

@@ -1,0 +1,12 @@
+{
+  "_id": "output-pipe-csv",
+  "type": "pipe",
+  "source": {
+    "type": "dataset",
+    "dataset": "input-pipe1"
+  },
+  "sink": {
+    "type": "csv_endpoint",
+    "columns": ["_id","name"]
+  }
+}

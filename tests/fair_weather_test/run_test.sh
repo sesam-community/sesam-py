@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+echo "Running fairweather tests.."
+
+$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v -use-internal-scheduler -print-scheduler-log test
+$SESAM_CLIENT -node-url $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v update
+$SESAM_CLIENT -node-url $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v status
+$SESAM_CLIENT -node-url $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v download
+
+if [ ! -f "sesam.zip" ]; then
+    echo "Test of download failed!"
+    exit -1
+fi
+
+echo "Fairweather tests passed!"
