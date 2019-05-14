@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.37"
+sesam_version = "1.15.38"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -798,10 +798,24 @@ class SesamCmdClient:
             pipe_id = test_spec.pipe
             self.logger.log(LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id))
 
-            if pipe_id not in existing_output_pipes and update is False:
-                logger.error("Test spec '%s' references a non-exisiting output "
-                             "pipe '%s' - remove '%s'" % (test_spec.spec_file, pipe_id, test_spec.spec_file))
-                failed = True
+            if pipe_id not in existing_output_pipes:
+                if update is False:
+                    logger.error("Test spec '%s' references a non-exisiting output "
+                                 "pipe '%s' - please remove '%s'" % (test_spec.spec_file, pipe_id, test_spec.spec_file))
+                    failed = True
+                else:
+                    if test_spec.ignore is False:
+                        # Remove the test spec file
+                        if os.path.isfile("%s" % test_spec.spec_file):
+                            logger.warning("Test spec '%s' references a non-exisiting output "
+                                           "pipe '%s' - removing '%s'.." % (test_spec.spec_file, pipe_id,
+                                                                            test_spec.spec_file))
+                            os.remove(test_spec.spec_file)
+                            continue
+                    else:
+                        logger.warning("Test spec '%s' references a non-exisiting output "
+                                       "pipe '%s' but is marked as 'ignore' - consider "
+                                       "removing '%s'.." % (test_spec.spec_file, pipe_id, test_spec.spec_file))
 
             if test_spec.ignore is False and not os.path.isfile("%s" % test_spec.file):
                 logger.warning("Test spec '%s' references non-exisiting 'expected' output "
