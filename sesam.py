@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.38"
+sesam_version = "1.15.39"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1396,7 +1396,7 @@ class SesamCmdClient:
             self.logger.info("Failed to run pipes to completion")
             if self.args.print_scheduler_log is True:
                 print_internal_scheduler_log(since)
-            raise scheduler_runner.result
+            raise RuntimeError(scheduler_runner.result)
 
         if self.args.print_scheduler_log is True:
             print_internal_scheduler_log(since)
