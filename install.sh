@@ -39,11 +39,10 @@ if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
     choco install python --version 3.7.4
 
     python --version
-    python3 --version
 
-    python3 -m pip install -r pyinstaller
+    python -m pip install -r pyinstaller
 
-    python3 -m pip install -U -r requirements.txt
+    python -m pip install -U -r requirements.txt
 
     pyinstaller --onefile sesam.py
 
