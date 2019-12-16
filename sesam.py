@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.39"
+sesam_version = "1.15.40"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -917,7 +917,9 @@ class SesamCmdClient:
         test_specs = self.load_test_specs(output_pipes)
 
         if not test_specs:
-            raise AssertionError("Found no tests (*.test.json) to run")
+            # IS-8560: no test files should result in a warning, not an error
+            self.logger.warning("Found no tests (*.test.json) to run")
+            return
 
         failed_tests = []
         missing_tests = []
