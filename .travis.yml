@@ -3,7 +3,7 @@ if: tag IS present
 language: python
 env:
   global:
-    - PY37PATH=/c/Python37:/c/Python37/Scripts
+    - PY38PATH=/c/Python38:/c/Python38/Scripts
 matrix:
   include:
   - os: windows

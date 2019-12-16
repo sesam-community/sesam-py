@@ -35,14 +35,14 @@ fi
 if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
     echo "Building on Windows.."
 
-    export PATH=$PY37PATH:$PATH
+    export PATH=$PY38PATH:$PATH
     choco install python
 
     python3 --version
 
-    pip3 install pyinstaller
+    python3 -m pip install -r pyinstaller
 
-    pip3 install -U -r requirements.txt
+    python3 -m pip install -U -r requirements.txt
 
     pyinstaller --onefile sesam.py
 
