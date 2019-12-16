@@ -40,7 +40,7 @@ if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
 
     python --version
 
-    python -m pip install -r pyinstaller
+    python -m pip install pyinstaller
 
     python -m pip install -U -r requirements.txt
 
