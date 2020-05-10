@@ -161,7 +161,8 @@ class SesamNode:
         self.node_url = node_url
         self.jwt_token = jwt_token
 
-        self.logger.debug("Connecting to Seasam using url '%s' and JWT token '%s'", node_url, jwt_token)
+        safe_jwt = "{}*********{}".format(jwt_token[:10], jwt_token[-10:])
+        self.logger.debug("Connecting to Seasam using url '%s' and JWT '%s'", node_url, safe_jwt)
 
         self.api_connection = sesamclient.Connection(sesamapi_base_url=self.node_url, jwt_auth_token=self.jwt_token,
                                                      timeout=60 * 10, verify_ssl=verify_ssl)
