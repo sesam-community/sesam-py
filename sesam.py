@@ -24,7 +24,7 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 
-sesam_version = "1.15.41"
+sesam_version = "1.15.42"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
