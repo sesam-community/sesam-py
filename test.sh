@@ -21,7 +21,7 @@ $SESAM_CLIENT -h
 # Only run the tests on linux for now
 if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
     export NODE_URL=https://datahub-cd9f97d6.sesam.cloud/api
-    export PUBLIC_CI_TOKEN=
+    export PUBLIC_CI_TOKEN=$SESAM_TOKEN
 
     pushd tests
 

@@ -15,7 +15,7 @@ if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
 
     pyinstaller --onefile sesam.py
 
-    /Users/travis/build/tombech/sesam-py/dist/sesam -h
+    /Users/travis/build/sesam-community/sesam-py/dist/sesam -h
 fi
 
 if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
@@ -29,7 +29,7 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
 
     pyinstaller --onefile sesam.py
 
-    /home/travis/build/tombech/sesam-py/dist/sesam -h
+    /home/travis/build/sesam-community/sesam-py/dist/sesam -h
 fi
 
 if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
@@ -46,5 +46,5 @@ if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
 
     pyinstaller --onefile sesam.py
 
-    /c/Users/travis/build/tombech/sesam-py/dist/sesam.exe -h
+    /c/Users/travis/build/sesam-community/sesam-py/dist/sesam.exe -h
 fi

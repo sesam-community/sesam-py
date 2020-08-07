@@ -30,4 +30,4 @@ deploy:
     file: artifact/*
     on:
       tags: true
-      repo: tombech/sesam-py
+      repo: sesam-comminity/sesam-py
