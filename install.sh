@@ -11,7 +11,7 @@ if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
 
     pip3 install pyinstaller
 
-    pip3 install -U -r --user requirements.txt
+    pip3 install --user -U -r requirements.txt 
 
     pyinstaller --onefile sesam.py
 
@@ -25,7 +25,7 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
 
     pip3 install pyinstaller
 
-    pip3 install -U -r --user requirements.txt
+    pip3 install --user -U -r requirements.txt
 
     pyinstaller --onefile sesam.py
 
@@ -42,7 +42,7 @@ if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
 
     python -m pip install pyinstaller
 
-    python -m pip install -U -r --user requirements.txt
+    python -m pip install --user -U -r requirements.txt
 
     pyinstaller --onefile sesam.py
 
