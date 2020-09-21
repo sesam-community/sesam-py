@@ -959,10 +959,11 @@ class SesamCmdClient:
                                                                                 sort_keys=True)))
 
                         if len(fixed_current_output) != len(expected_output):
+                            file_path = os.path.join(os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file)
                             msg = "Pipe verify failed! Length mismatch for test spec '%s': " \
                                   "expected %d got %d" % (test_spec.spec_file,
                                                           len(expected_output), len(fixed_current_output))
-                            self.logger.error(msg)
+                            self.logger.error(msg, {"file_path": file_path})
 
                             self.logger.info("Expected output:\n%s", pprint.pformat(expected_output))
 
