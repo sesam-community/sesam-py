@@ -28,6 +28,8 @@ sesam_version = "1.15.42"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
+BASE_DIR = None
+GIT_ROOT = None
 
 
 class SesamParser(argparse.ArgumentParser):
@@ -161,7 +163,8 @@ class SesamNode:
         self.node_url = node_url
         self.jwt_token = jwt_token
 
-        self.logger.debug("Connecting to Seasam using url '%s' and JWT token '%s'", node_url, jwt_token)
+        safe_jwt = "{}*********{}".format(jwt_token[:10], jwt_token[-10:])
+        self.logger.debug("Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt)
 
         self.api_connection = sesamclient.Connection(sesamapi_base_url=self.node_url, jwt_auth_token=self.jwt_token,
                                                      timeout=60 * 10, verify_ssl=verify_ssl)
@@ -573,6 +576,8 @@ class SesamCmdClient:
                             os.chdir(curr_dir)
 
                 self.logger.info("Using %s as base directory", curr_dir)
+                global BASE_DIR
+                BASE_DIR = curr_dir
 
                 self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
                 self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
@@ -954,10 +959,11 @@ class SesamCmdClient:
                                                                                 sort_keys=True)))
 
                         if len(fixed_current_output) != len(expected_output):
+                            file_path = os.path.join(os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file)
                             msg = "Pipe verify failed! Length mismatch for test spec '%s': " \
                                   "expected %d got %d" % (test_spec.spec_file,
                                                           len(expected_output), len(fixed_current_output))
-                            self.logger.error(msg)
+                            self.logger.error(msg, {"file_path": file_path})
 
                             self.logger.info("Expected output:\n%s", pprint.pformat(expected_output))
 
@@ -980,8 +986,10 @@ class SesamCmdClient:
                                                       sort_keys=True)
 
                             if expected_json != current_json:
+                                file_path = os.path.join(os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file)
                                 self.logger.error("Pipe verify failed! "
-                                                  "Content mismatch for test spec '%s'" % test_spec.file)
+                                                  "Content mismatch for test spec '%s'" % test_spec.file,
+                                                                                          {"file_path": file_path})
 
                                 self.logger.info("Expected output:\n%s" % pprint.pformat(expected_output))
 
@@ -1202,7 +1210,7 @@ class SesamCmdClient:
             self.verify()
             self.logger.info("Test was successful!")
         except BaseException as e:
-            self.logger.info("Test failed!")
+            self.logger.error("Test failed!")
             raise e
 
     def start_scheduler(self, timeout=300):
@@ -1395,7 +1403,7 @@ class SesamCmdClient:
             time.sleep(1)
 
         if scheduler_runner.status == "failed":
-            self.logger.info("Failed to run pipes to completion")
+            self.logger.error("Failed to run pipes to completion")
             if self.args.print_scheduler_log is True:
                 print_internal_scheduler_log(since)
             raise RuntimeError(scheduler_runner.result)
@@ -1471,6 +1479,36 @@ class SesamCmdClient:
             raise e
 
         self.logger.info("Successfully wiped node!")
+
+
+class AzureFormatter(logging.Formatter):
+    """Azure syntax log formatter to enrich build feedback"""
+    error_format = '##vso[task.logissue type=error;]%(message)s'
+    warning_format = '##vso[task.logissue type=warning;]%(message)s'
+    debug_format = '##[debug]%(message)s'
+    default_format = '%(message)s'
+
+    def format(self, record):
+        if record.levelno == logging.ERROR:
+            error_format = self.error_format
+            if hasattr(record.args, "get"):
+                record.file_path = record.args.get("file_path")
+                record.line_number = record.args.get("line_number")
+                record.column_number = record.args.get("column_number")
+                error_format = "##vso[task.logissue type=error;"
+                if record.file_path:
+                    error_format += "sourcepath=%(file_path)s;"
+                if record.line_number:
+                    error_format += "linenumber=%(line_number)s;"
+                if record.column_number:
+                    error_format += "columnnumber=%(column_number)s;"
+                error_format += "]%(message)s"
+            return logging.Formatter(error_format).format(record)
+        elif record.levelno == logging.WARNING:
+            return logging.Formatter(self.warning_format).format(record)
+        elif record.levelno == logging.DEBUG:
+            return logging.Formatter(self.debug_format).format(record)
+        return logging.Formatter(self.default_format).format(record)
 
 
 if __name__ == '__main__':
@@ -1564,7 +1602,7 @@ Commands:
                         help="number of test cycles to check for stability")
 
     parser.add_argument('-logformat', dest='logformat', type=str, metavar="<string>", required=False, default="short",
-                        help="output format (normal or log)")
+                        help="output format (normal, log or azure)")
 
     parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
@@ -1584,13 +1622,33 @@ Commands:
 
     if args.logformat == "log":
         format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        formatter = logging.Formatter(format_string)
+    elif args.logformat == "azure":
+        formatter = AzureFormatter()
+
+        # Need to find git root to use when reporting file path in log messages
+        cur_dir = os.getcwd()
+
+        while True:
+            file_list = os.listdir(cur_dir)
+            parent_dir = os.path.dirname(cur_dir)
+            if ".git" in file_list and os.path.isdir(os.path.join(cur_dir, ".git", "objects")):
+                GIT_ROOT = cur_dir
+                break
+            else:
+                if cur_dir == parent_dir:
+                    logger.debug("git root not found")
+                    break
+                else:
+                    cur_dir = parent_dir
     else:
         format_string = '%(message)s'
+        formatter = logging.Formatter(format_string)
 
     # Log to stdout
     logging.addLevelName(LOGLEVEL_TRACE, "TRACE")
     stdout_handler = logging.StreamHandler()
-    stdout_handler.setFormatter(logging.Formatter(format_string))
+    stdout_handler.setFormatter(formatter)
     logger.addHandler(stdout_handler)
 
     if args.verbose:
