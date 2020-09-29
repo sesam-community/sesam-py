@@ -23,6 +23,7 @@ from difflib import unified_diff
 from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
+from jsonformat import format_object
 
 sesam_version = "1.15.42"
 
@@ -748,8 +749,8 @@ class SesamCmdClient:
                 self.logger.info("Local file '%s' was not found in Sesam" % local_file)
                 diff_found = True
             else:
-                local_file_data = str(local_config.read(local_file), encoding="utf-8")
-                remote_file_data = str(remote_config.read(local_file), encoding="utf-8")
+                local_file_data = format_object(json.load(local_config.open(local_file)))
+                remote_file_data = format_object(json.load(remote_config.open(local_file)))
 
                 if local_file_data != remote_file_data:
                     self.logger.info("File '%s' differs from Sesam!" % local_file)
