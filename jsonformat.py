@@ -2,6 +2,9 @@
 # Copyright (C) Bouvet ASA - All Rights Reserved.
 # Unauthorized copying of this file, via any medium is strictly prohibited.
 
+# This is an older version of jsonformat.py from the lake repository
+# The sorting order on dictionary keys only promotes _id to the front
+
 import json
 from collections import OrderedDict
 from collections import Mapping
@@ -38,8 +41,6 @@ class FormatStyle(object):
             setattr(self, "_label_" + prop, label)
 
 
-# This is an older version of jsonformat.py from the lake repository
-# The sorting order on dictionary keys only promotes _id to the front
 
 def format_json(json_object, style=FormatStyle()):
     return format_object(json.loads(json_object), style)
