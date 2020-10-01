@@ -625,7 +625,6 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
-
     def upload(self):
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
