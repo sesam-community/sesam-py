@@ -38,28 +38,11 @@ class FormatStyle(object):
             setattr(self, "_label_" + prop, label)
 
 
+# This is an older version of jsonformat.py from the lake repository
+# The sorting order on dictionary keys only promotes _id to the front
+
 def format_json(json_object, style=FormatStyle()):
     return format_object(json.loads(json_object), style)
-
-
-def is_key_internal(key):
-    return key.startswith("_") and key != "_id"
-
-
-# compact json representation with no extra whitespace
-_SORT_ORDER = [
-    # general sorting
-    '_id', 'type', 'name',
-    # pipes
-    'source', 'sink', 'transform', 'pump', 'metadata',
-    # sinks, sources
-    'system',
-    # hops
-    'datasets', 'where', 'return', 'recurse', 'max_depth', 'exclude_root', 'track-dependencies', 'trace',
-    # dtl transform
-    'default',
-]
-SORT_ORDER_LOOKUP = OrderedDict([(index, key) for key, index in enumerate(_SORT_ORDER)])
 
 
 def format_object(value, style=FormatStyle()):
@@ -67,20 +50,26 @@ def format_object(value, style=FormatStyle()):
     ARRAY = 1
     STRING = 2
     ESCAPE = 3
+    # compact json representation with no extra whitespace
+    SORT_ORDER = [
+        # general sorting
+        '_id', 'type', 'name',
+        # pipes
+        'source', 'sink', 'transform', 'pump', 'metadata',
+        # sinks, sources
+        'system',
+        # hops
+        'datasets', 'where', 'return', 'recurse', 'max_depth', 'exclude_root', 'track-dependencies', 'trace',
+        # dtl transform
+        'default',
+    ]
 
     def key_weight(key):
-        if not style.sort_keys_by_convention:
-            return key
+        if not style.sort_keys_by_convention or key not in SORT_ORDER:
+            # pad to make sure defined order get first
+            return "0" + key
         else:
-            if is_key_internal(key) or key in {"$audit", "$principals-from-user"}:
-                # ensure internal underscore keys and audit and principal information
-                # is at the end
-                return "1" + key
-            elif key not in SORT_ORDER_LOOKUP:
-                # pad to make sure defined order get first
-                return "0" + key
-            else:
-                return chr(SORT_ORDER_LOOKUP.get(key))
+            return chr(SORT_ORDER.index(key))
 
     def sort_dict(dict):
         for key in dict:
