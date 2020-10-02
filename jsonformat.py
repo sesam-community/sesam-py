@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) Bouvet ASA - All Rights Reserved.
-# Unauthorized copying of this file, via any medium is strictly prohibited.
-
 # This is an older version of jsonformat.py from the lake repository
 # The sorting order on dictionary keys only promotes _id to the front
 
