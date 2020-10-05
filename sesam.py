@@ -23,8 +23,9 @@ from difflib import unified_diff
 from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
+from jsonformat import format_object
 
-sesam_version = "1.15.42"
+sesam_version = "1.16.1"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -610,6 +611,20 @@ class SesamCmdClient:
             logger.error("Failed to find node url and/or jwt token")
             raise e
 
+    def format_zip_config(self, zip_data, binary=False):
+        zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
+        buffer = io.BytesIO()
+        zout = zipfile.ZipFile(buffer, mode="w")
+
+        for item in zip_config.infolist():
+            formatted_item = format_object(json.load(zip_config.open(item.filename)))
+            zout.writestr(item, formatted_item)
+
+        zout.close()
+
+        buffer.seek(0)
+        return buffer.read()
+
     def upload(self):
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -678,8 +693,11 @@ class SesamCmdClient:
             zip_data = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings(zip_data)
 
+
+            # normalize formatting
+            formatted_zip_data = self.format_zip_config(zip_data, binary=True)
             with open("sesam-config.zip", "wb") as fp:
-                fp.write(zip_data)
+                fp.write(formatted_zip_data)
 
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
         else:
@@ -696,6 +714,8 @@ class SesamCmdClient:
                 self.logger.debug("Deleting system config file '%s'" % filename)
                 os.remove(filename)
 
+            # normalize formatting
+            zip_data = self.format_zip_config(zip_data)
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
             zip_config.extractall()
         except BaseException as e:
@@ -749,7 +769,7 @@ class SesamCmdClient:
                 diff_found = True
             else:
                 local_file_data = str(local_config.read(local_file), encoding="utf-8")
-                remote_file_data = str(remote_config.read(local_file), encoding="utf-8")
+                remote_file_data = format_object(json.load(remote_config.open(local_file)))
 
                 if local_file_data != remote_file_data:
                     self.logger.info("File '%s' differs from Sesam!" % local_file)
