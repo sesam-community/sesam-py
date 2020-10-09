@@ -1732,7 +1732,8 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe", "dump", "stop"]:
+    if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
+                       "restart", "dump", "stop"]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
