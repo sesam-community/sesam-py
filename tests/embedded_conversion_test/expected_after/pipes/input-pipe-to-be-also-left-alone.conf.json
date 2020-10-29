@@ -1,0 +1,16 @@
+{
+  "_id": "input-pipe-to-be-rewritten",
+  "type": "pipe",
+  "source": {
+    "type": "conditional",
+    "alternatives": {
+      "prod": {
+        "type": "dataset",
+        "dataset": "non_exists"
+      },
+      "test": {
+        "type": "http_endpoint"
+      }
+    }
+  }
+}

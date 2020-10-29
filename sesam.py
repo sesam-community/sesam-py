@@ -1537,6 +1537,9 @@ class SesamCmdClient:
 
         self.logger.info("Successfully restarted target node!")
 
+    def convert(self):
+        pass
+
 class AzureFormatter(logging.Formatter):
     """Azure syntax log formatter to enrich build feedback"""
     error_format = '##vso[task.logissue type=error;]%(message)s'
@@ -1578,6 +1581,7 @@ Commands:
   status    Compare node config with local config (requires external diff command)
   run       Run configuration until it stabilizes
   update    Store current output as expected output
+  convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected) 
@@ -1733,7 +1737,7 @@ Commands:
     command = args.command and args.command.lower() or ""
 
     if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
-                       "restart", "dump", "stop"]:
+                       "restart", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -1789,6 +1793,8 @@ Commands:
             sesam_cmd_client.wipe()
         elif command == "restart":
             sesam_cmd_client.restart()
+        elif command == "convert":
+            sesam_cmd_client.convert()
         elif command == "dump":
             sesam_cmd_client.dump()
         else:

@@ -1,0 +1,34 @@
+{
+  "_id": "input-pipe-to-be-rewritten",
+  "type": "pipe",
+  "source": {
+    "type": "conditional",
+    "alternatives": {
+      "prod": {
+        "type": "dataset",
+        "dataset": "non_exists"
+      },
+      "test": {
+        "type": "embedded",
+        "entities": [
+          {
+            "_id": "This",
+            "name": "one"
+          },
+          {
+            "_id": "source",
+            "name": "two"
+          },
+          {
+            "_id": "gets",
+            "name": "three"
+          },
+          {
+            "_id": "overwritten",
+            "name": "four"
+          }
+        ]
+      }
+    }
+  }
+}
