@@ -472,14 +472,14 @@ class SesamNode:
 
         return resp.text
 
-    def pipe_receiver_post_request(self, pipe_id, data=None, json=None):
+    def pipe_receiver_post_request(self, pipe_id, **kwargs):
         pipe = self.get_pipe(pipe_id)
         if pipe is None:
             raise AssertionError("Pipe '%s' doesn't exist" % pipe_id)
 
         pipe_url = self.api_connection.get_pipe_receiver_endpoint_url(pipe_id)
 
-        resp = self.api_connection.session.post(pipe_url, data=data, json=json)
+        resp = self.api_connection.session.post(pipe_url, **kwargs)
 
         resp.raise_for_status()
         return resp.json()
@@ -720,7 +720,10 @@ class SesamCmdClient:
                     pipe_id = filename.replace(".json", "")
                     try:
                         with open(os.path.join(root, filename), "r") as f:
-                            self.sesam_node.pipe_receiver_post_request(pipe_id, data=f)
+                            entities_json = json.load(f)
+
+                        if entities_json is not None:
+                            self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
                     except BaseException as e:
                         self.logger.error(f"Failed to post payload to pipe {pipe_id}. {e}")
                         raise e
