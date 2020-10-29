@@ -1,5 +1,5 @@
 {
-  "_id": "input-pipe-to-be-also-left-alone",
+  "_id": "input-pipe-2",
   "type": "pipe",
   "source": {
     "type": "conditional",

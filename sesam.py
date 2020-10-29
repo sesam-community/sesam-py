@@ -210,6 +210,13 @@ class SesamNode:
         except:
             return None
 
+    def get_pipe(self, pipe_id):
+        self.logger.log(LOGLEVEL_TRACE, "Get pipe '%s' from %s" % (pipe_id, self.node_url))
+        try:
+            return self.api_connection.get_pipe(pipe_id)
+        except:
+            return None
+
     def add_system(self, config, verify=False, timeout=300):
         self.logger.log(LOGLEVEL_TRACE, "Add system '%s' to %s" % (config, self.node_url))
 
@@ -465,6 +472,20 @@ class SesamNode:
 
         return resp.text
 
+    def pipe_receiver_post_request(self, pipe_id, data=None, json=None):
+        pipe = self.get_pipe(pipe_id)
+        if pipe is None:
+            raise AssertionError("Pipe '%s' doesn't exist" % pipe_id)
+
+        pipe_url = self.api_connection.get_pipe_receiver_endpoint_url(pipe_id)
+
+        resp = self.api_connection.session.post(pipe_url, data=data, json=json)
+
+        resp.raise_for_status()
+        return resp.json()
+
+
+
 
 class SesamCmdClient:
     """ Commands wrapped in a class to make it easier to write unit tests """
@@ -692,6 +713,21 @@ class SesamCmdClient:
             raise e
 
         self.logger.info("Config uploaded successfully")
+
+        if self.args.post_testdata and os.path.isdir("testdata"):
+            for root, dirs, files in os.walk("testdata"):
+                for filename in files:
+                    pipe_id = filename.replace(".json", "")
+                    try:
+                        with open(os.path.join(root, filename), "r") as f:
+                            self.sesam_node.pipe_receiver_post_request(pipe_id, data=f)
+                    except BaseException as e:
+                        self.logger.error(f"Failed to post payload to pipe {pipe_id}. {e}")
+                        raise e
+
+            self.logger.info("Test data uploaded successfully")
+        else:
+            self.logger.info("No test data found to upload")
 
     def dump(self):
         try:
@@ -1576,7 +1612,11 @@ class SesamCmdClient:
             with open(path, 'w') as pipe_file:
                 pipe_file.write(format_object(pipe_json))
 
+
+        self.logger.info("Starting converting conditional embedded sources")
+
         if self.args.dump:
+            self.logger.info("Dumping config for backup")
             self.dump()
 
         for filepath in glob.glob("pipes%s*.conf.json" % os.sep):
@@ -1594,6 +1634,8 @@ class SesamCmdClient:
 
             if entities is not None:
                 save_testdata_file(pipe_id_from_basename, entities)
+
+        self.logger.info("Successfully converted pipes and created testdata folder")
 
 
 class AzureFormatter(logging.Formatter):
@@ -1727,6 +1769,9 @@ Commands:
 
     parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
+
+    parser.add_argument('-post-testdata', dest='post_testdata', required=False,
+                        action="store_true", help="post testdata from testdata folder along with upload, if they are present")
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 

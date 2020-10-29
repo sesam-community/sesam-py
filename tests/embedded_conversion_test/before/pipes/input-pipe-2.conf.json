@@ -1,8 +1,9 @@
 {
-  "_id": "input-pipe-1",
+  "_id": "input-pipe-2",
   "type": "pipe",
   "source": {
     "type": "conditional",
+    "condition": "test",
     "alternatives": {
       "prod": {
         "type": "dataset",
@@ -12,24 +13,23 @@
         "type": "embedded",
         "entities": [
           {
-            "_id": "This",
+            "_id": "And this",
             "name": "one"
           },
           {
-            "_id": "source",
+            "_id": "source also",
             "name": "two"
           },
           {
-            "_id": "gets",
+            "_id": "gets totally",
             "name": "three"
           },
           {
-            "_id": "overwritten",
+            "_id": "overwritten, really.",
             "name": "four"
           }
         ]
       }
-    },
-    "condition": "test"
+    }
   }
 }

@@ -3,7 +3,7 @@
   "type": "pipe",
   "source": {
     "type": "dataset",
-    "dataset": "input-pipe-to-be-rewritten"
+    "dataset": "input-pipe-1"
   },
   "sink": {
     "type": "http_endpoint"
