@@ -1,5 +1,5 @@
 {
-  "_id": "input-pipe-to-be-rewritten",
+  "_id": "input-pipe-1",
   "type": "pipe",
   "source": {
     "type": "conditional",

@@ -1538,7 +1538,63 @@ class SesamCmdClient:
         self.logger.info("Successfully restarted target node!")
 
     def convert(self):
-        pass
+
+        def get_pipe_id(path):
+            basename = os.path.basename(path)
+            return basename.replace(".conf.json", "")
+
+        def has_conditional_embedded_source(pipe_config, env):
+            source_config = pipe_config.get("source", {})
+            source_type = source_config.get("type", "")
+            if source_type == "conditional":
+                alternatives = source_config.get("alternatives")
+                current_profile_alternative = alternatives.get(env, {})
+                if current_profile_alternative.get("type", "") == "embedded":
+                    return True
+            return False
+
+        def convert_pipe_config(pipe_config):
+            entities = None
+            modified_pipe_config = None
+            if has_conditional_embedded_source(pipe_config, self.args.profile):
+                alternatives = pipe["source"]["alternatives"]
+                entities = alternatives[self.args.profile]["entities"]
+                # rewrite the case which corresponds to env profile
+                alternatives[self.args.profile] = {
+                    "type": "http_endpoint"
+                }
+                modified_pipe_config = pipe_config
+
+            return modified_pipe_config, entities
+
+        def save_testdata_file(pipe_id, entities):
+            os.makedirs("testdata", exist_ok=True)
+            with open(f"testdata{os.sep}{pipe_id}.json", "w") as testdata_file:
+                testdata_file.write(format_object(entities))
+
+        def save_modified_pipe(pipe_json, path):
+            with open(path, 'w') as pipe_file:
+                pipe_file.write(format_object(pipe_json))
+
+        if self.args.dump:
+            self.dump()
+
+        for filepath in glob.glob("pipes%s*.conf.json" % os.sep):
+            pipe_id_from_basename = get_pipe_id(filepath)
+
+            with open(filepath, 'r') as pipe_file:
+                pipe = json.load(pipe_file)
+                if pipe["_id"] != pipe_id_from_basename:
+                    print(
+                        f"Warning! Pipe id \"{pipe['_id']}\" doesn't match pipe id from filename (\"{pipe_id_from_basename}\"). Skipping convert command for this pipe")
+                pipe_to_rewrite, entities = convert_pipe_config(pipe)
+
+            if pipe_to_rewrite is not None:
+                save_modified_pipe(pipe_to_rewrite, filepath)
+
+            if entities is not None:
+                save_testdata_file(pipe_id_from_basename, entities)
+
 
 class AzureFormatter(logging.Formatter):
     """Azure syntax log formatter to enrich build feedback"""

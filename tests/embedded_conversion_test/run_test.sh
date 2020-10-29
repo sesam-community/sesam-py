@@ -4,15 +4,22 @@ set -e
 
 echo "Running conversion test.."
 
-mkdir test
-cp -r before/* test/
+rm -rf test_after
+mkdir test_after
+cp -r before/* test_after/
 
-pushd test
+pushd test_after
 
-#$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v -use-internal-scheduler -print-scheduler-log convert -v
+$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -v convert
 
 popd
 
-rm -rf test
+if ! diff -r expected_after/ test_after/
+then
+    echo "Conversion test failed. Found diff to expected output."
+else
+    echo "Conversion test passed!"
+fi
 
-echo "Conversion test passed!"
+rm -rf test_after
+
