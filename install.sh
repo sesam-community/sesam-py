@@ -5,7 +5,7 @@ echo "Installing.."
 
 if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
     echo "Building on OSX.."
-    brew upgrade python
+    brew upgrade python@3.7.5
     # make brews python the system default
     python3 --version
 
