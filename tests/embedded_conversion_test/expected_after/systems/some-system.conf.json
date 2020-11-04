@@ -1,0 +1,10 @@
+{
+  "_id": "email-system",
+  "type": "system:smtp",
+  "max_per_hour": 1000,
+  "smtp_password": "foobar",
+  "smtp_port": 25,
+  "smtp_server": "foobar.com",
+  "smtp_username": "foobarman",
+  "use_tls": true
+}

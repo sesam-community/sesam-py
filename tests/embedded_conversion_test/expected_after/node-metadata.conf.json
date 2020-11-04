@@ -1,0 +1,10 @@
+{
+  "_id": "node",
+  "type": "metadata",
+  "namespaced_identifiers": true,
+  "namespaces": {
+    "default": {
+      "sesam-io": "http://data.sesam.io/schema/"
+    }
+  }
+}

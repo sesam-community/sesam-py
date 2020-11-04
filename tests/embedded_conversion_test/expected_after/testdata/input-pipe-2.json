@@ -1,0 +1,13 @@
+[{
+  "_id": "And this",
+  "name": "one"
+}, {
+  "_id": "source also",
+  "name": "two"
+}, {
+  "_id": "gets totally",
+  "name": "three"
+}, {
+  "_id": "overwritten, really.",
+  "name": "four"
+}]
