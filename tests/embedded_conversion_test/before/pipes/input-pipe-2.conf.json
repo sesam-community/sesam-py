@@ -3,7 +3,6 @@
   "type": "pipe",
   "source": {
     "type": "conditional",
-    "condition": "test",
     "alternatives": {
       "prod": {
         "type": "dataset",
@@ -11,25 +10,21 @@
       },
       "test": {
         "type": "embedded",
-        "entities": [
-          {
-            "_id": "And this",
-            "name": "one"
-          },
-          {
-            "_id": "source also",
-            "name": "two"
-          },
-          {
-            "_id": "gets totally",
-            "name": "three"
-          },
-          {
-            "_id": "overwritten, really.",
-            "name": "four"
-          }
-        ]
+        "entities": [{
+          "_id": "And this",
+          "name": "one"
+        }, {
+          "_id": "source also",
+          "name": "two"
+        }, {
+          "_id": "gets totally",
+          "name": "three"
+        }, {
+          "_id": "overwritten, really.",
+          "name": "four"
+        }]
       }
-    }
+    },
+    "condition": "test"
   }
 }
