@@ -1,0 +1,33 @@
+{
+  "_id": "Input-Pipe-3",
+  "type": "pipe",
+  "source": {
+    "type": "conditional",
+    "alternatives": {
+      "prod": {
+        "type": "dataset",
+        "dataset": "non_exists"
+      },
+      "test": {
+        "type": "embedded",
+        "entities": [{
+          "_id": "This",
+          "name": "one"
+        }, {
+          "_id": "Pipe",
+          "name": "two"
+        }, {
+          "_id": "Has",
+          "name": "three"
+        }, {
+          "_id": "Uppercased",
+          "name": "four"
+        }, {
+          "_id": "PipeId",
+          "name": "five"
+        }]
+      }
+    },
+    "condition": "test"
+  }
+}
