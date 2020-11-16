@@ -1787,9 +1787,6 @@ Commands:
     parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
 
-    parser.add_argument('-post-testdata', dest='post_testdata', required=False,
-                        action="store_true", help="post testdata from testdata folder along with upload, if they are present")
-
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
     try:
