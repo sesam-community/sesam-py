@@ -1,5 +1,5 @@
 {
-  "_id": "input-pipe-2",
+  "_id": "Input-Pipe-3",
   "type": "pipe",
   "source": {
     "type": "conditional",
@@ -11,17 +11,20 @@
       "test": {
         "type": "embedded",
         "entities": [{
-          "_id": "And this",
+          "_id": "This",
           "name": "one"
         }, {
-          "_id": "source also",
+          "_id": "Pipe",
           "name": "two"
         }, {
-          "_id": "gets totally",
+          "_id": "Has",
           "name": "three"
         }, {
-          "_id": "overwritten, really.",
+          "_id": "Uppercased",
           "name": "four"
+        }, {
+          "_id": "PipeId",
+          "name": "five"
         }]
       }
     },

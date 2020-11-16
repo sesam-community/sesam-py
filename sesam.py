@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.18.0"
+sesam_version = "1.18.1"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -484,7 +484,18 @@ class SesamNode:
         resp.raise_for_status()
         return resp.json()
 
+    def enable_pipe(self, pipe_id):
+        self.get_pipe(pipe_id).get_pump().enable()
 
+    def disable_pipe(self, pipe_id):
+        self.get_pipe(pipe_id).get_pump().disable()
+
+    def delete_dataset(self, pipe_id):
+        dataset_url = "%s/datasets/%s" % (self.node_url, pipe_id)
+        resp = self.api_connection.session.delete(dataset_url)
+        resp.raise_for_status()
+
+        return resp.json()
 
 
 class SesamCmdClient:
@@ -714,7 +725,7 @@ class SesamCmdClient:
 
         self.logger.info("Config uploaded successfully")
 
-        if self.args.post_testdata and os.path.isdir("testdata"):
+        if os.path.isdir("testdata"):
             for root, dirs, files in os.walk("testdata"):
                 for filename in files:
                     pipe_id = filename.replace(".json", "")
@@ -723,9 +734,15 @@ class SesamCmdClient:
                             entities_json = json.load(f)
 
                         if entities_json is not None:
+                            # deleting dataset before pushing data, since http_endpoint receiver will not delete
+                            # existing test data.
+                            self.sesam_node.delete_dataset(pipe_id)
+                            self.sesam_node.enable_pipe(pipe_id)
                             self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+                            self.sesam_node.disable_pipe(pipe_id)
+
                     except BaseException as e:
-                        self.logger.error(f"Failed to post payload to pipe {pipe_id}. {e}")
+                        self.logger.error(f"Failed to post payload to pipe {pipe_id}. {e}. Response from server was: {e.response.text}")
                         raise e
 
             self.logger.info("Test data uploaded successfully")
@@ -1627,16 +1644,13 @@ class SesamCmdClient:
 
             with open(filepath, 'r') as pipe_file:
                 pipe = json.load(pipe_file)
-                if pipe["_id"] != pipe_id_from_basename:
-                    print(
-                        f"Warning! Pipe id \"{pipe['_id']}\" doesn't match pipe id from filename (\"{pipe_id_from_basename}\"). Skipping convert command for this pipe")
                 pipe_to_rewrite, entities = convert_pipe_config(pipe)
 
             if pipe_to_rewrite is not None:
                 save_modified_pipe(pipe_to_rewrite, filepath)
 
             if entities is not None:
-                save_testdata_file(pipe_id_from_basename, entities)
+                save_testdata_file(pipe["_id"], entities)
 
         self.logger.info("Successfully converted pipes and created testdata folder")
 
@@ -1772,9 +1786,6 @@ Commands:
 
     parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
-
-    parser.add_argument('-post-testdata', dest='post_testdata', required=False,
-                        action="store_true", help="post testdata from testdata folder along with upload, if they are present")
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
