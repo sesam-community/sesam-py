@@ -805,6 +805,7 @@ class SesamCmdClient:
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
         else:
             if self.args.use_config_groups:
+                self.logger.info(self.args.use_config_groups)
                 self.logger.info("Downloading using config groups")
                 if os.path.isfile("node-metadata.conf.json"):
                     with open("node-metadata.conf.json", "r") as node_metadata_file:
@@ -1006,9 +1007,12 @@ class SesamCmdClient:
             for pipe in existing_output_pipes.values():
                 self.logger.debug("Updating pipe '%s" % pipe.id)
 
+                if not os.path.isdir(os.path.join("expected")):
+                    os.makedirs("expected")
+                    self.logger.info("Found no expected test directory in %s - creating empty directory", os.getcwd())
+
                 if pipe.id not in test_specs:
                     self.logger.warning("Found no spec for pipe %s - creating empty spec file" % pipe.id)
-
                     filename = os.path.join("expected", "%s.test.json" % pipe.id)
                     with open(filename, "w") as fp:
                         fp.write("{\n}")
@@ -1900,7 +1904,7 @@ Commands:
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
-    parser.add_argument('-use-config-groups', dest='use_config_groups', type=str, metavar="<string>", default="default",
+    parser.add_argument('-use-config-groups', dest='use_config_groups', type=str, metavar="<string>",
                         required=False, help="download/upload/test using config-groups in pipes and systems.")
 
     try:
