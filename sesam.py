@@ -1706,6 +1706,64 @@ class SesamCmdClient:
 
         self.logger.info("Successfully converted pipes and created testdata folder")
 
+    def init(self):
+
+        def create_folder(dir_name, parent_dir_name=None):
+            current_dir = os.getcwd().split(os.sep)[-1]
+            parent_dir = os.getcwd().split(os.sep)[-2]
+
+            if dir_name is not "node":
+                if current_dir != dir_name:
+                    if not parent_dir_name == parent_dir:
+                        if not os.path.isdir(os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + os.sep +
+                                             parent_dir_name + os.sep + dir_name):
+                            try:
+                                os.makedirs(parent_dir_name + os.sep + dir_name)
+                                self.logger.info("Creating directory with path %s.", parent_dir_name + os.sep +
+                                                 dir_name)
+                            except FileExistsError as e:
+                                self.logger.error("Cannot create directory \"%s\" already exists", dir_name)
+                        else:
+                            self.logger.error("Cannot create directory: \"%s\" already exists", dir_name)
+                    else:
+                        self.logger.error("Cannot create directory \"%s\" parent directory name should be \"node\". "
+                                          "current parent directory will be \"%s\"", dir_name, current_dir)
+                else:
+                    self.logger.error("Cannot create directory \"%s\" inside \"%s\" directory", dir_name, current_dir)
+            #creating node folder
+            elif current_dir != dir_name and parent_dir != dir_name and "node" not in os.listdir(os.getcwd()):
+                self.logger.info("Creating directory with path %s.", dir_name)
+                os.makedirs(dir_name)
+            else:
+                self.logger.error("Cannot create directory \"%s\" already exists", dir_name)
+
+        def create_file(path, filename, ext, file_content):
+            delimiter = "."
+            if ext == "":
+                delimiter = ""
+            if os.path.isdir(path):
+                if not os.path.isfile(path + filename + delimiter + ext):
+                    with open(path + filename + delimiter + ext, 'w') as variable_filename:
+                        self.logger.info("Creating file:  %s%s%s%s", path, filename, delimiter, ext)
+                        variable_filename.write(file_content)
+                else:
+                    self.logger.error("File already exists: %s%s%s%s", path, filename, delimiter, ext)
+            else:
+                self.logger.error("File already exists: %s%s%s%s", path, filename, delimiter, ext)
+
+        create_folder("node")
+        create_folder("testdata", "node")
+        create_folder("expected", "node")
+        create_folder("systems", "node")
+        create_folder("pipes", "node")
+        create_folder("variables", "node")
+
+        create_file("node"+os.sep, ".syncconfig", "", 'JWT=""\nNODE=""')
+        create_file("node"+os.sep, "test-env", "json", format_object({}))
+        create_file("node"+os.sep+"variables"+os.sep, "variables-dev", "json", format_object({}))
+        create_file("node"+os.sep+"variables"+os.sep, "variables-staging", "json", format_object({}))
+        create_file("node"+os.sep+"variables"+os.sep, "variables-prod", "json", format_object({}))
+
 
 class AzureFormatter(logging.Formatter):
     """Azure syntax log formatter to enrich build feedback"""
@@ -1752,6 +1810,7 @@ Commands:
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected) 
+  init      Initialise Sesam folder structure for projects.
 """, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-version', dest='version', required=False, action='store_true', help="print version number")
@@ -1907,7 +1966,7 @@ Commands:
     command = args.command and args.command.lower() or ""
 
     if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
-                       "restart", "dump", "stop", "convert"]:
+                       "restart", "dump", "stop", "convert", "init"]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -1918,25 +1977,26 @@ Commands:
 
     sesam_cmd_client = SesamCmdClient(args, logger)
 
-    try:
-        node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
-    except BaseException as e:
-        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
-            logger.exception(e)
-        logger.error("jwt and node must be specified either as parameter, os env or in config file")
-        sys.exit(1)
+    if command != "init":
+        try:
+            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
+        except BaseException as e:
+            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+                logger.exception(e)
+            logger.error("jwt and node must be specified either as parameter, os env or in config file")
+            sys.exit(1)
 
-    try:
-        sesam_cmd_client.sesam_node = SesamNode(node_url, jwt_token, logger,
-                                                verify_ssl=args.skip_tls_verification is False)
-    except BaseException as e:
-        if args.verbose or args.extra_verbose:
-            logger.exception(e)
-        logger.error("failed to connect to the sesam node using the url and jwt token we were given:\n%s\n%s" %
-                     (node_url, jwt_token))
-        logger.error("please verify the url and token is correct, and that there isn't any network issues "
-                     "(i.e. firewall, internet connection etc)")
-        sys.exit(1)
+        try:
+            sesam_cmd_client.sesam_node = SesamNode(node_url, jwt_token, logger,
+                                                    verify_ssl=args.skip_tls_verification is False)
+        except BaseException as e:
+            if args.verbose or args.extra_verbose:
+                logger.exception(e)
+            logger.error("failed to connect to the sesam node using the url and jwt token we were given:\n%s\n%s" %
+                         (node_url, jwt_token))
+            logger.error("please verify the url and token is correct, and that there isn't any network issues "
+                         "(i.e. firewall, internet connection etc)")
+            sys.exit(1)
 
     start_time = time.monotonic()
     try:
@@ -1967,6 +2027,8 @@ Commands:
             sesam_cmd_client.convert()
         elif command == "dump":
             sesam_cmd_client.dump()
+        elif command == "init":
+            sesam_cmd_client.init()
         else:
             logger.error("Unknown command: %s" % command)
             sys.exit(1)
