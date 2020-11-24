@@ -805,7 +805,6 @@ class SesamCmdClient:
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
         else:
             if self.args.use_config_groups:
-                self.logger.info(self.args.use_config_groups)
                 self.logger.info("Downloading using config groups")
                 if os.path.isfile("node-metadata.conf.json"):
                     with open("node-metadata.conf.json", "r") as node_metadata_file:

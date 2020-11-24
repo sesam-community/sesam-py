@@ -194,7 +194,7 @@ This custom scheduler needs to implement the following:
 ## Installing
 
 You can either run the sesam.py script directly using python, or you can download and run a stand alone 
-binary from [Github Releases](https://github.com/tombech/sesam-py/releases/).
+binary from [Github Releases](https://github.com/sesam-community/sesam-py/releases/).
 
 
 To install and run the sesam client with python on Linux/OSX (python 3.5+ required):
