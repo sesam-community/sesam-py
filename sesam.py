@@ -737,7 +737,7 @@ class SesamCmdClient:
                     node_metadata["task_manager"]["disable_user_pipes"] = True
 
                 self.sesam_node.put_config(node_metadata, force=True)
-            self.sesam_node.put_config(zip_config, force=True, config_group=self.args.use_config_groups)
+            self.sesam_node.put_config(zip_config, force=True, config_group=self.args.use_config_group)
         except BaseException as e:
             self.logger.error("Failed to upload config to sesam")
             raise e
@@ -789,9 +789,9 @@ class SesamCmdClient:
         if self.args.dump:
             if os.path.isfile("sesam-config.zip"):
                     os.remove("sesam-config.zip")
-            if self.args.use_config_groups:
+            if self.args.use_config_group:
                 self.logger.info("downloading using config groups")
-                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_groups)
+                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
             else:
                 zip_data = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings_from_zip(zip_data)
@@ -804,7 +804,7 @@ class SesamCmdClient:
 
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
         else:
-            if self.args.use_config_groups:
+            if self.args.use_config_group:
                 self.logger.info("Downloading using config groups")
                 if os.path.isfile("node-metadata.conf.json"):
                     with open("node-metadata.conf.json", "r") as node_metadata_file:
@@ -817,7 +817,7 @@ class SesamCmdClient:
                         node_metadata = self.remove_task_manager_settings_from_file(original_file, node_metadata)
                         fp.write(format_object(node_metadata))
 
-                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_groups)
+                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
 
             else:
                 zip_data = self.sesam_node.get_config(binary=True)
@@ -861,9 +861,9 @@ class SesamCmdClient:
         local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
         if self.args.dump:
 
-            if self.args.use_config_groups:
+            if self.args.use_config_group:
                 self.logger.info("downloading using config groups")
-                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_groups)
+                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
             else:
                 zip_data = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings_from_zip(zip_data)
@@ -874,9 +874,9 @@ class SesamCmdClient:
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
         else:
 
-            if self.args.use_config_groups:
+            if self.args.use_config_group:
                 self.logger.info("downloading using config groups")
-                remote_config = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_groups)
+                remote_config = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
             else:
                 remote_config = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings_from_zip(remote_config)
@@ -1610,9 +1610,9 @@ class SesamCmdClient:
         self.stop()
 
         try:
-            if self.args.use_config_groups:
-                self.sesam_node.put_config([], config_group=self.args.use_config_groups, force=True)
-                self.logger.info("Removed pipes and systems in config group %s", self.args.use_config_groups )
+            if self.args.use_config_group:
+                self.sesam_node.put_config([], config_group=self.args.use_config_group, force=True)
+                self.logger.info("Removed pipes and systems in config group %s", self.args.use_config_group)
             else:
                 self.sesam_node.put_config([], force=True)
                 self.logger.info("Removed pipes and systems")
@@ -1903,7 +1903,7 @@ Commands:
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
-    parser.add_argument('-use-config-groups', dest='use_config_groups', type=str, metavar="<string>",
+    parser.add_argument('-use-config-group', dest='use_config_group', type=str, metavar="<string>",
                         required=False, help="download/upload/test using config-groups in pipes and systems.")
 
     try:
