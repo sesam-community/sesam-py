@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.18.1"
+sesam_version = "1.18.2"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1690,7 +1690,7 @@ if __name__ == '__main__':
 Commands:
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
-  upload    Replace node config with local config
+  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
   status    Compare node config with local config (requires external diff command)
