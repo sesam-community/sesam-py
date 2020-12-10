@@ -730,7 +730,7 @@ class SesamCmdClient:
                 for filename in files:
                     pipe_id = filename.replace(".json", "")
                     try:
-                        with open(os.path.join(root, filename), "r") as f:
+                        with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
                             entities_json = json.load(f)
 
                         if entities_json is not None:
