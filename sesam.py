@@ -1625,11 +1625,11 @@ class SesamCmdClient:
 
         def save_testdata_file(pipe_id, entities):
             os.makedirs("testdata", exist_ok=True)
-            with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf8") as testdata_file:
+            with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8") as testdata_file:
                 testdata_file.write(format_object(entities))
 
         def save_modified_pipe(pipe_json, path):
-            with open(path, 'w', encoding="utf8") as pipe_file:
+            with open(path, 'w', encoding="utf-8") as pipe_file:
                 pipe_file.write(format_object(pipe_json))
 
 
