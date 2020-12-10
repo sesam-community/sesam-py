@@ -4,6 +4,10 @@
   "namespaced_identifiers": true,
   "namespaces": {
     "default": {
+      "_": "http://data.sesam.io/sesam",
+      "ad-department": "http://data.sesam.io/sesam/ad/department/",
+      "ad-user": "http://data.sesam.io/sesam/ad/user/",
+      "bouvet": "http://data.sesam.io/sesam/bouvet/",
       "sesam-io": "http://data.sesam.io/schema/"
     }
   }

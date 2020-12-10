@@ -1,0 +1,25 @@
+{
+  "_id": "input-pipe-norwegian",
+  "type": "pipe",
+  "description": "øæå",
+  "source": {
+    "type": "conditional",
+    "alternatives": {
+      "prod": {
+        "type": "dataset",
+        "dataset": "non_exists"
+      },
+      "test": {
+        "type": "embedded",
+        "entities": [{
+          "_id": "A",
+          "name": "øæå"
+        }, {
+          "_id": "B",
+          "name": "øæå"
+        }]
+      }
+    },
+    "condition": "test"
+  }
+}

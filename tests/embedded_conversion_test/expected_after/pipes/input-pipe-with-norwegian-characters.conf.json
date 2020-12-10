@@ -1,5 +1,5 @@
 {
-  "_id": "input-pipe-to-be-also-left-alone",
+  "_id": "input-pipe-norwegian",
   "type": "pipe",
   "source": {
     "type": "conditional",
@@ -13,5 +13,6 @@
       }
     },
     "condition": "test"
-  }
+  },
+  "description": "øæå"
 }
