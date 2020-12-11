@@ -9,7 +9,11 @@ jobs:
         python: [3.6]
     steps:
       - name: Echo the current os
-        run:  echo ${{matrix.os}}
+        run:  |
+          echo ${{matrix.os}}
+          echo $RUNNER_OS
+      - name: Checkout code
+            uses: actions/checkout@v2
       - name: Allow running of install scripts
         run: |
           chmod +x install.sh
