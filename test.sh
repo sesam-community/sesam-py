@@ -4,11 +4,11 @@ set -e
 
 echo "Testing..."
 
-if [ "$TRAVIS_OS_NAME" == "linux"   ] || [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
+if [ "$TRAVIS_OS_NAME" == "linux" ] || [ "$TRAVIS_OS_NAME" == "osx" ] || [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam
 fi
 
-if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
+if [ "$TRAVIS_OS_NAME" == "windows" ] || [ "$RUNNER_OS" == "Windows" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam.exe
 fi
 
@@ -19,7 +19,7 @@ fi
 $SESAM_CLIENT -h
 
 # Only run the tests on linux for now
-if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
+if [ "$TRAVIS_OS_NAME" == "linux" ] || [ -v "$RUNNER_OS" ] ; then
     export NODE_URL=https://datahub-cd9f97d6.sesam.cloud/api
     export PUBLIC_CI_TOKEN=$SESAM_TOKEN
 

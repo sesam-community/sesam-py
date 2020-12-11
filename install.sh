@@ -3,7 +3,7 @@ set -x
 
 echo "Installing.."
 
-if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
+if [ "$TRAVIS_OS_NAME" == "osx" ] || [ "$RUNNER_OS" == "macOS" ] ; then
     echo "Building on OSX.."
     brew upgrade python@3.7.5
     # make brews python the system default
@@ -18,7 +18,7 @@ if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
     /Users/travis/build/sesam-community/sesam-py/dist/sesam -h
 fi
 
-if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
+if [ "$TRAVIS_OS_NAME" == "linux" ] || [ "$RUNNER_OS" == "Linux" ] ; then
     echo "Building on Linux.."
 
     python3 --version
@@ -32,7 +32,7 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
     /home/travis/build/sesam-community/sesam-py/dist/sesam -h
 fi
 
-if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
+if [ "$TRAVIS_OS_NAME" == "windows" ] || [ "$RUNNER_OS" == "Windows" ] ; then
     echo "Building on Windows.."
 
     export PATH=$PY37PATH:$PATH
