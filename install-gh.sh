@@ -17,8 +17,4 @@ if [ "$RUNNER_OS" == "Windows" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam.exe
 fi
 
-if [ -z "$TRAVIS_OS_NAME" ] ; then
-    export SESAM_CLIENT=~/bin/sesam-py
-fi
-
 $SESAM_CLIENT -h
