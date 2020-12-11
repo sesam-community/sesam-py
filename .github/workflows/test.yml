@@ -6,19 +6,20 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        python: [3.6]
+        python: [3.7]
     steps:
-      - name: Echo the current os
+      - name: Echo information
         run:  |
           echo ${{matrix.os}}
           echo $RUNNER_OS
+          python --version
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Allow running of install scripts
         run: |
-          chmod +x install.sh
-          chmod +x test.sh
+          chmod +x install-gh.sh
+          chmod +x test-gh.sh
       - name: Run install script
-        run: bash install.sh
+        run: bash install-gh.sh
       - name: Run test script
-        run: bash test.sh
+        run: bash test-gh.sh
