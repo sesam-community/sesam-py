@@ -11,7 +11,7 @@ if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
 
     pip3 install pyinstaller
 
-    pip3 install --user -U -r requirements.txt 
+    pip3 install --user -U -r requirements.txt
 
     pyinstaller --onefile sesam.py
 
