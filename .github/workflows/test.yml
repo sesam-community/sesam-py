@@ -16,13 +16,18 @@ jobs:
       - name: Echo information
         run:  |
           echo ${{matrix.os}}
-          echo $RUNNER_OS
           python --version
       - name: Allow running of install scripts
+        env:
+          RUNNER_OS: ${{ matrix.os }}
         run: |
           chmod +x install-gh.sh
           chmod +x test-gh.sh
       - name: Run install script
+        env:
+          RUNNER_OS: ${{ matrix.os }}
         run: bash install-gh.sh
       - name: Run test script
+        env:
+          RUNNER_OS: ${{ matrix.os }}
         run: bash test-gh.sh
