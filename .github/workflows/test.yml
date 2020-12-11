@@ -30,4 +30,5 @@ jobs:
       - name: Run test script
         env:
           RUNNER_OS: ${{ matrix.os }}
+          SESAM_TOKEN: ${{ secrets.SesamToken }}
         run: bash test-gh.sh
