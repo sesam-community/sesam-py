@@ -3,9 +3,9 @@ set -x
 
 echo "Installing.."
 
-pip3 install pyinstaller
+pip install pyinstaller
 
-pip3 install --user -U -r requirements.txt
+pip install --user -U -r requirements.txt
 
 pyinstaller --onefile sesam.py
 
