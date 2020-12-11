@@ -8,13 +8,16 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python: [3.7]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
       - name: Echo information
         run:  |
           echo ${{matrix.os}}
           echo $RUNNER_OS
-          python --version
-      - name: Checkout code
-        uses: actions/checkout@v2
+          python3 --version
       - name: Allow running of install scripts
         run: |
           chmod +x install-gh.sh
