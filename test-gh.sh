@@ -4,20 +4,6 @@ set -e
 
 echo "Testing..."
 
-if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ] ; then
-    export SESAM_CLIENT=$PWD/dist/sesam
-fi
-
-if [ "$RUNNER_OS" == "Windows" ] ; then
-    export SESAM_CLIENT=$PWD/dist/sesam.exe
-fi
-
-if [ -z "$TRAVIS_OS_NAME" ] ; then
-    export SESAM_CLIENT=~/bin/sesam-py
-fi
-
-$SESAM_CLIENT -h
-
 export NODE_URL=https://datahub-cd9f97d6.sesam.cloud/api
 export PUBLIC_CI_TOKEN=$SESAM_TOKEN
 
