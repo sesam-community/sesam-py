@@ -8,8 +8,8 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python: [3.6]
     steps:
-      - name: Echo the current target
-        run:  echo ${{matrix.TARGET}}
+      - name: Echo the current os
+        run:  echo ${{matrix.os}}
       - name: Allow running of install scripts
         run: |
           chmod +x install.sh
