@@ -1,12 +1,8 @@
 name: test
 on: pull_request
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        python: [3.7]
+  test-ubuntu:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -15,20 +11,77 @@ jobs:
           python-version: 3.7
       - name: Echo information
         run:  |
-          echo ${{matrix.os}}
+          echo "ubuntu-latest"
           python --version
       - name: Allow running of install scripts
         env:
-          RUNNER_OS: ${{ matrix.os }}
+          RUNNER_OS: ubuntu-latest
         run: |
           chmod +x install-gh.sh
           chmod +x test-gh.sh
       - name: Run install script
         env:
-          RUNNER_OS: ${{ matrix.os }}
+          RUNNER_OS: ubuntu-latest
         run: bash install-gh.sh
       - name: Run test script
         env:
-          RUNNER_OS: ${{ matrix.os }}
+          RUNNER_OS: ubuntu-latest
           SESAM_TOKEN: ${{ secrets.SesamToken }}
         run: bash test-gh.sh
+  test-macos:
+    runs-on: macos-latest
+    needs: test-ubuntu
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Echo information
+        run:  |
+          echo "macos-latest"
+          python --version
+      - name: Allow running of install scripts
+        env:
+          RUNNER_OS: macos-latest
+        run: |
+          chmod +x install-gh.sh
+          chmod +x test-gh.sh
+      - name: Run install script
+        env:
+          RUNNER_OS: macos-latest
+        run: bash install-gh.sh
+      - name: Run test script
+        env:
+          RUNNER_OS: macos-latest
+          SESAM_TOKEN: ${{ secrets.SesamToken }}
+        run: bash test-gh.sh
+  test-windows:
+    runs-on: windows-latest
+    needs: [test-ubuntu, test-macos]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Echo information
+        run:  |
+          echo "windows-latest"
+          python --version
+      - name: Allow running of install scripts
+        env:
+          RUNNER_OS: windows-latest
+        run: |
+          chmod +x install-gh.sh
+          chmod +x test-gh.sh
+      - name: Run install script
+        env:
+          RUNNER_OS: windows-latest
+        run: bash install-gh.sh
+      - name: Run test script
+        env:
+          RUNNER_OS: windows-latest
+          SESAM_TOKEN: ${{ secrets.SesamToken }}
+        run: bash test-gh.sh
+
