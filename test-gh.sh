@@ -24,7 +24,7 @@ for test_dir in *; do
         cd "$test_dir"
         echo
         echo "Running tests in $test_dir.."
-        /bin/bash run_test.sh
+        /bin/bash run_test.sh || { echo "Running tests in $test_dir...Failed" ; exit 1; }
         cd ..
     fi
 done
