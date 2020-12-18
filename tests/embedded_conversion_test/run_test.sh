@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Running conversion test.."
+echo "Running conversion test..."
 
 rm -rf test_after
 mkdir test_after
