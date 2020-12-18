@@ -23,9 +23,11 @@ popd
 if ! diff -r expected_after/ test_after/
 then
     echo "Conversion test failed. Found diff to expected output."
+    rm -rf test_after
+    exit 1
 else
     echo "Conversion test passed!"
+    rm -rf test_after
 fi
 
-rm -rf test_after
 

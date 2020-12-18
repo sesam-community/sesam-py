@@ -11,7 +11,7 @@ $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -dump
 
 if [ ! -f "sesam-config.zip" ]; then
     echo "Test of download failed!"
-    exit -1
+    exit 1
 fi
 
 echo "Fairweather tests passed!"
