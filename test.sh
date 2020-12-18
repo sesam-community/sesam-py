@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Testing..."
+echo "Testing...."
 
 if [ "$TRAVIS_OS_NAME" == "linux"   ] || [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam
