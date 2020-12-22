@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.18.3"
+sesam_version = "1.18.4"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -730,7 +730,7 @@ class SesamCmdClient:
                 for filename in files:
                     pipe_id = filename.replace(".json", "")
                     try:
-                        with open(os.path.join(root, filename), "r") as f:
+                        with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
                             entities_json = json.load(f)
 
                         if entities_json is not None:
@@ -1625,11 +1625,11 @@ class SesamCmdClient:
 
         def save_testdata_file(pipe_id, entities):
             os.makedirs("testdata", exist_ok=True)
-            with open(f"testdata{os.sep}{pipe_id}.json", "w") as testdata_file:
+            with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8") as testdata_file:
                 testdata_file.write(format_object(entities))
 
         def save_modified_pipe(pipe_json, path):
-            with open(path, 'w') as pipe_file:
+            with open(path, 'w', encoding="utf-8") as pipe_file:
                 pipe_file.write(format_object(pipe_json))
 
 
@@ -1642,7 +1642,7 @@ class SesamCmdClient:
         for filepath in glob.glob("pipes%s*.conf.json" % os.sep):
             pipe_id_from_basename = get_pipe_id(filepath)
 
-            with open(filepath, 'r') as pipe_file:
+            with open(filepath, 'r', encoding="utf-8") as pipe_file:
                 pipe = json.load(pipe_file)
                 pipe_to_rewrite, entities = convert_pipe_config(pipe)
 
