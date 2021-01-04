@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.18.3"
+sesam_version = "1.18.4"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1642,7 +1642,7 @@ class SesamCmdClient:
         for filepath in glob.glob("pipes%s*.conf.json" % os.sep):
             pipe_id_from_basename = get_pipe_id(filepath)
 
-            with open(filepath, 'r') as pipe_file:
+            with open(filepath, 'r', encoding="utf-8") as pipe_file:
                 pipe = json.load(pipe_file)
                 pipe_to_rewrite, entities = convert_pipe_config(pipe)
 
