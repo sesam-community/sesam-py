@@ -195,9 +195,12 @@ class SesamNode:
                                    "out after %s seconds. The last errror was: %s" % (timeout, msg))
             time.sleep(3)
 
-    def put_config(self, config, force=False):
-        self.logger.log(LOGLEVEL_TRACE, "PUT config to %s" % self.node_url)
-        self.api_connection.upload_config(config, force=force)
+    def put_config(self, config, force=False, config_group=None):
+        if config_group is not None:
+            self.logger.log(LOGLEVEL_TRACE, "PUT config with config_group param to %s" % self.node_url)
+        else:
+            self.logger.log(LOGLEVEL_TRACE, "PUT config to %s" % self.node_url)
+        self.api_connection.upload_config(config, force=force, config_group=config_group)
 
     def put_env(self, env_vars):
         self.logger.log(LOGLEVEL_TRACE, "PUT env vars to %s" % self.node_url)
@@ -258,8 +261,8 @@ class SesamNode:
         except:
             logger.warning("Could not remove system '%s' - perhaps it doesn't exist" % system_id)
 
-    def get_config(self, binary=False):
-        data = self.api_connection.get_config_as_zip()
+    def get_config(self, binary=False, config_group=None):
+        data = self.api_connection.get_config_as_zip(config_group=config_group)
         if not binary:
             return zipfile.ZipFile(io.BytesIO(data))
 
@@ -497,6 +500,11 @@ class SesamNode:
 
         return resp.json()
 
+    def get_metadata(self):
+        resp = self.api_connection.get_metadata()
+
+        return resp
+
 
 class SesamCmdClient:
     """ Commands wrapped in a class to make it easier to write unit tests """
@@ -540,9 +548,6 @@ class SesamCmdClient:
         self.zip_dir(zip_file, "pipes")
         self.zip_dir(zip_file, "systems")
 
-        if os.path.isfile("node-metadata.conf.json"):
-            zip_file.write("node-metadata.conf.json")
-
         zip_file.close()
 
         with open("sesam-config.zip", "rb") as fp:
@@ -580,7 +585,7 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
-    def remove_task_manager_settings(self, zip_data):
+    def remove_task_manager_settings_from_zip(self, zip_data):
         node_metadata = {}
         if os.path.isfile("node-metadata.conf.json"):
             with open("node-metadata.conf.json", "r") as infile:
@@ -607,6 +612,21 @@ class SesamCmdClient:
                                                                ensure_ascii=False).encode("utf-8"))
 
         return zip_data
+
+    def remove_task_manager_settings_from_file(self, infile, file_metadata):
+        if infile.get("task_manager", {}).get("disable_user_pipes", False) is True:
+            # No need to do anything, the setting is originally in the file!
+            return file_metadata
+
+        if "task_manager" in file_metadata and "disable_user_pipes" in file_metadata["task_manager"] and \
+                file_metadata["task_manager"]["disable_user_pipes"] is True:
+            file_metadata["task_manager"].pop("disable_user_pipes")
+            self.logger.info(infile)
+            # Remove the entire task_manager section if its empty
+            if len(file_metadata["task_manager"]) == 0:
+                file_metadata.pop("task_manager")
+
+        return file_metadata
 
     def get_node_and_jwt_token(self):
         syncconfigfilename = self.args.sync_config_file
@@ -702,23 +722,22 @@ class SesamCmdClient:
         try:
             zip_config = self.get_zip_config(remove_zip=args.dump is False)
 
-            # Modify the node-metadata.conf.json to stop the pipe scheduler
-            if self.args.disable_user_pipes and os.path.isfile("node-metadata.conf.json"):
-                with open("node-metadata.conf.json", "r") as infile:
-                    node_metadata = json.load(infile)
-                    if "task_manager" not in node_metadata:
-                        node_metadata["task_manager"] = {}
-
-                    node_metadata["task_manager"]["disable_user_pipes"] = True
-
-                    zip_config = self.replace_file_in_zipfile(zip_config, "node-metadata.conf.json",
-                                                              json.dumps(node_metadata).encode("utf-8"))
         except BaseException as e:
             logger.error("Failed to create zip archive of config")
             raise e
 
         try:
-            self.sesam_node.put_config(zip_config, force=True)
+            if os.path.isfile("node-metadata.conf.json"):
+                with open("node-metadata.conf.json", "r") as infile:
+                    node_metadata = json.load(infile)
+                if self.args.disable_user_pipes:
+                    if "task_manager" not in node_metadata:
+                        node_metadata["task_manager"] = {}
+
+                    node_metadata["task_manager"]["disable_user_pipes"] = True
+
+                self.sesam_node.put_config(node_metadata, force=True)
+            self.sesam_node.put_config(zip_config, force=True, config_group=self.args.use_config_group)
         except BaseException as e:
             self.logger.error("Failed to upload config to sesam")
             raise e
@@ -770,9 +789,12 @@ class SesamCmdClient:
         if self.args.dump:
             if os.path.isfile("sesam-config.zip"):
                     os.remove("sesam-config.zip")
-
-            zip_data = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(zip_data)
+            if self.args.use_config_group:
+                self.logger.info("downloading using config groups")
+                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
+            else:
+                zip_data = self.sesam_node.get_config(binary=True)
+            zip_data = self.remove_task_manager_settings_from_zip(zip_data)
 
 
             # normalize formatting
@@ -782,8 +804,24 @@ class SesamCmdClient:
 
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
         else:
-            zip_data = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(zip_data)
+            if self.args.use_config_group:
+                self.logger.info("Downloading using config groups")
+                if os.path.isfile("node-metadata.conf.json"):
+                    with open("node-metadata.conf.json", "r") as node_metadata_file:
+                        original_file = json.load(node_metadata_file)
+                        node_metadata_file.close()
+                    with open("node-metadata.conf.json", "w") as fp:
+                        node_metadata = self.sesam_node.get_metadata()["config"]["original"]
+                        del node_metadata["$audit"]
+
+                        node_metadata = self.remove_task_manager_settings_from_file(original_file, node_metadata)
+                        fp.write(format_object(node_metadata))
+
+                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
+
+            else:
+                zip_data = self.sesam_node.get_config(binary=True)
+                zip_data = self.remove_task_manager_settings_from_zip(zip_data)
 
         try:
             # Remove all previous pipes and systems
@@ -822,16 +860,26 @@ class SesamCmdClient:
 
         local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
         if self.args.dump:
-            zip_data = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(zip_data)
+
+            if self.args.use_config_group:
+                self.logger.info("downloading using config groups")
+                zip_data = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
+            else:
+                zip_data = self.sesam_node.get_config(binary=True)
+            zip_data = self.remove_task_manager_settings_from_zip(zip_data)
 
             with open("sesam-config.zip", "wb") as fp:
                 fp.write(zip_data)
 
             self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
         else:
-            remote_config = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(remote_config)
+
+            if self.args.use_config_group:
+                self.logger.info("downloading using config groups")
+                remote_config = self.sesam_node.get_config(binary=True, config_group=self.args.use_config_group)
+            else:
+                remote_config = self.sesam_node.get_config(binary=True)
+            zip_data = self.remove_task_manager_settings_from_zip(remote_config)
 
         remote_config = zipfile.ZipFile(io.BytesIO(zip_data))
 
@@ -958,9 +1006,12 @@ class SesamCmdClient:
             for pipe in existing_output_pipes.values():
                 self.logger.debug("Updating pipe '%s" % pipe.id)
 
+                if not os.path.isdir(os.path.join("expected")):
+                    os.makedirs("expected")
+                    self.logger.info("Found no expected test directory in %s - creating empty directory", os.getcwd())
+
                 if pipe.id not in test_specs:
                     self.logger.warning("Found no spec for pipe %s - creating empty spec file" % pipe.id)
-
                     filename = os.path.join("expected", "%s.test.json" % pipe.id)
                     with open(filename, "w") as fp:
                         fp.write("{\n}")
@@ -1559,8 +1610,12 @@ class SesamCmdClient:
         self.stop()
 
         try:
-            self.sesam_node.put_config([], force=True)
-            self.logger.info("Removed pipes and systems")
+            if self.args.use_config_group:
+                self.sesam_node.put_config([], config_group=self.args.use_config_group, force=True)
+                self.logger.info("Removed pipes and systems in config group %s", self.args.use_config_group)
+            else:
+                self.sesam_node.put_config([], force=True)
+                self.logger.info("Removed pipes and systems")
         except BaseException as e:
             logger.error("Failed to wipe config")
             raise e
@@ -1654,6 +1709,64 @@ class SesamCmdClient:
 
         self.logger.info("Successfully converted pipes and created testdata folder")
 
+    def init(self):
+
+        def create_folder(dir_name, parent_dir_name=None):
+            current_dir = os.getcwd().split(os.sep)[-1]
+            parent_dir = os.getcwd().split(os.sep)[-2]
+
+            if dir_name is not "node":
+                if current_dir != dir_name:
+                    if not parent_dir_name == parent_dir:
+                        if not os.path.isdir(os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + os.sep +
+                                             parent_dir_name + os.sep + dir_name):
+                            try:
+                                os.makedirs(parent_dir_name + os.sep + dir_name)
+                                self.logger.info("Creating directory with path %s.", parent_dir_name + os.sep +
+                                                 dir_name)
+                            except FileExistsError as e:
+                                self.logger.error("Cannot create directory \"%s\" already exists", dir_name)
+                        else:
+                            self.logger.error("Cannot create directory: \"%s\" already exists", dir_name)
+                    else:
+                        self.logger.error("Cannot create directory \"%s\" parent directory name should be \"node\". "
+                                          "current parent directory will be \"%s\"", dir_name, current_dir)
+                else:
+                    self.logger.error("Cannot create directory \"%s\" inside \"%s\" directory", dir_name, current_dir)
+            #creating node folder
+            elif current_dir != dir_name and parent_dir != dir_name and "node" not in os.listdir(os.getcwd()):
+                self.logger.info("Creating directory with path %s.", dir_name)
+                os.makedirs(dir_name)
+            else:
+                self.logger.error("Cannot create directory \"%s\" already exists", dir_name)
+
+        def create_file(path, filename, ext, file_content):
+            delimiter = "."
+            if ext == "":
+                delimiter = ""
+            if os.path.isdir(path):
+                if not os.path.isfile(path + filename + delimiter + ext):
+                    with open(path + filename + delimiter + ext, 'w') as variable_filename:
+                        self.logger.info("Creating file:  %s%s%s%s", path, filename, delimiter, ext)
+                        variable_filename.write(file_content)
+                else:
+                    self.logger.error("File already exists: %s%s%s%s", path, filename, delimiter, ext)
+            else:
+                self.logger.error("File already exists: %s%s%s%s", path, filename, delimiter, ext)
+
+        create_folder("node")
+        create_folder("testdata", "node")
+        create_folder("expected", "node")
+        create_folder("systems", "node")
+        create_folder("pipes", "node")
+        create_folder("variables", "node")
+
+        create_file("node"+os.sep, ".syncconfig", "", 'JWT=""\nNODE=""')
+        create_file("node"+os.sep, "test-env", "json", format_object({}))
+        create_file("node"+os.sep+"variables"+os.sep, "variables-dev", "json", format_object({}))
+        create_file("node"+os.sep+"variables"+os.sep, "variables-staging", "json", format_object({}))
+        create_file("node"+os.sep+"variables"+os.sep, "variables-prod", "json", format_object({}))
+
 
 class AzureFormatter(logging.Formatter):
     """Azure syntax log formatter to enrich build feedback"""
@@ -1700,6 +1813,7 @@ Commands:
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected) 
+  init      Initialise Sesam folder structure for projects.
 """, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-version', dest='version', required=False, action='store_true', help="print version number")
@@ -1789,6 +1903,9 @@ Commands:
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
+    parser.add_argument('-use-config-group', dest='use_config_group', type=str, metavar="<string>",
+                        required=False, help="download/upload/test using config-groups in pipes and systems.")
+
     try:
         args = parser.parse_args()
     except SystemExit as e:
@@ -1852,7 +1969,7 @@ Commands:
     command = args.command and args.command.lower() or ""
 
     if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
-                       "restart", "dump", "stop", "convert"]:
+                       "restart", "dump", "stop", "convert", "init"]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -1863,25 +1980,26 @@ Commands:
 
     sesam_cmd_client = SesamCmdClient(args, logger)
 
-    try:
-        node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
-    except BaseException as e:
-        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
-            logger.exception(e)
-        logger.error("jwt and node must be specified either as parameter, os env or in config file")
-        sys.exit(1)
+    if command != "init":
+        try:
+            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
+        except BaseException as e:
+            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+                logger.exception(e)
+            logger.error("jwt and node must be specified either as parameter, os env or in config file")
+            sys.exit(1)
 
-    try:
-        sesam_cmd_client.sesam_node = SesamNode(node_url, jwt_token, logger,
-                                                verify_ssl=args.skip_tls_verification is False)
-    except BaseException as e:
-        if args.verbose or args.extra_verbose:
-            logger.exception(e)
-        logger.error("failed to connect to the sesam node using the url and jwt token we were given:\n%s\n%s" %
-                     (node_url, jwt_token))
-        logger.error("please verify the url and token is correct, and that there isn't any network issues "
-                     "(i.e. firewall, internet connection etc)")
-        sys.exit(1)
+        try:
+            sesam_cmd_client.sesam_node = SesamNode(node_url, jwt_token, logger,
+                                                    verify_ssl=args.skip_tls_verification is False)
+        except BaseException as e:
+            if args.verbose or args.extra_verbose:
+                logger.exception(e)
+            logger.error("failed to connect to the sesam node using the url and jwt token we were given:\n%s\n%s" %
+                         (node_url, jwt_token))
+            logger.error("please verify the url and token is correct, and that there isn't any network issues "
+                         "(i.e. firewall, internet connection etc)")
+            sys.exit(1)
 
     start_time = time.monotonic()
     try:
@@ -1912,6 +2030,8 @@ Commands:
             sesam_cmd_client.convert()
         elif command == "dump":
             sesam_cmd_client.dump()
+        elif command == "init":
+            sesam_cmd_client.init()
         else:
             logger.error("Unknown command: %s" % command)
             sys.exit(1)
