@@ -5,13 +5,13 @@ echo "Installing.."
 
 if [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
     echo "Building on OSX.."
-    brew upgrade python
+    brew upgrade python@3.7.5
     # make brews python the system default
     python3 --version
 
     pip3 install pyinstaller
 
-    pip3 install --user -U -r requirements.txt 
+    pip3 install --user -U -r requirements.txt
 
     pyinstaller --onefile sesam.py
 

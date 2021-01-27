@@ -1,0 +1,7 @@
+{
+  "_id": "input-pipe-to-be-left-alone",
+  "type": "pipe",
+  "source": {
+    "type": "http_endpoint"
+  }
+}

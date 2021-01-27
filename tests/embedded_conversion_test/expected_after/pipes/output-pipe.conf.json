@@ -1,0 +1,11 @@
+{
+  "_id": "output-pipe",
+  "type": "pipe",
+  "source": {
+    "type": "dataset",
+    "dataset": "input-pipe-1"
+  },
+  "sink": {
+    "type": "http_endpoint"
+  }
+}

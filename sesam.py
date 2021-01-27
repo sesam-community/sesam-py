@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.17.0"
+sesam_version = "1.18.4"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -207,6 +207,13 @@ class SesamNode:
         self.logger.log(LOGLEVEL_TRACE, "Get system '%s' from %s" % (system_id, self.node_url))
         try:
             return self.api_connection.get_system(system_id)
+        except:
+            return None
+
+    def get_pipe(self, pipe_id):
+        self.logger.log(LOGLEVEL_TRACE, "Get pipe '%s' from %s" % (pipe_id, self.node_url))
+        try:
+            return self.api_connection.get_pipe(pipe_id)
         except:
             return None
 
@@ -465,6 +472,31 @@ class SesamNode:
 
         return resp.text
 
+    def pipe_receiver_post_request(self, pipe_id, **kwargs):
+        pipe = self.get_pipe(pipe_id)
+        if pipe is None:
+            raise AssertionError("Pipe '%s' doesn't exist" % pipe_id)
+
+        pipe_url = self.api_connection.get_pipe_receiver_endpoint_url(pipe_id)
+
+        resp = self.api_connection.session.post(pipe_url, **kwargs)
+
+        resp.raise_for_status()
+        return resp.json()
+
+    def enable_pipe(self, pipe_id):
+        self.get_pipe(pipe_id).get_pump().enable()
+
+    def disable_pipe(self, pipe_id):
+        self.get_pipe(pipe_id).get_pump().disable()
+
+    def delete_dataset(self, pipe_id):
+        dataset_url = "%s/datasets/%s" % (self.node_url, pipe_id)
+        resp = self.api_connection.session.delete(dataset_url)
+        resp.raise_for_status()
+
+        return resp.json()
+
 
 class SesamCmdClient:
     """ Commands wrapped in a class to make it easier to write unit tests """
@@ -692,6 +724,30 @@ class SesamCmdClient:
             raise e
 
         self.logger.info("Config uploaded successfully")
+
+        if os.path.isdir("testdata"):
+            for root, dirs, files in os.walk("testdata"):
+                for filename in files:
+                    pipe_id = filename.replace(".json", "")
+                    try:
+                        with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+                            entities_json = json.load(f)
+
+                        if entities_json is not None:
+                            # deleting dataset before pushing data, since http_endpoint receiver will not delete
+                            # existing test data.
+                            self.sesam_node.delete_dataset(pipe_id)
+                            self.sesam_node.enable_pipe(pipe_id)
+                            self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+                            self.sesam_node.disable_pipe(pipe_id)
+
+                    except BaseException as e:
+                        self.logger.error(f"Failed to post payload to pipe {pipe_id}. {e}. Response from server was: {e.response.text}")
+                        raise e
+
+            self.logger.info("Test data uploaded successfully")
+        else:
+            self.logger.info("No test data found to upload")
 
     def dump(self):
         try:
@@ -1537,6 +1593,68 @@ class SesamCmdClient:
 
         self.logger.info("Successfully restarted target node!")
 
+    def convert(self):
+
+        def get_pipe_id(path):
+            basename = os.path.basename(path)
+            return basename.replace(".conf.json", "")
+
+        def has_conditional_embedded_source(pipe_config, env):
+            source_config = pipe_config.get("source", {})
+            source_type = source_config.get("type", "")
+            if source_type == "conditional":
+                alternatives = source_config.get("alternatives")
+                current_profile_alternative = alternatives.get(env, {})
+                if current_profile_alternative.get("type", "") == "embedded":
+                    return True
+            return False
+
+        def convert_pipe_config(pipe_config):
+            entities = None
+            modified_pipe_config = None
+            if has_conditional_embedded_source(pipe_config, self.args.profile):
+                alternatives = pipe["source"]["alternatives"]
+                entities = alternatives[self.args.profile]["entities"]
+                # rewrite the case which corresponds to env profile
+                alternatives[self.args.profile] = {
+                    "type": "http_endpoint"
+                }
+                modified_pipe_config = pipe_config
+
+            return modified_pipe_config, entities
+
+        def save_testdata_file(pipe_id, entities):
+            os.makedirs("testdata", exist_ok=True)
+            with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8") as testdata_file:
+                testdata_file.write(format_object(entities))
+
+        def save_modified_pipe(pipe_json, path):
+            with open(path, 'w', encoding="utf-8") as pipe_file:
+                pipe_file.write(format_object(pipe_json))
+
+
+        self.logger.info("Starting converting conditional embedded sources")
+
+        if self.args.dump:
+            self.logger.info("Dumping config for backup")
+            self.dump()
+
+        for filepath in glob.glob("pipes%s*.conf.json" % os.sep):
+            pipe_id_from_basename = get_pipe_id(filepath)
+
+            with open(filepath, 'r', encoding="utf-8") as pipe_file:
+                pipe = json.load(pipe_file)
+                pipe_to_rewrite, entities = convert_pipe_config(pipe)
+
+            if pipe_to_rewrite is not None:
+                save_modified_pipe(pipe_to_rewrite, filepath)
+
+            if entities is not None:
+                save_testdata_file(pipe["_id"], entities)
+
+        self.logger.info("Successfully converted pipes and created testdata folder")
+
+
 class AzureFormatter(logging.Formatter):
     """Azure syntax log formatter to enrich build feedback"""
     error_format = '##vso[task.logissue type=error;]%(message)s'
@@ -1572,12 +1690,13 @@ if __name__ == '__main__':
 Commands:
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
-  upload    Replace node config with local config
+  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
   status    Compare node config with local config (requires external diff command)
   run       Run configuration until it stabilizes
   update    Store current output as expected output
+  convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected) 
@@ -1733,7 +1852,7 @@ Commands:
     command = args.command and args.command.lower() or ""
 
     if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
-                       "restart", "dump", "stop"]:
+                       "restart", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -1789,6 +1908,8 @@ Commands:
             sesam_cmd_client.wipe()
         elif command == "restart":
             sesam_cmd_client.restart()
+        elif command == "convert":
+            sesam_cmd_client.convert()
         elif command == "dump":
             sesam_cmd_client.dump()
         else:

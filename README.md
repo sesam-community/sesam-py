@@ -191,10 +191,16 @@ This custom scheduler needs to implement the following:
 }
 ```
 
+
+### Uploading test data
+There is a `sesam convert` command which takes all the pipes with conditional embedded sources, and modifies the case alternative which corresponds to the current profile env (usually "test") so that it is not an embedded source, but rather an http_endpoint source. At the same time, it takes the entities found in the original embedded source and stores them in separate files under a new `testdata` directory. This command should be necessary to run only once. It can take a `-dump` option that will first backup the entire config into a zip file.
+
+When doing `sesam upload` or `sesam test`, the CLI will also upload testdata to any input pipes based on what it finds in a folder called `testdata`. 
+
 ## Installing
 
 You can either run the sesam.py script directly using python, or you can download and run a stand alone 
-binary from [Github Releases](https://github.com/tombech/sesam-py/releases/).
+binary from [Github Releases](https://github.com/sesam-community/sesam-py/releases/).
 
 
 To install and run the sesam client with python on Linux/OSX (python 3.5+ required):

@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Testing..."
+echo "Testing...."
 
 if [ "$TRAVIS_OS_NAME" == "linux"   ] || [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam
@@ -28,6 +28,7 @@ if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
     for test_dir in *; do
         if [ -d "$test_dir" -a ! -L "$test_dir" ]; then
             cd $test_dir
+            echo
             echo "Running tests in $test_dir.."
             /bin/bash run_test.sh
             cd ..

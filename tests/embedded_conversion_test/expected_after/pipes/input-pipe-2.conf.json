@@ -1,0 +1,17 @@
+{
+  "_id": "input-pipe-2",
+  "type": "pipe",
+  "source": {
+    "type": "conditional",
+    "alternatives": {
+      "prod": {
+        "type": "dataset",
+        "dataset": "non_exists"
+      },
+      "test": {
+        "type": "http_endpoint"
+      }
+    },
+    "condition": "test"
+  }
+}
