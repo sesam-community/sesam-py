@@ -102,3 +102,11 @@ venv.bak/
 
 # pycharm settings
 .idea
+
+/pipes/
+/systems/
+/variables/
+/.syncconfig
+/.sesamconfig.json
+/node-metadata.conf.json
+/*-env.json
