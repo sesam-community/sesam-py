@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.18.4"
+sesam_version = "1.18.5"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
