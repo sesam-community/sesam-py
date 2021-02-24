@@ -1572,13 +1572,6 @@ class SesamCmdClient:
             logger.error("Failed to wipe environment variables")
             raise e
 
-        try:
-            self.sesam_node.remove_all_datasets()
-            self.logger.info("Removed datasets")
-        except BaseException as e:
-            self.logger.error("Failed to delete datasets")
-            raise e
-
         self.logger.info("Successfully wiped node!")
 
 
