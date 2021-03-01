@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.18.4"
+sesam_version = "1.18.6"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1559,6 +1559,31 @@ class SesamCmdClient:
         self.stop()
 
         try:
+            # We need to include the "disable-user-pipes" setting when wiping the pipes and systems, or they will
+            # start running (asserting datasets, compiling dtl etc) while we're doing the wipe,
+            # which makes it take a lot longer to run
+
+            if os.path.isfile("node-metadata.conf.json"):
+                with open("node-metadata.conf.json", "rt") as infile:
+                    node_metadata = json.loads(infile.read())
+            else:
+                node_metadata = {
+                    "_id": "node",
+                    "type": "metadata"
+                }
+
+            if not "task_manager" in node_metadata:
+                node_metadata["task_manager"] = {}
+
+            if not "global_defaults" in node_metadata:
+                node_metadata["global_defaults"] = {}
+
+            node_metadata["global_defaults"]["use_signalling_internally"] = False
+            node_metadata["global_defaults"]["use_signalling_externally"] = False
+            node_metadata["global_defaults"]["enable_cpp_extensions"] = False
+            node_metadata["task_manager"]["disable_user_pipes"] = True
+
+            self.sesam_node.put_config([node_metadata], force=True)
             self.sesam_node.put_config([], force=True)
             self.logger.info("Removed pipes and systems")
         except BaseException as e:
@@ -1570,13 +1595,6 @@ class SesamCmdClient:
             self.logger.info("Removed environment variables")
         except BaseException as e:
             logger.error("Failed to wipe environment variables")
-            raise e
-
-        try:
-            self.sesam_node.remove_all_datasets()
-            self.logger.info("Removed datasets")
-        except BaseException as e:
-            self.logger.error("Failed to delete datasets")
             raise e
 
         self.logger.info("Successfully wiped node!")
