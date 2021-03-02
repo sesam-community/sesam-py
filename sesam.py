@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "1.18.6"
+sesam_version = "2.0.0"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -703,7 +703,7 @@ class SesamCmdClient:
             zip_config = self.get_zip_config(remove_zip=args.dump is False)
 
             # Modify the node-metadata.conf.json to stop the pipe scheduler
-            if self.args.disable_user_pipes and os.path.isfile("node-metadata.conf.json"):
+            if not self.args.enable_user_pipes and os.path.isfile("node-metadata.conf.json"):
                 with open("node-metadata.conf.json", "r") as infile:
                     node_metadata = json.load(infile)
                     if "task_manager" not in node_metadata:
@@ -757,16 +757,6 @@ class SesamCmdClient:
             raise e
 
     def download(self):
-        if not self.args.custom_scheduler:
-            # Remove the scheduler, if it exists - we never want it in the downloaded config
-            system = self.sesam_node.get_system(args.scheduler_id)
-            if system is not None:
-                try:
-                    self.sesam_node.remove_system(args.scheduler_id)
-                except BaseException as e:
-                    self.logger.error("Failed to remove the scheduler system '%s'" % self.args.scheduler_id)
-                    raise e
-
         if self.args.dump:
             if os.path.isfile("sesam-config.zip"):
                     os.remove("sesam-config.zip")
@@ -809,16 +799,6 @@ class SesamCmdClient:
 
     def status(self):
         logger.error("Comparing local and node config...")
-
-        if not self.args.custom_scheduler and self.args.dont_remove_scheduler is False:
-            # Remove the scheduler, if it exists
-            system = self.sesam_node.get_system(args.scheduler_id)
-            if system is not None:
-                try:
-                    self.sesam_node.remove_system(args.scheduler_id)
-                except BaseException as e:
-                    self.logger.error("Failed to remove the scheduler system '%s'" % self.args.scheduler_id)
-                    raise e
 
         local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
         if self.args.dump:
@@ -1292,10 +1272,6 @@ class SesamCmdClient:
         try:
             self.sesam_node.stop_internal_scheduler()
 
-            if self.sesam_node.get_system(self.args.scheduler_id) is not None:
-                self.logger.debug("Removing existing scheduler microservice...")
-                self.sesam_node.remove_system(self.args.scheduler_id)
-
             self.logger.info("Any previously running scheduler has been stopped")
         except BaseException as e:
             self.logger.warning("Failed to stop running schedulers!")
@@ -1314,143 +1290,10 @@ class SesamCmdClient:
             self.logger.error("Test failed!")
             raise e
 
-    def start_scheduler(self, timeout=300):
-        try:
-            if self.sesam_node.get_system(self.args.scheduler_id) is not None:
-                self.logger.debug("Removing existing scheduler system...")
-                self.sesam_node.remove_system(self.args.scheduler_id)
-
-            if not self.args.custom_scheduler:
-                # Override scheduler node url?
-                if self.args.scheduler_node:
-                    self.logger.debug("Overriding scheduler_node (%s)" % self.args.scheduler_node)
-                    scheduler_node_url = self.args.scheduler_node
-                else:
-                    self.logger.debug("Reusing node_url since scheduler_node override not set")
-                    scheduler_node_url = self.node_url
-
-                scheduler_config = {
-                    "_id": "%s" % self.args.scheduler_id,
-                    "type": "system:microservice",
-                    "docker": {
-                        "environment": {
-                            "JWT": "%s" % self.jwt_token,
-                            "URL": "%s" % scheduler_node_url,
-                            "DUMMY": "%s" % str(uuid.uuid4()),
-                            "SCHEDULER_PORT": int(os.environ.get("SCHEDULER_PORT", 5000))
-                        },
-                        "memory": 512,
-                        "image":  "sesamcommunity/scheduler:%s" % self.args.scheduler_image_tag,
-                        "port": int(os.environ.get("SCHEDULER_PORT", 5000))
-                    }
-                }
-
-                if int(os.environ.get("SCHEDULER_SKIP_PULL", 0)) == 1:
-                    scheduler_config["docker"]["skip_pull"] = True
-
-                if os.environ.get("SESAM_NOT_IN_DOCKER") is not None:
-                    scheduler_config["docker"]["environment"]["SESAM_NOT_IN_DOCKER"] = True
-
-                self.logger.debug("Adding scheduler microservice with configuration:\n%s" % scheduler_config)
-                if self.sesam_node.add_system(scheduler_config, verify=True) is False:
-                    self.logger.error("Scheduler config failed to load!")
-                    raise RuntimeError("Failed to initialise scheduler")
-
-            # Wait for Microservice system to start up
-            if self.sesam_node.wait_for_microservice(self.args.scheduler_id, timeout=timeout) is False:
-                raise RuntimeError("Timed out waiting for scheduler to load")
-
-            # Check that it really has started up
-            sleep_interval = args.scheduler_poll_frequency/1000
-            while sleep_interval > 0:
-                try:
-                    status = self.get_scheduler_status()
-                    if status == "init":
-                        break
-                except BaseException as e:
-                    pass
-
-                time.sleep(sleep_interval)
-                timeout -= sleep_interval
-
-            if sleep_interval <= 0:
-                self.logger.error("Scheduler failed to initialise after %s seconds" % timeout)
-                raise RuntimeError("Failed to initialise scheduler")
-
-            # Start the microservice
-            params = {
-                "reset_pipes": "true", "delete_datasets": "true",
-                "zero_runs": self.args.scheduler_zero_runs
-            }
-
-            if self.args.compact_execution_datasets:
-                params["compact_execution_datasets"] = "true"
-
-            if self.args.disable_user_pipes is True:
-                # If we have stopped all the user pipes globally, the scheduler doesn't have to disable them
-                params["disable_pipes"] = "false"
-
-            self.logger.debug("Starting the scheduler...")
-            self.sesam_node.microservice_post_proxy_request(self.args.scheduler_id, "start", params=params,
-                                                            result_as_json=False)
-            self.logger.debug("Scheduler started")
-        except BaseException as e:
-            self.logger.error("Failed to start the scheduler microservice")
-            self.logger.debug("Scheduler log: %s", self.sesam_node.get_system_log(self.args.scheduler_id))
-
-            if self.args.extra_verbose is True:
-                self.logger.exception(e)
-
-            if self.args.dont_remove_scheduler is False:
-                try:
-                    self.logger.debug("Removing scheduler microservice")
-                    self.sesam_node.remove_system(self.args.scheduler_id)
-                except BaseException as e2:
-                    self.logger.error("Failed to remove scheduler microservice")
-                    if self.args.extra_verbose is True:
-                        self.logger.exception(e2)
-            else:
-                self.logger.debug("Leaving scheduler microservice in sesam")
-
-    def get_scheduler_status(self):
-        try:
-            status_json = self.sesam_node.microservice_get_proxy_request(self.args.scheduler_id, "")
-            if isinstance(status_json, dict):
-                return status_json["state"]
-
-            self.logger.debug("The scheduler status endpoint returned a non-json reply! %s" % str(status_json))
-        except BaseException as e:
-            logger.debug("Failed to get scheduler status")
-            raise e
-
-        return "unknown"
-
-    def print_scheduler_log(self, since=None):
-        try:
-            if since is not None:
-                log_output = self.sesam_node.get_system_log(self.args.scheduler_id, params={"since": since})
-            else:
-                log_output = self.sesam_node.get_system_log(self.args.scheduler_id)
-
-            last_since = None
-            for log_line in [e for e in log_output.split("\n") if e]:
-                log_line = log_line.split(" ")
-                last_since = log_line[0]
-                logger.info(" ".join(log_line[1:]))
-
-            return last_since
-        except BaseException as e:
-            if since is not None:
-                self.logger.warning("Failed to get scheduler log for since value '%s'.." % since)
-            else:
-                self.logger.warning("Failed to get scheduler log..")
-
-            return since
-
     def run_internal_scheduler(self):
         start_time = time.monotonic()
 
-        disable_pipes = self.args.disable_user_pipes is False
+        disable_pipes = self.args.enable_user_pipes
         zero_runs = self.args.scheduler_zero_runs
         max_runs = self.args.scheduler_max_runs
         max_run_time = self.args.scheduler_max_run_time
@@ -1519,40 +1362,7 @@ class SesamCmdClient:
     def run(self):
         self.stop()
 
-        if self.args.use_internal_scheduler:
-            return self.run_internal_scheduler()
-        else:
-            start_time = time.monotonic()
-            try:
-                self.logger.info("Executing scheduler...")
-                self.start_scheduler()
-
-                since = None
-                while True:
-                    if self.args.print_scheduler_log:
-                        since = self.print_scheduler_log(since=since)
-
-                    status = self.get_scheduler_status()
-
-                    if status == "success":
-                        self.logger.debug("Scheduler finished successfully")
-                        break
-                    elif status == "failed":
-                        self.logger.error("Scheduler finished with failure")
-                        return -1
-
-                    time.sleep(args.scheduler_poll_frequency/1000)
-
-            except BaseException as e:
-                self.logger.error("Failed to run scheduler")
-                raise e
-            finally:
-                end_time = time.monotonic()
-                if self.args.dont_remove_scheduler is False:
-                    self.sesam_node.remove_system(args.scheduler_id)
-
-            self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(end_time - start_time))
-            return 0
+        return self.run_internal_scheduler()
 
     def wipe(self):
         self.logger.info("Wiping node...")
@@ -1737,7 +1547,7 @@ Commands:
                                                               "'.syncconfig' in the current directory")
 
     parser.add_argument('-dont-remove-scheduler', dest='dont_remove_scheduler', required=False, action='store_true',
-                        help="don't remove scheduler after failure")
+                        help="don't remove scheduler after failure (DEPRECATED)")
 
     parser.add_argument('-dump', dest='dump', required=False, help="dump zip content to disk", action='store_true')
 
@@ -1745,18 +1555,20 @@ Commands:
                         help="print scheduler log during run", action='store_true')
 
     parser.add_argument('-use-internal-scheduler', dest='use_internal_scheduler', required=False,
-                        help="use the built-in scheduler in sesam instead of a microservice", action='store_true')
+                        help="use the built-in scheduler in sesam instead of a microservice (DEPRECATED)",
+                        action='store_true')
 
     parser.add_argument('-custom-scheduler', dest='custom_scheduler', required=False,
                         help="by default a scheduler system will be added, enable this flag if you have configured a "
-                             "custom scheduler as part of the config", action='store_true')
+                             "custom scheduler as part of the config (DEPRECATED)", action='store_true')
 
     parser.add_argument('-scheduler-image-tag', dest='scheduler_image_tag', required=False,
-                        help="the scheduler image tag to use", type=str,
-                        metavar="<string>", default="latest")
+                        help="the scheduler image tag to use (DEPRECATED)", type=str,
+                        metavar="<string>")
 
     parser.add_argument('-node', dest='node', metavar="<string>", required=False, help="service url")
-    parser.add_argument('-scheduler-node', dest='scheduler_node', metavar="<string>", required=False, help="service url for scheduler")
+    parser.add_argument('-scheduler-node', dest='scheduler_node', metavar="<string>", required=False,
+                        help="service url for scheduler")
     parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
 
     parser.add_argument('-single', dest='single', required=False, metavar="<string>", help="update or verify just a single pipe")
@@ -1765,7 +1577,10 @@ Commands:
                         help="don't reproduce old large int bugs")
 
     parser.add_argument('-disable-user-pipes', dest='disable_user_pipes', required=False, action='store_true',
-                        help="turn off user pipe scheduling in the target node")
+                        help="turn off user pipe scheduling in the target node (DEPRECATED)")
+
+    parser.add_argument('-enable-user-pipes', dest='enable_user_pipes', required=False, action='store_true',
+                        help="turn on user pipe scheduling in the target node")
 
     parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False, action='store_true',
                         help="compact all execution datasets when running scheduler")
@@ -1780,7 +1595,8 @@ Commands:
 
     parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False, help="env profile to use <profile>-env.json")
 
-    parser.add_argument('-scheduler-id', dest='scheduler_id', default="scheduler", metavar="<string>", required=False, help="system id for the scheduler system")
+    parser.add_argument('-scheduler-id', dest='scheduler_id', default="scheduler", metavar="<string>", required=False,
+                        help="system id for the scheduler system (DEPRECATED)")
 
     parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int, required=False,
                         help="the number of runs that has to yield zero changes for the scheduler to finish")
@@ -1869,6 +1685,18 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
+    if args.disable_user_pipes is True:
+        logger.warning("Note: the '-disable-user-pipes' option has been deprecated and is now on by default. "
+                       "Use the '-enable-user-pipes' option to turn user pipe scheduling back on.")
+
+    if args.scheduler_image_tag or args.custom_scheduler or args.scheduler_id or args.dont_remove_scheduler:
+        logger.error("The '-scheduler-image-tag', '-custom-scheduler', '-scheduler-id' and '-dont-remove-scheduler' "
+                     "options have been  deprecated and are no longer in use.")
+        sys.exit(1)
+
+    if args.use_internal_scheduler:
+        logger.warning("Note: the '-use-internal-scheduler' option has been deprecated and is now on by default.")
+
     if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
                        "restart", "dump", "stop", "convert"]:
         if command:
@@ -1918,8 +1746,8 @@ Commands:
         elif command == "stop":
             sesam_cmd_client.stop()
         elif command == "run":
-            if args.disable_user_pipes is True:
-                logger.warning("Note that the -disable-user-pipes flag has no effect on the actual node configuration "
+            if args.enable_user_pipes is True:
+                logger.warning("Note that the -enable-user-pipes flag has no effect on the actual sesam instance "
                                "outside the 'upload' or 'test' commands")
             sesam_cmd_client.run()
         elif command == "wipe":
