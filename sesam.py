@@ -25,7 +25,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object
 
-sesam_version = "2.0.0"
+sesam_version = "2.0.1"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1595,7 +1595,7 @@ Commands:
 
     parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False, help="env profile to use <profile>-env.json")
 
-    parser.add_argument('-scheduler-id', dest='scheduler_id', default="scheduler", metavar="<string>", required=False,
+    parser.add_argument('-scheduler-id', dest='scheduler_id', metavar="<string>", required=False,
                         help="system id for the scheduler system (DEPRECATED)")
 
     parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int, required=False,
