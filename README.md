@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/sesam-community/sesam-py.svg?branch=master)](https://travis-ci.org/sesam-community/sesam-py)
 
-Sesam command tool to use with [Sesam](https://sesam.io) The Hybrid Data Hub iPaaS.
+Sesam command tool to use with [Sesam](https://sesam.io).
 
 ## Usage
 
@@ -175,23 +175,6 @@ Will end up as the following (with ``"blacklist": ["foos.*.bar"]``):
 
 It is recommended to avoid ignoring or blacklisting as much as possible as this creates a false sense of correctness. Tests will pass, but deviations are silently ignored. A better solution is to avoid these properties in the output if possible.
 
-### Scheduler customization
-
-By default the upload command will add a test-friendly scheduler as part of the configuration. The ``_id`` for this micro service system is ``scheduler``, but it can be overridden with the flag "--scheduler-id my-scheduler-id" if you need to override this.
- 
-If you want to configure a custom scheduler manually as part of the configuration you need to enable the ``--custom-scheduler`` flag.
-
-This custom scheduler needs to implement the following: 
-
-1. POST /start (the tool will call this when the scheduler should start)
-2. GET / (the tool will then poll this until it returns with state 'success' or 'failure')
-```
-{
-  "state": "?|success|failure" 
-}
-```
-
-
 ### Uploading test data
 There is a `sesam convert` command which takes all the pipes with conditional embedded sources, and modifies the case alternative which corresponds to the current profile env (usually "test") so that it is not an embedded source, but rather an http_endpoint source. At the same time, it takes the entities found in the original embedded source and stores them in separate files under a new `testdata` directory. This command should be necessary to run only once. It can take a `-dump` option that will first backup the entire config into a zip file.
 
@@ -221,5 +204,5 @@ $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ pyinstaller --onefile sesam.py
 $ dist/sesam -version
-sesam version 1.0.0
+sesam version 2.0.0
 ```
