@@ -37,6 +37,12 @@ class FormatStyle(object):
             setattr(self, "_doc_" + prop, doc)
             setattr(self, "_label_" + prop, label)
 
+    def __str__(self):
+        attributes2print = []
+        for attr in dir(self):
+            if attr[0] != "_":
+                attributes2print.append(str('{k}={v}'.format(k=attr, v=getattr(self,attr))))
+        return ",".join(attributes2print)
 
 
 def format_json(json_object, style=FormatStyle()):

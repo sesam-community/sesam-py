@@ -54,7 +54,7 @@ Verifying output (3/3)...passed!
 | parameters | Which parameters to pass as bound parameters. Note that parameters only works for published endpoints. | Object | No | ``{}`` |
 
 
-Example: 
+Example:
 ```
 $ cat foo.test.json
 {
@@ -101,7 +101,7 @@ All internal properties except ``_id`` and ``_deleted`` are removed from the out
 
 By default the entities are fetched from ``/pipes/<my-pipe>/entities``, but if endpoint is set it will be fetched from
 ``/publishers/<my-pipe>/<endpoint-type>`` based on the endpoint type specified. Note that the pipe needs to be configured to publish to this endpoint.
- 
+
 Example:
 ```
 {
@@ -130,7 +130,7 @@ when the pipe's sink strips away the "_id" property for example.
 ### Blacklisting
 
 If the data contains values that are not deterministic (e.g. timestamp added during the run) they can be filtered out using the blacklist.
- 
+
 Example:
 ```
 {
@@ -141,7 +141,7 @@ Example:
 ```
 
 This will filter out properties called ``foo`` and ``ns1:bar`` (namespaced).
- 
+
 If the data is not located at the top level, a dotted notation is supported ``foo.bar``. This will remove the ``bar`` property from the object (or list of objects) located under the ``foo`` property. If you need to blacklist a property that actually contains a dot, the dot can be escaped like this ``foo\.bar``
 
 If you need to ignore a property on a list of objects, you can also use this notation ``foos.*.bar``. This will remove the ``bar`` property from all the objects located under ``foos``.
@@ -170,7 +170,7 @@ Will end up as the following (with ``"blacklist": ["foos.*.bar"]``):
   }
 }
 ```
-  
+
 ### Avoid ignore and blacklist
 
 It is recommended to avoid ignoring or blacklisting as much as possible as this creates a false sense of correctness. Tests will pass, but deviations are silently ignored. A better solution is to avoid these properties in the output if possible.
@@ -178,11 +178,24 @@ It is recommended to avoid ignoring or blacklisting as much as possible as this 
 ### Uploading test data
 There is a `sesam convert` command which takes all the pipes with conditional embedded sources, and modifies the case alternative which corresponds to the current profile env (usually "test") so that it is not an embedded source, but rather an http_endpoint source. At the same time, it takes the entities found in the original embedded source and stores them in separate files under a new `testdata` directory. This command should be necessary to run only once. It can take a `-dump` option that will first backup the entire config into a zip file.
 
-When doing `sesam upload` or `sesam test`, the CLI will also upload testdata to any input pipes based on what it finds in a folder called `testdata`. 
+When doing `sesam upload` or `sesam test`, the CLI will also upload testdata to any input pipes based on what it finds in a folder called `testdata`.
+
+### Using Profiles
+A profile file is a json file with the variables list as its content. The name has to follow "<profile>-env.json" convention.
+
+Profile files are applicable to `upload`, `download`, `status` commands.
+
+Default profile is 'test', thus, 'test-env.json' is the default profile file. It is expected to be at the same directory as the sesam CLI is executed from.
+To use any other profile, create a profile file and use `-profile` argument.
+
+e.g. Given that profile `profiles/prod-env.json` file exists, one can
+  * upload with `sesam upload -profile profiles/prod`
+  * download with `sesam download -profile profiles/prod`
+  * see status with `sesam status -profile profiles/prod`
 
 ## Installing
 
-You can either run the sesam.py script directly using python, or you can download and run a stand alone 
+You can either run the sesam.py script directly using python, or you can download and run a stand alone
 binary from [Github Releases](https://github.com/sesam-community/sesam-py/releases/).
 
 
