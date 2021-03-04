@@ -533,7 +533,7 @@ class SesamCmdClient:
         return config
 
 
-    def read_config_file(self, filename, is_mandatory=False):
+    def read_config_file(self, filename, is_required=False):
         try:
             curr_dir = os.getcwd()
             if curr_dir is None:
@@ -556,7 +556,7 @@ class SesamCmdClient:
             if file_config:
                 self.logger.debug("Found config file '%s' in '%s'"% (filename, curr_dir))
             else:
-                if is_mandatory:
+                if is_required:
                     raise BaseException()
                 else:
                     self.logger.debug("Cannot locate config file '%s' in current or parent folder. "
@@ -660,16 +660,16 @@ class SesamCmdClient:
         return zip_data
 
     def get_formatstyle_from_configfile(self):
-        configfilename = self.args.sesam_config_file
-        is_mandatory = configfilename != ".sesamconfig.json"
-        curr_dir, configuration = self.read_config_file(configfilename, is_mandatory)
+        configfilename = self.args.sesamconfig_file or ".sesamconfig.json"
+        is_required = self.args.sesamconfig_file is not None
+        curr_dir, configuration = self.read_config_file(configfilename, is_required)
         return FormatStyle(**configuration.get("formatstyle",{}))
 
 
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
         try:
-            curr_dir, file_config = self.read_config_file(configfilename, is_mandatory=True)
+            curr_dir, file_config = self.read_config_file(configfilename, is_required=False)
 
             self.logger.info("Using %s as base directory", curr_dir)
             global BASE_DIR
@@ -1684,9 +1684,8 @@ Commands:
     parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
 
-    parser.add_argument('-sesamconfig-file', dest='sesam_config_file', metavar="<string>",
-                        default=".sesamconfig.json", type=str, help="sesamconfig file to use, the default is "
-                                                              "'.sesamconfig.json' in the current directory")
+    parser.add_argument('-sesamconfig-file', dest='sesamconfig_file', metavar="<string>", type=str,
+                        help="sesamconfig file to use, the default is '.sesamconfig.json' in the current directory")
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
@@ -1769,7 +1768,7 @@ Commands:
     except BaseException as e:
         if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
             logger.exception(e)
-        logger.error("jwt and node must be specified either as parameter, os env or in config file")
+        logger.error("jwt and node must be specified either as parameter, os env or in syncconfig file")
         sys.exit(1)
 
     try:
