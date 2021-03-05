@@ -4,7 +4,158 @@
 
 Sesam command tool to use with [Sesam](https://sesam.io).
 
+## Installing
+
+Obtain the latest binaries for your OS from [Github Releases](https://github.com/sesam-community/sesam-py/releases/), unpack and make sure it is accessible in your "PATH". Create optional configuration files as described below.
+
+Verfiy your installation by running `sesam -version` command.
+
+If you want to run from the source or build locally:
+To install and run the sesam client with python on Linux/OSX (python 3.5+ required):
+```
+$ cd sesam
+$ virtualenv --python=python3 venv
+$ . venv/bin/activate
+$ pip install -r requirements.txt
+$ python sesam.py -version
+sesam version 1.0.0
+```
+
+To create a sesam client binary with pyinstaller on Linux/OSX (python 3.5+ required):
+```
+$ cd sesam
+$ virtualenv --python=python3 venv
+$ . venv/bin/activate
+$ pip install -r requirements.txt
+$ pyinstaller --onefile sesam.py
+$ dist/sesam -version
+sesam version 2.0.0
+```
+
+## Configuring
+
+#### 1- syncconfig
+Sesam client needs the node to operate on and jwt to authenticate. 'NODE' and 'JWT' can be specified in 3 ways: environment variables, command line args or syncconfig file.
+To specify via syncconfig file create a file named `.syncconfig` in the your repos top directory, paste and edit the following:
+```
+#why not specify the subscription name here as comment to avoid confusions?
+NODE="<sesam node name for instance 'datahub-asdfasdf.sesam.cloud'>"
+JWT="<jwt to authenticate against node>"
+```
+
+P.S. Optionally, you can use another filename and location, and then specify it as a command line argument.
+
+#### 2- sesamconfig
+
+Sesam client can read an optional sesamconfig file to change the default behaviour. To utilize sesamconfig create `.sesamconfig.json` in the your repos top directory, paste `{}` and add item(s) among the followings:
+
+* **formatstyle** : add and customize following item to customize formatting. The options here correspond to 'Editor Options' on pipe/system configuration page in the sesam portal. It is sufficient to specify the non-default items only.
+```json
+  "formatstyle": {
+    "spaces_for_indent": 2,
+    "use_tab_for_indent": false,
+    "space_after_colon": true,
+    "space_after_comma": true,
+    "new_line_before_dict_as_value": false,
+    "newline_before_dict_in_array": false,
+    "close_nested_array_on_new_line": true,
+    "collapse_indent_for_dict_inside_array": true,
+    "elements_of_array_as_value_on_separate_lines": true
+  }
+```
+P.S. Optionally, you can use another filename and location, and then specify it as a command line argument.
+
+
+#### An example sesamconfig file content:
+```json
+{
+  "formatstyle": {
+    "spaces_for_indent": 4,
+    "elements_of_array_as_value_on_separate_lines": true
+  }
+}
+```
+
 ## Usage
+
+```
+usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-config-file <string>] [-dont-remove-scheduler] [-dump]
+             [-print-scheduler-log] [-use-internal-scheduler] [-custom-scheduler] [-scheduler-image-tag <string>] [-node <string>]
+             [-scheduler-node <string>] [-jwt <string>] [-single <string>] [-no-large-int-bugs] [-disable-user-pipes] [-enable-user-pipes]
+             [-compact-execution-datasets] [-unicode-encoding] [-disable-json-html-escape] [-profile <string>] [-scheduler-id <string>]
+             [-scheduler-zero-runs <int>] [-scheduler-max-runs <int>] [-scheduler-max-run-time <int>] [-restart-timeout <int>] [-runs <int>]
+             [-logformat <string>] [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>]
+             [command]
+
+Commands:
+  wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
+  restart   Restarts the target node (typically used to release used resources if the environment is strained)
+  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
+  download  Replace local config with node config
+  dump      Create a zip archive of the config and store it as 'sesam-config.zip'
+  status    Compare node config with local config (requires external diff command)
+  run       Run configuration until it stabilizes
+  update    Store current output as expected output
+  convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
+  verify    Compare output against expected output
+  test      Upload, run and verify output
+  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+
+positional arguments:
+  command               a valid command from the list above
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -version              print version number
+  -v                    be verbose
+  -vv                   be extra verbose
+  -vvv                  be extra extra verbose
+  -skip-tls-verification
+                        skip verifying the TLS certificate
+  -sync-config-file <string>
+                        sync config file to use, the default is '.syncconfig' in the current directory
+  -dont-remove-scheduler
+                        don't remove scheduler after failure (DEPRECATED)
+  -dump                 dump zip content to disk
+  -print-scheduler-log  print scheduler log during run
+  -use-internal-scheduler
+                        use the built-in scheduler in sesam instead of a microservice (DEPRECATED)
+  -custom-scheduler     by default a scheduler system will be added, enable this flag if you have configured a custom scheduler as part of the config
+                        (DEPRECATED)
+  -scheduler-image-tag <string>
+                        the scheduler image tag to use (DEPRECATED)
+  -node <string>        service url
+  -scheduler-node <string>
+                        service url for scheduler
+  -jwt <string>         authorization token
+  -single <string>      update or verify just a single pipe
+  -no-large-int-bugs    don't reproduce old large int bugs
+  -disable-user-pipes   turn off user pipe scheduling in the target node (DEPRECATED)
+  -enable-user-pipes    turn on user pipe scheduling in the target node
+  -compact-execution-datasets
+                        compact all execution datasets when running scheduler
+  -unicode-encoding     store the 'expected output' json files using unicode encoding ('\uXXXX') - the default is UTF-8
+  -disable-json-html-escape
+                        turn off escaping of '<', '>' and '&' characters in 'expected output' json files
+  -profile <string>     env profile to use <profile>-env.json
+  -scheduler-id <string>
+                        system id for the scheduler system (DEPRECATED)
+  -scheduler-zero-runs <int>
+                        the number of runs that has to yield zero changes for the scheduler to finish
+  -scheduler-max-runs <int>
+                        maximum number of runs that scheduler can do to before exiting (internal scheduler only)
+  -scheduler-max-run-time <int>
+                        the maximum time the internal scheduler is allowed to use to finish (in seconds, internal scheduler only)
+  -restart-timeout <int>
+                        the maximum time to wait for the node to restart and become available again (in seconds). The default is 15 minutes. A value of 0
+                        will skip the back-up-again verification.
+  -runs <int>           number of test cycles to check for stability
+  -logformat <string>   output format (normal, log or azure)
+  -scheduler-poll-frequency <int>
+                        milliseconds between each poll while waiting for the scheduler
+  -sesamconfig-file <string>
+                        sesamconfig file to use, the default is '.sesamconfig.json' in the current directory
+```
 
 Typical workflow:
 
@@ -193,29 +344,3 @@ e.g. Given that profile `profiles/prod-env.json` file exists, one can
   * download with `sesam download -profile profiles/prod`
   * see status with `sesam status -profile profiles/prod`
 
-## Installing
-
-You can either run the sesam.py script directly using python, or you can download and run a stand alone
-binary from [Github Releases](https://github.com/sesam-community/sesam-py/releases/).
-
-
-To install and run the sesam client with python on Linux/OSX (python 3.5+ required):
-```
-$ cd sesam
-$ virtualenv --python=python3 venv
-$ . venv/bin/activate
-$ pip install -r requirements.txt
-$ python sesam.py -version
-sesam version 1.0.0
-```
-
-To create a sesam client binary with pyinstaller on Linux/OSX (python 3.5+ required):
-```
-$ cd sesam
-$ virtualenv --python=python3 venv
-$ . venv/bin/activate
-$ pip install -r requirements.txt
-$ pyinstaller --onefile sesam.py
-$ dist/sesam -version
-sesam version 2.0.0
-```
