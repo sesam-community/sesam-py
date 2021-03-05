@@ -17,7 +17,7 @@ if [ -z "$TRAVIS_OS_NAME" ] ; then
 fi
 
 if [ -z "$NODE_URL" ]; then
-    export $NODE_URL=https://datahub-29ecbb31.sesam.cloud/api
+    export NODE_URL=https://datahub-29ecbb31.sesam.cloud/api
 fi
 
 $SESAM_CLIENT -h
