@@ -16,11 +16,14 @@ if [ -z "$TRAVIS_OS_NAME" ] ; then
     export SESAM_CLIENT=~/bin/sesam-py
 fi
 
+if [ -z "$NODE_URL" ]; then
+    export $NODE_URL=https://datahub-29ecbb31.sesam.cloud/api
+fi
+
 $SESAM_CLIENT -h
 
 # Only run the tests on linux for now
 if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
-    export NODE_URL=https://datahub-cd9f97d6.sesam.cloud/api
     export PUBLIC_CI_TOKEN=$SESAM_TOKEN
 
     pushd tests
