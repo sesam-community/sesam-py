@@ -879,7 +879,7 @@ class SesamCmdClient:
         #compare profile_file content with the variables
         profile_file = "%s-env.json" % self.args.profile
         try:
-            with open(profile_file, "r") as local_env_file:
+            with open(profile_file, "r", encoding="utf-8-sig") as local_env_file:
                 local_file_data = format_object(json.load(local_env_file), self.formatstyle)
             remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
 
