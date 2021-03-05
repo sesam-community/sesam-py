@@ -6,7 +6,8 @@
     "entities": [{
       "_id": "test1",
       "name": "test1"
-    }, {
+    },
+      {
       "_id": "test2",
       "name": "test2"
     }]

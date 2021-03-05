@@ -1,0 +1,14 @@
+{
+  "formatstyle": {
+    "spaces_for_indent": 2,
+    "use_tab_for_indent": false,
+    "space_after_colon": true,
+    "space_after_comma": true,
+    "new_line_before_dict_as_value": false,
+    "newline_before_dict_in_array": false,
+    "close_nested_array_on_new_line": true,
+    "collapse_indent_for_dict_inside_array": true,
+    "elements_of_array_as_value_on_separate_lines": true,
+    "sort_keys_by_convention": true
+  }
+}

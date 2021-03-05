@@ -23,9 +23,9 @@ from difflib import unified_diff
 from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
-from jsonformat import format_object
+from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.0.1"
+sesam_version = "2.2.0"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -202,6 +202,10 @@ class SesamNode:
     def put_env(self, env_vars):
         self.logger.log(LOGLEVEL_TRACE, "PUT env vars to %s" % self.node_url)
         self.api_connection.put_env_vars(env_vars)
+
+    def get_env(self):
+        self.logger.log(LOGLEVEL_TRACE, "GET env vars from %s" % self.node_url)
+        return self.api_connection.get_env_vars()
 
     def get_system(self, system_id):
         self.logger.log(LOGLEVEL_TRACE, "Get system '%s' from %s" % (system_id, self.node_url))
@@ -505,17 +509,64 @@ class SesamCmdClient:
         self.args = args
         self.logger = logger
         self.sesam_node = None
+        self.formatstyle = FormatStyle()
 
-    def read_config_file(self, filename):
-        parser = configparser.ConfigParser(strict=False)
-
+    def parse_config_file(self, filename):
+        config = {}
+        #try to parse as json, if fails parse as ini
         with open(filename) as fp:
-            parser.read_file(itertools.chain(['[sesam]'], fp), source=filename)
-            config = {}
-            for key, value in parser.items("sesam"):
-                config[key.lower()] = value
+            try:
+                config = json.load(fp)
+            except ValueError as e:
+                pass
+        if not config:
+            with open(filename) as fp:
+                parser = configparser.ConfigParser(strict=False)
+                #[sesam] section is prepended to support .syncconfig file
+                #  in which section is omitted
+                parser.read_file(itertools.chain(['[sesam]'], fp), source=filename)
+                config = {}
+                for section in parser.sections():
+                    for key, value in parser.items(section):
+                        config[key.lower()] = value
 
-            return config
+        return config
+
+
+    def read_config_file(self, filename, is_required=False):
+        try:
+            curr_dir = os.getcwd()
+            if curr_dir is None:
+                self.logger.error("Failed to open current directory. Check your permissions.")
+                raise AssertionError("Failed to open current directory. Check your permissions.")
+
+            # Find config on disk, if any
+            file_config = {}
+            if os.path.isfile(filename):
+                # Found a local .syncconfig file, read it
+                file_config = self.parse_config_file(filename)
+            else:
+                # Look in the parent folder
+                if os.path.isfile(".." + os.sep + filename):
+                    file_config = self.parse_config_file(".." + os.sep + filename)
+                    if file_config:
+                        curr_dir = os.path.abspath(".." + os.sep)
+                        os.chdir(curr_dir)
+
+            if file_config:
+                self.logger.debug("Found config file '%s' in '%s'"% (filename, curr_dir))
+            else:
+                if is_required:
+                    raise BaseException()
+                else:
+                    self.logger.debug("Cannot locate config file '%s' in current or parent folder. "
+                                     "Proceeding without it." % (filename))
+            return curr_dir, file_config
+        except BaseException as e:
+            self.logger.error("Failed to read '%s' from either the current directory or the "
+                              "parent directory. Check that you are in the correct directory, that you have the"
+                              "required permissions to read the files and that the files have the correct format." % filename)
+            raise e
 
     def _coalesce(self, items):
         for item in items:
@@ -608,61 +659,43 @@ class SesamCmdClient:
 
         return zip_data
 
+    def get_formatstyle_from_configfile(self):
+        configfilename = self.args.sesamconfig_file or ".sesamconfig.json"
+        is_required = self.args.sesamconfig_file is not None
+        curr_dir, configuration = self.read_config_file(configfilename, is_required)
+        return FormatStyle(**configuration.get("formatstyle",{}))
+
+
     def get_node_and_jwt_token(self):
-        syncconfigfilename = self.args.sync_config_file
+        configfilename = self.args.sync_config_file
         try:
-            curr_dir = os.getcwd()
-            if curr_dir is None:
-                self.logger.error("Failed to open current directory. Check your permissions.")
-                raise AssertionError("Failed to open current directory. Check your permissions.")
+            curr_dir, file_config = self.read_config_file(configfilename, is_required=False)
 
-            # Find config on disk, if any
-            try:
-                file_config = {}
-                if os.path.isfile(syncconfigfilename):
-                    # Found a local .syncconfig file, read it
-                    file_config = self.read_config_file(syncconfigfilename)
-                else:
-                    logger.info("Couldn't find sync config file '%s' - looking in parent folder..")
-                    # Look in the parent folder
-                    if os.path.isfile(".." + os.sep + syncconfigfilename):
-                        file_config = self.read_config_file(".." + os.sep + syncconfigfilename)
-                        if file_config:
-                            curr_dir = os.path.abspath(".." + os.sep)
-                            self.logger.info("Found sync config file '%s' in parent path. Using %s "
-                                             "as base directory" % (syncconfigfilename, curr_dir))
-                            os.chdir(curr_dir)
+            self.logger.info("Using %s as base directory", curr_dir)
+            global BASE_DIR
+            BASE_DIR = curr_dir
 
-                self.logger.info("Using %s as base directory", curr_dir)
-                global BASE_DIR
-                BASE_DIR = curr_dir
+            self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
+            self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
 
-                self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
-                self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
+            if self.jwt_token and self.jwt_token.startswith('"') and self.jwt_token[-1] == '"':
+                self.jwt_token = self.jwt_token[1:-1]
 
-                if self.jwt_token and self.jwt_token.startswith('"') and self.jwt_token[-1] == '"':
-                    self.jwt_token = self.jwt_token[1:-1]
+            if self.jwt_token.startswith("bearer "):
+                self.jwt_token = self.jwt_token.replace("bearer ", "")
 
-                if self.jwt_token.startswith("bearer "):
-                    self.jwt_token = self.jwt_token.replace("bearer ", "")
+            if self.jwt_token.startswith("Bearer "):
+                self.jwt_token = self.jwt_token.replace("Bearer ", "")
 
-                if self.jwt_token.startswith("Bearer "):
-                    self.jwt_token = self.jwt_token.replace("Bearer ", "")
+            self.node_url = self.node_url.replace('"', "")
 
-                self.node_url = self.node_url.replace('"', "")
+            if not self.node_url.startswith("http"):
+                self.node_url = "https://%s" % self.node_url
 
-                if not self.node_url.startswith("http"):
-                    self.node_url = "https://%s" % self.node_url
+            if not self.node_url[-4:] == "/api":
+                self.node_url = "%s/api" % self.node_url
 
-                if not self.node_url[-4:] == "/api":
-                    self.node_url = "%s/api" % self.node_url
-
-                return self.node_url, self.jwt_token
-            except BaseException as e:
-                self.logger.error("Failed to read '.syncconfig' from either the current directory or the "
-                                  "parent directory. Check that you are in the correct directory, that you have the"
-                                  "required permissions to read the files and that the files have the correct format.")
-                raise e
+            return self.node_url, self.jwt_token
 
         except BaseException as e:
             logger.error("Failed to find node url and/or jwt token")
@@ -674,7 +707,7 @@ class SesamCmdClient:
         zout = zipfile.ZipFile(buffer, mode="w")
 
         for item in zip_config.infolist():
-            formatted_item = format_object(json.load(zip_config.open(item.filename)))
+            formatted_item = format_object(json.load(zip_config.open(item.filename)), self.formatstyle)
             zout.writestr(item, formatted_item)
 
         zout.close()
@@ -688,6 +721,9 @@ class SesamCmdClient:
         try:
             with open(profile_file, "r", encoding="utf-8-sig") as fp:
                 json_data = json.load(fp)
+        except FileNotFoundError as e:
+            self.logger.error("Cannot locate profile file '%s'" % profile_file)
+            raise e
         except BaseException as e:
             self.logger.error("Failed to parse profile: '%s'" % profile_file)
             raise e
@@ -757,6 +793,16 @@ class SesamCmdClient:
             raise e
 
     def download(self):
+        # Find env vars to download
+        profile_file = "%s-env.json" % self.args.profile
+        try:
+            with open(profile_file, "w", encoding="utf-8-sig") as fp:
+                fp.write(format_object(self.sesam_node.get_env(), self.formatstyle))
+        except BaseException as e:
+            self.logger.error("Failed to save profile file  '%s'" % profile_file)
+            raise e
+
+
         if self.args.dump:
             if os.path.isfile("sesam-config.zip"):
                     os.remove("sesam-config.zip")
@@ -798,6 +844,17 @@ class SesamCmdClient:
         self.logger.info("Replaced local config successfully")
 
     def status(self):
+        def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2):
+            diff_found = False
+            if file_content1 != file_content2:
+                self.logger.info("File '%s' differs from Sesam!" % file_name1)
+
+                diff = self.get_diff_string(file_content1, file_content2, file_name1, file_name2)
+                self.logger.info("Diff:\n%s" % diff)
+
+                diff_found = True
+            return diff_found
+
         logger.error("Comparing local and node config...")
 
         local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
@@ -819,6 +876,17 @@ class SesamCmdClient:
         local_files = sorted(local_config.namelist())
 
         diff_found = False
+        #compare profile_file content with the variables
+        profile_file = "%s-env.json" % self.args.profile
+        try:
+            with open(profile_file, "r") as local_env_file:
+                local_file_data = format_object(json.load(local_env_file), self.formatstyle)
+            remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
+
+            diff_found = diff_found or log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file)
+        except FileNotFoundError as ex:
+            logger.error("Cannot locate profile file '%s'" % profile_file)
+
         for remote_file in remote_files:
             if remote_file not in local_files:
                 self.logger.info("Sesam file '%s' was not found locally" % remote_file)
@@ -830,15 +898,10 @@ class SesamCmdClient:
                 diff_found = True
             else:
                 local_file_data = str(local_config.read(local_file), encoding="utf-8")
-                remote_file_data = format_object(json.load(remote_config.open(local_file)))
+                remote_file_data = format_object(json.load(remote_config.open(local_file)), self.formatstyle)
 
-                if local_file_data != remote_file_data:
-                    self.logger.info("File '%s' differs from Sesam!" % local_file)
+                diff_found = diff_found or log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file)
 
-                    diff = self.get_diff_string(local_file_data, remote_file_data, local_file, local_file)
-                    logger.info("Diff:\n%s" % diff)
-
-                    diff_found = True
 
         if diff_found:
             logger.info("Sesam config is NOT in sync with local config!")
@@ -1454,11 +1517,11 @@ class SesamCmdClient:
         def save_testdata_file(pipe_id, entities):
             os.makedirs("testdata", exist_ok=True)
             with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8") as testdata_file:
-                testdata_file.write(format_object(entities))
+                testdata_file.write(format_object(entities, self.formatstyle))
 
         def save_modified_pipe(pipe_json, path):
             with open(path, 'w', encoding="utf-8") as pipe_file:
-                pipe_file.write(format_object(pipe_json))
+                pipe_file.write(format_object(pipe_json, self.formatstyle))
 
 
         self.logger.info("Starting converting conditional embedded sources")
@@ -1527,7 +1590,7 @@ Commands:
   convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
   verify    Compare output against expected output
   test      Upload, run and verify output
-  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected) 
+  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
 """, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-version', dest='version', required=False, action='store_true', help="print version number")
@@ -1621,6 +1684,9 @@ Commands:
     parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
 
+    parser.add_argument('-sesamconfig-file', dest='sesamconfig_file', metavar="<string>", type=str,
+                        help="sesamconfig file to use, the default is '.sesamconfig.json' in the current directory")
+
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
     try:
@@ -1685,18 +1751,6 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if args.disable_user_pipes is True:
-        logger.warning("Note: the '-disable-user-pipes' option has been deprecated and is now on by default. "
-                       "Use the '-enable-user-pipes' option to turn user pipe scheduling back on.")
-
-    if args.scheduler_image_tag or args.custom_scheduler or args.scheduler_id or args.dont_remove_scheduler:
-        logger.error("The '-scheduler-image-tag', '-custom-scheduler', '-scheduler-id' and '-dont-remove-scheduler' "
-                     "options have been  deprecated and are no longer in use.")
-        sys.exit(1)
-
-    if args.use_internal_scheduler:
-        logger.warning("Note: the '-use-internal-scheduler' option has been deprecated and is now on by default.")
-
     if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
                        "restart", "dump", "stop", "convert"]:
         if command:
@@ -1714,7 +1768,15 @@ Commands:
     except BaseException as e:
         if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
             logger.exception(e)
-        logger.error("jwt and node must be specified either as parameter, os env or in config file")
+        logger.error("jwt and node must be specified either as parameter, os env or in syncconfig file")
+        sys.exit(1)
+
+    try:
+        sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
+    except BaseException as e:
+        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+            logger.exception(e)
+        logger.error("config file is mandatory when -sesamconfig-file argument is specified")
         sys.exit(1)
 
     try:
