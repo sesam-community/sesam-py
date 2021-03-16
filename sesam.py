@@ -776,7 +776,7 @@ class SesamCmdClient:
                             # deleting dataset before pushing data, since http_endpoint receiver will not delete
                             # existing test data.
                             try:
-                                resp = self.sesam_node.delete_dataset(pipe_id)
+                                self.sesam_node.delete_dataset(pipe_id)
                             except HTTPError as http_e:
                                 self.logger.log(LOGLEVEL_TRACE, f"Failed to delete dataset {pipe_id}. It probably doesn't exist, "
                                                   f"which is fine. Error: {http_e}")
@@ -1347,15 +1347,18 @@ class SesamCmdClient:
             self.logger.warning("Failed to stop running schedulers!")
 
     def test(self):
+        last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
             self.upload()
 
             for i in range(self.args.runs):
-                self.run()
+                last_additional_info = self.run()
 
             self.verify()
             self.logger.info("Test was successful!")
+            if last_additional_info is not None:
+                self.logger.info(last_additional_info)
         except BaseException as e:
             self.logger.error("Test failed!")
             raise e
@@ -1373,6 +1376,7 @@ class SesamCmdClient:
                 super().__init__()
                 self.sesam_node = sesam_node
                 self.status = None
+                self.additional_info = None
                 self.result = {}
 
             def run(self):
@@ -1427,7 +1431,12 @@ class SesamCmdClient:
 
         self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
 
-        return 0
+        additional_info = scheduler_runner.result.get("additional_info")
+        if additional_info is not None:
+            self.logger.info(additional_info)
+            return additional_info
+
+        return None
 
     def run(self):
         self.stop()
