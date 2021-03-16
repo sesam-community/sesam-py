@@ -1365,7 +1365,7 @@ class SesamCmdClient:
     def run_internal_scheduler(self):
         start_time = time.monotonic()
 
-        disable_pipes = self.args.enable_user_pipes
+        disable_pipes = not self.args.enable_user_pipes
         zero_runs = self.args.scheduler_zero_runs
         max_runs = self.args.scheduler_max_runs
         max_run_time = self.args.scheduler_max_run_time
