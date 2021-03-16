@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import HTTPError
 import argparse
 import logging
 import threading
@@ -772,7 +773,11 @@ class SesamCmdClient:
                         if entities_json is not None:
                             # deleting dataset before pushing data, since http_endpoint receiver will not delete
                             # existing test data.
-                            self.sesam_node.delete_dataset(pipe_id)
+                            try:
+                                resp = self.sesam_node.delete_dataset(pipe_id)
+                            except HTTPError as http_e:
+                                self.logger.log(LOGLEVEL_TRACE, f"Failed to delete dataset {pipe_id}. It probably doesn't exist, "
+                                                  f"which is fine. Error: {http_e}")
                             self.sesam_node.enable_pipe(pipe_id)
                             self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
                             self.sesam_node.disable_pipe(pipe_id)
