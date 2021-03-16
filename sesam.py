@@ -315,12 +315,10 @@ class SesamNode:
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
 
-    def run_internal_scheduler(self, disable_pipes=True, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True):
+    def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
         params = {}
-        if disable_pipes:
-            params["disable_pipes"] = "true"
 
         if zero_runs is not None:
             params["extra_zero_runs"] = zero_runs
@@ -1365,7 +1363,6 @@ class SesamCmdClient:
     def run_internal_scheduler(self):
         start_time = time.monotonic()
 
-        disable_pipes = not self.args.enable_user_pipes
         zero_runs = self.args.scheduler_zero_runs
         max_runs = self.args.scheduler_max_runs
         max_run_time = self.args.scheduler_max_run_time
@@ -1380,8 +1377,7 @@ class SesamCmdClient:
 
             def run(self):
                 try:
-                    self.result = self.sesam_node.run_internal_scheduler(disable_pipes=disable_pipes,
-                                                                         max_run_time=max_run_time,
+                    self.result = self.sesam_node.run_internal_scheduler(max_run_time=max_run_time,
                                                                          max_runs=max_runs,
                                                                          zero_runs=zero_runs,
                                                                          delete_input_datasets=delete_input_datasets)
