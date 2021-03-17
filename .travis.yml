@@ -16,7 +16,7 @@ before_install:
   - chmod +x install.sh
   - chmod +x test.sh
 install:
-- bash install.sh
+- travis_wait bash install.sh
 script:
 - bash test.sh
 before_deploy:
