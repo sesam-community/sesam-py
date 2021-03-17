@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import HTTPError
 import argparse
 import logging
 import threading
@@ -25,7 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.2.0"
+sesam_version = "2.2.1"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -314,12 +315,10 @@ class SesamNode:
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
 
-    def run_internal_scheduler(self, disable_pipes=True, zero_runs=None, max_run_time=None, max_runs=None):
+    def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
         params = {}
-        if disable_pipes:
-            params["disable_pipes"] = "true"
 
         if zero_runs is not None:
             params["extra_zero_runs"] = zero_runs
@@ -329,6 +328,10 @@ class SesamNode:
 
         if max_runs is not None:
             params["max_runs"] = max_runs
+
+        if not delete_input_datasets:
+            # Default is True
+            params["delete_input_datasets"] = False
 
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
         resp.raise_for_status()
@@ -772,7 +775,11 @@ class SesamCmdClient:
                         if entities_json is not None:
                             # deleting dataset before pushing data, since http_endpoint receiver will not delete
                             # existing test data.
-                            self.sesam_node.delete_dataset(pipe_id)
+                            try:
+                                self.sesam_node.delete_dataset(pipe_id)
+                            except HTTPError as http_e:
+                                self.logger.log(LOGLEVEL_TRACE, f"Failed to delete dataset {pipe_id}. It probably doesn't exist, "
+                                                  f"which is fine. Error: {http_e}")
                             self.sesam_node.enable_pipe(pipe_id)
                             self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
                             self.sesam_node.disable_pipe(pipe_id)
@@ -1340,15 +1347,18 @@ class SesamCmdClient:
             self.logger.warning("Failed to stop running schedulers!")
 
     def test(self):
+        last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
             self.upload()
 
             for i in range(self.args.runs):
-                self.run()
+                last_additional_info = self.run()
 
             self.verify()
             self.logger.info("Test was successful!")
+            if last_additional_info is not None:
+                self.logger.info(last_additional_info)
         except BaseException as e:
             self.logger.error("Test failed!")
             raise e
@@ -1356,24 +1366,25 @@ class SesamCmdClient:
     def run_internal_scheduler(self):
         start_time = time.monotonic()
 
-        disable_pipes = self.args.enable_user_pipes
         zero_runs = self.args.scheduler_zero_runs
         max_runs = self.args.scheduler_max_runs
         max_run_time = self.args.scheduler_max_run_time
+        delete_input_datasets = not os.path.isdir("testdata")
 
         class SchedulerRunner(threading.Thread):
             def __init__(self, sesam_node):
                 super().__init__()
                 self.sesam_node = sesam_node
                 self.status = None
+                self.additional_info = None
                 self.result = {}
 
             def run(self):
                 try:
-                    self.result = self.sesam_node.run_internal_scheduler(disable_pipes=disable_pipes,
-                                                                         max_run_time=max_run_time,
+                    self.result = self.sesam_node.run_internal_scheduler(max_run_time=max_run_time,
                                                                          max_runs=max_runs,
-                                                                         zero_runs=zero_runs)
+                                                                         zero_runs=zero_runs,
+                                                                         delete_input_datasets=delete_input_datasets)
                     if self.result["status"] == "success":
                         self.status = "finished"
                     else:
@@ -1420,7 +1431,12 @@ class SesamCmdClient:
 
         self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
 
-        return 0
+        additional_info = scheduler_runner.result.get("additional_info")
+        if additional_info is not None:
+            self.logger.info(additional_info)
+            return additional_info
+
+        return None
 
     def run(self):
         self.stop()
