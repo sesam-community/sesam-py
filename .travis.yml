@@ -16,18 +16,6 @@ before_install:
   - chmod +x install.sh
   - chmod +x test.sh
 install:
-- travis_wait bash install.sh
+- travis_wait 40 bash install.sh
 script:
 - bash test.sh
-before_deploy:
-- bash deploy.sh
-deploy:
-  - provider: releases
-    skip_cleanup: true
-    api_key:
-      secure: jGUHRo60kbAzSsqc4crrLESyahrC+xkqAkXdjeJvMwzRTOtl/tspFR0fTntoCbYqlVViOga83nz1FdCyucEiSRUCNIgfW2m9qeHhGQapnXpg27fbv1JYjioAwPVl2aDUiC+DUS1iAR+Z8TnzdlNEj2lTrxsc7bIHmw+Kwd8ZGD9ZuffDqoRC49ThyCpsN4r8E6C0lvGVEJhZUFclIjucNwyt4kGfXLCrZVwKebD9fA/gk62le6RIIvo7S1+dPf1DRQavH3fRF2LJI1pqxDmJilCtWdCleSjJGM4mXyQbqRTlMoKXZZOPKrAK71ZHBfNT9v4FmqV4i1DwPjSGHSUMXfLkW7ajWs2xZ/gp5F/kMeNik8SS8+jsOm6XUDLUla6U9ZWRqqLuXFyhWcrmrJSIjHZ4ZzFbuC68sEUE261XL8MVC/Nl2B/ERdFA4+1Svvkoriis5rJIwY/600SXuUK8viGZzHrDVtQ3eiqBs5F71oWJxLuGhIPoCz/R1vM76XQ96jxTE9c8p8FpZsu81bd/Ql4otVvEZv+EM2e+rHIoZI7OStdTEuXmkoZj5kyw0n3D0nBostOyQHGerCxoQsHJjrjIikJ4URNDdQGGhbagLCXl9vhCT5EBV5581cdpu5/GX+6dfqD2LKz0m1x45ha/CX4qBPYa+UVpjxz9TE4vfNU=
-    file_glob: true
-    file: artifact/*
-    on:
-      tags: true
-      repo: sesam-community/sesam-py
