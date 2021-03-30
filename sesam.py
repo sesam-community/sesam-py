@@ -26,7 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.2.3"
+sesam_version = "2.2.4"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1066,9 +1066,14 @@ class SesamCmdClient:
     def verify(self):
         self.logger.info("Verifying that expected output matches current output...")
         output_pipes = {}
+        failed = False
 
         for p in self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes():
-            output_pipes[p.id] = p
+            if p.runtime.get("is-valid-config", False) is False:
+                self.logger.error("The pipe '%s' has invalid config, cannot verify pipe!" % p.id)
+                self.logger.error("The error(s) reported was: %s" % p.runtime.get("config-errors", "unknown"))
+            else:
+                output_pipes[p.id] = p
 
         test_specs = self.load_test_specs(output_pipes)
 
@@ -1079,7 +1084,6 @@ class SesamCmdClient:
 
         failed_tests = []
         missing_tests = []
-        failed = False
         for pipe in output_pipes.values():
             self.logger.debug("Verifying pipe '%s'.." % pipe.id)
 
