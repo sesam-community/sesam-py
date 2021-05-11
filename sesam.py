@@ -851,13 +851,14 @@ class SesamCmdClient:
         self.logger.info("Replaced local config successfully")
 
     def status(self):
-        def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2):
+        def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
             diff_found = False
             if file_content1 != file_content2:
                 self.logger.info("File '%s' differs from Sesam!" % file_name1)
 
                 diff = self.get_diff_string(file_content1, file_content2, file_name1, file_name2)
-                self.logger.info("Diff:\n%s" % diff)
+                if log_diff:
+                    self.logger.info("Diff:\n%s" % diff)
 
                 diff_found = True
             return diff_found
@@ -890,7 +891,7 @@ class SesamCmdClient:
                 local_file_data = format_object(json.load(local_env_file), self.formatstyle)
             remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
 
-            diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file) or diff_found
+            diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file, self.args.diff) or diff_found
         except FileNotFoundError as ex:
             logger.error("Cannot locate profile file '%s'" % profile_file)
 
@@ -907,7 +908,7 @@ class SesamCmdClient:
                 local_file_data = str(local_config.read(local_file), encoding="utf-8")
                 remote_file_data = format_object(json.load(remote_config.open(local_file)), self.formatstyle)
 
-                diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file) or diff_found
+                diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file, self.args.diff) or diff_found
 
 
         if diff_found:
@@ -1706,6 +1707,9 @@ Commands:
 
     parser.add_argument('-sesamconfig-file', dest='sesamconfig_file', metavar="<string>", type=str,
                         help="sesamconfig file to use, the default is '.sesamconfig.json' in the current directory")
+
+    parser.add_argument('-diff', dest='diff', required=False, action='store_true',
+                        help="use with the status command to show the diff of the files")
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
