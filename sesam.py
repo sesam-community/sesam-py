@@ -890,7 +890,7 @@ class SesamCmdClient:
                 local_file_data = format_object(json.load(local_env_file), self.formatstyle)
             remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
 
-            diff_found = diff_found or log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file)
+            diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file) or diff_found
         except FileNotFoundError as ex:
             logger.error("Cannot locate profile file '%s'" % profile_file)
 
@@ -907,7 +907,7 @@ class SesamCmdClient:
                 local_file_data = str(local_config.read(local_file), encoding="utf-8")
                 remote_file_data = format_object(json.load(remote_config.open(local_file)), self.formatstyle)
 
-                diff_found = diff_found or log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file)
+                diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file) or diff_found
 
 
         if diff_found:
