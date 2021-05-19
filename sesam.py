@@ -318,9 +318,6 @@ class SesamNode:
     def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True, check_input_pipes=False):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
-        node_status = self.api_connection.get_status()
-        feature_level = node_status.get("status", {}).get("feature-level", -1)
-
         params = {}
 
         if zero_runs is not None:
@@ -336,7 +333,7 @@ class SesamNode:
             # Default is True
             params["delete_input_datasets"] = False
 
-        if check_input_pipes is True and feature_level >= 7:
+        if check_input_pipes is True:
             params["check_input_pipes"] = True
 
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
