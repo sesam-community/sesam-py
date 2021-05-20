@@ -246,7 +246,7 @@ This will compare the output of ``/publishers/foo/xml?my-param=A`` with the cont
 
 ### Internal properties
 
-All internal properties except ``_id`` and ``_deleted`` are removed from the output. Entities that has ``_deleted`` set to ``false`` will also be removed.
+All internal properties except ``_id`` and ``_deleted`` are removed from the output. Entities that has ``_deleted`` set to ``false`` will have this property removed.
 
 ### Endpoints
 
