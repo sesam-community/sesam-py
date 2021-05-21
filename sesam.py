@@ -26,7 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.2.5"
+sesam_version = "2.2.6"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -315,7 +315,7 @@ class SesamNode:
     def get_internal_pipes(self):
         return [p for p in self.api_connection.get_pipes() if self.get_pipe_type(p) == "internal"]
 
-    def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True):
+    def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True, check_input_pipes=False):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
         params = {}
@@ -332,6 +332,9 @@ class SesamNode:
         if not delete_input_datasets:
             # Default is True
             params["delete_input_datasets"] = False
+
+        if check_input_pipes is True:
+            params["check_input_pipes"] = True
 
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
         resp.raise_for_status()
@@ -1375,6 +1378,7 @@ class SesamCmdClient:
         max_runs = self.args.scheduler_max_runs
         max_run_time = self.args.scheduler_max_run_time
         delete_input_datasets = not os.path.isdir("testdata")
+        check_input_pipes = self.args.scheduler_check_input_pipes
 
         class SchedulerRunner(threading.Thread):
             def __init__(self, sesam_node):
@@ -1389,7 +1393,8 @@ class SesamCmdClient:
                     self.result = self.sesam_node.run_internal_scheduler(max_run_time=max_run_time,
                                                                          max_runs=max_runs,
                                                                          zero_runs=zero_runs,
-                                                                         delete_input_datasets=delete_input_datasets)
+                                                                         delete_input_datasets=delete_input_datasets,
+                                                                         check_input_pipes=check_input_pipes)
                     if self.result["status"] == "success":
                         self.status = "finished"
                     else:
@@ -1691,6 +1696,9 @@ Commands:
     parser.add_argument('-scheduler-max-run-time', dest='scheduler_max_run_time', default=15*60, metavar="<int>", type=int, required=False,
                         help="the maximum time the internal scheduler is allowed to use to finish "
                              "(in seconds, internal scheduler only)")
+
+    parser.add_argument('-scheduler-check-input-pipes', dest='scheduler_check_input_pipes', required=False, action="store_true",
+                        help="controls whether failing input pipes should make the scheduler run fail")
 
     parser.add_argument('-restart-timeout', dest='restart_timeout', default=15*60, metavar="<int>", type=int, required=False,
                         help="the maximum time to wait for the node to restart and become available again "
