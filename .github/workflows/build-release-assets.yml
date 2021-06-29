@@ -42,8 +42,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/sesam-Windows-${{ github.ref }}.zip
-          asset_name: sesam-Windows-${{ github.ref }}.zip
+          asset_path: dist/sesam-${{ matrix.os }}-${{ github.ref }}.zip
+          asset_name: sesam-${{ matrix.os }}-${{ github.ref }}.zip
       - name: Upload Linux/macOS assets to release
         if: ${{ matrix.os != 'Windows' }}
         uses: actions/upload-release-asset@v1
@@ -51,5 +51,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/sesam-Windows-${{ github.ref }}.tar.gz
-          asset_name: sesam-Windows-${{ github.ref }}.tar.gz
+          asset_path: dist/sesam-${{ matrix.os }}-${{ github.ref }}.tar.gz
+          asset_name: sesam-${{ matrix.os }}-${{ github.ref }}.tar.gz
