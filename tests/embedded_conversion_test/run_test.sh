@@ -10,7 +10,7 @@ cp -r before/* test_after/
 
 pushd test_after
 
-$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v wipe
+$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv wipe
 
 # First, convert
 $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -v convert
