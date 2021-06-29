@@ -1,4 +1,4 @@
-requests==2.23.0
-sesamclient==0.2.111
+requests==2.25.1
+sesamclient==0.2.113
 lxml==4.2.5
 ijson==2.3
