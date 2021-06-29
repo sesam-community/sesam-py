@@ -21,6 +21,7 @@ $ python sesam.py -version
 sesam version 1.0.0
 ```
 
+
 To create a sesam client binary with pyinstaller on Linux/OSX (python 3.5+ required):
 ```
 $ cd sesam
