@@ -14,7 +14,7 @@ fi
 
 $SESAM_CLIENT -h
 
-export NODE_URL=https://datahub-fff057e8.sesam.cloud/api
+export NODE_URL=https://datahub-29ecbb31.sesam.cloud/api
 export PUBLIC_CI_TOKEN=$SESAM_TOKEN
 
 pushd tests
