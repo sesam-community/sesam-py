@@ -1,3 +1,4 @@
+# This workflow tests the current version when a pull request is made
 name: test
 on: pull_request
 jobs:
