@@ -1,0 +1,41 @@
+# This workflow tests the current version when a pull request is made
+name: test
+on: pull_request
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: [3.7]
+      # The tests for each OS talk to the same CI node (called Sesam client CI test node)
+      # So if they run at the same time they will mess each other up
+      # Ideally we would let them do the install step in parallel and only
+      # do the test step sequentially
+      max-parallel: 1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Echo information
+        run:  |
+          echo ${{matrix.os}}
+          python --version
+      - name: Allow running of install scripts
+        env:
+          RUNNER_OS: ${{ matrix.os }}
+        run: |
+          chmod +x install-gh.sh
+          chmod +x test-gh.sh
+      - name: Run install script
+        env:
+          RUNNER_OS: ${{ matrix.os }}
+        run: bash install-gh.sh
+      - name: Run test script
+        env:
+          RUNNER_OS: ${{ matrix.os }}
+          SESAM_TOKEN: ${{ secrets.SESAM_CI_TOKEN }}
+        run: bash test-gh.sh
