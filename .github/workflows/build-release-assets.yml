@@ -34,7 +34,7 @@ jobs:
       - name: Package assets
         env:
           RUNNER_OS: ${{ matrix.os }}
-          TAG: ${{ github.ref }}
+          TAG: ${{ github.event.release.tag_name }}
         run: bash package-gh.sh
       - name: Upload Windows assets to release
         if: ${{ matrix.os == 'Windows' }}
