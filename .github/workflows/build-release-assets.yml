@@ -24,16 +24,16 @@ jobs:
           python --version
       - name: Allow running of install script
         env:
-          RUNNER_OS: ${{ matrix.os }}
+          OS: ${{ matrix.os }}
         run: |
           chmod +x install-gh.sh
       - name: Run install script
         env:
-          RUNNER_OS: ${{ matrix.os }}
+          OS: ${{ matrix.os }}
         run: bash install-gh.sh
       - name: Package assets
         env:
-          RUNNER_OS: ${{ matrix.os }}
+          OS: ${{ matrix.os }}
           TAG: ${{ github.event.release.tag_name }}
         run: bash package-gh.sh
       - name: Upload Windows assets to release

@@ -4,11 +4,11 @@ set -e
 
 echo "Testing..."
 
-if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ] ; then
+if [ "$OS" == "ubuntu-latest" ] || [ "$OS" == "macos-latest" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam
 fi
 
-if [ "$RUNNER_OS" == "Windows" ] ; then
+if [ "$OS" == "windows-latest" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam.exe
 fi
 
