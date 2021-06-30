@@ -17,4 +17,4 @@ fi
 popd
 
 echo "Created artifact:"
-ls -al ${SESAM_ARTIFACT_NAME}
+ls -al dist/${SESAM_ARTIFACT_NAME}
