@@ -37,22 +37,32 @@ jobs:
           TAG: ${{ github.event.release.tag_name }}
         run: bash package-gh.sh
       - name: Upload Windows assets to release
-        if: ${{ matrix.os == 'Windows' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/sesam-${{ matrix.os }}-${{ github.event.release.tag_name }}.zip
-          asset_name: sesam-${{ matrix.os }}-${{ github.event.release.tag_name }}.zip
+          asset_path: ./dist/sesam-windows-${{ github.event.release.tag_name }}.zip
+          asset_name: sesam-windows-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
-      - name: Upload Linux/macOS assets to release
-        if: ${{ matrix.os != 'Windows' }}
+      - name: Upload Linux assets to release
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/sesam-${{ matrix.os }}-${{ github.event.release.tag_name }}.tar.gz
-          asset_name: sesam-${{ matrix.os }}-${{ github.event.release.tag_name }}.tar.gz
+          asset_path: ./dist/sesam-linux-${{ github.event.release.tag_name }}.tar.gz
+          asset_name: sesam-linux-${{ github.event.release.tag_name }}.tar.gz
+          asset_content_type: application/tar
+      - name: Upload MacOS assets to release
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/sesam-macos-${{ github.event.release.tag_name }}.tar.gz
+          asset_name: sesam-osx-${{ github.event.release.tag_name }}.tar.gz
           asset_content_type: application/tar

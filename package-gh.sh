@@ -4,13 +4,18 @@ echo "Packaging..."
 
 pushd dist
 
-if [ "$OS" == "ubuntu-latest" ] || [ "$OS" == "macos-latest" ] ; then
-    export SESAM_ARTIFACT_NAME=sesam-${OS}-${TAG}.tar.gz
+if [ "$OS" == "ubuntu-latest" ] ; then
+    export SESAM_ARTIFACT_NAME=sesam-linux-${TAG}.tar.gz
+    tar -zcf ${SESAM_ARTIFACT_NAME} sesam
+fi
+
+if [ "$OS" == "macos-latest" ] ; then
+    export SESAM_ARTIFACT_NAME=sesam-macos-${TAG}.tar.gz
     tar -zcf ${SESAM_ARTIFACT_NAME} sesam
 fi
 
 if [ "$OS" == "windows-latest" ] ; then
-    export SESAM_ARTIFACT_NAME=sesam-${OS}-${TAG}.zip
+    export SESAM_ARTIFACT_NAME=sesam-windows-${TAG}.zip
     7z a ${SESAM_ARTIFACT_NAME} sesam.exe
 fi
 
