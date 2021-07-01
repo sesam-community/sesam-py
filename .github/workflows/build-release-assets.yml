@@ -26,16 +26,16 @@ jobs:
         env:
           OS: ${{ matrix.os }}
         run: |
-          chmod +x install-gh.sh
+          chmod +x install.sh
       - name: Run install script
         env:
           OS: ${{ matrix.os }}
-        run: bash install-gh.sh
+        run: bash install.sh
       - name: Package assets
         env:
           OS: ${{ matrix.os }}
           TAG: ${{ github.event.release.tag_name }}
-        run: bash package-gh.sh
+        run: bash package.sh
       - name: Upload Windows assets to release
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-release-asset@v1

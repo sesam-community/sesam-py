@@ -2,41 +2,31 @@
 
 set -e
 
-echo "Testing...."
+echo "Testing..."
 
-if [ "$TRAVIS_OS_NAME" == "linux"   ] || [ "$TRAVIS_OS_NAME" == "osx"   ] ; then
+if [ "$OS" == "ubuntu-latest" ] || [ "$OS" == "macos-latest" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam
 fi
 
-if [ "$TRAVIS_OS_NAME" == "windows"   ] ; then
+if [ "$OS" == "windows-latest" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam.exe
-fi
-
-if [ -z "$TRAVIS_OS_NAME" ] ; then
-    export SESAM_CLIENT=~/bin/sesam-py
-fi
-
-if [ -z "$NODE_URL" ]; then
-    export NODE_URL=https://datahub-29ecbb31.sesam.cloud/api
 fi
 
 $SESAM_CLIENT -h
 
-# Only run the tests on linux for now
-if [ "$TRAVIS_OS_NAME" == "linux"   ] ; then
-    export PUBLIC_CI_TOKEN=$SESAM_TOKEN
+export NODE_URL=https://datahub-29ecbb31.sesam.cloud/api
+export PUBLIC_CI_TOKEN=$SESAM_TOKEN
 
-    pushd tests
+pushd tests
 
-    for test_dir in *; do
-        if [ -d "$test_dir" -a ! -L "$test_dir" ]; then
-            cd $test_dir
-            echo
-            echo "Running tests in $test_dir.."
-            /bin/bash run_test.sh
-            cd ..
-        fi
-    done
+for test_dir in *; do
+    if [ -d "$test_dir" -a ! -L "$test_dir" ]; then
+        cd "$test_dir"
+        echo
+        echo "Running tests in $test_dir.."
+        /bin/bash run_test.sh
+        cd ..
+    fi
+done
 
-    popd
-fi
+popd

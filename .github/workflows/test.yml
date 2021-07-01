@@ -28,14 +28,14 @@ jobs:
         env:
           OS: ${{ matrix.os }}
         run: |
-          chmod +x install-gh.sh
-          chmod +x test-gh.sh
+          chmod +x install.sh
+          chmod +x test.sh
       - name: Run install script
         env:
           OS: ${{ matrix.os }}
-        run: bash install-gh.sh
+        run: bash install.sh
       - name: Run test script
         env:
           OS: ${{ matrix.os }}
           SESAM_TOKEN: ${{ secrets.SESAM_CI_TOKEN }}
-        run: bash test-gh.sh
+        run: bash test.sh
