@@ -26,7 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.2.8"
+sesam_version = "2.2.9"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -726,25 +726,44 @@ class SesamCmdClient:
                             remote_metadata["task_manager"]["disable_user_pipes"] is True:
 
                 if "disable_user_pipes" in node_metadata.get("task_manager", {}):
+                    # Restore the original, if present
                     remote_metadata["task_manager"]["disable_user_pipes"] = \
                         node_metadata["task_manager"]["disable_user_pipes"]
                 else:
+                    # Not present originally, so just remove it from remote
                     remote_metadata["task_manager"].pop("disable_user_pipes")
                     # Remove the entire task_manager section if its empty
                     if len(remote_metadata["task_manager"]) == 0:
                         remote_metadata.pop("task_manager")
 
-            if "global_defaults" in remote_metadata and "enable_cpp_extensions" in remote_metadata["task_manager"] and \
-                            remote_metadata["task_manager"]["enable_cpp_extensions"] is False:
+            if "global_defaults" in remote_metadata:
+                if "enable_cpp_extensions" in remote_metadata["global_defaults"] and \
+                            remote_metadata["global_defaults"]["enable_cpp_extensions"] is False:
 
-                if "enable_cpp_extensions" in node_metadata.get("global_defaults", {}):
-                    remote_metadata["global_defaults"]["enable_cpp_extensions"] = \
-                        node_metadata["global_defaults"]["enable_cpp_extensions"]
-                else:
-                    remote_metadata["global_defaults"].pop("enable_cpp_extensions")
-                    # Remove the entire task_manager section if its empty
-                    if len(remote_metadata["global_defaults"]) == 0:
-                        remote_metadata.pop("global_defaults")
+                    if "enable_cpp_extensions" in node_metadata.get("global_defaults", {}):
+                        # Restore the original, if present
+                        remote_metadata["global_defaults"]["enable_cpp_extensions"] = \
+                            node_metadata["global_defaults"]["enable_cpp_extensions"]
+                    else:
+                        # Not present originally, so just remove it from remote
+                        remote_metadata["global_defaults"].pop("enable_cpp_extensions")
+                        # Remove the entire global_defaults section if its empty
+                        if len(remote_metadata["global_defaults"]) == 0:
+                            remote_metadata.pop("global_defaults")
+
+                if "eager_load_microservices" in remote_metadata["global_defaults"] and \
+                            remote_metadata["global_defaults"]["eager_load_microservices"] is False:
+
+                    if "eager_load_microservices" in node_metadata.get("global_defaults", {}):
+                        # Restore the original, if present
+                        remote_metadata["global_defaults"]["eager_load_microservices"] = \
+                            node_metadata["global_defaults"]["eager_load_microservices"]
+                    else:
+                        # Not present originally, so just remove it from remote
+                        remote_metadata["global_defaults"].pop("eager_load_microservices")
+                        # Remove the entire global_defaults section if its empty
+                        if len(remote_metadata["global_defaults"]) == 0:
+                            remote_metadata.pop("global_defaults")
 
             # Replace the file and return the new zipfile
             return self.replace_file_in_zipfile(zip_data, "node-metadata.conf.json",
@@ -833,23 +852,45 @@ class SesamCmdClient:
             zip_config = self.get_zip_config(remove_zip=args.dump is False)
 
             # Modify the node-metadata.conf.json to stop the pipe scheduler
-            if ((not self.args.enable_user_pipes) or self.args.disable_cpp_extensions) and os.path.isfile("node-metadata.conf.json"):
+            if os.path.isfile("node-metadata.conf.json"):
                 with open("node-metadata.conf.json", "r") as infile:
                     node_metadata = json.load(infile)
-                    if not self.args.enable_user_pipes:
-                        if "task_manager" not in node_metadata:
-                            node_metadata["task_manager"] = {}
+            else:
+                node_metadata = {}
 
-                        node_metadata["task_manager"]["disable_user_pipes"] = True
+            if self.args.enable_user_pipes:
+                if "task_manager" not in node_metadata:
+                    node_metadata["task_manager"] = {}
 
-                    if self.args.disable_cpp_extensions:
-                        if "global_defaults" not in node_metadata:
-                            node_metadata["global_defaults"] = {}
+                node_metadata["task_manager"]["disable_user_pipes"] = False
+            else:
+                # Default disabled
+                if "task_manager" not in node_metadata:
+                    node_metadata["task_manager"] = {}
 
-                        node_metadata["global_defaults"]["enable_cpp_extensions"] = False
+                node_metadata["task_manager"]["disable_user_pipes"] = True
 
-                    zip_config = self.replace_file_in_zipfile(zip_config, "node-metadata.conf.json",
-                                                              json.dumps(node_metadata).encode("utf-8"))
+            if self.args.disable_cpp_extensions:
+                # Default on
+                if "global_defaults" not in node_metadata:
+                    node_metadata["global_defaults"] = {}
+
+                node_metadata["global_defaults"]["enable_cpp_extensions"] = False
+
+            if self.args.enable_eager_ms:
+                if "global_defaults" not in node_metadata:
+                    node_metadata["global_defaults"] = {}
+
+                node_metadata["global_defaults"]["eager_load_microservices"] = True
+            else:
+                # Default off
+                if "global_defaults" not in node_metadata:
+                    node_metadata["global_defaults"] = {}
+
+                node_metadata["global_defaults"]["eager_load_microservices"] = False
+
+            zip_config = self.replace_file_in_zipfile(zip_config, "node-metadata.conf.json",
+                                                      json.dumps(node_metadata).encode("utf-8"))
         except BaseException as e:
             logger.error("Failed to create zip archive of config")
             raise e
@@ -1802,6 +1843,9 @@ Commands:
     parser.add_argument('-disable-user-pipes', dest='disable_user_pipes', required=False, action='store_true',
                         help="turn off user pipe scheduling in the target node (DEPRECATED)")
 
+    parser.add_argument('-enable-eager-ms', dest='enable_eager_ms', required=False, action='store_true',
+                        help="run all microservices even if they are not in use (note: multinode only)")
+
     parser.add_argument('-enable-user-pipes', dest='enable_user_pipes', required=False, action='store_true',
                         help="turn on user pipe scheduling in the target node")
 
@@ -1989,6 +2033,10 @@ Commands:
 
             if args.disable_cpp_extensions is True:
                 logger.warning("Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
+                               "outside the 'upload' or 'test' commands")
+
+            if args.enable_eager_ms is True:
+                logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
                                "outside the 'upload' or 'test' commands")
 
             sesam_cmd_client.run()
