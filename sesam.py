@@ -26,7 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.2.9"
+sesam_version = "2.2.10"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -251,6 +251,32 @@ class SesamNode:
                 raise RuntimeError("Failed to start node - wait for node restart timed "
                                    "out after %s seconds. The last errror was: %s" % (timeout, msg))
             time.sleep(3)
+
+    def reset(self, timeout):
+        old_stats = self.api_connection.get_status()
+        restart = self.api_connection.reset_node()
+        if restart != {"message": "OK"}:
+            self.logger.debug("Reset node API call failed! It returned '%s', "
+                              "expected '{\"message\": \"OK\"}'" % restart)
+            raise RuntimeError("Failed to reset node!")
+
+        # Wait until status works and gives a new start-time
+        starttime = time.monotonic()
+        while True:
+            try:
+                new_stats = self.api_connection.get_status()
+                if old_stats["node_start_time"] != new_stats["node_start_time"]:
+                    break
+                msg = "No new node_start_time"
+            except BaseException as e:
+                msg = str(e)
+
+            elapsed_time = time.monotonic() - starttime
+            if elapsed_time > timeout:
+                raise RuntimeError("Failed to start node - wait for node restart timed "
+                                   "out after %s seconds. The last errror was: %s" % (timeout, msg))
+            time.sleep(3)
+
 
     def put_config(self, config, force=False):
         self.logger.log(LOGLEVEL_TRACE, "PUT config to %s" % self.node_url)
@@ -1670,6 +1696,17 @@ class SesamCmdClient:
 
         self.logger.info("Successfully wiped node!")
 
+    def reset(self):
+        self.logger.info("Resetting target node...")
+
+        try:
+            self.sesam_node.reset(timeout=self.args.restart_timeout)
+        except BaseException as e:
+            logger.error("Failed to reset target node!")
+            raise e
+
+        self.logger.info("Successfully reset target node!")
+
 
     def restart(self):
         self.logger.info("Restarting target node...")
@@ -1779,6 +1816,7 @@ if __name__ == '__main__':
 Commands:
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
+  reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
@@ -1965,7 +2003,7 @@ Commands:
     command = args.command and args.command.lower() or ""
 
     if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
-                       "restart", "dump", "stop", "convert"]:
+                       "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -2044,6 +2082,8 @@ Commands:
             sesam_cmd_client.wipe()
         elif command == "restart":
             sesam_cmd_client.restart()
+        elif command == "reset":
+            sesam_cmd_client.reset()
         elif command == "convert":
             sesam_cmd_client.convert()
         elif command == "dump":
