@@ -4,7 +4,7 @@ set -e
 
 echo "Testing..."
 
-if [ "$OS" == "ubuntu-latest" ] || [ "$OS" == "macos-latest" ] ; then
+if [ "$OS" == "ubuntu-18.04" ] || [ "$OS" == "macos-latest" ] ; then
     export SESAM_CLIENT=$PWD/dist/sesam
 fi
 
