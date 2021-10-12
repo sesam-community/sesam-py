@@ -4,7 +4,7 @@ echo "Packaging..."
 
 pushd dist
 
-if [ "$OS" == "ubuntu-latest" ] ; then
+if [ "$OS" == "ubuntu-18.04" ] ; then
     export SESAM_ARTIFACT_NAME=sesam-linux-${TAG}.tar.gz
     tar -zcf ${SESAM_ARTIFACT_NAME} sesam
 fi
