@@ -26,7 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.2.11"
+sesam_version = "2.2.12"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -389,7 +389,8 @@ class SesamNode:
         return [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p) and
                 self.get_pipe_type(p) == "internal"]
 
-    def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True, check_input_pipes=False):
+    def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True,
+                               check_input_pipes=False, output_run_statistics=False):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
         params = {}
@@ -409,6 +410,9 @@ class SesamNode:
 
         if check_input_pipes is True:
             params["check_input_pipes"] = True
+
+        if output_run_statistics is True:
+            params["output_run_statistics"] = True
 
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
         resp.raise_for_status()
@@ -1575,6 +1579,7 @@ class SesamCmdClient:
         max_run_time = self.args.scheduler_max_run_time
         delete_input_datasets = not os.path.isdir("testdata")
         check_input_pipes = self.args.scheduler_check_input_pipes
+        output_run_statistics = self.args.output_run_statistics
 
         class SchedulerRunner(threading.Thread):
             def __init__(self, sesam_node):
@@ -1590,7 +1595,9 @@ class SesamCmdClient:
                                                                          max_runs=max_runs,
                                                                          zero_runs=zero_runs,
                                                                          delete_input_datasets=delete_input_datasets,
-                                                                         check_input_pipes=check_input_pipes)
+                                                                         check_input_pipes=check_input_pipes,
+                                                                         output_run_statistics=output_run_statistics
+                                                                         )
                     if self.result["status"] == "success":
                         self.status = "finished"
                     else:
@@ -1855,6 +1862,9 @@ Commands:
 
     parser.add_argument('-print-scheduler-log', dest='print_scheduler_log', required=False,
                         help="print scheduler log during run", action='store_true')
+
+    parser.add_argument('-output-run-statistics', dest='output_run_statistics', required=False,
+                        help="output detailed pipe run statistics after scheduler run", action='store_true')
 
     parser.add_argument('-use-internal-scheduler', dest='use_internal_scheduler', required=False,
                         help="use the built-in scheduler in sesam instead of a microservice (DEPRECATED)",
