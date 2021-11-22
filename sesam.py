@@ -26,7 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 
-sesam_version = "2.2.12"
+sesam_version = "2.2.13"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1704,6 +1704,8 @@ class SesamCmdClient:
         self.logger.info("Successfully wiped node!")
 
     def reset(self):
+        self.stop()
+
         self.logger.info("Resetting target node...")
 
         try:
@@ -1716,6 +1718,8 @@ class SesamCmdClient:
 
 
     def restart(self):
+        self.stop()
+
         self.logger.info("Restarting target node...")
 
         try:
