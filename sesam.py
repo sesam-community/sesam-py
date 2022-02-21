@@ -1495,25 +1495,33 @@ class SesamCmdClient:
         return pipe
 
     def init(self):
-        self.logger.info("Adding conditional sources to input pipes")
+        self.logger.info("Adding conditional sources to input pipes...")
         # pipes = [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]
         files = glob.glob("pipes%s*.conf.json" % os.sep)
         dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
+        num_added = 0
 
         for cfg_path in files:
             with open(cfg_path) as f:
                 p = json.load(f)
 
             # Input pipes do NOT have source types in dataset_types. Also assume that conditional sources already have
-            # test + prod alternatives. May need to extend this later to account for conditionals without test alt.
+            # test + prod alternatives. May need to extend this to account for conditionals without test alternative.
             if p["source"]["type"] not in dataset_types + ['conditional']:
+                logger.debug(f"Adding conditional source to pipe {p['_id']}")
                 new_cfg = self.add_conditional_source(p)
-                save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
-                # save_path = cfg_path
+                # save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
+                save_path = cfg_path
+
                 with open(save_path, 'w', encoding="utf-8") as pipe_file:
                     pipe_file.write(format_object(new_cfg, self.formatstyle))
 
-        self.logger.info("Successfully added conditional sources")
+                num_added += 1
+
+        if num_added > 0:
+            self.logger.info("Successfully added conditional sources to %i pipes." % num_added)
+        else:
+            self.logger.info("All input pipes already have conditional sources. No pipe configurations were modified.")
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
@@ -1873,6 +1881,7 @@ Commands:
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
+  init      Add conditional sources to every input pipe in the local config
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
