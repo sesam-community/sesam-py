@@ -352,14 +352,36 @@ class SesamNode:
 
         return data
 
+    def get_input_pipes_no_conditional(self):
+        pipes = [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]
+        dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
+        pipes_no_conditional = []
+
+        for p in pipes:
+            source_config = p.config["original"].get("source", {})
+            if source_config.get("type", "") not in dataset_types + ['conditional']:
+                id = p.id
+                type = source_config.get("type", "")
+                pipes_no_conditional.append(p)
+
+        return pipes_no_conditional
+
     def get_pipe_type(self, pipe):
         source_config = pipe.config["effective"].get("source",{})
         sink_config = pipe.config["effective"].get("sink",{})
         source_type = source_config.get("type", "")
         sink_type = sink_config.get("type", "")
 
+        if pipe.config['effective']['_id'] == 'ad-department':
+            test = pipe.config
+
+        # if source_type == "conditional":
+        #     pass
+
         if source_type == "embedded":
             return "input"
+
+        # if source_type not in ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]:
 
         if isinstance(sink_type, str) and sink_type.endswith("_endpoint"):
             return "endpoint"
@@ -1470,6 +1492,41 @@ class SesamCmdClient:
 
         return xml_declaration, standalone
 
+    def init(self):
+        self.logger.info("Adding conditional sources to input pipes")
+        # pipes = self.sesam_node.get_input_pipes_no_conditional()
+        input_pipes = []
+        for p in self.sesam_node.get_input_pipes_no_conditional():
+            if p.runtime.get("is-valid-config", False) is False:
+                self.logger.error("The pipe '%s' has invalid config, cannot verify pipe!" % p.id)
+                self.logger.error("The error(s) reported was: %s" % p.runtime.get("config-errors", "unknown"))
+            else:
+                input_pipes.append(p)
+
+
+        for p in input_pipes:
+            pipe_config = p.config["original"]
+            prod_source = pipe_config["source"]
+            test_source = {
+                "type": "embedded",
+                "entities": []}
+
+            pipe_config["source"] = {
+                "type": "conditional",
+                "alternatives": {
+                    "prod": prod_source,
+                    "test": test_source
+                },
+                "condition": "$ENV(node-env)"}
+
+            path = "%s_new.conf.json" % p.id
+            with open(path, 'w', encoding="utf-8") as pipe_file:
+                pipe_file.write(format_object(p, self.formatstyle))
+
+            # save_modified_pipe
+
+        self.logger.info("Successfully added conditional sources")
+
     def update(self):
         self.logger.info("Updating expected output from current output...")
         output_pipes = {}
@@ -2016,7 +2073,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
+    if command not in ["upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2070,6 +2127,8 @@ Commands:
             sesam_cmd_client.download()
         elif command == "status":
             sesam_cmd_client.status()
+        elif command == "init":
+            sesam_cmd_client.init()
         elif command == "update":
             sesam_cmd_client.update()
         elif command == "verify":
