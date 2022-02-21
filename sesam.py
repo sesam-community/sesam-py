@@ -352,20 +352,6 @@ class SesamNode:
 
         return data
 
-    def get_input_pipes_no_conditional(self):
-        pipes = [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]
-        dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
-        pipes_no_conditional = []
-
-        for p in pipes:
-            source_config = p.config["original"].get("source", {})
-            if source_config.get("type", "") not in dataset_types + ['conditional']:
-                id = p.id
-                type = source_config.get("type", "")
-                pipes_no_conditional.append(p)
-
-        return pipes_no_conditional
-
     def get_pipe_type(self, pipe):
         source_config = pipe.config["effective"].get("source",{})
         sink_config = pipe.config["effective"].get("sink",{})
@@ -1492,38 +1478,40 @@ class SesamCmdClient:
 
         return xml_declaration, standalone
 
+    def add_conditional_source(self, pipe):
+        prod_source = pipe["source"]
+        test_source = {
+            "type": "embedded",
+            "entities": []}
+
+        pipe["source"] = {
+            "type": "conditional",
+            "alternatives": {
+                "prod": prod_source,
+                "test": test_source
+            },
+            "condition": "$ENV(node-env)"}
+
+        return pipe
+
     def init(self):
         self.logger.info("Adding conditional sources to input pipes")
-        # pipes = self.sesam_node.get_input_pipes_no_conditional()
-        input_pipes = []
-        for p in self.sesam_node.get_input_pipes_no_conditional():
-            if p.runtime.get("is-valid-config", False) is False:
-                self.logger.error("The pipe '%s' has invalid config, cannot verify pipe!" % p.id)
-                self.logger.error("The error(s) reported was: %s" % p.runtime.get("config-errors", "unknown"))
-            else:
-                input_pipes.append(p)
+        # pipes = [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]
+        files = glob.glob("pipes%s*.conf.json" % os.sep)
+        dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
 
+        for cfg_path in files:
+            with open(cfg_path) as f:
+                p = json.load(f)
 
-        for p in input_pipes:
-            pipe_config = p.config["original"]
-            prod_source = pipe_config["source"]
-            test_source = {
-                "type": "embedded",
-                "entities": []}
-
-            pipe_config["source"] = {
-                "type": "conditional",
-                "alternatives": {
-                    "prod": prod_source,
-                    "test": test_source
-                },
-                "condition": "$ENV(node-env)"}
-
-            path = "%s_new.conf.json" % p.id
-            with open(path, 'w', encoding="utf-8") as pipe_file:
-                pipe_file.write(format_object(p, self.formatstyle))
-
-            # save_modified_pipe
+            # Input pipes do NOT have source types in dataset_types. Also assume that conditional sources already have
+            # test + prod alternatives. May need to extend this later to account for conditionals without test alt.
+            if p["source"]["type"] not in dataset_types + ['conditional']:
+                new_cfg = self.add_conditional_source(p)
+                save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
+                # save_path = cfg_path
+                with open(save_path, 'w', encoding="utf-8") as pipe_file:
+                    pipe_file.write(format_object(new_cfg, self.formatstyle))
 
         self.logger.info("Successfully added conditional sources")
 
