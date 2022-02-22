@@ -358,16 +358,8 @@ class SesamNode:
         source_type = source_config.get("type", "")
         sink_type = sink_config.get("type", "")
 
-        if pipe.config['effective']['_id'] == 'ad-department':
-            test = pipe.config
-
-        # if source_type == "conditional":
-        #     pass
-
         if source_type == "embedded":
             return "input"
-
-        # if source_type not in ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]:
 
         if isinstance(sink_type, str) and sink_type.endswith("_endpoint"):
             return "endpoint"
@@ -815,7 +807,6 @@ class SesamCmdClient:
         is_required = self.args.sesamconfig_file is not None
         curr_dir, configuration = self.read_config_file(configfilename, is_required)
         return FormatStyle(**configuration.get("formatstyle",{}))
-
 
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
@@ -1479,18 +1470,41 @@ class SesamCmdClient:
         return xml_declaration, standalone
 
     def add_conditional_source(self, pipe):
-        prod_source = pipe["source"]
-        test_source = {
-            "type": "embedded",
-            "entities": []}
+        dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
+        source_type = pipe["source"]["type"]
 
-        pipe["source"] = {
-            "type": "conditional",
-            "alternatives": {
-                "prod": prod_source,
-                "test": test_source
-            },
-            "condition": "$ENV(node-env)"}
+        if self.args.add_test_entities:
+            node_pipe = self.sesam_node.get_pipe(pipe['_id'])
+            test_entities = self.sesam_node.get_pipe_entities(node_pipe)
+            test_source = {}
+        else:
+            test_source = {
+                "type": "embedded",
+                "entities": []}
+
+        # Check if pipe already has a conditional source, then add test alternative if needed
+        if source_type == 'conditional':
+            if 'test' not in pipe["source"]["alternatives"]:
+                logger.debug(f"Adding test alternative to pipe {pipe['_id']}")
+
+                pipe["source"]["alternatives"]["test"] = test_source
+
+        # Input pipes do NOT have source types contained in dataset_types
+        elif source_type not in dataset_types:
+            logger.debug(f"Adding conditional source to pipe {pipe['_id']}")
+
+            prod_source = pipe["source"]
+            test_source = {
+                "type": "embedded",
+                "entities": []}
+
+            pipe["source"] = {
+                "type": "conditional",
+                "alternatives": {
+                    "prod": prod_source,
+                    "test": test_source
+                },
+                "condition": "$ENV(node-env)"}
 
         return pipe
 
@@ -1499,19 +1513,15 @@ class SesamCmdClient:
         # pipes = [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]
         files = glob.glob("pipes%s*.conf.json" % os.sep)
         dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
+
         num_added = 0
 
         for cfg_path in files:
             with open(cfg_path) as f:
-                p = json.load(f)
-
-            # Input pipes do NOT have source types in dataset_types. Also assume that conditional sources already have
-            # test + prod alternatives. May need to extend this to account for conditionals without test alternative.
-            if p["source"]["type"] not in dataset_types + ['conditional']:
-                logger.debug(f"Adding conditional source to pipe {p['_id']}")
-                new_cfg = self.add_conditional_source(p)
-                # save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
-                save_path = cfg_path
+                p = self.add_conditional_source(json.load(f))
+                # if p["source"]["type"] not in dataset_types or
+                save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
+                # save_path = cfg_path
 
                 with open(save_path, 'w', encoding="utf-8") as pipe_file:
                     pipe_file.write(format_object(new_cfg, self.formatstyle))
@@ -1881,7 +1891,7 @@ Commands:
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
-  init      Add conditional sources to every input pipe in the local config
+  init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
@@ -2005,6 +2015,9 @@ Commands:
 
     parser.add_argument('-diff', dest='diff', required=False, action='store_true',
                         help="use with the status command to show the diff of the files")
+
+    parser.add_argument('-add-test-entities', dest='add_test_entities', required=False, action='store_true',
+                        help="use with the init command to test entities to input pipes")
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
