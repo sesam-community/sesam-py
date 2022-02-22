@@ -810,6 +810,8 @@ class SesamCmdClient:
 
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
+        if self.args.sync_config_file == '.syncconfig.prod':
+            input('WARNING: Will connect to Prod node\n')      # remove later
         try:
             curr_dir, file_config = self.read_config_file(configfilename, is_required=False)
 
@@ -1469,69 +1471,88 @@ class SesamCmdClient:
 
         return xml_declaration, standalone
 
-    def add_conditional_source(self, pipe):
-        dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
-        source_type = pipe["source"]["type"]
-
+    def get_test_source(self, pipe_id):
         if self.args.add_test_entities:
-            node_pipe = self.sesam_node.get_pipe(pipe['_id'])
-            test_entities = self.sesam_node.get_pipe_entities(node_pipe)
-            test_source = {}
+            node_pipe = self.sesam_node.get_pipe(pipe_id)
+            try:
+                node_entities = self.sesam_node.get_pipe_entities(node_pipe)
+            except BaseException as e:
+                self.logger.info(f"Unable to get entities from {pipe_id}: {e}")
+                node_entities = []
+
+            n_entities = min(10, len(node_entities))
+            entities = node_entities[:n_entities]
+
         else:
-            test_source = {
-                "type": "embedded",
-                "entities": []}
+            entities = []
 
-        # Check if pipe already has a conditional source, then add test alternative if needed
-        if source_type == 'conditional':
-            if 'test' not in pipe["source"]["alternatives"]:
-                logger.debug(f"Adding test alternative to pipe {pipe['_id']}")
+        test_source = {
+            "type": "embedded",
+            "entities": entities
+        }
 
-                pipe["source"]["alternatives"]["test"] = test_source
+        return test_source
 
-        # Input pipes do NOT have source types contained in dataset_types
-        elif source_type not in dataset_types:
-            logger.debug(f"Adding conditional source to pipe {pipe['_id']}")
+    def add_test_alternative(self, pipe):
+        logger.debug(f"Adding test alternative to pipe {pipe['_id']}")
+        pipe["source"]["alternatives"]["test"] = self.get_test_source(pipe['_id'])
+        # pipe["source"]["condition"] = "$ENV(node-env)"
 
-            prod_source = pipe["source"]
-            test_source = {
-                "type": "embedded",
-                "entities": []}
+        return pipe
 
-            pipe["source"] = {
-                "type": "conditional",
-                "alternatives": {
-                    "prod": prod_source,
-                    "test": test_source
-                },
-                "condition": "$ENV(node-env)"}
+    def add_conditional_source(self, pipe):
+        logger.debug(f"Adding conditional source to pipe {pipe['_id']}")
+
+        prod_source = pipe["source"]
+        test_source = self.get_test_source(pipe['_id'])
+
+        pipe["source"] = {
+            "type": "conditional",
+            "alternatives": {
+                "prod": prod_source,
+                "test": test_source
+            },
+            "condition": "$ENV(node-env)"}
 
         return pipe
 
     def init(self):
         self.logger.info("Adding conditional sources to input pipes...")
-        # pipes = [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]
+        # self.get_test_source('contact-salesforce')
+
         files = glob.glob("pipes%s*.conf.json" % os.sep)
         dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
-
-        num_added = 0
+        added_alts = 0
+        added_sources = 0
 
         for cfg_path in files:
+            new_cfg = None
             with open(cfg_path) as f:
-                p = self.add_conditional_source(json.load(f))
-                # if p["source"]["type"] not in dataset_types or
+                p = json.load(f)
+                source_type = p["source"]["type"]
+
+                # Check if pipe already has a conditional source, then add test alternative if needed
+                if source_type == 'conditional':
+                    if 'test' not in p["source"]["alternatives"] or self.args.add_test_entities:
+                        new_cfg = self.add_test_alternative(p)
+                        added_alts += 1
+
+                # Input pipes do NOT have source types contained in dataset_types
+                elif source_type not in dataset_types:
+                    new_cfg = self.add_conditional_source(p)
+                    added_sources += 1
+
                 save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
                 # save_path = cfg_path
+                if new_cfg is not None:
+                    with open(save_path, 'w', encoding="utf-8") as pipe_file:
+                        pipe_file.write(format_object(new_cfg, self.formatstyle))
 
-                with open(save_path, 'w', encoding="utf-8") as pipe_file:
-                    pipe_file.write(format_object(new_cfg, self.formatstyle))
-
-                num_added += 1
-
-        if num_added > 0:
-            self.logger.info("Successfully added conditional sources to %i pipes." % num_added)
+        if added_alts + added_sources > 0:
+            self.logger.info("Successfully added conditional sources to %i pipes." % (added_sources + added_alts))
         else:
-            self.logger.info("All input pipes already have conditional sources. No pipe configurations were modified.")
+            self.logger.info("All input pipes already have conditional sources with test alternatives."
+                             "No pipe configurations were modified.")
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
