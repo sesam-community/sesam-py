@@ -1474,14 +1474,14 @@ class SesamCmdClient:
     def get_test_source(self, pipe_id):
         if self.args.add_test_entities:
             node_pipe = self.sesam_node.get_pipe(pipe_id)
+            dataset_id = node_pipe.config['effective'].get("sink", {}).get("dataset", node_pipe.id)
+
             try:
-                node_entities = self.sesam_node.get_pipe_entities(node_pipe)
+                dataset = self.sesam_node.api_connection.get_dataset(dataset_id)
+                entities = list(dataset.get_entities(history=False, deleted=False, limit=10, transit_decode=False))
             except BaseException as e:
                 self.logger.info(f"Unable to get entities from {pipe_id}: {e}")
-                node_entities = []
-
-            n_entities = min(10, len(node_entities))
-            entities = node_entities[:n_entities]
+                entities = []
 
         else:
             entities = []
@@ -1532,6 +1532,7 @@ class SesamCmdClient:
                 source_type = p["source"]["type"]
 
                 # Check if pipe already has a conditional source, then add test alternative if needed
+                # If add-test-entities, input entities from prod are added as test entities
                 if source_type == 'conditional':
                     if 'test' not in p["source"]["alternatives"] or self.args.add_test_entities:
                         new_cfg = self.add_test_alternative(p)
@@ -1542,8 +1543,8 @@ class SesamCmdClient:
                     new_cfg = self.add_conditional_source(p)
                     added_sources += 1
 
-                save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
-                # save_path = cfg_path
+                # save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
+                save_path = cfg_path
                 if new_cfg is not None:
                     with open(save_path, 'w', encoding="utf-8") as pipe_file:
                         pipe_file.write(format_object(new_cfg, self.formatstyle))
