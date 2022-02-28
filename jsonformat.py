@@ -2,7 +2,8 @@
 # This is an older version of jsonformat.py from the lake repository
 # The sorting order on dictionary keys only promotes _id to the front
 
-import json
+# import json
+import simplejson as json
 from collections import OrderedDict
 from collections import Mapping
 
@@ -115,10 +116,10 @@ def format_object(value, style=FormatStyle()):
             # last character was escape symbol, so we ignore the current char and jump out of escape mode
             stack.pop()
         else:
-            if c is '\\':
+            if c == '\\':
                 # escape character, jump into escape mode
                 stack.append(ESCAPE)
-            if c is '"':
+            if c == '"':
                 if len(stack) > 0 and stack[-1] is STRING:
                     stack.pop()
                 else:
@@ -127,24 +128,24 @@ def format_object(value, style=FormatStyle()):
             # we do not parse the inside of a string
             if len(stack) == 0 or stack[-1] is not STRING:
                 # maintain stack and indentation so we know if we are inside a dict or an array
-                if c is '{':
+                if c == '{':
                     # we only indent dicts inside dicts
-                    if not style.collapse_indent_for_dict_inside_array or len(stack) is 0 or stack[-1] is DICT:
+                    if not style.collapse_indent_for_dict_inside_array or len(stack) == 0 or stack[-1] == DICT:
                         indent += 1
                     stack.append(DICT)
-                elif c is '[':
+                elif c == '[':
                     indent += 1
                     stack.append(ARRAY)
-                elif c is ']':
+                elif c == ']':
                     stack.pop()
                     indent -= 1
-                elif c is '}':
+                elif c == '}':
                     stack.pop()
                     # we only indented dicts inside dicts
                     if not style.collapse_indent_for_dict_inside_array or len(stack) < 1 or stack[-1] is DICT:
                         indent -= 1
 
-                if c is '}':
+                if c == '}':
                     # empty dicts should just collapse
                     if prev == '{':
                         output = strip_trailing_whitespace(output)
@@ -155,20 +156,20 @@ def format_object(value, style=FormatStyle()):
                             output += new_line(-1)
                         else:
                             output += new_line()
-                elif c is '{':
+                elif c == '{':
                     if style.new_line_before_dict_as_value and not beginning:
                         output = strip_trailing_whitespace(output)
                         output += new_line(-1)
                     elif style.newline_before_dict_in_array and len(stack) > 1 and stack[-2] is ARRAY:
                         output = strip_trailing_whitespace(output)
                         output += new_line(-1)
-                elif c is '[':
+                elif c == '[':
                     if len(stack) > 1 and stack[-2] is ARRAY:
                         # prevent double newlines
                         if not output.endswith(new_line(-1)):
                             output = strip_trailing_whitespace(output)
                             output += new_line(-1)
-                elif c is ']':
+                elif c == ']':
                     if prev == ']' and style.close_nested_array_on_new_line:
                         output += new_line()
 
@@ -176,12 +177,12 @@ def format_object(value, style=FormatStyle()):
 
         # we do not parse the inside of a string
         if len(stack) == 0 or stack[-1] is not STRING:
-            if c is '{':
+            if c == '{':
                 output += new_line()
-            elif c is ':':
+            elif c == ':':
                 if style.space_after_colon:
                     output += ' '
-            elif c is ',':
+            elif c == ',':
                 if stack[-1] is DICT:
                     output += new_line()
                 elif len(stack) > 1 and stack[-2] is DICT and stack[-1] is ARRAY and \

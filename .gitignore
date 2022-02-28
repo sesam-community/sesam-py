@@ -105,6 +105,7 @@ venv.bak/
 
 /pipes/
 /systems/
+/expected/
 /variables/
 /.syncconfig
 /.sesamconfig.json

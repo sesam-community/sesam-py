@@ -25,8 +25,9 @@ from fnmatch import fnmatch
 from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
+import simplejson as json
 
-sesam_version = "2.2.14"
+sesam_version = "2.3.0"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -808,7 +809,6 @@ class SesamCmdClient:
         curr_dir, configuration = self.read_config_file(configfilename, is_required)
         return FormatStyle(**configuration.get("formatstyle",{}))
 
-
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
         try:
@@ -1470,6 +1470,113 @@ class SesamCmdClient:
 
         return xml_declaration, standalone
 
+    def test_entities_to_pipe(self, pipe):
+        # Get input entities from a live node and add these to the local pipe configuration as test entities
+        self.logger.info(f"Adding test entities to pipe '{pipe['_id']}'")
+        node_pipe = self.sesam_node.get_pipe(pipe['_id'])
+        dataset_id = node_pipe.config['effective'].get("sink", {}).get("dataset", node_pipe.id)
+
+        try:
+            dataset = self.sesam_node.api_connection.get_dataset(dataset_id)
+            entities = list(dataset.get_entities(history=False, deleted=False, limit=10, do_transit_decoding=False))
+        except BaseException as e:
+            self.logger.warning(f"Unable to get entities from '{pipe['_id']}' due to an exception:\n{e}")
+            entities = []
+
+        pipe["source"]["alternatives"]["test"]["entities"] = entities
+        if len(entities) == 0:
+            self.logger.info(f"No input entities were found for '{pipe['_id']}', so test entities will not be updated.")
+
+        return pipe, len(entities)
+
+    def add_test_alternative(self, pipe):
+        logger.debug(f"Adding test alternative to pipe {pipe['_id']}")
+        pipe["source"]["alternatives"]["test"] = {
+                                                    "type": "embedded",
+                                                    "entities": []
+        }
+
+        return pipe
+
+    def add_conditional_source(self, pipe):
+        logger.debug(f"Adding conditional source to pipe {pipe['_id']}")
+        prod_source = pipe["source"]
+
+        pipe["source"] = {
+            "type": "conditional",
+            "alternatives": {
+                "prod": prod_source,
+                "test": {
+                        "type": "embedded",
+                        "entities": []
+                    }
+            },
+            "condition": "$ENV(node-env)"}
+
+        return pipe
+
+    def init(self):
+        self.logger.info("Adding conditional sources to input pipes...")
+
+        files = glob.glob("pipes%s*.conf.json" % os.sep)
+        dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
+        added_sources = 0
+        added_entities = 0
+        modified_sources = 0
+
+        for cfg_path in files:
+            new_cfg = None
+            with open(cfg_path) as f:
+                p = json.load(f)
+                source_type = p["source"]["type"]
+
+                # Check if pipe already has a conditional source, then add test alternative if needed
+                # If add-test-entities is True, input entities from prod are added as test entities
+                if source_type == 'conditional':
+                    if 'test' not in p["source"]["alternatives"]:
+                        new_cfg = self.add_test_alternative(p)
+                        added_sources += 1
+
+                    if self.args.add_test_entities:
+                        current_entities = p["source"]["alternatives"]["test"]["entities"]
+
+                        # If there are no entities in the test alternative, or if existing test entities should be
+                        # overwritten, then add test entities from a Sesam node (such as prod)
+                        if len(current_entities) == 0 or self.args.force_add:
+                            new_cfg, num_added = self.test_entities_to_pipe(p)
+                            added_entities += num_added
+                            if num_added > 0:
+                                modified_sources += 1
+                        else:
+                            self.logger.info(f"Pipe {p['_id']} already has test entities. Re-run with '-force-add' "
+                                             f"if you want to overwrite these entities.")
+
+                # Input pipes do NOT have source types contained in dataset_types
+                elif source_type not in dataset_types:
+                    new_cfg = self.add_conditional_source(p)
+                    if self.args.add_test_entities:
+                        new_cfg, num_added = self.test_entities_to_pipe(p)
+                        added_entities += num_added
+                        if num_added > 0:
+                            modified_sources += 1
+
+                    added_sources += 1
+
+                if new_cfg is not None:
+                    with open(cfg_path, 'w', encoding="utf-8") as pipe_file:
+                        pipe_file.write(format_object(new_cfg, self.formatstyle))
+
+        if added_sources > 0:
+            self.logger.info("Successfully added test sources to %i pipes." % added_sources)
+        else:
+            self.logger.info("All input pipes already have conditional sources with test alternatives. "
+                             "No test sources were added.")
+        if modified_sources > 0:
+            self.logger.info("Successfully added a total of %i test entities to %i pipes."
+                             % (added_entities, modified_sources))
+        elif modified_sources + added_entities == 0:
+            self.logger.info("No pipe configurations were modified.")
+
     def update(self):
         self.logger.info("Updating expected output from current output...")
         output_pipes = {}
@@ -1828,6 +1935,7 @@ Commands:
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
+  init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
@@ -1952,6 +2060,12 @@ Commands:
     parser.add_argument('-diff', dest='diff', required=False, action='store_true',
                         help="use with the status command to show the diff of the files")
 
+    parser.add_argument('-add-test-entities', dest='add_test_entities', required=False, action='store_true',
+                        help="use with the init command to add test entities to input pipes")
+
+    parser.add_argument('-force-add', dest='force_add', required=False, action='store_true',
+                        help="use with the '-add-test-entities' option to overwrite existing test entities")
+
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
     try:
@@ -2016,7 +2130,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["upload", "download", "status", "update", "verify", "test", "run", "wipe",
+    if command not in ["upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2070,6 +2184,8 @@ Commands:
             sesam_cmd_client.download()
         elif command == "status":
             sesam_cmd_client.status()
+        elif command == "init":
+            sesam_cmd_client.init()
         elif command == "update":
             sesam_cmd_client.update()
         elif command == "verify":
