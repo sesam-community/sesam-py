@@ -2061,7 +2061,7 @@ Commands:
                         help="use with the status command to show the diff of the files")
 
     parser.add_argument('-add-test-entities', dest='add_test_entities', required=False, action='store_true',
-                        help="use with the init command to test entities to input pipes")
+                        help="use with the init command to add test entities to input pipes")
 
     parser.add_argument('-force-add', dest='force_add', required=False, action='store_true',
                         help="use with the '-add-test-entities' option to overwrite existing test entities")
