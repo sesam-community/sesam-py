@@ -811,8 +811,6 @@ class SesamCmdClient:
 
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
-        if self.args.sync_config_file == '.syncconfig.prod':
-            input('WARNING: Will connect to Prod node\n')      # remove later
         try:
             curr_dir, file_config = self.read_config_file(configfilename, is_required=False)
 
@@ -1473,8 +1471,8 @@ class SesamCmdClient:
         return xml_declaration, standalone
 
     def test_entities_to_pipe(self, pipe):
-        # Get input entities from a live node, for example Sesam Sesam Prod, and use these for testing purposes
-        self.logger.info(f"Adding test entities to pipe {pipe['_id']}")
+        # Get input entities from a live node and add these to the local pipe configuration as test entities
+        self.logger.info(f"Adding test entities to pipe '{pipe['_id']}'")
         node_pipe = self.sesam_node.get_pipe(pipe['_id'])
         dataset_id = node_pipe.config['effective'].get("sink", {}).get("dataset", node_pipe.id)
 
@@ -1482,11 +1480,14 @@ class SesamCmdClient:
             dataset = self.sesam_node.api_connection.get_dataset(dataset_id)
             entities = list(dataset.get_entities(history=False, deleted=False, limit=10, do_transit_decoding=False))
         except BaseException as e:
-            self.logger.warning(f"Unable to get entities from {pipe['_id']} due to an exception:\n{e}")
+            self.logger.warning(f"Unable to get entities from '{pipe['_id']}' due to an exception:\n{e}")
             entities = []
 
         pipe["source"]["alternatives"]["test"]["entities"] = entities
-        return pipe
+        if len(entities) == 0:
+            self.logger.info(f"No input entities were found for '{pipe['_id']}', so test entities will not be updated.")
+
+        return pipe, len(entities)
 
     def add_test_alternative(self, pipe):
         logger.debug(f"Adding test alternative to pipe {pipe['_id']}")
@@ -1500,7 +1501,6 @@ class SesamCmdClient:
     def add_conditional_source(self, pipe):
         logger.debug(f"Adding conditional source to pipe {pipe['_id']}")
         prod_source = pipe["source"]
-        # test_source = self.get_test_source(pipe['_id'])
 
         pipe["source"] = {
             "type": "conditional",
@@ -1520,9 +1520,9 @@ class SesamCmdClient:
 
         files = glob.glob("pipes%s*.conf.json" % os.sep)
         dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
-        added_alts = 0
         added_sources = 0
         added_entities = 0
+        modified_sources = 0
 
         for cfg_path in files:
             new_cfg = None
@@ -1531,11 +1531,11 @@ class SesamCmdClient:
                 source_type = p["source"]["type"]
 
                 # Check if pipe already has a conditional source, then add test alternative if needed
-                # If add-test-entities, input entities from prod are added as test entities
+                # If add-test-entities is True, input entities from prod are added as test entities
                 if source_type == 'conditional':
                     if 'test' not in p["source"]["alternatives"]:
                         new_cfg = self.add_test_alternative(p)
-                        added_alts += 1
+                        added_sources += 1
 
                     if self.args.add_test_entities:
                         current_entities = p["source"]["alternatives"]["test"]["entities"]
@@ -1543,8 +1543,10 @@ class SesamCmdClient:
                         # If there are no entities in the test alternative, or if existing test entities should be
                         # overwritten, then add test entities from a Sesam node (such as prod)
                         if len(current_entities) == 0 or self.args.force_add:
-                            new_cfg = self.test_entities_to_pipe(p)
-                            added_entities += 1
+                            new_cfg, num_added = self.test_entities_to_pipe(p)
+                            added_entities += num_added
+                            if num_added > 0:
+                                modified_sources += 1
                         else:
                             self.logger.info(f"Pipe {p['_id']} already has test entities. Re-run with '-force-add' "
                                              f"if you want to overwrite these entities.")
@@ -1553,24 +1555,27 @@ class SesamCmdClient:
                 elif source_type not in dataset_types:
                     new_cfg = self.add_conditional_source(p)
                     if self.args.add_test_entities:
-                        new_cfg = self.test_entities_to_pipe(p)
-                        added_entities += 1
+                        new_cfg, num_added = self.test_entities_to_pipe(p)
+                        added_entities += num_added
+                        if num_added > 0:
+                            modified_sources += 1
 
                     added_sources += 1
 
-                save_path = "new-%s" % cfg_path       # test without overwriting existing pipe configurations
-                # save_path = cfg_path
                 if new_cfg is not None:
-                    with open(save_path, 'w', encoding="utf-8") as pipe_file:
+                    with open(cfg_path, 'w', encoding="utf-8") as pipe_file:
                         pipe_file.write(format_object(new_cfg, self.formatstyle))
 
-        if added_alts + added_sources > 0:
-            self.logger.info("Successfully added test sources to %i pipes." % (added_sources + added_alts))
+        if added_sources > 0:
+            self.logger.info("Successfully added test sources to %i pipes." % added_sources)
         else:
             self.logger.info("All input pipes already have conditional sources with test alternatives. "
-                             "No pipe configurations were modified.")
-        if added_entities > 0:
-            self.logger.info("Successfully added test entities to %i pipes." % added_entities)
+                             "No test sources were added.")
+        if modified_sources > 0:
+            self.logger.info("Successfully added a total of %i test entities to %i pipes."
+                             % (added_entities, modified_sources))
+        elif modified_sources + added_entities == 0:
+            self.logger.info("No pipe configurations were modified.")
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
