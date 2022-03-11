@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.3.0"
+sesam_version = "2.3.1"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1474,7 +1474,12 @@ class SesamCmdClient:
         # Get input entities from a live node and add these to the local pipe configuration as test entities
         self.logger.info(f"Adding test entities to pipe '{pipe['_id']}'")
         node_pipe = self.sesam_node.get_pipe(pipe['_id'])
-        dataset_id = node_pipe.config['effective'].get("sink", {}).get("dataset", node_pipe.id)
+        if node_pipe is not None:
+            dataset_id = node_pipe.config['effective'].get("sink", {}).get("dataset", node_pipe.id)
+        else:
+            self.logger.warning(f"Configuration for '{pipe['_id']}' was not found on the node. Continuing without "
+                                f"adding any test entities.")
+            return pipe, 0
 
         try:
             dataset = self.sesam_node.api_connection.get_dataset(dataset_id)
