@@ -30,7 +30,7 @@ $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ pyinstaller --onefile sesam.py
 $ dist/sesam -version
-sesam version 2.0.0
+sesam version 2.4.0
 ```
 
 ## Configuring
@@ -192,18 +192,19 @@ Verifying output (3/3)...passed!
 
 ## Configuring tests
 
-| Property | Description | Type | Required | Default |
-|------------|----------------------------------------------------------------------------|------------------|----------|-----------------------------------------------------------------------|
-| _id | Name of the test. | string | No | Name of the .test.json file |
-| type | Config type so that this later can just be part of the rest of the config. | String | No | test |
-| description | A description of the test. | string | No | |
-| ignore | If the output should be ignored during tests. | boolean | No | ``false`` |
-| endpoint | If the output should be fetched from a published endpoint instead. | string | No | By default the json is grabbed from ``/pipes/<my-pipe>/entities``
-| stage | In which pipe stage to get the entities (source/before-transform/after-transform/sink) | string | No | By default the stage is ``sink``
-| file | File that contains the expected results. | string | No | Name of the .test.json file without .test (e.g. foo.test.json looks for foo.json)
-| pipe | Pipe that contains the output to test. | string | No | Same as above |
-| blacklist | Properties to ignore in the output. | Array of strings | No | ``[]`` |
-| parameters | Which parameters to pass as bound parameters. Note that parameters only works for published endpoints. | Object | No | ``{}`` |
+| Property       | Description                                                                                            | Type | Required | Default                                                                           |
+|----------------|--------------------------------------------------------------------------------------------------------|------------------|----------|-----------------------------------------------------------------------------------|
+| _id            | Name of the test.                                                                                      | string | No | Name of the .test.json file                                                       |
+| type           | Config type so that this later can just be part of the rest of the config.                             | String | No | test                                                                              |
+| description    | A description of the test.                                                                             | string | No |                                                                                   |
+| ignore         | If the output should be ignored during tests.                                                          | boolean | No | ``false``                                                                         |
+| ignore_deletes | If the test should ignore deleted entities in the output.                                              | boolean | No | ``true``                                                                          |
+| endpoint       | If the output should be fetched from a published endpoint instead.                                     | string | No | By default the json is grabbed from ``/pipes/<my-pipe>/entities``                 
+| stage          | In which pipe stage to get the entities (source/before-transform/after-transform/sink)                 | string | No | By default the stage is ``sink``                                                  
+| file           | File that contains the expected results.                                                               | string | No | Name of the .test.json file without .test (e.g. foo.test.json looks for foo.json) 
+| pipe           | Pipe that contains the output to test.                                                                 | string | No | Same as above                                                                     |
+| blacklist      | Properties to ignore in the output.                                                                    | Array of strings | No | ``[]``                                                                            |
+| parameters     | Which parameters to pass as bound parameters. Note that parameters only works for published endpoints. | Object | No | ``{}``                                                                            |
 
 
 Example:
