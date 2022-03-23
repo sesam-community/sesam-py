@@ -30,7 +30,7 @@ $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ pyinstaller --onefile sesam.py
 $ dist/sesam -version
-sesam version 2.4.0
+sesam version 2.4.1
 ```
 
 ## Configuring
@@ -85,7 +85,7 @@ usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-c
              [-scheduler-node <string>] [-jwt <string>] [-single <string>] [-no-large-int-bugs] [-disable-user-pipes] [-enable-user-pipes]
              [-compact-execution-datasets] [-unicode-encoding] [-disable-json-html-escape] [-profile <string>] [-scheduler-id <string>]
              [-scheduler-zero-runs <int>] [-scheduler-max-runs <int>] [-scheduler-max-run-time <int>] [-restart-timeout <int>] [-runs <int>]
-             [-logformat <string>] [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>]
+             [-logformat <string>] [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>] [-add-test-entities] [-force-add]
              [command]
 
 Commands:
@@ -101,6 +101,7 @@ Commands:
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+  init      Add conditional sources to input pipes with a "test" and "prod" alternative
 
 positional arguments:
   command               a valid command from the list above
@@ -156,12 +157,24 @@ optional arguments:
                         milliseconds between each poll while waiting for the scheduler
   -sesamconfig-file <string>
                         sesamconfig file to use, the default is '.sesamconfig.json' in the current directory
+  -add-test-entities
+                        use with the init command to add test entities to input pipes
+  -force-add
+                        use with the '-add-test-entities' option to overwrite test entities that exist locally
 ```
 
-Typical workflow:
+### Preparing input pipes for testing
 
+If the node has separate environments for production and testing, input pipes can automatically be configured to use 
+a static, embedded source during testing. This can be done using the `init` command (see additional options above):
 ```
-$ sesam clean
+$ sesam init
+```
+This assumes that the node already has the variable `node-env` defined, where the value must be either `"prod"` for
+production or `"test"` for testing. Note that this command only modifies the local pipe configurations.
+
+### Typical workflow
+```
 $ sesam upload
 Node config replaced with local config.
 ## edit stuff in Sesam Management Studio

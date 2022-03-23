@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.4.0"
+sesam_version = "2.4.1"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1547,7 +1547,9 @@ class SesamCmdClient:
         self.logger.info("Adding conditional sources to input pipes...")
 
         files = glob.glob("pipes%s*.conf.json" % os.sep)
-        dataset_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets"]
+
+        # Conditional sources should not be added to dataset-type sources or embedded sources
+        excluded_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets", "embedded"]
         added_sources = 0
         added_entities = 0
         modified_sources = 0
@@ -1579,8 +1581,7 @@ class SesamCmdClient:
                             self.logger.info(f"Pipe {p['_id']} already has test entities. Re-run with '-force-add' "
                                              f"if you want to overwrite these entities.")
 
-                # Input pipes do NOT have source types contained in dataset_types
-                elif source_type not in dataset_types:
+                elif source_type not in excluded_types:
                     new_cfg = self.add_conditional_source(p)
                     if self.args.add_test_entities:
                         new_cfg, num_added = self.test_entities_to_pipe(p)
@@ -2104,7 +2105,7 @@ Commands:
                         help="use with the init command to add test entities to input pipes")
 
     parser.add_argument('-force-add', dest='force_add', required=False, action='store_true',
-                        help="use with the '-add-test-entities' option to overwrite existing test entities")
+                        help="use with the '-add-test-entities' option to overwrite test entities that exist locally")
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
