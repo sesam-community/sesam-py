@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.3.1"
+sesam_version = "2.4.0"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -87,6 +87,10 @@ class TestSpec:
     @property
     def name(self):
         return self._spec.get("name")
+
+    @property
+    def ignore_deletes(self):
+        return self._spec.get("ignore_deletes", True) is True
 
     @property
     def endpoint(self):
@@ -391,7 +395,7 @@ class SesamNode:
                 self.get_pipe_type(p) == "internal"]
 
     def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True,
-                               check_input_pipes=False, output_run_statistics=False):
+                               check_input_pipes=False, output_run_statistics=False, scheduler_mode=None):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
         params = {}
@@ -414,6 +418,9 @@ class SesamNode:
 
         if output_run_statistics is True:
             params["output_run_statistics"] = True
+
+        if scheduler_mode is not None:
+            params["scheduler_mode"] = scheduler_mode
 
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
         resp.raise_for_status()
@@ -1294,21 +1301,37 @@ class SesamCmdClient:
 
                     if test_spec.endpoint == "json" or test_spec.endpoint == "excel":
                         # Get current entities from pipe in json form
-                        expected_output = sorted(test_spec.expected_entities,
-                                                 key=lambda e: (e['_id'],
-                                                                json.dumps(e, ensure_ascii=False,
+                        expected_entities = test_spec.expected_entities
+
+                        expected_output = sorted(expected_entities,
+                                                 key=lambda _e: (_e['_id'],
+                                                                json.dumps(_e, ensure_ascii=False,
                                                                            sort_keys=True)))
 
-                        current_output = sorted([self.filter_entity(e, test_spec)
-                                                 for e in self.sesam_node.get_pipe_entities(pipe,
-                                                                                            stage=test_spec.stage)],
-                                                key=lambda e: e['_id'])
+                        if test_spec.ignore_deletes:
+                            # Gather any expected deletes
+                            expected_deletes = [_e["_id"] for _e in expected_entities if _e.get("_deleted", False) is True]
+
+                            # Filter away any unexpected deleted from the current output
+                            current_entities = []
+                            for en in [self.filter_entity(_e, test_spec)
+                                                     for _e in self.sesam_node.get_pipe_entities(pipe,
+                                                                                                stage=test_spec.stage)]:
+                                if en.get("_deleted", False) is True and en["_id"] not in expected_deletes:
+                                    continue
+                                current_entities.append(en)
+                        else:
+                            current_entities = [self.filter_entity(_e, test_spec)
+                                                     for _e in self.sesam_node.get_pipe_entities(pipe,
+                                                                                                stage=test_spec.stage)]
+
+                        current_output = sorted(current_entities, key=lambda _e: _e['_id'])
 
                         fixed_current_output = self._fix_decimal_to_ints(copy.deepcopy(current_output))
 
                         fixed_current_output = sorted(fixed_current_output,
-                                                      key=lambda e: (e['_id'],
-                                                                     json.dumps(e, ensure_ascii=False,
+                                                      key=lambda _e: (_e['_id'],
+                                                                     json.dumps(_e, ensure_ascii=False,
                                                                                 sort_keys=True)))
 
                         if len(fixed_current_output) != len(expected_output):
@@ -1618,6 +1641,10 @@ class SesamCmdClient:
                                                                     for e in self.sesam_node.get_pipe_entities(
                                 pipe, stage=test_spec.stage)])
 
+                        if test_spec.ignore_deletes:
+                            # Filter away any deletes from the current output
+                            current_output = [en for en in current_output if en.get("_deleted", False) is True]
+
                         current_output = sorted(current_output,
                                                 key=lambda e: (e['_id'],
                                                                json.dumps(e,
@@ -1692,6 +1719,9 @@ class SesamCmdClient:
         delete_input_datasets = not os.path.isdir("testdata")
         check_input_pipes = self.args.scheduler_check_input_pipes
         output_run_statistics = self.args.output_run_statistics
+        scheduler_mode = self.args.scheduler_mode
+        if scheduler_mode is not None and scheduler_mode not in ["active", "poll"]:
+            raise RuntimeError("'scheduler_mode' can only be set to 'active' or 'poll'")
 
         class SchedulerRunner(threading.Thread):
             def __init__(self, sesam_node):
@@ -1708,7 +1738,8 @@ class SesamCmdClient:
                                                                          zero_runs=zero_runs,
                                                                          delete_input_datasets=delete_input_datasets,
                                                                          check_input_pipes=check_input_pipes,
-                                                                         output_run_statistics=output_run_statistics
+                                                                         output_run_statistics=output_run_statistics,
+                                                                         scheduler_mode=scheduler_mode
                                                                          )
                     if self.result["status"] == "success":
                         self.status = "finished"
@@ -1993,6 +2024,10 @@ Commands:
 
     parser.add_argument('-scheduler-image-tag', dest='scheduler_image_tag', required=False,
                         help="the scheduler image tag to use (DEPRECATED)", type=str,
+                        metavar="<string>")
+
+    parser.add_argument('-scheduler-mode', dest='scheduler_mode', required=False,
+                        help="the scheduler mode to use ('active' or 'poll') - the default is 'active'", type=str,
                         metavar="<string>")
 
     parser.add_argument('-node', dest='node', metavar="<string>", required=False, help="service url")
