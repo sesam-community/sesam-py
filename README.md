@@ -30,7 +30,7 @@ $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ pyinstaller --onefile sesam.py
 $ dist/sesam -version
-sesam version 2.4.0
+sesam version 2.4.1
 ```
 
 ## Configuring
