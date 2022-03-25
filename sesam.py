@@ -207,7 +207,7 @@ class SesamNode:
             time.sleep(5)
 
     def is_user_pipe(self, pipe):
-        return self.get_pipe_origin(pipe) not in ["system", "replica", "aggregator-storage-node"]
+        return self.get_pipe_origin(pipe) not in ["system", "search", "replica", "aggregator-storage-node"]
 
     def get_pipe_origin(self, pipe):
         return pipe.config.get("original", {}).get("metadata", {}).get("origin", "user")
