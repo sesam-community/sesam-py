@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.4.2"
+sesam_version = "2.4.3"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1644,7 +1644,7 @@ class SesamCmdClient:
 
                         if test_spec.ignore_deletes:
                             # Filter away any deletes from the current output
-                            current_output = [en for en in current_output if en.get("_deleted", False) is True]
+                            current_output = [en for en in current_output if en.get("_deleted", False) is False]
 
                         current_output = sorted(current_output,
                                                 key=lambda e: (e['_id'],
