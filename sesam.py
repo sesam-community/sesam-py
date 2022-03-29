@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.4.1"
+sesam_version = "2.4.2"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -212,7 +212,7 @@ class SesamNode:
             time.sleep(5)
 
     def is_user_pipe(self, pipe):
-        return self.get_pipe_origin(pipe) not in ["system", "replica", "aggregator-storage-node"]
+        return self.get_pipe_origin(pipe) not in ["system", "search", "replica", "aggregator-storage-node"]
 
     def get_pipe_origin(self, pipe):
         return pipe.config.get("original", {}).get("metadata", {}).get("origin", "user")
