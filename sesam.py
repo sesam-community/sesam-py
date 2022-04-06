@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.4.3"
+sesam_version = "2.5.0"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -395,7 +395,8 @@ class SesamNode:
                 self.get_pipe_type(p) == "internal"]
 
     def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True,
-                               check_input_pipes=False, output_run_statistics=False, scheduler_mode=None):
+                               check_input_pipes=False, output_run_statistics=False, scheduler_mode=None,
+                               request_mode=None):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
         params = {}
@@ -422,6 +423,9 @@ class SesamNode:
         if scheduler_mode is not None:
             params["scheduler_mode"] = scheduler_mode
 
+        if request_mode is not None:
+            params["request_mode"] = request_mode
+
         resp = self.api_connection.session.post(internal_scheduler_url, params=params)
         resp.raise_for_status()
 
@@ -444,6 +448,16 @@ class SesamNode:
             params = {"since": since}
         else:
             params = None
+
+        resp = self.api_connection.session.get(scheduler_log_url, params=params)
+        resp.raise_for_status()
+
+        return resp.json()
+
+    def get_internal_scheduler_status(self, token):
+        scheduler_log_url  = "%s/pipes/get-pipe-runner-status" % self.node_url
+
+        params = {"token": token}
 
         resp = self.api_connection.session.get(scheduler_log_url, params=params)
         resp.raise_for_status()
@@ -1721,8 +1735,13 @@ class SesamCmdClient:
         check_input_pipes = self.args.scheduler_check_input_pipes
         output_run_statistics = self.args.output_run_statistics
         scheduler_mode = self.args.scheduler_mode
+        requests_mode = self.args.scheduler_request_mode
+
         if scheduler_mode is not None and scheduler_mode not in ["active", "poll"]:
             raise RuntimeError("'scheduler_mode' can only be set to 'active' or 'poll'")
+
+        if requests_mode is not None and requests_mode not in ["sync", "async"]:
+            raise RuntimeError("'request_mode' can only be set to 'sync' or 'async'")
 
         class SchedulerRunner(threading.Thread):
             def __init__(self, sesam_node):
@@ -1740,12 +1759,34 @@ class SesamCmdClient:
                                                                          delete_input_datasets=delete_input_datasets,
                                                                          check_input_pipes=check_input_pipes,
                                                                          output_run_statistics=output_run_statistics,
-                                                                         scheduler_mode=scheduler_mode
+                                                                         scheduler_mode=scheduler_mode,
+                                                                         request_mode=requests_mode
                                                                          )
-                    if self.result["status"] == "success":
-                        self.status = "finished"
+
+                    if requests_mode == "sync":
+                        if self.result["status"] == "success":
+                            self.status = "finished"
+                        else:
+                            self.status = "failed"
                     else:
-                        self.status = "failed"
+                        # In async mode we loop until status changes (or status request fails)
+                        if "token" not in self.result:
+                            raise AssertionError("Response from scheduler with 'async' request_mode didn't "
+                                                 "contain a token!")
+
+                        token = self.result["token"]
+                        while True:
+                            status = self.sesam_node.get_internal_scheduler_status(token)
+
+                            if status["status"] == "success":
+                                self.status = "finished"
+                                break
+                            elif status["status"] == "failed":
+                                self.status = "failed"
+                                break
+
+                            time.sleep(10)
+
                 except BaseException as e:
                     self.status = "failed"
                     self.result = e
@@ -2068,6 +2109,11 @@ Commands:
 
     parser.add_argument('-scheduler-id', dest='scheduler_id', metavar="<string>", required=False,
                         help="system id for the scheduler system (DEPRECATED)")
+
+    parser.add_argument('-scheduler-request-mode', dest='scheduler_request_mode', required=False, type=str,
+                        metavar="<string>", default="sync",
+                        help="run the scheduler in 'sync' or 'async' mode, long running tests should run "
+                             "in 'async' mode")
 
     parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int, required=False,
                         help="the number of runs that has to yield zero changes for the scheduler to finish")
