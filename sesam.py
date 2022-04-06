@@ -1784,6 +1784,10 @@ class SesamCmdClient:
                             elif status["status"] == "failed":
                                 self.status = "failed"
                                 break
+                            elif status["status"] == "not-running":
+                                self.status = "failed"
+                                self.result = "Scheduler is not running"
+                                break
 
                             time.sleep(10)
 
