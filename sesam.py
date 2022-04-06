@@ -441,13 +441,15 @@ class SesamNode:
 
         return resp.json()
 
-    def get_internal_scheduler_log(self, since=None):
+    def get_internal_scheduler_log(self, since=None, token=None):
         scheduler_log_url  = "%s/pipes/get-run-all-pipes-log" % self.node_url
 
+        params = {}
         if since:
-            params = {"since": since}
-        else:
-            params = None
+            params["since"] = since
+
+        if token:
+            params["token"] = token
 
         resp = self.api_connection.session.get(scheduler_log_url, params=params)
         resp.raise_for_status()
@@ -1748,6 +1750,7 @@ class SesamCmdClient:
                 super().__init__()
                 self.sesam_node = sesam_node
                 self.status = None
+                self.token = None
                 self.additional_info = None
                 self.result = {}
 
@@ -1774,9 +1777,9 @@ class SesamCmdClient:
                             raise AssertionError("Response from scheduler with 'async' request_mode didn't "
                                                  "contain a token!")
 
-                        token = self.result["token"]
+                        self.token = self.result["token"]
                         while True:
-                            status = self.sesam_node.get_internal_scheduler_status(token)
+                            status = self.sesam_node.get_internal_scheduler_status(self.token)
 
                             if status["status"] == "success":
                                 self.status = "finished"
@@ -1802,8 +1805,8 @@ class SesamCmdClient:
 
         since = None
 
-        def print_internal_scheduler_log(since_val):
-            log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val)
+        def print_internal_scheduler_log(since_val, token=None):
+            log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val, token=token)
             for log_line in log_lines:
                 s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
                 logger.info(s)
@@ -1815,7 +1818,7 @@ class SesamCmdClient:
 
         while True:
             if self.args.print_scheduler_log is True:
-                since = print_internal_scheduler_log(since)
+                since = print_internal_scheduler_log(since, token=scheduler_runner.token)
 
             if scheduler_runner.status is not None:
                 break
@@ -1825,11 +1828,11 @@ class SesamCmdClient:
         if scheduler_runner.status == "failed":
             self.logger.error("Failed to run pipes to completion")
             if self.args.print_scheduler_log is True:
-                print_internal_scheduler_log(since)
+                print_internal_scheduler_log(since, token=scheduler_runner.token)
             raise RuntimeError(scheduler_runner.result)
 
         if self.args.print_scheduler_log is True:
-            print_internal_scheduler_log(since)
+            print_internal_scheduler_log(since, token=scheduler_runner.token)
 
         self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
 
