@@ -182,33 +182,40 @@ class SesamNode:
 
     def wait_for_all_pipes_to_deploy(self, timeout=30*60):
         starttime = time.time()
-        deploying = {}
         while True:
-            deployed = True
-            if deploying:
-                pipes = [p for p in deploying.values()]
-            else:
-                pipes = [p for p in self.api_connection.get_pipes()]
+            deploying = []
+            for pipe in self.api_connection.get_pipes():
+                if pipe.runtime["state"] == "Deploying":
+                    deploying.append(pipe)
 
-            for pipe in pipes:
-                try:
-                    pipe.wait_for_pipe_to_be_deployed(timeout=0)
-                    deploying.pop(pipe.id, None)
-                    logger.debug(f"Pipe {pipe.id} was deployed...")
-                except BaseException as e:
-                    deployed = False
-                    deploying[pipe.id] = pipe
-                    logger.debug(f"Pipe {pipe.id} is still deploying...")
+            if deploying:
+                # As an optimization we wait for one pipe to be deployed before we call get_pipes() again.
+                pipe = deploying[0]
+                while True:
+                    try:
+                        pipe.wait_for_pipe_to_be_deployed(timeout=0)
+                        logger.debug(f"Pipe '{pipe.id}' was deployed...")
+                        # We only wait for one pipe, since getting all the pipes with get_pipes() is much faster
+                        # that waiting for each individual pipe. Once one pipe has been deployed, usually all the other
+                        # pipes will also be deployed.
+                        break
+                    except BaseException as e:
+                        logger.debug(f"Pipe '{pipe.id}' is still deploying...")
+                        elapsedtime = time.time() - starttime
+                        if elapsedtime > timeout:
+                            raise RuntimeError("Waiting for pipes to deploy timed out after %s seconds!" % timeout)
+
+                    time.sleep(5)
 
             elapsedtime = time.time() - starttime
-            if not deployed and elapsedtime > timeout:
+            if deploying and elapsedtime > timeout:
                 raise RuntimeError("Waiting for pipes to deploy timed out after %s seconds!" % timeout)
 
-            if deployed:
+            if not deploying:
                 self.logger.debug("All pipes were deployed in %s seconds" % elapsedtime)
                 break
 
-            logger.info(f"Waiting for {len(deploying.values())} pipes to finish deploying...")
+            logger.info(f"Waiting for {len(deploying)} pipes to finish deploying...")
             time.sleep(5)
 
     def is_user_pipe(self, pipe):
