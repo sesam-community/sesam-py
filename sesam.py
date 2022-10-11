@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.5.1"
+sesam_version = "2.5.2"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1708,14 +1708,17 @@ class SesamCmdClient:
 
         self.logger.info("%s tests updated!" % i)
 
-    def stop(self):
-        self.logger.info("Trying to stop a previously running scheduler..")
+    def stop(self, throw_error=True):
         try:
+            self.logger.info("Trying to stop a previously running scheduler..")
+
             self.sesam_node.stop_internal_scheduler()
 
             self.logger.info("Any previously running scheduler has been stopped")
         except BaseException as e:
-            self.logger.warning("Failed to stop running schedulers!")
+            self.logger.error("Failed to stop running schedulers!")
+            if throw_error:
+                raise e
 
     def test(self):
         last_additional_info = None
@@ -1851,15 +1854,20 @@ class SesamCmdClient:
         return None
 
     def run(self):
-        self.stop()
+        try:
+            self.stop()
 
-        return self.run_internal_scheduler()
+            return self.run_internal_scheduler()
+        except BaseException as e:
+            logger.error("Failed to run the tests")
+            raise e
 
     def wipe(self):
-        self.logger.info("Wiping node...")
-        self.stop()
-
         try:
+            self.stop()
+
+            self.logger.info("Wiping node...")
+
             # We need to include the "disable-user-pipes" setting when wiping the pipes and systems, or they will
             # start running (asserting datasets, compiling dtl etc) while we're doing the wipe,
             # which makes it take a lot longer to run
@@ -1873,10 +1881,10 @@ class SesamCmdClient:
                     "type": "metadata"
                 }
 
-            if not "task_manager" in node_metadata:
+            if "task_manager" not in node_metadata:
                 node_metadata["task_manager"] = {}
 
-            if not "global_defaults" in node_metadata:
+            if "global_defaults" not in node_metadata:
                 node_metadata["global_defaults"] = {}
 
             node_metadata["global_defaults"]["use_signalling_internally"] = False
@@ -1903,11 +1911,11 @@ class SesamCmdClient:
         self.logger.info("Successfully wiped node!")
 
     def reset(self):
-        self.stop()
-
-        self.logger.info("Resetting target node...")
-
         try:
+            self.stop(throw_error=False)
+
+            self.logger.info("Resetting target node...")
+
             self.sesam_node.reset(timeout=self.args.restart_timeout)
         except BaseException as e:
             logger.error("Failed to reset target node!")
@@ -1915,13 +1923,12 @@ class SesamCmdClient:
 
         self.logger.info("Successfully reset target node!")
 
-
     def restart(self):
-        self.stop()
-
-        self.logger.info("Restarting target node...")
-
         try:
+            self.stop(throw_error=False)
+
+            self.logger.info("Restarting target node...")
+
             self.sesam_node.restart(timeout=self.args.restart_timeout)
         except BaseException as e:
             logger.error("Failed to restart target node!")
