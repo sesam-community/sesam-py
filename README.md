@@ -374,7 +374,7 @@ pipes/input-pipe-1.conf.json
 systems/email-system.conf.json
 ```
 
-Example: `sesam -whitelist-file deployment/whitelist.txt test`
+Example: `sesam -whitelist-file whitelist.txt test`
 
 # Developing sesam-py
 
