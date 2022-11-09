@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.5.2"
+sesam_version = "2.5.3"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -638,10 +638,10 @@ class SesamCmdClient:
                     for line in infile.read().split("\n"):
                         self.whitelisted_files.append(line.strip())
                         if line.startswith("pipes/"):
-                            pipe = line.replace("pipes/", "").replace("conf.json", "")
+                            pipe = line.replace("pipes/", "").replace(".conf.json", "")
                             self.whitelisted_pipes.append(pipe)
                         elif line.startswith("systems/"):
-                            system = line.replace("systems/", "").replace("conf.json", "")
+                            system = line.replace("systems/", "").replace(".conf.json", "")
                             self.whitelisted_systems.append(system)
             except BaseException as e:
                 logger.error(f"Failed to read whitelistfile '{args.whitelist_file}'")
