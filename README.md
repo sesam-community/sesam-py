@@ -360,6 +360,22 @@ e.g. Given that profile `profiles/prod-env.json` file exists, one can
   * see status with `sesam status -profile profiles/prod`
 
 
+### Using whitelist
+The optional argument `-whitelist-file` can effectively be used when running the following commands:
+```
+upload, verify, test
+```
+The parameter used with this argument should be the path to a whitelist file which will be used as a list of which pipes & systems to upload, as well which node-metadata file to use - or only verify certain pipes.
+
+The whitelist file should be formatted as follows:
+```
+node-metadata.conf.json
+pipes/input-pipe-1.conf.json
+systems/email-system.conf.json
+```
+
+Example: `sesam -whitelist-file deployment/whitelist.txt test`
+
 # Developing sesam-py
 
 1. Checkout the repository if you haven't

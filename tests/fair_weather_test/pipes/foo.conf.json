@@ -1,0 +1,11 @@
+{
+    "_id": "foo",
+    "type": "pipe",
+    "source": {
+        "type": "embedded",
+        "entities": [{
+            "_id": "foo",
+            "note": "I am not in the whitelist"
+        }]
+    }
+}
