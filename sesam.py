@@ -598,9 +598,23 @@ class SesamNode:
 
         pipe_url = self.api_connection.get_pipe_receiver_endpoint_url(pipe_id)
 
-        resp = self.api_connection.session.post(pipe_url, **kwargs)
+        timeout = 60
+        starttime = time.monotonic()
+        while True:
+            resp = self.api_connection.session.post(pipe_url, **kwargs)
 
-        resp.raise_for_status()
+            # Sometimes a subscription may take little while to deploy all the API routes, let's give it a chance
+            # to catch up before we give up
+            if resp.status_code == 503:
+                if time.monotonic() - starttime > timeout:
+                    logger.error(f"Failed to post request to HTTP receiver for pipe '{pipe_id}' after "
+                                 f"retrying for {timeout} seconds...")
+                    resp.raise_for_status()
+                time.sleep(1)
+            else:
+                resp.raise_for_status()
+                break
+
         return resp.json()
 
     def enable_pipe(self, pipe_id):
