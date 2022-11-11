@@ -2,6 +2,28 @@
 
 set -e
 
+function fail {
+  echo $1 >&2
+  exit 1
+}
+
+function retry {
+  local n=1
+  local max=3
+  local delay=15
+  while true; do
+    "$@" && break || {
+      if [[ $n -lt $max ]]; then
+        ((n++))
+        echo "Command failed. Attempt $n/$max:"
+        sleep $delay;
+      else
+        fail "The command has failed after $n attempts."
+      fi
+    }
+  done
+}
+
 echo "Running conversion test.."
 
 rm -rf test_after
@@ -10,16 +32,16 @@ cp -r before/* test_after/
 
 pushd test_after
 
-$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv wipe
+retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv wipe
 
 # First, convert
-$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -vv convert
+retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -vv convert
 
 # Then, test if it works to upload (along with testdata), run, and verify
-$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv -use-internal-scheduler -print-scheduler-log test
+retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv -use-internal-scheduler -print-scheduler-log test
 
 # Clean up completely after a run
-$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv reset
+retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv reset
 
 popd
 
