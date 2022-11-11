@@ -18,6 +18,9 @@ $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -v convert
 # Then, test if it works to upload (along with testdata), run, and verify
 $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v -use-internal-scheduler -print-scheduler-log test
 
+# Clean up completely after a run
+$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v reset
+
 popd
 
 if ! diff -r expected_after/ test_after/

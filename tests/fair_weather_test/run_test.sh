@@ -11,6 +11,9 @@ $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v up
 $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v status
 $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -dump -v download -sesamconfig-file .mysesamconfig.json
 
+# Clean up completely after a run
+$SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -v reset
+
 if [ ! -f "sesam-config.zip" ]; then
     echo "Test of download failed!"
     exit 1
