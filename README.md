@@ -374,6 +374,8 @@ pipes/input-pipe-1.conf.json
 systems/email-system.conf.json
 ```
 
+Please note the path separator, it should always be given as a forward slash - even if you're running on Windows.
+
 Example: `sesam -whitelist-file whitelist.txt test`
 
 # Developing sesam-py

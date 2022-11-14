@@ -35,6 +35,11 @@ BASE_DIR = None
 GIT_ROOT = None
 
 
+def normalize_path(filename):
+    # Normalize windows paths to linux
+    return filename.replace("/", "\\")
+
+
 class SesamParser(argparse.ArgumentParser):
     def error(self, message):
         sys.stderr.write('error: %s\n\n' % message)
@@ -729,7 +734,7 @@ class SesamCmdClient:
                 if file.endswith(".conf.json"):
                     if self.whitelisted_files is not None:
                         filepath = os.path.join(root, file)
-                        if filepath not in self.whitelisted_files:
+                        if normalize_path(filepath) not in self.whitelisted_files:
                             continue
 
                     zipfile.write(os.path.join(root, file))
@@ -1050,7 +1055,8 @@ class SesamCmdClient:
             # Remove all previous pipes and systems
             for filename in glob.glob("pipes%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
-                if self.whitelisted_files and filename not in self.whitelisted_files:
+                # Normalize path
+                if self.whitelisted_files and normalize_path(filename) not in self.whitelisted_files:
                     continue
 
                 self.logger.debug("Deleting pipe config file '%s'" % filename)
@@ -1058,7 +1064,7 @@ class SesamCmdClient:
 
             for filename in glob.glob("systems%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
-                if self.whitelisted_files and filename not in self.whitelisted_files:
+                if self.whitelisted_files and normalize_path(filename) not in self.whitelisted_files:
                     continue
 
                 self.logger.debug("Deleting system config file '%s'" % filename)
@@ -1836,7 +1842,7 @@ class SesamCmdClient:
                     s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
                     logger.info(s)
                 else:
-                    logger.error(f"Log line was not a dict! Was {type(log_line)} ({log_line})")
+                    logger.debug(f"Log line was not a dict! Was {type(log_line)} ('{log_line}')")
                     return None
 
             if len(log_lines) > 0:
