@@ -1832,8 +1832,12 @@ class SesamCmdClient:
         def print_internal_scheduler_log(since_val, token=None):
             log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val, token=token)
             for log_line in log_lines:
-                s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
-                logger.info(s)
+                if isinstance(log_line, dict):
+                    s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
+                    logger.info(s)
+                else:
+                    logger.error(f"Log line was not a dict! Was {type(log_line)} ({log_line})")
+                    return None
 
             if len(log_lines) > 0:
                 return log_lines[-1]["timestamp"]
