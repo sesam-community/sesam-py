@@ -37,7 +37,7 @@ GIT_ROOT = None
 
 def normalize_path(filename):
     # Normalize windows paths to linux
-    return filename.replace("/", "\\")
+    return filename.replace("\\", "/")
 
 
 class SesamParser(argparse.ArgumentParser):
