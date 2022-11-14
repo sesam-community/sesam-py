@@ -18,7 +18,7 @@ $ virtualenv --python=python3 venv
 $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ python sesam.py -version
-sesam version 2.5.1
+sesam version 2.5.3
 ```
 
 
@@ -30,7 +30,7 @@ $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ pyinstaller --onefile sesam.py
 $ dist/sesam -version
-sesam version 2.5.1
+sesam version 2.5.3
 ```
 
 ## Configuring
@@ -359,6 +359,24 @@ e.g. Given that profile `profiles/prod-env.json` file exists, one can
   * download with `sesam download -profile profiles/prod`
   * see status with `sesam status -profile profiles/prod`
 
+
+### Using whitelist
+The optional argument `-whitelist-file` can effectively be used when running the following commands:
+```
+upload, verify, test
+```
+The parameter used with this argument should be the path to a whitelist file which will be used as a list of which pipes & systems to upload, as well which node-metadata file to use - or only verify certain pipes.
+
+The whitelist file should be formatted as follows:
+```
+node-metadata.conf.json
+pipes/input-pipe-1.conf.json
+systems/email-system.conf.json
+```
+
+Please note the path separator, it should always be given as a forward slash - even if you're running on Windows.
+
+Example: `sesam -whitelist-file whitelist.txt test`
 
 # Developing sesam-py
 

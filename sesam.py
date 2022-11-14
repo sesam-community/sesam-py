@@ -27,12 +27,17 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.5.2"
+sesam_version = "2.5.3"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
 BASE_DIR = None
 GIT_ROOT = None
+
+
+def normalize_path(filename):
+    # Normalize windows paths to linux
+    return filename.replace("\\", "/")
 
 
 class SesamParser(argparse.ArgumentParser):
@@ -598,9 +603,23 @@ class SesamNode:
 
         pipe_url = self.api_connection.get_pipe_receiver_endpoint_url(pipe_id)
 
-        resp = self.api_connection.session.post(pipe_url, **kwargs)
+        timeout = 60
+        starttime = time.monotonic()
+        while True:
+            resp = self.api_connection.session.post(pipe_url, **kwargs)
 
-        resp.raise_for_status()
+            # Sometimes a subscription may take little while to deploy all the API routes, let's give it a chance
+            # to catch up before we give up
+            if resp.status_code == 503:
+                if time.monotonic() - starttime > timeout:
+                    logger.error(f"Failed to post request to HTTP receiver for pipe '{pipe_id}' after "
+                                 f"retrying for {timeout} seconds...")
+                    resp.raise_for_status()
+                time.sleep(1)
+            else:
+                resp.raise_for_status()
+                break
+
         return resp.json()
 
     def enable_pipe(self, pipe_id):
@@ -638,10 +657,10 @@ class SesamCmdClient:
                     for line in infile.read().split("\n"):
                         self.whitelisted_files.append(line.strip())
                         if line.startswith("pipes/"):
-                            pipe = line.replace("pipes/", "").replace("conf.json", "")
+                            pipe = line.replace("pipes/", "").replace(".conf.json", "")
                             self.whitelisted_pipes.append(pipe)
                         elif line.startswith("systems/"):
-                            system = line.replace("systems/", "").replace("conf.json", "")
+                            system = line.replace("systems/", "").replace(".conf.json", "")
                             self.whitelisted_systems.append(system)
             except BaseException as e:
                 logger.error(f"Failed to read whitelistfile '{args.whitelist_file}'")
@@ -715,7 +734,7 @@ class SesamCmdClient:
                 if file.endswith(".conf.json"):
                     if self.whitelisted_files is not None:
                         filepath = os.path.join(root, file)
-                        if filepath not in self.whitelisted_files:
+                        if normalize_path(filepath) not in self.whitelisted_files:
                             continue
 
                     zipfile.write(os.path.join(root, file))
@@ -1036,7 +1055,8 @@ class SesamCmdClient:
             # Remove all previous pipes and systems
             for filename in glob.glob("pipes%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
-                if self.whitelisted_files and filename not in self.whitelisted_files:
+                # Normalize path
+                if self.whitelisted_files and normalize_path(filename) not in self.whitelisted_files:
                     continue
 
                 self.logger.debug("Deleting pipe config file '%s'" % filename)
@@ -1044,7 +1064,7 @@ class SesamCmdClient:
 
             for filename in glob.glob("systems%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
-                if self.whitelisted_files and filename not in self.whitelisted_files:
+                if self.whitelisted_files and normalize_path(filename) not in self.whitelisted_files:
                     continue
 
                 self.logger.debug("Deleting system config file '%s'" % filename)
@@ -1818,8 +1838,12 @@ class SesamCmdClient:
         def print_internal_scheduler_log(since_val, token=None):
             log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val, token=token)
             for log_line in log_lines:
-                s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
-                logger.info(s)
+                if isinstance(log_line, dict):
+                    s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
+                    logger.info(s)
+                else:
+                    logger.debug(f"Log line was not a dict! Was {type(log_line)} ('{log_line}')")
+                    return None
 
             if len(log_lines) > 0:
                 return log_lines[-1]["timestamp"]

@@ -1,0 +1,4 @@
+node-metadata.conf.json
+pipes/input-pipe1.conf.json
+pipes/output-pipe-csv.conf.json
+pipes/output-pipe1.conf.json
