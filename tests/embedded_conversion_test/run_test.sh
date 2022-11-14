@@ -24,6 +24,8 @@ function retry {
   done
 }
 
+sleep 15
+
 echo "Running conversion test.."
 
 rm -rf test_after

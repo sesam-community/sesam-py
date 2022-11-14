@@ -24,10 +24,15 @@ function retry {
   done
 }
 
+sleep 15
+
 echo "Running fairweather tests.."
 
 # Start with a clean slate to avoid "singlenode" issues from any other tests
 retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv reset
+
+sleep 5
+
 retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv -print-scheduler-log -whitelist-file whitelist.txt test
 retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv update
 retry $SESAM_CLIENT -node $NODE_URL -jwt $PUBLIC_CI_TOKEN -skip-tls-verification -vv status
