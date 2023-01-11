@@ -697,16 +697,32 @@ class SesamCmdClient:
 
             # Find config on disk, if any
             file_config = {}
+            # if os.path.isfile(filename):
+            #     # Found a local .syncconfig file, read it
+            #     file_config = self.parse_config_file(filename)
+            # else:
+            #     # Look in the parent folder
+            #     if os.path.isfile(".." + os.sep + filename):
+            #         file_config = self.parse_config_file(".." + os.sep + filename)
+            #         if file_config:
+            #             curr_dir = os.path.abspath(".." + os.sep)
+            #             os.chdir(curr_dir)
+
+            parents_dir=os.path.abspath(curr_dir).split(os.sep)[1:]
             if os.path.isfile(filename):
-                # Found a local .syncconfig file, read it
                 file_config = self.parse_config_file(filename)
             else:
-                # Look in the parent folder
-                if os.path.isfile(".." + os.sep + filename):
-                    file_config = self.parse_config_file(".." + os.sep + filename)
-                    if file_config:
-                        curr_dir = os.path.abspath(".." + os.sep)
-                        os.chdir(curr_dir)
+                #iterate over all parent directories and look for .syncconfig file
+                for _ in parents_dir:
+                    parent_path = os.path.dirname(curr_dir)
+                    file_path = os.path.join(parent_path, filename)
+                    if os.path.isfile(file_path):
+                        file_config = self.parse_config_file(file_path)
+                        if file_config:
+                            curr_dir = parent_path
+                            os.chdir(curr_dir)
+                            break
+                    curr_dir = parent_path
 
             if file_config:
                 self.logger.debug("Found config file '%s' in '%s'"% (filename, curr_dir))
