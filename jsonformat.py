@@ -5,7 +5,7 @@
 # import json
 import simplejson as json
 from collections import OrderedDict
-from collections import Mapping
+from collections.abc import Mapping
 
 
 class FormatStyle(object):
