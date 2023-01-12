@@ -185,7 +185,7 @@ class SesamNode:
         self.api_connection = sesamclient.Connection(sesamapi_base_url=self.node_url, jwt_auth_token=self.jwt_token,
                                                      timeout=60 * 10, verify_ssl=verify_ssl)
 
-    def wait_for_all_pipes_to_deploy(self, timeout=30*60):
+    def wait_for_all_pipes_to_deploy(self, timeout=30 * 60):
         starttime = time.time()
         while True:
             deploying = []
@@ -229,7 +229,7 @@ class SesamNode:
     def get_pipe_origin(self, pipe):
         return pipe.config.get("original", {}).get("metadata", {}).get("origin", "user")
 
-    def wait_for_all_pipes_to_disappear(self, timeout=30*60):
+    def wait_for_all_pipes_to_disappear(self, timeout=30 * 60):
         starttime = time.time()
         while True:
             elapsedtime = time.time() - starttime
@@ -293,7 +293,6 @@ class SesamNode:
                 raise RuntimeError("Failed to start node - wait for node restart timed "
                                    "out after %s seconds. The last errror was: %s" % (timeout, msg))
             time.sleep(3)
-
 
     def put_config(self, config, force=False):
         self.logger.log(LOGLEVEL_TRACE, "PUT config to %s" % self.node_url)
@@ -370,8 +369,8 @@ class SesamNode:
         return data
 
     def get_pipe_type(self, pipe):
-        source_config = pipe.config["effective"].get("source",{})
-        sink_config = pipe.config["effective"].get("sink",{})
+        source_config = pipe.config["effective"].get("source", {})
+        sink_config = pipe.config["effective"].get("sink", {})
         source_type = source_config.get("type", "")
         sink_type = sink_config.get("type", "")
 
@@ -381,7 +380,7 @@ class SesamNode:
         if isinstance(sink_type, str) and sink_type.endswith("_endpoint"):
             return "endpoint"
 
-        if (source_config.get("dataset") or source_config.get("datasets")) and\
+        if (source_config.get("dataset") or source_config.get("datasets")) and \
                 sink_config.get("dataset"):
             return "internal"
 
@@ -454,7 +453,7 @@ class SesamNode:
         return resp.json()
 
     def get_internal_scheduler_log(self, since=None, token=None):
-        scheduler_log_url  = "%s/pipes/get-run-all-pipes-log" % self.node_url
+        scheduler_log_url = "%s/pipes/get-run-all-pipes-log" % self.node_url
 
         params = {}
         if since:
@@ -469,7 +468,7 @@ class SesamNode:
         return resp.json()
 
     def get_internal_scheduler_status(self, token):
-        scheduler_log_url  = "%s/pipes/get-pipe-runner-status" % self.node_url
+        scheduler_log_url = "%s/pipes/get-pipe-runner-status" % self.node_url
 
         params = {"token": token}
 
@@ -668,7 +667,7 @@ class SesamCmdClient:
 
     def parse_config_file(self, filename):
         config = {}
-        #try to parse as json, if fails parse as ini
+        # try to parse as json, if fails parse as ini
         with open(filename) as fp:
             try:
                 config = json.load(fp)
@@ -677,7 +676,7 @@ class SesamCmdClient:
         if not config:
             with open(filename) as fp:
                 parser = configparser.ConfigParser(strict=False)
-                #[sesam] section is prepended to support .syncconfig file
+                # [sesam] section is prepended to support .syncconfig file
                 #  in which section is omitted
                 parser.read_file(itertools.chain(['[sesam]'], fp), source=filename)
                 config = {}
@@ -686,7 +685,6 @@ class SesamCmdClient:
                         config[key.lower()] = value
 
         return config
-
 
     def read_config_file(self, filename, is_required=False):
         try:
@@ -697,25 +695,30 @@ class SesamCmdClient:
 
             # Find config on disk, if any
             file_config = {}
+            parents_dirs: list[str] = os.path.abspath(curr_dir).split(os.sep)[1:]
+            parent_path = curr_dir
             if os.path.isfile(filename):
-                # Found a local .syncconfig file, read it
                 file_config = self.parse_config_file(filename)
             else:
-                # Look in the parent folder
-                if os.path.isfile(".." + os.sep + filename):
-                    file_config = self.parse_config_file(".." + os.sep + filename)
-                    if file_config:
-                        curr_dir = os.path.abspath(".." + os.sep)
-                        os.chdir(curr_dir)
+                # iterate over all parent directories and look for .syncconfig file
+                for _ in parents_dirs:
+                    parent_path = os.path.dirname(parent_path)
+                    file_path = os.path.join(parent_path, filename)
+                    if os.path.isfile(file_path):
+                        file_config = self.parse_config_file(file_path)
+                        if file_config:
+                            curr_dir = parent_path
+                            os.chdir(curr_dir)
+                            break
 
             if file_config:
-                self.logger.debug("Found config file '%s' in '%s'"% (filename, curr_dir))
+                self.logger.debug("Found config file '%s' in '%s'" % (filename, curr_dir))
             else:
                 if is_required:
                     raise BaseException()
                 else:
                     self.logger.debug("Cannot locate config file '%s' in current or parent folder. "
-                                     "Proceeding without it." % (filename))
+                                      "Proceeding without it." % (filename))
             return curr_dir, file_config
         except BaseException as e:
             self.logger.error("Failed to read '%s' from either the current directory or the "
@@ -803,7 +806,7 @@ class SesamCmdClient:
             remote_metadata = json.loads(str(remote_data, encoding="utf-8"))
 
             if "task_manager" in remote_metadata and "disable_user_pipes" in remote_metadata["task_manager"] and \
-                            remote_metadata["task_manager"]["disable_user_pipes"] is True:
+                    remote_metadata["task_manager"]["disable_user_pipes"] is True:
 
                 if "disable_user_pipes" in node_metadata.get("task_manager", {}):
                     # Restore the original, if present
@@ -818,7 +821,7 @@ class SesamCmdClient:
 
             if "global_defaults" in remote_metadata:
                 if "enable_cpp_extensions" in remote_metadata["global_defaults"] and \
-                            remote_metadata["global_defaults"]["enable_cpp_extensions"] is False:
+                        remote_metadata["global_defaults"]["enable_cpp_extensions"] is False:
 
                     if "enable_cpp_extensions" in node_metadata.get("global_defaults", {}):
                         # Restore the original, if present
@@ -832,7 +835,7 @@ class SesamCmdClient:
                             remote_metadata.pop("global_defaults")
 
                 if "eager_load_microservices" in remote_metadata["global_defaults"] and \
-                            remote_metadata["global_defaults"]["eager_load_microservices"] is False:
+                        remote_metadata["global_defaults"]["eager_load_microservices"] is False:
 
                     if "eager_load_microservices" in node_metadata.get("global_defaults", {}):
                         # Restore the original, if present
@@ -856,7 +859,7 @@ class SesamCmdClient:
         configfilename = self.args.sesamconfig_file or ".sesamconfig.json"
         is_required = self.args.sesamconfig_file is not None
         curr_dir, configuration = self.read_config_file(configfilename, is_required)
-        return FormatStyle(**configuration.get("formatstyle",{}))
+        return FormatStyle(**configuration.get("formatstyle", {}))
 
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
@@ -1001,14 +1004,16 @@ class SesamCmdClient:
                             try:
                                 self.sesam_node.delete_dataset(pipe_id)
                             except HTTPError as http_e:
-                                self.logger.log(LOGLEVEL_TRACE, f"Failed to delete dataset {pipe_id}. It probably doesn't exist, "
-                                                  f"which is fine. Error: {http_e}")
+                                self.logger.log(LOGLEVEL_TRACE,
+                                                f"Failed to delete dataset {pipe_id}. It probably doesn't exist, "
+                                                f"which is fine. Error: {http_e}")
                             self.sesam_node.enable_pipe(pipe_id)
                             self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
                             self.sesam_node.disable_pipe(pipe_id)
 
                     except BaseException as e:
-                        self.logger.error(f"Failed to post payload to pipe {pipe_id}. {e}. Response from server was: {e.response.text}")
+                        self.logger.error(
+                            f"Failed to post payload to pipe {pipe_id}. {e}. Response from server was: {e.response.text}")
                         raise e
 
             self.logger.info("Test data uploaded successfully")
@@ -1032,14 +1037,12 @@ class SesamCmdClient:
             self.logger.error("Failed to save profile file  '%s'" % profile_file)
             raise e
 
-
         if self.args.dump:
             if os.path.isfile("sesam-config.zip"):
-                    os.remove("sesam-config.zip")
+                os.remove("sesam-config.zip")
 
             zip_data = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings(zip_data)
-
 
             # normalize formatting
             formatted_zip_data = self.format_zip_config(zip_data, binary=True)
@@ -1116,14 +1119,15 @@ class SesamCmdClient:
         local_files = sorted(local_config.namelist())
 
         diff_found = False
-        #compare profile_file content with the variables
+        # compare profile_file content with the variables
         profile_file = "%s-env.json" % self.args.profile
         try:
             with open(profile_file, "r", encoding="utf-8-sig") as local_env_file:
                 local_file_data = format_object(json.load(local_env_file), self.formatstyle)
             remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
 
-            diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file, self.args.diff) or diff_found
+            diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file,
+                                               self.args.diff) or diff_found
         except FileNotFoundError as ex:
             logger.error("Cannot locate profile file '%s'" % profile_file)
 
@@ -1140,8 +1144,8 @@ class SesamCmdClient:
                 local_file_data = str(local_config.read(local_file), encoding="utf-8")
                 remote_file_data = format_object(json.load(remote_config.open(local_file)), self.formatstyle)
 
-                diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file, self.args.diff) or diff_found
-
+                diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file,
+                                                   self.args.diff) or diff_found
 
         if diff_found:
             logger.info("Sesam config is NOT in sync with local config!")
@@ -1150,6 +1154,7 @@ class SesamCmdClient:
 
     def filter_entity(self, entity, test_spec):
         """ Remove most underscore keys and filter potential blacklisted keys """
+
         def filter_item(parent_path, item):
             result = copy.deepcopy(item)
             if isinstance(item, dict):
@@ -1348,25 +1353,26 @@ class SesamCmdClient:
 
                         expected_output = sorted(expected_entities,
                                                  key=lambda _e: (_e['_id'],
-                                                                json.dumps(_e, ensure_ascii=False,
-                                                                           sort_keys=True)))
+                                                                 json.dumps(_e, ensure_ascii=False,
+                                                                            sort_keys=True)))
 
                         if test_spec.ignore_deletes:
                             # Gather any expected deletes
-                            expected_deletes = [_e["_id"] for _e in expected_entities if _e.get("_deleted", False) is True]
+                            expected_deletes = [_e["_id"] for _e in expected_entities if
+                                                _e.get("_deleted", False) is True]
 
                             # Filter away any unexpected deleted from the current output
                             current_entities = []
                             for en in [self.filter_entity(_e, test_spec)
-                                                     for _e in self.sesam_node.get_pipe_entities(pipe,
-                                                                                                stage=test_spec.stage)]:
+                                       for _e in self.sesam_node.get_pipe_entities(pipe,
+                                                                                   stage=test_spec.stage)]:
                                 if en.get("_deleted", False) is True and en["_id"] not in expected_deletes:
                                     continue
                                 current_entities.append(en)
                         else:
                             current_entities = [self.filter_entity(_e, test_spec)
-                                                     for _e in self.sesam_node.get_pipe_entities(pipe,
-                                                                                                stage=test_spec.stage)]
+                                                for _e in self.sesam_node.get_pipe_entities(pipe,
+                                                                                            stage=test_spec.stage)]
 
                         current_output = sorted(current_entities, key=lambda _e: _e['_id'])
 
@@ -1374,8 +1380,8 @@ class SesamCmdClient:
 
                         fixed_current_output = sorted(fixed_current_output,
                                                       key=lambda _e: (_e['_id'],
-                                                                     json.dumps(_e, ensure_ascii=False,
-                                                                                sort_keys=True)))
+                                                                      json.dumps(_e, ensure_ascii=False,
+                                                                                 sort_keys=True)))
 
                         if len(fixed_current_output) != len(expected_output):
                             file_path = os.path.join(os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file)
@@ -1400,15 +1406,15 @@ class SesamCmdClient:
                             failed_tests.append(test_spec)
                             failed = True
                         else:
-                            expected_json = json.dumps(expected_output,  ensure_ascii=False, indent=2, sort_keys=True)
-                            current_json = json.dumps(fixed_current_output,  ensure_ascii=False, indent=2,
+                            expected_json = json.dumps(expected_output, ensure_ascii=False, indent=2, sort_keys=True)
+                            current_json = json.dumps(fixed_current_output, ensure_ascii=False, indent=2,
                                                       sort_keys=True)
 
                             if expected_json != current_json:
                                 file_path = os.path.join(os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file)
                                 self.logger.error("Pipe verify failed! "
                                                   "Content mismatch for test spec '%s'" % test_spec.file,
-                                                                                          {"file_path": file_path})
+                                                  {"file_path": file_path})
 
                                 self.logger.info("Expected output:\n%s" % pprint.pformat(expected_output))
 
@@ -1446,8 +1452,8 @@ class SesamCmdClient:
                                 failed = True
 
                                 self.logger.info("Pipe verify failed! Content mismatch:\n%s" %
-                                                  self.get_diff_string(expected_output, current_output, test_spec.file,
-                                                                       "current_data.xml"))
+                                                 self.get_diff_string(expected_output, current_output, test_spec.file,
+                                                                      "current_data.xml"))
 
                         except BaseException as e:
                             # Unable to parse the expected input and/or the current output, we'll have to just
@@ -1563,8 +1569,8 @@ class SesamCmdClient:
     def add_test_alternative(self, pipe):
         logger.debug(f"Adding test alternative to pipe {pipe['_id']}")
         pipe["source"]["alternatives"]["test"] = {
-                                                    "type": "embedded",
-                                                    "entities": []
+            "type": "embedded",
+            "entities": []
         }
 
         return pipe
@@ -1578,9 +1584,9 @@ class SesamCmdClient:
             "alternatives": {
                 "prod": prod_source,
                 "test": {
-                        "type": "embedded",
-                        "entities": []
-                    }
+                    "type": "embedded",
+                    "entities": []
+                }
             },
             "condition": "$ENV(node-env)"}
 
@@ -1999,7 +2005,6 @@ class SesamCmdClient:
             with open(path, 'w', encoding="utf-8") as pipe_file:
                 pipe_file.write(format_object(pipe_json, self.formatstyle))
 
-
         self.logger.info("Starting converting conditional embedded sources")
 
         if self.args.dump:
@@ -2122,7 +2127,8 @@ Commands:
                         help="service url for scheduler")
     parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
 
-    parser.add_argument('-single', dest='single', required=False, metavar="<string>", help="update or verify just a single pipe")
+    parser.add_argument('-single', dest='single', required=False, metavar="<string>",
+                        help="update or verify just a single pipe")
 
     parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
                         help="don't reproduce old large int bugs")
@@ -2136,7 +2142,8 @@ Commands:
     parser.add_argument('-enable-user-pipes', dest='enable_user_pipes', required=False, action='store_true',
                         help="turn on user pipe scheduling in the target node")
 
-    parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False, action='store_true',
+    parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False,
+                        action='store_true',
                         help="compact all execution datasets when running scheduler")
 
     parser.add_argument('-disable-cpp-extensions', dest='disable_cpp_extensions', required=False, action='store_true',
@@ -2150,7 +2157,8 @@ Commands:
                         required=False, action='store_true',
                         help="turn off escaping of '<', '>' and '&' characters in 'expected output' json files")
 
-    parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False, help="env profile to use <profile>-env.json")
+    parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False,
+                        help="env profile to use <profile>-env.json")
 
     parser.add_argument('-scheduler-id', dest='scheduler_id', metavar="<string>", required=False,
                         help="system id for the scheduler system (DEPRECATED)")
@@ -2160,20 +2168,25 @@ Commands:
                         help="run the scheduler in 'sync' or 'async' mode, long running tests should run "
                              "in 'async' mode")
 
-    parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int, required=False,
+    parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int,
+                        required=False,
                         help="the number of runs that has to yield zero changes for the scheduler to finish")
 
-    parser.add_argument('-scheduler-max-runs', dest='scheduler_max_runs', default=100, metavar="<int>", type=int, required=False,
+    parser.add_argument('-scheduler-max-runs', dest='scheduler_max_runs', default=100, metavar="<int>", type=int,
+                        required=False,
                         help=" maximum number of runs that scheduler can do to before exiting (internal scheduler only)")
 
-    parser.add_argument('-scheduler-max-run-time', dest='scheduler_max_run_time', default=15*60, metavar="<int>", type=int, required=False,
+    parser.add_argument('-scheduler-max-run-time', dest='scheduler_max_run_time', default=15 * 60, metavar="<int>",
+                        type=int, required=False,
                         help="the maximum time the internal scheduler is allowed to use to finish "
                              "(in seconds, internal scheduler only)")
 
-    parser.add_argument('-scheduler-check-input-pipes', dest='scheduler_check_input_pipes', required=False, action="store_true",
+    parser.add_argument('-scheduler-check-input-pipes', dest='scheduler_check_input_pipes', required=False,
+                        action="store_true",
                         help="controls whether failing input pipes should make the scheduler run fail")
 
-    parser.add_argument('-restart-timeout', dest='restart_timeout', default=15*60, metavar="<int>", type=int, required=False,
+    parser.add_argument('-restart-timeout', dest='restart_timeout', default=15 * 60, metavar="<int>", type=int,
+                        required=False,
                         help="the maximum time to wait for the node to restart and become available again "
                              "(in seconds). The default is 15 minutes. A value of 0 will skip the back-up-again verification.")
 
@@ -2183,7 +2196,8 @@ Commands:
     parser.add_argument('-logformat', dest='logformat', type=str, metavar="<string>", required=False, default="short",
                         help="output format (normal, log or azure)")
 
-    parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int, required=False,
+    parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int,
+                        required=False,
                         default=5000, help="milliseconds between each poll while waiting for the scheduler")
 
     parser.add_argument('-sesamconfig-file', dest='sesamconfig_file', metavar="<string>", type=str,
@@ -2248,6 +2262,7 @@ Commands:
         logger.setLevel(LOGLEVEL_TRACE)
     elif args.extra_extra_verbose:
         from http.client import HTTPConnection
+
         HTTPConnection.debuglevel = 1
         logging.basicConfig()
         logging.getLogger().setLevel(logging.DEBUG)
@@ -2332,8 +2347,9 @@ Commands:
                                "outside the 'upload' or 'test' commands")
 
             if args.disable_cpp_extensions is True:
-                logger.warning("Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
-                               "outside the 'upload' or 'test' commands")
+                logger.warning(
+                    "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
+                    "outside the 'upload' or 'test' commands")
 
             if args.enable_eager_ms is True:
                 logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
