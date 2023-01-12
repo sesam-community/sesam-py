@@ -700,7 +700,7 @@ class SesamCmdClient:
             if os.path.isfile(filename):
                 file_config = self.parse_config_file(filename)
             else:
-                # iterate over all parent directories recursively and look for .syncconfig file
+                # iterate over all parent directories and look for .syncconfig file
                 for _ in parents_dirs:
                     parent_path = os.path.dirname(parent_path)
                     file_path = os.path.join(parent_path, filename)
