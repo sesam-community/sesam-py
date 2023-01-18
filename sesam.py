@@ -2214,6 +2214,8 @@ Commands:
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
+    parser.add_argument('-force', dest='force', required=False, action='store_true',
+                        help="force the command to run even if it is not recommended")
     try:
         args = parser.parse_args()
     except SystemExit as e:
@@ -2338,6 +2340,9 @@ Commands:
         elif command == "verify":
             sesam_cmd_client.verify()
         elif command == "test":
+            if not sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode"):
+                if not args.force:
+                    raise Exception("developer mode is enabled on the node. This can cause the tests to fail.")
             sesam_cmd_client.test()
         elif command == "stop":
             sesam_cmd_client.stop()
