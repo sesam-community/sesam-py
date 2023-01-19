@@ -2215,7 +2215,8 @@ Commands:
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
     parser.add_argument('-force', dest='force', required=False, action='store_true',
-                        help="force the command to run even if it is not recommended")
+                        help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
+                             "subscriptions")
     try:
         args = parser.parse_args()
     except SystemExit as e:
@@ -2328,7 +2329,7 @@ Commands:
     start_time = time.monotonic()
     allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or (command in allowed_commands_for_non_dev_subscriptions and args.force):
+        if not sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
@@ -2374,7 +2375,9 @@ Commands:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
         else:
-            raise Exception("developer mode is not enabled on the node. This can cause the tests to fail.")
+            logger.warning(f"Developer mode is not enabled on the node. This can cause the command '{command}' to fail. "
+                           f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}")
+            sys.exit(1)
     except BaseException as e:
         logger.error("Sesam client failed!")
         if args.extra_verbose is True or args.extra_extra_verbose is True:
