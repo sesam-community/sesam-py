@@ -2326,16 +2326,9 @@ Commands:
         sys.exit(1)
 
     start_time = time.monotonic()
+    allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if not sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode"):
-            if args.force:
-                if command=="upload":
-                    sesam_cmd_client.upload()
-                elif command=="download":
-                    sesam_cmd_client.download()
-                else:
-                    raise Exception("developer mode is enabled on the node. This can cause the tests to fail.")
-        else:
+        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
@@ -2349,9 +2342,6 @@ Commands:
             elif command == "verify":
                 sesam_cmd_client.verify()
             elif command == "test":
-                # if not sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode"):
-                #     if not args.force:
-                #         raise Exception("developer mode is enabled on the node. This can cause the tests to fail.")
                 sesam_cmd_client.test()
             elif command == "stop":
                 sesam_cmd_client.stop()
@@ -2383,6 +2373,8 @@ Commands:
             else:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
+        else:
+            raise Exception("developer mode is not enabled on the node. This can cause the tests to fail.")
     except BaseException as e:
         logger.error("Sesam client failed!")
         if args.extra_verbose is True or args.extra_extra_verbose is True:
