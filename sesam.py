@@ -2326,7 +2326,7 @@ Commands:
         sys.exit(1)
 
     start_time = time.monotonic()
-    allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
+    # allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
         if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "upload":
@@ -2350,14 +2350,14 @@ Commands:
                     logger.warning("Note that the -enable-user-pipes flag has no effect on the actual sesam instance "
                                    "outside the 'upload' or 'test' commands")
 
-            if args.disable_cpp_extensions is True:
-                logger.warning(
-                    "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
-                    "outside the 'upload' or 'test' commands")
+                if args.disable_cpp_extensions is True:
+                    logger.warning(
+                        "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
+                        "outside the 'upload' or 'test' commands")
 
-            if args.enable_eager_ms is True:
-                logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
-                               "outside the 'upload' or 'test' commands")
+                if args.enable_eager_ms is True:
+                    logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
+                                   "outside the 'upload' or 'test' commands")
 
                 sesam_cmd_client.run()
             elif command == "wipe":
