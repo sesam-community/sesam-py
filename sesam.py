@@ -2329,7 +2329,7 @@ Commands:
     start_time = time.monotonic()
     allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if not sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or (command in allowed_commands_for_non_dev_subscriptions and args.force):
+        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
