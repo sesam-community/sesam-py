@@ -2329,7 +2329,8 @@ Commands:
     start_time = time.monotonic()
     allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or (command in allowed_commands_for_non_dev_subscriptions and args.force):
+        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or \
+                (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
@@ -2375,7 +2376,8 @@ Commands:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
         else:
-            logger.warning(f"Developer mode is not enabled on the node. This can cause the command '{command}' to fail. "
+            logger.warning(f"The targeted Sesam subscription is not a developer environment, This can cause the "
+                           f"command '{command}' to fail. please contact support@sesam.io if this is unexpected. "
                            f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}")
             sys.exit(1)
     except BaseException as e:
