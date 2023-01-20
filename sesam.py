@@ -2376,9 +2376,9 @@ Commands:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
         else:
-            logger.warning(f"The targeted Sesam subscription is not a developer environment, This can cause the "
-                           f"command '{command}' to fail. please contact support@sesam.io if this is unexpected. "
-                           f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}")
+            logger.error(
+                f"The targeted Sesam subscription is not a developer environment, please contact support@sesam.io if this is unexpected. "
+                f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}")
             sys.exit(1)
     except BaseException as e:
         logger.error("Sesam client failed!")
