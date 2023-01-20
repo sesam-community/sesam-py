@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.5.3"
+sesam_version = "2.5.4"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
