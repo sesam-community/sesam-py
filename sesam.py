@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.5.3"
+sesam_version = "2.5.4"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -2214,6 +2214,9 @@ Commands:
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
+    parser.add_argument('-force', dest='force', required=False, action='store_true',
+                        help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
+                             "subscriptions")
     try:
         args = parser.parse_args()
     except SystemExit as e:
@@ -2324,50 +2327,58 @@ Commands:
         sys.exit(1)
 
     start_time = time.monotonic()
+    allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if command == "upload":
-            sesam_cmd_client.upload()
-        elif command == "download":
-            sesam_cmd_client.download()
-        elif command == "status":
-            sesam_cmd_client.status()
-        elif command == "init":
-            sesam_cmd_client.init()
-        elif command == "update":
-            sesam_cmd_client.update()
-        elif command == "verify":
-            sesam_cmd_client.verify()
-        elif command == "test":
-            sesam_cmd_client.test()
-        elif command == "stop":
-            sesam_cmd_client.stop()
-        elif command == "run":
-            if args.enable_user_pipes is True:
-                logger.warning("Note that the -enable-user-pipes flag has no effect on the actual sesam instance "
-                               "outside the 'upload' or 'test' commands")
+        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or \
+                (command in allowed_commands_for_non_dev_subscriptions and args.force):
+            if command == "upload":
+                sesam_cmd_client.upload()
+            elif command == "download":
+                sesam_cmd_client.download()
+            elif command == "status":
+                sesam_cmd_client.status()
+            elif command == "init":
+                sesam_cmd_client.init()
+            elif command == "update":
+                sesam_cmd_client.update()
+            elif command == "verify":
+                sesam_cmd_client.verify()
+            elif command == "test":
+                sesam_cmd_client.test()
+            elif command == "stop":
+                sesam_cmd_client.stop()
+            elif command == "run":
+                if args.enable_user_pipes is True:
+                    logger.warning("Note that the -enable-user-pipes flag has no effect on the actual sesam instance "
+                                   "outside the 'upload' or 'test' commands")
 
-            if args.disable_cpp_extensions is True:
-                logger.warning(
-                    "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
-                    "outside the 'upload' or 'test' commands")
+                if args.disable_cpp_extensions is True:
+                    logger.warning(
+                        "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
+                        "outside the 'upload' or 'test' commands")
 
-            if args.enable_eager_ms is True:
-                logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
-                               "outside the 'upload' or 'test' commands")
+                if args.enable_eager_ms is True:
+                    logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
+                                   "outside the 'upload' or 'test' commands")
 
-            sesam_cmd_client.run()
-        elif command == "wipe":
-            sesam_cmd_client.wipe()
-        elif command == "restart":
-            sesam_cmd_client.restart()
-        elif command == "reset":
-            sesam_cmd_client.reset()
-        elif command == "convert":
-            sesam_cmd_client.convert()
-        elif command == "dump":
-            sesam_cmd_client.dump()
+                sesam_cmd_client.run()
+            elif command == "wipe":
+                sesam_cmd_client.wipe()
+            elif command == "restart":
+                sesam_cmd_client.restart()
+            elif command == "reset":
+                sesam_cmd_client.reset()
+            elif command == "convert":
+                sesam_cmd_client.convert()
+            elif command == "dump":
+                sesam_cmd_client.dump()
+            else:
+                logger.error("Unknown command: %s" % command)
+                sys.exit(1)
         else:
-            logger.error("Unknown command: %s" % command)
+            logger.error(
+                f"The targeted Sesam subscription is not a developer environment, please contact support@sesam.io if this is unexpected. "
+                f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}")
             sys.exit(1)
     except BaseException as e:
         logger.error("Sesam client failed!")
