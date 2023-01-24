@@ -378,6 +378,11 @@ Please note the path separator, it should always be given as a forward slash - e
 
 Example: `sesam -whitelist-file whitelist.txt test`
 
+### For non-developer subscriptions
+sesam-py client limits the commands available to non-developer subscriptions. This is to avoid disruptive behaviour in case
+of running commands in production or staging systems which are often unintentional. The exceptions are "upload" and "download"
+commands which can be forced to run using the "-force" flag.
+
 # Developing sesam-py
 
 1. Checkout the repository if you haven't
