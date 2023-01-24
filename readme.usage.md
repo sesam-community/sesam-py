@@ -343,4 +343,4 @@ Please note the path separator, it should always be given as a forward slash - e
 
 Example: `sesam -whitelist-file whitelist.txt test`
 
-### [Back to main page](./readme.md)
+### [Back to main page](./README.md)

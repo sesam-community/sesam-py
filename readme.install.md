@@ -27,4 +27,4 @@ $ dist/sesam -version
 sesam version 2.5.3
 ```
 
-### [Back to main page](./readme.md)
+### [Back to main page](./README.md)

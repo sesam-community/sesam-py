@@ -11,4 +11,4 @@
 8. Write down description in the Release 
 9. A workflow should have been triggered when you created a Release which builds new assets and pushes them to the Release
 
-### [Back to main page](./readme.md)
+### [Back to main page](./README.md)
