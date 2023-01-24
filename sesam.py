@@ -26,6 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
+import subprocess
 
 sesam_version = "2.5.3"
 
@@ -2214,6 +2215,9 @@ Commands:
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
+    parser.add_argument('-use-connector', dest='use_connector', required=False, action='store_true',
+                        help="use with the init command to add test entities to input pipes")
+
     try:
         args = parser.parse_args()
     except SystemExit as e:
@@ -2274,6 +2278,15 @@ Commands:
         logger.setLevel(logging.INFO)
 
     logger.propagate = False
+
+    if args.use_connector:
+        print("connector-cli is triggered")
+        connector_dir=os.path.join(os.getcwd(), "connector-cli", "connectorpy.py")
+        os.chdir("hubspot")
+        subprocess.run(["python", connector_dir, "init"], stdout=subprocess.PIPE)
+        os.chdir("../hubspot")
+        subprocess.run(["python", connector_dir, "expand"], stdout=subprocess.PIPE)
+        os.chdir("../")
 
     command = args.command and args.command.lower() or ""
 
