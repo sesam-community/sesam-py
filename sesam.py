@@ -27,6 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 import subprocess
+from connector_cli.connectorpy import *
 
 sesam_version = "2.5.3"
 
@@ -911,7 +912,18 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
+    def search_file(self, dirname,file_name):
+        for root, dirs, files in os.walk(dirname):
+            if file_name in files:
+                return os.path.dirname(os.path.join(root, file_name))
+        return None
+
     def upload(self):
+        current_dir = os.getcwd()
+        connector_path = self.search_file(current_dir, "manifest.json")
+        if connector_path is not None:
+            expand_connector_command(connector_path)
+
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -2280,8 +2292,8 @@ Commands:
     logger.propagate = False
 
     if args.use_connector:
-        print("connector-cli is triggered")
-        connector_dir=os.path.join(os.getcwd(), "connector-cli", "connectorpy.py")
+        print("connector_cli is triggered")
+        connector_dir=os.path.join(os.getcwd(), "connector_cli", "connectorpy.py")
         os.chdir("hubspot")
         subprocess.run(["python", connector_dir, "init"], stdout=subprocess.PIPE)
         os.chdir("../hubspot")
