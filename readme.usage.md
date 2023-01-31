@@ -1,19 +1,26 @@
 ## Configuring
 
 #### 1- syncconfig
+
+The sesam client will use the directory you launch it from as its working directory.
+
 Sesam client needs the node to operate on and jwt to authenticate. 'NODE' and 'JWT' can be specified in 3 ways: environment variables, command line args or syncconfig file.
-To specify via syncconfig file create a file named `.syncconfig` in the your repos top directory, paste and edit the following:
+To specify via syncconfig file create a file named `.syncconfig` in your repo's top directory, paste and edit the following:
 ```
 #why not specify the subscription name here as comment to avoid confusions?
 NODE="<sesam node name for instance 'datahub-asdfasdf.sesam.cloud'>"
 JWT="<jwt to authenticate against node>"
 ```
 
-P.S. Optionally, you can use another filename and location, and then specify it as a command line argument.
+If the `.syncconfig` file isn't found in the current directory, the sesam client will traverse the parent directory 
+upwards to look for one. Tip: if you have multiple repos with config you can share the `.syncconfig` file between them by
+placing it into the topmost parent directory of your repo.
+
+Optionally, you can use another filename and location, and then specify it as a command line argument.
 
 #### 2- sesamconfig
 
-Sesam client can read an optional sesamconfig file to change the default behaviour. To utilize sesamconfig create `.sesamconfig.json` in the your repos top directory, paste `{}` and add item(s) among the followings:
+Sesam client can read an optional sesamconfig file to change the default behaviour. To utilize sesamconfig create `.sesamconfig.json` in your repo's top directory, paste `{}` and add item(s) among the followings:
 
 * **formatstyle** : add and customize following item to customize formatting. The options here correspond to 'Editor Options' on pipe/system configuration page in the sesam portal. It is sufficient to specify the non-default items only.
 ```json
