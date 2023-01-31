@@ -1048,7 +1048,7 @@ class SesamCmdClient:
         # search for a folder named .expanded
         expanded_path = self.search_in_directory(current_dir, folder_name_to_search=".expanded")
         if expanded_path is not None:
-            os.chdir(expanded_path)
+            os.chdir(os.path.dirname(expanded_path))
 
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
