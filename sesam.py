@@ -26,14 +26,12 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
-import subprocess
-from connector_cli.connectorpy import *
 
-sesam_version = "2.5.3"
+sesam_version = "2.5.5"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
-BASE_DIR = None
+BASE_DIR = os.getcwd()
 GIT_ROOT = None
 
 
@@ -710,7 +708,6 @@ class SesamCmdClient:
                         file_config = self.parse_config_file(file_path)
                         if file_config:
                             curr_dir = parent_path
-                            os.chdir(curr_dir)
                             break
 
             if file_config:
@@ -721,7 +718,7 @@ class SesamCmdClient:
                 else:
                     self.logger.debug("Cannot locate config file '%s' in current or parent folder. "
                                       "Proceeding without it." % (filename))
-            return curr_dir, file_config
+            return file_config
         except BaseException as e:
             self.logger.error("Failed to read '%s' from either the current directory or the "
                               "parent directory. Check that you are in the correct directory, that you have the"
@@ -860,17 +857,13 @@ class SesamCmdClient:
     def get_formatstyle_from_configfile(self):
         configfilename = self.args.sesamconfig_file or ".sesamconfig.json"
         is_required = self.args.sesamconfig_file is not None
-        curr_dir, configuration = self.read_config_file(configfilename, is_required)
+        configuration = self.read_config_file(configfilename, is_required)
         return FormatStyle(**configuration.get("formatstyle", {}))
 
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
         try:
-            curr_dir, file_config = self.read_config_file(configfilename, is_required=False)
-
-            self.logger.info("Using %s as base directory", curr_dir)
-            global BASE_DIR
-            BASE_DIR = curr_dir
+            file_config = self.read_config_file(configfilename, is_required=False)
 
             self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
             self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
@@ -1106,7 +1099,6 @@ class SesamCmdClient:
         zip_config.close()
         collapse_connector_command()
         self.logger.info("Replaced local config successfully")
-
 
     def status(self):
         def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
@@ -2237,9 +2229,9 @@ Commands:
 
     parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
 
-    parser.add_argument('-use-connector', dest='use_connector', required=False, action='store_true',
-                        help="use with the init command to add test entities to input pipes")
-
+    parser.add_argument('-force', dest='force', required=False, action='store_true',
+                        help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
+                             "subscriptions")
     try:
         args = parser.parse_args()
     except SystemExit as e:
@@ -2301,14 +2293,7 @@ Commands:
 
     logger.propagate = False
 
-    if args.use_connector:
-        print("connector_cli is triggered")
-        connector_dir=os.path.join(os.getcwd(), "connector_cli", "connectorpy.py")
-        os.chdir("hubspot")
-        subprocess.run(["python", connector_dir, "init"], stdout=subprocess.PIPE)
-        os.chdir("../hubspot")
-        subprocess.run(["python", connector_dir, "expand"], stdout=subprocess.PIPE)
-        os.chdir("../")
+    logger.info("Using %s as base directory", BASE_DIR)
 
     command = args.command and args.command.lower() or ""
 
@@ -2359,50 +2344,58 @@ Commands:
         sys.exit(1)
 
     start_time = time.monotonic()
+    allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if command == "upload":
-            sesam_cmd_client.upload()
-        elif command == "download":
-            sesam_cmd_client.download()
-        elif command == "status":
-            sesam_cmd_client.status()
-        elif command == "init":
-            sesam_cmd_client.init()
-        elif command == "update":
-            sesam_cmd_client.update()
-        elif command == "verify":
-            sesam_cmd_client.verify()
-        elif command == "test":
-            sesam_cmd_client.test()
-        elif command == "stop":
-            sesam_cmd_client.stop()
-        elif command == "run":
-            if args.enable_user_pipes is True:
-                logger.warning("Note that the -enable-user-pipes flag has no effect on the actual sesam instance "
-                               "outside the 'upload' or 'test' commands")
+        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or \
+                (command in allowed_commands_for_non_dev_subscriptions and args.force):
+            if command == "upload":
+                sesam_cmd_client.upload()
+            elif command == "download":
+                sesam_cmd_client.download()
+            elif command == "status":
+                sesam_cmd_client.status()
+            elif command == "init":
+                sesam_cmd_client.init()
+            elif command == "update":
+                sesam_cmd_client.update()
+            elif command == "verify":
+                sesam_cmd_client.verify()
+            elif command == "test":
+                sesam_cmd_client.test()
+            elif command == "stop":
+                sesam_cmd_client.stop()
+            elif command == "run":
+                if args.enable_user_pipes is True:
+                    logger.warning("Note that the -enable-user-pipes flag has no effect on the actual sesam instance "
+                                   "outside the 'upload' or 'test' commands")
 
-            if args.disable_cpp_extensions is True:
-                logger.warning(
-                    "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
-                    "outside the 'upload' or 'test' commands")
+                if args.disable_cpp_extensions is True:
+                    logger.warning(
+                        "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
+                        "outside the 'upload' or 'test' commands")
 
-            if args.enable_eager_ms is True:
-                logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
-                               "outside the 'upload' or 'test' commands")
+                if args.enable_eager_ms is True:
+                    logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
+                                   "outside the 'upload' or 'test' commands")
 
-            sesam_cmd_client.run()
-        elif command == "wipe":
-            sesam_cmd_client.wipe()
-        elif command == "restart":
-            sesam_cmd_client.restart()
-        elif command == "reset":
-            sesam_cmd_client.reset()
-        elif command == "convert":
-            sesam_cmd_client.convert()
-        elif command == "dump":
-            sesam_cmd_client.dump()
+                sesam_cmd_client.run()
+            elif command == "wipe":
+                sesam_cmd_client.wipe()
+            elif command == "restart":
+                sesam_cmd_client.restart()
+            elif command == "reset":
+                sesam_cmd_client.reset()
+            elif command == "convert":
+                sesam_cmd_client.convert()
+            elif command == "dump":
+                sesam_cmd_client.dump()
+            else:
+                logger.error("Unknown command: %s" % command)
+                sys.exit(1)
         else:
-            logger.error("Unknown command: %s" % command)
+            logger.error(
+                f"The targeted Sesam subscription is not a developer environment, please contact support@sesam.io if this is unexpected. "
+                f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}")
             sys.exit(1)
     except BaseException as e:
         logger.error("Sesam client failed!")
