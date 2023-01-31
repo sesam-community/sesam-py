@@ -912,17 +912,20 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
-    def search_file(self, dirname,file_name):
-        for root, dirs, files in os.walk(dirname):
-            if file_name in files:
-                return os.path.dirname(os.path.join(root, file_name))
+    def search_in_directory(self, dir_path,file_name_to_search=None,folder_name_to_search=None):
+        for root, dirs, files in os.walk(dir_path):
+            if file_name_to_search is not None and file_name_to_search in files:
+                return os.path.dirname(os.path.join(root, file_name_to_search))
+            if folder_name_to_search is not None and folder_name_to_search in dirs:
+                return os.path.join(root, folder_name_to_search)
         return None
 
     def upload(self):
         current_dir = os.getcwd()
-        connector_path = self.search_file(current_dir, "manifest.json")
+        connector_path = self.search_in_directory(current_dir, file_name_to_search="manifest.json")
         if connector_path is not None:
             expand_connector_command(connector_path)
+            os.chdir(os.path.join(connector_path,".expanded"))
 
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -1041,6 +1044,12 @@ class SesamCmdClient:
             raise e
 
     def download(self):
+        current_dir = os.getcwd()
+        # search for a folder named .expanded
+        expanded_path = self.search_in_directory(current_dir, folder_name_to_search=".expanded")
+        if expanded_path is not None:
+            os.chdir(expanded_path)
+
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -1095,8 +1104,9 @@ class SesamCmdClient:
             raise e
 
         zip_config.close()
-
+        collapse_connector_command()
         self.logger.info("Replaced local config successfully")
+
 
     def status(self):
         def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
