@@ -27,11 +27,11 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 
-sesam_version = "2.5.4"
+sesam_version = "2.5.5"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
-BASE_DIR = None
+BASE_DIR = os.getcwd()
 GIT_ROOT = None
 
 
@@ -708,7 +708,6 @@ class SesamCmdClient:
                         file_config = self.parse_config_file(file_path)
                         if file_config:
                             curr_dir = parent_path
-                            os.chdir(curr_dir)
                             break
 
             if file_config:
@@ -719,7 +718,7 @@ class SesamCmdClient:
                 else:
                     self.logger.debug("Cannot locate config file '%s' in current or parent folder. "
                                       "Proceeding without it." % (filename))
-            return curr_dir, file_config
+            return file_config
         except BaseException as e:
             self.logger.error("Failed to read '%s' from either the current directory or the "
                               "parent directory. Check that you are in the correct directory, that you have the"
@@ -858,17 +857,13 @@ class SesamCmdClient:
     def get_formatstyle_from_configfile(self):
         configfilename = self.args.sesamconfig_file or ".sesamconfig.json"
         is_required = self.args.sesamconfig_file is not None
-        curr_dir, configuration = self.read_config_file(configfilename, is_required)
+        configuration = self.read_config_file(configfilename, is_required)
         return FormatStyle(**configuration.get("formatstyle", {}))
 
     def get_node_and_jwt_token(self):
         configfilename = self.args.sync_config_file
         try:
-            curr_dir, file_config = self.read_config_file(configfilename, is_required=False)
-
-            self.logger.info("Using %s as base directory", curr_dir)
-            global BASE_DIR
-            BASE_DIR = curr_dir
+            file_config = self.read_config_file(configfilename, is_required=False)
 
             self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
             self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
@@ -2277,6 +2272,8 @@ Commands:
         logger.setLevel(logging.INFO)
 
     logger.propagate = False
+
+    logger.info("Using %s as base directory", BASE_DIR)
 
     command = args.command and args.command.lower() or ""
 
