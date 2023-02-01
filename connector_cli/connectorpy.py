@@ -7,7 +7,6 @@ from pathlib import Path
 import shutil
 from collections import defaultdict
 from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoader
-sys.path.append('connector_cli')
 
 
 def render(template, props, wrap=True):
@@ -28,8 +27,6 @@ node_metadata = {
 
 def expand_connector_config(connector_dir, system_placeholder):
     output = []
-    # import pdb
-    # pdb.set_trace()
     main_env = Environment(
         loader=PackageLoader("connectorpy"),
         autoescape=select_autoescape(),
