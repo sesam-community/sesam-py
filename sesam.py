@@ -26,6 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
+from connector_cli.connectorpy import *
 
 sesam_version = "2.5.5"
 
@@ -914,11 +915,8 @@ class SesamCmdClient:
         return None
 
     def upload(self):
-        current_dir = os.getcwd()
-        connector_path = self.search_in_directory(current_dir, file_name_to_search="manifest.json")
-        if connector_path is not None:
-            expand_connector_command(connector_path)
-            os.chdir(os.path.join(connector_path,".expanded"))
+        if os.path.isfile("manifest.json"):
+            expand_connector_command()
 
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -1037,11 +1035,8 @@ class SesamCmdClient:
             raise e
 
     def download(self):
-        current_dir = os.getcwd()
-        # search for a folder named .expanded
-        expanded_path = self.search_in_directory(current_dir, folder_name_to_search=".expanded")
-        if expanded_path is not None:
-            os.chdir(os.path.dirname(expanded_path))
+        if os.path.isfile("manifest.json"):
+            collapse_connector_command()
 
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
@@ -1097,7 +1092,6 @@ class SesamCmdClient:
             raise e
 
         zip_config.close()
-        collapse_connector_command()
         self.logger.info("Replaced local config successfully")
 
     def status(self):
