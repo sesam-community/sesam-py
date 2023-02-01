@@ -908,8 +908,14 @@ class SesamCmdClient:
 
 
     def upload(self):
-        if os.path.isfile("manifest.json"):
-            expand_connector_command()
+        if self.args.connector_dir is not None:
+            manifest_dir=os.path.join(self.args.connector_dir,"manifest.json")
+            if os.path.isfile(manifest_dir):
+                expand_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
+                os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
+        elif os.path.isfile("manifest.json"):
+            expand_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
+            os.chdir(self.args.expanded_dir)
 
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -1028,9 +1034,6 @@ class SesamCmdClient:
             raise e
 
     def download(self):
-        if os.path.isfile("manifest.json"):
-            collapse_connector_command()
-
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -1086,6 +1089,9 @@ class SesamCmdClient:
 
         zip_config.close()
         self.logger.info("Replaced local config successfully")
+        if os.path.isfile("manifest.json"):
+            collapse_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
+            self.logger.info("Collapsed local connector config successfully")
 
     def status(self):
         def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
@@ -2219,8 +2225,21 @@ Commands:
     parser.add_argument('-force', dest='force', required=False, action='store_true',
                         help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
                              "subscriptions")
+
+    parser.add_argument("--system-placeholder", metavar="<string>",
+                        default="xxxxxx", type=str, help="Name of the system _id placeholder")
+    parser.add_argument("-d", dest="connector_dir", metavar="<string>",
+                        default=".", type=str, help="Connector folder to work with")
+    parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
+                        default=".expanded", type=str, help="Directory to expand the config into")
+    # parser.add_argument("command", metavar="command", nargs="?", help="expand, collapse, init, add-type")
+
+
     try:
         args = parser.parse_args()
+        connector_dir = args.connector_dir
+        system_placeholder = args.system_placeholder
+        expanded_dir = args.expanded_dir
     except SystemExit as e:
         sys.exit(e.code)
     except BaseException as e:
