@@ -906,13 +906,6 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
-    def search_in_directory(self, dir_path,file_name_to_search=None,folder_name_to_search=None):
-        for root, dirs, files in os.walk(dir_path):
-            if file_name_to_search is not None and file_name_to_search in files:
-                return os.path.dirname(os.path.join(root, file_name_to_search))
-            if folder_name_to_search is not None and folder_name_to_search in dirs:
-                return os.path.join(root, folder_name_to_search)
-        return None
 
     def upload(self):
         if os.path.isfile("manifest.json"):
