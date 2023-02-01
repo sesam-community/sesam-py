@@ -908,7 +908,7 @@ class SesamCmdClient:
 
 
     def upload(self):
-        if self.args.connector_dir is not None:
+        if self.args.connector_dir != ".":
             manifest_dir=os.path.join(self.args.connector_dir,"manifest.json")
             if os.path.isfile(manifest_dir):
                 expand_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
@@ -1089,9 +1089,18 @@ class SesamCmdClient:
 
         zip_config.close()
         self.logger.info("Replaced local config successfully")
-        if os.path.isfile("manifest.json"):
+
+        if self.args.connector_dir is not None:
+            manifest_dir=os.path.join(self.args.connector_dir,"manifest.json")
+            if os.path.isfile(manifest_dir):
+                collapse_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
+        elif os.path.isfile("manifest.json"):
             collapse_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
-            self.logger.info("Collapsed local connector config successfully")
+
+
+        # if os.path.isfile("manifest.json"):
+        #     collapse_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
+        #     self.logger.info("Collapsed local connector config successfully")
 
     def status(self):
         def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
