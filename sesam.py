@@ -908,14 +908,9 @@ class SesamCmdClient:
 
 
     def upload(self):
-        if self.args.connector_dir != ".":
-            manifest_dir=os.path.join(self.args.connector_dir,"manifest.json")
-            if os.path.isfile(manifest_dir):
-                expand_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
-                os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
-        elif os.path.isfile("manifest.json"):
-            expand_connector(self.args.connector_dir, self.args.system_placeholder,self.args.expanded_dir)
-            os.chdir(self.args.expanded_dir)
+        if self.args.use_connector:
+            expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir)
+            os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
 
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -1034,17 +1029,10 @@ class SesamCmdClient:
             raise e
 
     def download(self):
-        if self.args.connector_dir:
-            if not os.path.isdir(self.args.connector_dir):
-                logger.error("Connector directory '%s' does not exist" % self.args.connector_dir)
-                sys.exit(1)
-            else:
-                os.chdir(self.args.connector_dir)
-        if self.args.expanded_dir:
+        if self.args.use_connector:
+            os.chdir(os.path.join(self.args.connector_dir))
             if not os.path.isdir(self.args.expanded_dir):
-                logger.error("Expanded directory '%s' does not exist\n" % self.args.expanded_dir)
-                sys.exit(1)
-
+                logger.warning("Expanded directory '%s' does not exist. Continuing without collapse." % self.args.expanded_dir)
 
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
@@ -1103,11 +1091,9 @@ class SesamCmdClient:
         self.logger.info("Replaced local config successfully")
 
 
-        if os.path.isfile("manifest.json"):
-            if self.args.connector_dir != ".":
-                os.chdir("..")
-            collapse_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir)
-
+        if self.args.use_connector:
+            if os.path.isdir(self.args.expanded_dir):
+                collapse_connector(".", self.args.system_placeholder, self.args.expanded_dir)
 
     def status(self):
         def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
@@ -2248,14 +2234,10 @@ Commands:
                         default=".", type=str, help="Connector folder to work with")
     parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
                         default=".expanded", type=str, help="Directory to expand the config into")
-    # parser.add_argument("command", metavar="command", nargs="?", help="expand, collapse, init, add-type")
-
 
     try:
         args = parser.parse_args()
-        connector_dir = args.connector_dir
-        system_placeholder = args.system_placeholder
-        expanded_dir = args.expanded_dir
+        args.use_connector = os.path.exists("manifest.json") or os.path.exists(os.path.join(self.args.connector_dir, "manifest.json"))
     except SystemExit as e:
         sys.exit(e.code)
     except BaseException as e:
