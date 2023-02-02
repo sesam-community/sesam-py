@@ -133,6 +133,13 @@ optional arguments:
                         use with the init command to add test entities to input pipes
   -force-add
                         use with the '-add-test-entities' option to overwrite test entities that exist locally
+  --system-placeholder <string>
+                        Name of the system _id placeholder
+  -d <string>           
+                        Connector folder to work with
+  -e <string>           
+                        Directory to expand the config into
+
 ```
 
 ### Preparing input pipes for testing

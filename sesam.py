@@ -2230,8 +2230,10 @@ Commands:
 
     parser.add_argument("--system-placeholder", metavar="<string>",
                         default="xxxxxx", type=str, help="Name of the system _id placeholder")
+
     parser.add_argument("-d", dest="connector_dir", metavar="<string>",
                         default=".", type=str, help="Connector folder to work with")
+
     parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
                         default=".expanded", type=str, help="Directory to expand the config into")
 
