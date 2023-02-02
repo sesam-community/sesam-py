@@ -2237,7 +2237,7 @@ Commands:
 
     try:
         args = parser.parse_args()
-        args.use_connector = os.path.exists("manifest.json") or os.path.exists(os.path.join(self.args.connector_dir, "manifest.json"))
+        args.use_connector = os.path.exists("manifest.json") or os.path.exists(os.path.join(args.connector_dir, "manifest.json"))
     except SystemExit as e:
         sys.exit(e.code)
     except BaseException as e:
