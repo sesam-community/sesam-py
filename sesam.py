@@ -27,6 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 from connector_cli.connectorpy import *
+from connector_cli.oauthlogin import *
 
 sesam_version = "2.5.5"
 
@@ -906,6 +907,15 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
+    def connect(self):
+        self.args.client_id,self.args.client_secret=self.parse_config_file(".authconfig").values()
+        self.args.service_url,self.args.service_jwt=self.parse_config_file(".syncconfig").values()
+        if os.path.exists("manifest.json"):
+            self.args.connector_manifest = "manifest.json"
+        if os.path.exists(os.path.join(args.connector_dir, "manifest.json")):
+            self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
+        connect(self.args)
+        pass
 
     def upload(self):
         if self.args.use_connector:
@@ -2237,6 +2247,21 @@ Commands:
     parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
                         default=".expanded", type=str, help="Directory to expand the config into")
 
+    parser.add_argument("--client_id", metavar="<string>",
+                        type=str, help="oauth client id")
+
+    parser.add_argument("--client_secret", metavar="<string>",
+                        type=str, help="oauth client secret")
+
+    parser.add_argument("--service_url", metavar="<string>",
+                        type=str, help="url to service api (include /api)")
+
+    parser.add_argument("--service_jwt", metavar="<string>",
+                        type=str, help="jwt token to the service api")
+
+    # parser.add_argument("--connector_manifest", metavar="<string>",
+    #                     default="manifest.json", type=argparse.FileType('r'), help="which connector manifest to use, needs to include oauth2.login_url, oauth2.token_url and oauth2.scopes")
+
     try:
         args = parser.parse_args()
         args.use_connector = os.path.exists("manifest.json") or os.path.exists(os.path.join(args.connector_dir, "manifest.json"))
@@ -2303,7 +2328,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
+    if command not in ["connect","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2354,6 +2379,8 @@ Commands:
     try:
         if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or \
                 (command in allowed_commands_for_non_dev_subscriptions and args.force):
+            if command == "connect":
+                sesam_cmd_client.connect()
             if command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
