@@ -1,5 +1,6 @@
 import argparse
 import json
+import os.path
 import sys
 
 from flask import Flask, request
@@ -44,29 +45,35 @@ def login_callback():
     return "Secrets and env has been updated, now go and do your development!"
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--system-placeholder", metavar="<string>",
-                        default="xxxxxx", type=str, help="Name of the system _id placeholder")
-    parser.add_argument("--client_id", metavar="<string>",
-                        type=str, help="oauth client id")
-    parser.add_argument("--client_secret", metavar="<string>",
-                        type=str, help="oauth client secret")
-    parser.add_argument("--service_url", metavar="<string>",
-                        type=str, help="url to service api (include /api)")
-    parser.add_argument("--service_jwt", metavar="<string>",
-                        type=str, help="jwt token to the service api")
-    parser.add_argument("--connector_manifest", metavar="<string>",
-                        default="manifest.json", type=argparse.FileType('r'), help="which connector manifest to use, needs to include oauth2.login_url, oauth2.token_url and oauth2.scopes")
+def connect(args):
+    global system_placeholder, client_id, client_secret, service_url, service_jwt, login_url, token_url, scopes
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("--system-placeholder", metavar="<string>",
+    #                     default="xxxxxx", type=str, help="Name of the system _id placeholder")
+    # parser.add_argument("--client_id", metavar="<string>",
+    #                     type=str, help="oauth client id")
+    # parser.add_argument("--client_secret", metavar="<string>",
+    #                     type=str, help="oauth client secret")
+    # parser.add_argument("--service_url", metavar="<string>",
+    #                     type=str, help="url to service api (include /api)")
+    # parser.add_argument("--service_jwt", metavar="<string>",
+    #                     type=str, help="jwt token to the service api")
+    # parser.add_argument("--connector_manifest", metavar="<string>",
+    #                     default="manifest.json", type=argparse.FileType('r'), help="which connector manifest to use, needs to include oauth2.login_url, oauth2.token_url and oauth2.scopes")
+    #
+    # args = parser.parse_args()
 
-    args = parser.parse_args()
+    # read contents from .authconfig file in the root and parse it
+    # with open('.authconfig') as f:
+    #     content = f.readlines()
 
     system_placeholder = args.system_placeholder
     client_id = args.client_id
     client_secret = args.client_secret
     service_url = args.service_url
     service_jwt = args.service_jwt
-    connector_manifest = json.load(args.connector_manifest)
+    with open(args.connector_manifest, "r") as f:
+        connector_manifest = json.load(f)
     login_url = connector_manifest["oauth2"]["login_url"]
     token_url = connector_manifest["oauth2"]["token_url"]
     scopes = connector_manifest["oauth2"]["scopes"]
@@ -91,8 +98,5 @@ if __name__ == "__main__":
         print("")
         print("")
         app.run(port=5010)
-    else:
-        parser.print_usage()
-        sys.exit(1)
 
 
