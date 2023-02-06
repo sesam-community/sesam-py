@@ -28,6 +28,7 @@ from jsonformat import format_object, FormatStyle
 import simplejson as json
 from connector_cli.connectorpy import *
 from connector_cli.oauthlogin import *
+from connector_cli.tripletexlogin import *
 
 sesam_version = "2.5.5"
 
@@ -908,14 +909,22 @@ class SesamCmdClient:
         return buffer.read()
 
     def connect(self):
-        self.args.client_id,self.args.client_secret=self.parse_config_file(".authconfig").values()
-        self.args.service_url,self.args.service_jwt=self.parse_config_file(".syncconfig").values()
+        self.args.service_url, self.args.service_jwt = self.parse_config_file(".syncconfig").values()
         if os.path.exists("manifest.json"):
             self.args.connector_manifest = "manifest.json"
         if os.path.exists(os.path.join(args.connector_dir, "manifest.json")):
             self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
-        connect(self.args)
-        pass
+
+        if self.args.login_service=="oauth":
+            self.args.client_id,self.args.client_secret=self.parse_config_file(".authconfig").values()
+            login_via_oauth(self.args)
+        elif self.args.login_service=="tripletex":
+            self.args.consumer_token, self.args.employee_token = self.parse_config_file(".authconfig").values()
+            self.args.consumer_token = args.consumer_token
+            self.args.employee_token = args.employee_token
+            self.args.base_url = args.base_url
+            login_via_tripletex(self.args)
+
 
     def upload(self):
         if self.args.use_connector:
@@ -2259,8 +2268,20 @@ Commands:
     parser.add_argument("--service_jwt", metavar="<string>",
                         type=str, help="jwt token to the service api")
 
-    # parser.add_argument("--connector_manifest", metavar="<string>",
-    #                     default="manifest.json", type=argparse.FileType('r'), help="which connector manifest to use, needs to include oauth2.login_url, oauth2.token_url and oauth2.scopes")
+    parser.add_argument("--consumer_token", metavar="<string>",
+                        type=str, help="consumer token")
+
+    parser.add_argument("--employee_token", metavar="<string>",
+                        type=str, help="employee token")
+
+    parser.add_argument("--base_url", metavar="<string>",
+                        type=str, default="https://api.tripletex.io", help="override to use prod env")
+
+    parser.add_argument("--days", metavar="<string>",
+                        type=int, default=10, help="number of days until the token should expire")
+
+    parser.add_argument("--login_service", metavar="<string>",
+                        type=str, default="oauth", help="login service to use", choices=["oauth", "tripletex"])
 
     try:
         args = parser.parse_args()
