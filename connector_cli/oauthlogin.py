@@ -1,17 +1,41 @@
-import argparse
+import threading
+import os
+import signal
+import subprocess
 import json
 import os.path
-import sys
-
-from flask import Flask, request
+from flask import Flask, request, redirect, g
 from urllib.parse import urlencode
 import requests
 
+redirect_uri = "http://localhost:5010/login_callback"
+
+event = threading.Event()
 app = Flask(__name__)
 
 
-# NOTE! This needs to be added to all application registrations if this tool should work
-redirect_uri = "http://localhost:5010/login_callback"
+def wait_on_server_shutdown():
+    event.wait()
+    cmd = "lsof -i tcp:5010"
+    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    lines = result.stdout.decode().split("\n")
+    header = lines[0]
+    pid_index = header.split().index("PID")
+    pids = [line.split()[pid_index] for line in lines[1:] if line]
+
+    for pid in pids:
+        os.kill(int(pid), signal.SIGKILL)
+
+
+@app.teardown_appcontext
+def teardown_appcontext(exception=None):
+    if hasattr(g, 'shutdown_server'):
+        event.set()
+
+
+@app.route("/")
+def index():
+    return redirect(login_url)
 
 
 @app.route("/login_callback")
@@ -34,39 +58,22 @@ def login_callback():
     }
     # post secrets
     for secret, value in secrets.items():
-        requests.post(service_url + "/systems/%s/secrets" % system_placeholder, headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
+        response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
+                                 headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
         print("Updated secret: %s" % secret)
 
     # update env
     env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
     env["token_url"] = token_url
-    requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
+    response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
     print("Updated environment variables")
+    print("Secrets and env has been updated, now go and do your development!")
+    g.shutdown_server = True
     return "Secrets and env has been updated, now go and do your development!"
 
 
-def connect(args):
-    global system_placeholder, client_id, client_secret, service_url, service_jwt, login_url, token_url, scopes
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--system-placeholder", metavar="<string>",
-    #                     default="xxxxxx", type=str, help="Name of the system _id placeholder")
-    # parser.add_argument("--client_id", metavar="<string>",
-    #                     type=str, help="oauth client id")
-    # parser.add_argument("--client_secret", metavar="<string>",
-    #                     type=str, help="oauth client secret")
-    # parser.add_argument("--service_url", metavar="<string>",
-    #                     type=str, help="url to service api (include /api)")
-    # parser.add_argument("--service_jwt", metavar="<string>",
-    #                     type=str, help="jwt token to the service api")
-    # parser.add_argument("--connector_manifest", metavar="<string>",
-    #                     default="manifest.json", type=argparse.FileType('r'), help="which connector manifest to use, needs to include oauth2.login_url, oauth2.token_url and oauth2.scopes")
-    #
-    # args = parser.parse_args()
-
-    # read contents from .authconfig file in the root and parse it
-    # with open('.authconfig') as f:
-    #     content = f.readlines()
-
+def start_server(args):
+    global system_placeholder, client_id, client_secret, service_url, service_jwt, login_url, token_url, scopes, event
     system_placeholder = args.system_placeholder
     client_id = args.client_id
     client_secret = args.client_secret
@@ -100,3 +107,12 @@ def connect(args):
         app.run(port=5010)
 
 
+def login_via_oauth(args):
+    start_server_thread = threading.Thread(target=start_server, args=(args,))
+    wait_on_server_shutdown_thread = threading.Thread(target=wait_on_server_shutdown)
+
+    start_server_thread.start()
+    wait_on_server_shutdown_thread.start()
+
+    start_server_thread.join()
+    wait_on_server_shutdown_thread.join()
