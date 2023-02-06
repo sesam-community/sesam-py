@@ -61,6 +61,7 @@ usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-c
              [command]
 
 Commands:
+  connect   Connects to the target node via Oauth or Tripletex authentication and updates secrets and environmental variables.
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
@@ -139,7 +140,24 @@ optional arguments:
                         Connector folder to work with
   -e <string>           
                         Directory to expand the config into
-
+  --client_id <string>  
+                        oauth client id
+  --client_secret <string>
+                        oauth client secret
+  --service_url <string>
+                        url to service api (include /api)
+  --service_jwt <string>
+                        jwt token to the service api
+  --consumer_token <string>
+                        consumer token
+  --employee_token <string>
+                        employee token
+  --base_url <string>   
+                        override to use prod env
+  --days <string>       
+                        number of days until the token should expire
+  --login_service <string>
+                        login service to use
 ```
 
 ### Preparing input pipes for testing
