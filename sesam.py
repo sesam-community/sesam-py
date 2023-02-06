@@ -919,9 +919,11 @@ class SesamCmdClient:
             self.args.client_id,self.args.client_secret=self.parse_config_file(".authconfig").values()
             login_via_oauth(self.args)
         elif self.args.login_service=="tripletex":
-            self.args.consumer_token, self.args.employee_token = self.parse_config_file(".authconfig").values()
-            self.args.consumer_token = args.consumer_token
-            self.args.employee_token = args.employee_token
+            if os.path.exists(".authconfig"):
+                self.args.consumer_token, self.args.employee_token = self.parse_config_file(".authconfig").values()
+            else:
+                self.args.consumer_token = args.consumer_token
+                self.args.employee_token = args.employee_token
             self.args.base_url = args.base_url
             login_via_tripletex(self.args)
 
@@ -2402,7 +2404,7 @@ Commands:
                 (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "connect":
                 sesam_cmd_client.connect()
-            if command == "upload":
+            elif command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
                 sesam_cmd_client.download()
