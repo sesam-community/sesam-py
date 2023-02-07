@@ -916,7 +916,11 @@ class SesamCmdClient:
             self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
 
         if self.args.login_service=="oauth":
-            self.args.client_id,self.args.client_secret=self.parse_config_file(".authconfig").values()
+            if os.path.exists(".authconfig"):
+                self.args.client_id,self.args.client_secret=self.parse_config_file(".authconfig").values()
+            else:
+                self.args.client_id = args.client_id
+                self.args.client_secret = args.client_secret
             login_via_oauth(self.args)
         elif self.args.login_service=="tripletex":
             if os.path.exists(".authconfig"):
