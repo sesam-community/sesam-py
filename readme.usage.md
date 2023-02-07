@@ -18,7 +18,28 @@ placing it into the topmost parent directory of your repo.
 
 Optionally, you can use another filename and location, and then specify it as a command line argument.
 
-#### 2- sesamconfig
+#### 2- authconfig
+
+In case of using a connector (e.g. Hubspot connector), Sesam client uses `.authconfig` file to authenticate via oauth or 
+Tripletex and update secrets and environmental variables. To utilize authconfig create `.authconfig` in the working 
+directory, paste and edit the following:
+
+for oauth authentication:
+```bash
+CLIENT_ID=<client id for oauth authentication>
+CLIENT_SECRET=<client secret for oauth authentication>
+```
+for Tripletex authentication:
+```bash
+CONSUMER_TOKEN=<client id for Tripletex authentication>
+EMPLOYEE_TOKEN=<client secret for Tripletex authentication>
+```
+
+* The secrets and environmental variables will be updated in the node specified in the syncconfig file.
+* Remember you have to clone the connector repo and add the `.authconfig` file to the working directory.
+* Optionally the secrets can also be passed as command line arguments specified below.
+
+#### 3- sesamconfig
 
 Sesam client can read an optional sesamconfig file to change the default behaviour. To utilize sesamconfig create `.sesamconfig.json` in your repo's top directory, paste `{}` and add item(s) among the followings:
 
