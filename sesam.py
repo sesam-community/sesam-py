@@ -910,24 +910,29 @@ class SesamCmdClient:
 
     def connect(self):
         self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
-        if os.path.exists("manifest.json"):
+        if os.path.isfile("manifest.json"): # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
-        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):
+        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
             self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
+        else:# If manifest.json is not found
+            logger.error("Could not find manifest.json in connector directory")
+            sys.exit(1)
 
         if self.args.login_service=="oauth":
             if os.path.exists(".authconfig"):
-                self.args.client_id,self.args.client_secret=self.read_config_file(".authconfig").values()
+                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
             else:
                 self.args.client_id = args.client_id
                 self.args.client_secret = args.client_secret
             login_via_oauth(self.args)
+
         elif self.args.login_service=="tripletex":
             if os.path.exists(".authconfig"):
                 self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
             else:
                 self.args.consumer_token = args.consumer_token
                 self.args.employee_token = args.employee_token
+
             self.args.base_url = args.base_url
             login_via_tripletex(self.args)
 
