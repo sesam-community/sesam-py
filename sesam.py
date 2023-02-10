@@ -938,7 +938,7 @@ class SesamCmdClient:
 
 
     def upload(self):
-        if self.args.use_connector:
+        if self.args.is_connector:
             expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir)
             os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
 
@@ -1059,7 +1059,7 @@ class SesamCmdClient:
             raise e
 
     def download(self):
-        if self.args.use_connector:
+        if self.args.is_connector:
             os.chdir(os.path.join(self.args.connector_dir))
             if not os.path.isdir(self.args.expanded_dir):
                 logger.warning("Expanded directory '%s' does not exist. Continuing without collapse." % self.args.expanded_dir)
@@ -1121,7 +1121,7 @@ class SesamCmdClient:
         self.logger.info("Replaced local config successfully")
 
 
-        if self.args.use_connector:
+        if self.args.is_connector:
             if os.path.isdir(self.args.expanded_dir):
                 collapse_connector(".", self.args.system_placeholder, self.args.expanded_dir)
 
@@ -2296,7 +2296,7 @@ Commands:
 
     try:
         args = parser.parse_args()
-        args.use_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
+        args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
     except SystemExit as e:
         sys.exit(e.code)
     except BaseException as e:
