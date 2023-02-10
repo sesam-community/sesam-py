@@ -908,7 +908,7 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
-    def connect(self):
+    def authenticate(self):
         self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
         if os.path.isfile("manifest.json"): # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
@@ -2259,44 +2259,44 @@ Commands:
                              "subscriptions")
 
     parser.add_argument("--system-placeholder", metavar="<string>",
-                        default="xxxxxx", type=str, help="Name of the system _id placeholder")
+                        default="xxxxxx", type=str, help="Name of the system _id placeholder (available only when working on connectors")
 
     parser.add_argument("-d", dest="connector_dir", metavar="<string>",
-                        default=".", type=str, help="Connector folder to work with")
+                        default=".", type=str, help="Connector folder to work with (available only when working on connectors")
 
     parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
-                        default=".expanded", type=str, help="Directory to expand the config into")
+                        default=".expanded", type=str, help="Directory to expand the config into (available only when working on connectors")
 
     parser.add_argument("--client_id", metavar="<string>",
-                        type=str, help="oauth client id")
+                        type=str, help="OAuth2 client id (available only when working on connectors")
 
     parser.add_argument("--client_secret", metavar="<string>",
-                        type=str, help="oauth client secret")
+                        type=str, help="OAuth2 client secret (available only when working on connectors")
 
     parser.add_argument("--service_url", metavar="<string>",
-                        type=str, help="url to service api (include /api)")
+                        type=str, help="url to service api (include /api) (available only when working on connectors")
 
     parser.add_argument("--service_jwt", metavar="<string>",
-                        type=str, help="jwt token to the service api")
+                        type=str, help="jwt token to the service api (available only when working on connectors")
 
     parser.add_argument("--consumer_token", metavar="<string>",
-                        type=str, help="consumer token")
+                        type=str, help="consumer token (available only when working on connectors")
 
     parser.add_argument("--employee_token", metavar="<string>",
-                        type=str, help="employee token")
+                        type=str, help="employee token (available only when working on connectors")
 
     parser.add_argument("--base_url", metavar="<string>",
-                        type=str, default="https://api.tripletex.io", help="override to use prod env")
+                        type=str, default="https://api.tripletex.io", help="override to use prod env (available only when working on connectors")
 
     parser.add_argument("--days", metavar="<string>",
-                        type=int, default=10, help="number of days until the token should expire")
+                        type=int, default=10, help="number of days until the token should expire (available only when working on connectors")
 
     parser.add_argument("--login_service", metavar="<string>",
-                        type=str, default="oauth", help="login service to use", choices=["oauth", "tripletex"])
+                        type=str, default="oauth",choices=["oauth", "tripletex"], help="login service to use (available only when working on connectors)")
 
     try:
         args = parser.parse_args()
-        args.use_connector = os.path.exists("manifest.json") or os.path.exists(os.path.join(args.connector_dir, "manifest.json"))
+        args.use_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
     except SystemExit as e:
         sys.exit(e.code)
     except BaseException as e:
@@ -2360,7 +2360,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["connect","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
+    if command not in ["authenticate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2411,8 +2411,8 @@ Commands:
     try:
         if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or \
                 (command in allowed_commands_for_non_dev_subscriptions and args.force):
-            if command == "connect":
-                sesam_cmd_client.connect()
+            if command == "authenticate":
+                sesam_cmd_client.authenticate()
             elif command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
