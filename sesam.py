@@ -27,7 +27,7 @@ import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
 from connector_cli.connectorpy import *
-from connector_cli.oauthlogin import *
+from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
 sesam_version = "2.5.6"
@@ -918,7 +918,7 @@ class SesamCmdClient:
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
-        if self.args.login_service=="oauth":
+        if self.args.login_service=="oauth2":
             if os.path.exists(".authconfig"):
                 self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
             else:
@@ -2292,7 +2292,7 @@ Commands:
                         type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
 
     parser.add_argument("--login_service", metavar="<string>",
-                        type=str, default="oauth",choices=["oauth", "tripletex"], help="login service to use (available only when working on connectors)")
+                        type=str, default="oauth2",choices=["oauth2", "tripletex"], help="login service to use (available only when working on connectors)")
 
     try:
         args = parser.parse_args()

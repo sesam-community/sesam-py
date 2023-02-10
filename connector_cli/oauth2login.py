@@ -96,7 +96,7 @@ def start_server(args):
         if not login_url.endswith("?"):
             login_url += "?"
         print()
-        print("This tool will add oauth system secrets and add token_url to the environment variables:")
+        print("This tool will add oauth2 system secrets and add token_url to the environment variables:")
         print("  Service API: %s" % service_url)
         print("  System id: %s" % system_placeholder)
         print()
