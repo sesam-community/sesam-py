@@ -2259,37 +2259,37 @@ Commands:
                              "subscriptions")
 
     parser.add_argument("--system-placeholder", metavar="<string>",
-                        default="xxxxxx", type=str, help="Name of the system _id placeholder (available only when working on connectors")
+                        default="xxxxxx", type=str, help="Name of the system _id placeholder (available only when working on connectors)")
 
     parser.add_argument("-d", dest="connector_dir", metavar="<string>",
-                        default=".", type=str, help="Connector folder to work with (available only when working on connectors")
+                        default=".", type=str, help="Connector folder to work with (available only when working on connectors)")
 
     parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
-                        default=".expanded", type=str, help="Directory to expand the config into (available only when working on connectors")
+                        default=".expanded", type=str, help="Directory to expand the config into (available only when working on connectors)")
 
     parser.add_argument("--client_id", metavar="<string>",
-                        type=str, help="OAuth2 client id (available only when working on connectors")
+                        type=str, help="OAuth2 client id (available only when working on connectors)")
 
     parser.add_argument("--client_secret", metavar="<string>",
-                        type=str, help="OAuth2 client secret (available only when working on connectors")
+                        type=str, help="OAuth2 client secret (available only when working on connectors)")
 
     parser.add_argument("--service_url", metavar="<string>",
-                        type=str, help="url to service api (include /api) (available only when working on connectors")
+                        type=str, help="url to service api (include /api) (available only when working on connectors)")
 
     parser.add_argument("--service_jwt", metavar="<string>",
-                        type=str, help="jwt token to the service api (available only when working on connectors")
+                        type=str, help="jwt token to the service api (available only when working on connectors)")
 
     parser.add_argument("--consumer_token", metavar="<string>",
-                        type=str, help="consumer token (available only when working on connectors")
+                        type=str, help="consumer token (available only when working on connectors)")
 
     parser.add_argument("--employee_token", metavar="<string>",
-                        type=str, help="employee token (available only when working on connectors")
+                        type=str, help="employee token (available only when working on connectors)")
 
     parser.add_argument("--base_url", metavar="<string>",
-                        type=str, default="https://api.tripletex.io", help="override to use prod env (available only when working on connectors")
+                        type=str, default="https://api.tripletex.io", help="override to use prod env (available only when working on connectors)")
 
     parser.add_argument("--days", metavar="<string>",
-                        type=int, default=10, help="number of days until the token should expire (available only when working on connectors")
+                        type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
 
     parser.add_argument("--login_service", metavar="<string>",
                         type=str, default="oauth",choices=["oauth", "tripletex"], help="login service to use (available only when working on connectors)")
