@@ -59,16 +59,16 @@ The connector manifest also need to include the following re-usable oauth2 prope
 ```
 This is how the tool is used:
 ```commandline
-$ oauthlogin.py --client_secret ZziobpmZ0DWC[..] --client_id gZLMgMG1[..] --service_url https://datahub-a6a45974.sesam.cloud/api --service_jwt eyJ0eXAiOiJKV1QiLCJhb[..]]
+$ oauth2login.py --client_secret ZziobpmZ0DWC[..] --client_id gZLMgMG1[..] --service_url https://datahub-a6a45974.sesam.cloud/api --service_jwt eyJ0eXAiOiJKV1QiLCJhb[..]]
 
-This tool will add oauth system secrets and add token_url to the environment variables:
+This tool will add oauth2 system secrets and add token_url to the environment variables:
   Service API: https://datahub-a6a45974.sesam.cloud/api
   System id: xxxxxx
 
 To continue open the following link in your browser:
   Link: https://api.waveapps.com/oauth2/authorize/?client_id=gZLMgMG[..]
 
- * Serving Flask app 'oauthlogin' (lazy loading)
+ * Serving Flask app 'oauth2login' (lazy loading)
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.
    Use a production WSGI server instead.
