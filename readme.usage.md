@@ -18,7 +18,28 @@ placing it into the topmost parent directory of your repo.
 
 Optionally, you can use another filename and location, and then specify it as a command line argument.
 
-#### 2- sesamconfig
+#### 2- authconfig
+
+When working on a connector repository (e.g. Hubspot connector), Sesam client uses `.authconfig` file to authenticate via OAuth2 or 
+Tripletex and update secrets and environment variables. To utilize authconfig create `.authconfig` in the working 
+directory, paste and edit the following:
+
+for OAuth2 authentication:
+```bash
+CLIENT_ID=<client id for OAuth2 authentication>
+CLIENT_SECRET=<client secret for OAuth2 authentication>
+```
+for Tripletex authentication:
+```bash
+CONSUMER_TOKEN=<client id for Tripletex authentication>
+EMPLOYEE_TOKEN=<client secret for Tripletex authentication>
+```
+
+* The secrets and environment variables will be updated in the node specified in the `syncconfig` file.
+* Remember you have to clone the connector repo and add the `.authconfig` file to the working directory.
+* Optionally the secrets can also be passed as command line arguments specified below.
+
+#### 3- sesamconfig
 
 Sesam client can read an optional sesamconfig file to change the default behaviour. To utilize sesamconfig create `.sesamconfig.json` in your repo's top directory, paste `{}` and add item(s) among the followings:
 
@@ -61,6 +82,7 @@ usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-c
              [command]
 
 Commands:
+  authenticate   Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
@@ -133,6 +155,30 @@ optional arguments:
                         use with the init command to add test entities to input pipes
   -force-add
                         use with the '-add-test-entities' option to overwrite test entities that exist locally
+  --system-placeholder <string>
+                        Name of the system _id placeholder (available only when working on a connector)
+  -d <string>           
+                        Connector folder to work with (available only when working on a connector)
+  -e <string>           
+                        Directory to expand the config into (available only when working on a connector)
+  --client_id <string>  
+                        OAuth2 client id (available only when working on a connector)
+  --client_secret <string>
+                        OAuth2 client secret (available only when working on a connector)
+  --service_url <string>
+                        url to service api (include /api) (available only when working on a connector)
+  --service_jwt <string>
+                        jwt token to the service api (available only when working on a connector)
+  --consumer_token <string>
+                        consumer token (available only when working on a connector)
+  --employee_token <string>
+                        employee token (available only when working on a connector)
+  --base_url <string>   
+                        override to use prod env (available only when working on a connector)
+  --days <string>       
+                        number of days until the token should expire (available only when working on a connector)
+  --login_service <string>
+                        login service to use (available only when working on a connector)
 ```
 
 ### Preparing input pipes for testing

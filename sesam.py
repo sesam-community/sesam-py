@@ -26,8 +26,11 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
+from connector_cli.connectorpy import *
+from connector_cli.oauth2login import *
+from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.5"
+sesam_version = "2.5.6"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -905,7 +908,40 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
+    def authenticate(self):
+        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
+        if os.path.isfile("manifest.json"): # If manifest.json is in working directory
+            self.args.connector_manifest = "manifest.json"
+        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
+            self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
+        else:# If manifest.json is not found
+            logger.error("Could not find manifest.json in connector directory")
+            sys.exit(1)
+
+        if self.args.login_service=="oauth2":
+            if os.path.exists(".authconfig"):
+                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
+            else:
+                self.args.client_id = args.client_id
+                self.args.client_secret = args.client_secret
+            login_via_oauth(self.args)
+
+        elif self.args.login_service=="tripletex":
+            if os.path.exists(".authconfig"):
+                self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
+            else:
+                self.args.consumer_token = args.consumer_token
+                self.args.employee_token = args.employee_token
+
+            self.args.base_url = args.base_url
+            login_via_tripletex(self.args)
+
+
     def upload(self):
+        if self.args.is_connector:
+            expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir)
+            os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
+
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -1023,6 +1059,11 @@ class SesamCmdClient:
             raise e
 
     def download(self):
+        if self.args.is_connector:
+            os.chdir(os.path.join(self.args.connector_dir))
+            if not os.path.isdir(self.args.expanded_dir):
+                logger.warning("Expanded directory '%s' does not exist. Continuing without collapse." % self.args.expanded_dir)
+
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -1077,8 +1118,12 @@ class SesamCmdClient:
             raise e
 
         zip_config.close()
-
         self.logger.info("Replaced local config successfully")
+
+
+        if self.args.is_connector:
+            if os.path.isdir(self.args.expanded_dir):
+                collapse_connector(".", self.args.system_placeholder, self.args.expanded_dir)
 
     def status(self):
         def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
@@ -2212,8 +2257,46 @@ Commands:
     parser.add_argument('-force', dest='force', required=False, action='store_true',
                         help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
                              "subscriptions")
+
+    parser.add_argument("--system-placeholder", metavar="<string>",
+                        default="xxxxxx", type=str, help="Name of the system _id placeholder (available only when working on connectors)")
+
+    parser.add_argument("-d", dest="connector_dir", metavar="<string>",
+                        default=".", type=str, help="Connector folder to work with (available only when working on connectors)")
+
+    parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
+                        default=".expanded", type=str, help="Directory to expand the config into (available only when working on connectors)")
+
+    parser.add_argument("--client_id", metavar="<string>",
+                        type=str, help="OAuth2 client id (available only when working on connectors)")
+
+    parser.add_argument("--client_secret", metavar="<string>",
+                        type=str, help="OAuth2 client secret (available only when working on connectors)")
+
+    parser.add_argument("--service_url", metavar="<string>",
+                        type=str, help="url to service api (include /api) (available only when working on connectors)")
+
+    parser.add_argument("--service_jwt", metavar="<string>",
+                        type=str, help="jwt token to the service api (available only when working on connectors)")
+
+    parser.add_argument("--consumer_token", metavar="<string>",
+                        type=str, help="consumer token (available only when working on connectors)")
+
+    parser.add_argument("--employee_token", metavar="<string>",
+                        type=str, help="employee token (available only when working on connectors)")
+
+    parser.add_argument("--base_url", metavar="<string>",
+                        type=str, default="https://api.tripletex.io", help="override to use prod env (available only when working on connectors)")
+
+    parser.add_argument("--days", metavar="<string>",
+                        type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
+
+    parser.add_argument("--login_service", metavar="<string>",
+                        type=str, default="oauth2",choices=["oauth2", "tripletex"], help="login service to use (available only when working on connectors)")
+
     try:
         args = parser.parse_args()
+        args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
     except SystemExit as e:
         sys.exit(e.code)
     except BaseException as e:
@@ -2277,7 +2360,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
+    if command not in ["authenticate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2328,7 +2411,9 @@ Commands:
     try:
         if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or \
                 (command in allowed_commands_for_non_dev_subscriptions and args.force):
-            if command == "upload":
+            if command == "authenticate":
+                sesam_cmd_client.authenticate()
+            elif command == "upload":
                 sesam_cmd_client.upload()
             elif command == "download":
                 sesam_cmd_client.download()
