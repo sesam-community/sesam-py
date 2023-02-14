@@ -56,6 +56,13 @@ def login_callback():
         "oauth_client_id": client_id,
         "oauth_client_secret": client_secret,
     }
+
+    with open(".oauth.secrets", "w") as f:
+        f.write("oauth_access_token=%s" % data["access_token"])
+        f.write("\n")
+        f.write("oauth_refresh_token=%s" % data["refresh_token"])
+
+
     # post secrets
     for secret, value in secrets.items():
         response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
@@ -63,11 +70,12 @@ def login_callback():
         print("Updated secret: %s" % secret)
 
     # update env
-    env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-    env["token_url"] = token_url
-    response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
-    print("Updated environment variables")
-    print("Secrets and env has been updated, now go and do your development!")
+    # env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
+    # env["token_url"] = token_url
+    #
+    # response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
+    # print("Updated environment variables")
+    # print("Secrets and env has been updated, now go and do your development!")
     g.shutdown_server = True
     return "Secrets and env has been updated, now go and do your development!"
 
