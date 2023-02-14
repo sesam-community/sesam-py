@@ -7,4 +7,4 @@ pip install pyinstaller
 
 pip install --user -U -r requirements.txt
 
-pyinstaller --onefile sesam.py
+pyinstaller --onefile --add-data "connector_cli:connector_cli" sesam.py
