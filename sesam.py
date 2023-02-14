@@ -938,6 +938,29 @@ class SesamCmdClient:
 
 
     def upload(self):
+        # check if manifest.json exists in connector directory
+        if os.path.exists(os.path.join(args.connector_dir, "manifest.json")):
+            with open(args.connector_manifest, "r") as f:
+                connector_manifest = json.load(f)
+                token_url = connector_manifest["oauth2"]["token_url"]
+        # read key value pairs from .params file
+        if os.path.isfile(".params"):
+            env = requests.get(self.args.service_url + "/env", headers={"Authorization": "Bearer %s" % self.args.service_jwt}).json()
+            env["token_url"] = token_url
+            with open(".params", "r") as f:
+                for line in f:
+                    key, value = line.split("=")
+                    env[key] = value
+
+            response = requests.put(self.args.service_url + "/env", headers={"Authorization": "Bearer %s" % self.args.service_jwt},
+                                    json=env)
+            print("Updated environment variables")
+            print("Secrets and env has been updated, now go and do your development!")
+
+
+
+
+        ############################
         if self.args.is_connector:
             expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir)
             os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
