@@ -1,13 +1,10 @@
-import argparse
 import json
 import os
 import re
-import sys
 from pathlib import Path
 import shutil
 from collections import defaultdict
 from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoader
-
 
 def render(template, props, wrap=True):
     config = json.loads(template.render(** props))
@@ -28,7 +25,7 @@ node_metadata = {
 def expand_connector_config(connector_dir, system_placeholder):
     output = []
     main_env = Environment(
-        loader=PackageLoader("connectorpy"),
+        loader=PackageLoader("connector_cli.connectorpy"),
         autoescape=select_autoescape(),
         variable_start_string="{{@",
         variable_end_string="@}}"
