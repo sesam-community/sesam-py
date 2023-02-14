@@ -111,3 +111,4 @@ venv.bak/
 /.sesamconfig.json
 /node-metadata.conf.json
 /*-env.json
+/hubspot-connector

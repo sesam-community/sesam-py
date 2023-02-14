@@ -1,8 +1,6 @@
-import argparse
 import json
 import os
 import re
-import sys
 from pathlib import Path
 import shutil
 from collections import defaultdict
@@ -28,7 +26,7 @@ node_metadata = {
 def expand_connector_config(connector_dir, system_placeholder):
     output = []
     main_env = Environment(
-        loader=PackageLoader("connectorpy"),
+        loader=PackageLoader("connector_cli.connectorpy"),
         autoescape=select_autoescape(),
         variable_start_string="{{@",
         variable_end_string="@}}"
