@@ -6,6 +6,7 @@ import shutil
 from collections import defaultdict
 from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoader
 
+
 def render(template, props, wrap=True):
     config = json.loads(template.render(** props))
     if type(config) is list or not wrap:
