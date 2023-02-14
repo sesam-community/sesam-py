@@ -7,11 +7,13 @@ pip install pyinstaller
 
 pip install --user -U -r requirements.txt
 
-OS="`uname`"
-if [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
-  echo "Installing sesam-py on Linux/Mac"
-  pyinstaller --onefile --add-data "connector_cli:connector_cli" sesam.py
-elif [ "$OS" = "WindowsNT" ]; then
-  echo "Installing sesam-py on Windows"
-  pyinstaller --onefile --add-data "connector_cli;connector_cli" sesam.py
-fi
+pyinstaller --onefile --add-data "connector_cli:connector_cli" sesam.py
+
+#OS="`uname`"
+#if [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
+#  echo "Installing sesam-py on Linux/Mac"
+#  pyinstaller --onefile --add-data "connector_cli:connector_cli" sesam.py
+#elif [ "$OS" = "WindowsNT" ]; then
+#  echo "Installing sesam-py on Windows"
+#  pyinstaller --onefile --add-data "connector_cli;connector_cli" sesam.py
+#fi
