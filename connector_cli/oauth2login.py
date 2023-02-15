@@ -70,12 +70,17 @@ def login_callback():
         print("Updated secret: %s" % secret)
 
     # update env
-    # env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-    # env["token_url"] = token_url
-    #
-    # response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
-    # print("Updated environment variables")
-    # print("Secrets and env has been updated, now go and do your development!")
+    env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
+    env["token_url"] = token_url
+    if os.path.isfile(".additionalprops"):
+        with open(".params", "r") as f:
+            for line in f.readlines():
+                key, value = line.split("=")
+                env[key] = value.strip()
+
+    response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
+    print("Updated environment variables")
+    print("Secrets and env has been updated, now go and do your development!")
     g.shutdown_server = True
     return "Secrets and env has been updated, now go and do your development!"
 
