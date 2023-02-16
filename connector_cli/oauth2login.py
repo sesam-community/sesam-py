@@ -67,20 +67,29 @@ def login_callback():
     for secret, value in secrets.items():
         response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
                                  headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
-        print("Updated secret: %s" % secret)
+        if response.status_code==200:
+            print("Updated secret: %s" % secret)
+        else:
+            print("Failed to update secret: %s" % secret)
+            print(response.text)
 
     # update env
     env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
     env["token_url"] = token_url
-    if os.path.isfile(".additionalprops"):
-        with open(".params", "r") as f:
-            for line in f.readlines():
-                key, value = line.split("=")
-                env[key] = value.strip()
+    # if os.path.isfile(".additionalprops"):
+    #     with open(".additionalprops", "r") as f:
+    #         for line in f.readlines():
+    #             key, value = line.split("=")
+    #             env[key] = value.strip()
 
     response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
-    print("Updated environment variables")
-    print("Secrets and env has been updated, now go and do your development!")
+    print(response.status_code)
+    if response.status_code==200:
+        print("Updated environment variables")
+        print("Secrets and env has been updated, now go and do your development!")
+    else:
+        print("Failed to update environment variables")
+        print(response.text)
     g.shutdown_server = True
     return "Secrets and env has been updated, now go and do your development!"
 
