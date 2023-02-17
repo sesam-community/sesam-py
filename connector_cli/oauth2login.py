@@ -74,14 +74,15 @@ def login_callback():
             print(response.text)
 
     # update env
-    env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-    env["token_url"] = token_url
-    # if os.path.isfile(".additionalprops"):
-    #     with open(".additionalprops", "r") as f:
-    #         for line in f.readlines():
-    #             key, value = line.split("=")
-    #             env[key] = value.strip()
 
+    # env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
+    env = {}
+    if os.path.isfile(os.path.join(connector_dir,profile_file)):
+        with open(os.path.join(connector_dir,profile_file), "r",encoding="utf-8-sig") as f:
+            for key, value in json.load(f).items():
+                env[key] = value
+    env["token_url"]=token_url
+    env["token_url"] = token_url
     response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
     print(response.status_code)
     if response.status_code==200:
@@ -95,7 +96,9 @@ def login_callback():
 
 
 def start_server(args):
-    global system_placeholder, client_id, client_secret, service_url, service_jwt, login_url, token_url, scopes, event
+    global system_placeholder, client_id, client_secret, service_url, service_jwt, login_url, token_url, scopes, event, profile_file, connector_dir
+    connector_dir=args.connector_dir
+    profile_file = "%s-env.json" % args.profile
     system_placeholder = args.system_placeholder
     client_id = args.client_id
     client_secret = args.client_secret

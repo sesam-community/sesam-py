@@ -41,13 +41,16 @@ def login_via_tripletex(args):
                 print(response.text)
 
         # update env
-        env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
+        profile_file = "%s-env.json" % args.profile
+        # env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
+
+        env = {}
+        if os.path.isfile(os.path.join(args.connector_dir,profile_file)):
+            with open(os.path.join(args.connector_dir,profile_file), "r",encoding="utf-8-sig") as f:
+                for key, value in json.load(f).items():
+                    env[key] = value
         env["base_url"] = base_url
-        # if os.path.isfile(".additionalprops"):
-        #     with open(".additionalprops", "r") as f:
-        #         for line in f.readlines():
-        #             key, value = line.split("=")
-        #             env[key] = value.strip()
+        env["token_url"] = token_url
 
         response=requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
         if response.status_code == 200:
