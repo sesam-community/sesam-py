@@ -939,7 +939,6 @@ class SesamCmdClient:
 
     def upload(self):
         if self.args.is_connector:
-            self.authenticate()
             expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir, self.args.profile)
             os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
 
