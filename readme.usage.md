@@ -36,7 +36,7 @@ EMPLOYEE_TOKEN=<client secret for Tripletex authentication>
 ```
 
 * The secrets and environment variables will be updated in the node specified in the `syncconfig` file.
-* Remember you have to clone the connector repo and add the `.authconfig` file to the working directory.
+* It is recommended to clone a connector repo and add the `.authconfig` file to the working directory.
 * Optionally the secrets can also be passed as command line arguments specified below.
 
 #### 3- sesamconfig
@@ -95,7 +95,7 @@ Commands:
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
-  init      Add conditional sources to input pipes with a "test" and "prod" alternative
+  init      Add conditional sources to input pipes with a "test" and "prod" alternative. Also initializes the connector if used.
 
 positional arguments:
   command               a valid command from the list above
