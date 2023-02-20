@@ -61,7 +61,7 @@ def login_callback():
     for secret, value in secrets.items():
         response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
                                  headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
-        if response.status_code==200:
+        if response.status_code == 200:
             print("Updated secret: %s" % secret)
         else:
             print("Failed to update secret: %s" % secret)
@@ -70,15 +70,13 @@ def login_callback():
     # update env
 
     env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-    if os.path.isfile(os.path.join(connector_dir,profile_file)):
-        with open(os.path.join(connector_dir,profile_file), "r",encoding="utf-8-sig") as f:
+    if os.path.isfile(os.path.join(connector_dir, profile_file)):
+        with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
             for key, value in json.load(f).items():
                 env[key] = value
-    env["token_url"]=token_url
     env["token_url"] = token_url
     response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
-    print(response.status_code)
-    if response.status_code==200:
+    if response.status_code == 200:
         print("Updated environment variables")
         print("Secrets and env has been updated, now go and do your development!")
     else:
@@ -90,7 +88,7 @@ def login_callback():
 
 def start_server(args):
     global system_placeholder, client_id, client_secret, service_url, service_jwt, login_url, token_url, scopes, event, profile_file, connector_dir
-    connector_dir=args.connector_dir
+    connector_dir = args.connector_dir
     profile_file = "%s-env.json" % args.profile
     system_placeholder = args.system_placeholder
     client_id = args.client_id

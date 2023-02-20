@@ -33,7 +33,7 @@ def login_via_tripletex(args):
         # post secrets
         for secret, value in secrets.items():
             response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
-                                headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
+                                     headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
             if response.status_code == 200:
                 print("Updated secret: %s" % secret)
             else:
@@ -43,14 +43,14 @@ def login_via_tripletex(args):
         # update env
         profile_file = "%s-env.json" % args.profile
         env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-        if os.path.isfile(os.path.join(args.connector_dir,profile_file)):
-            with open(os.path.join(args.connector_dir,profile_file), "r",encoding="utf-8-sig") as f:
+        if os.path.isfile(os.path.join(args.connector_dir, profile_file)):
+            with open(os.path.join(args.connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
                 for key, value in json.load(f).items():
                     env[key] = value
         env["base_url"] = base_url
         env["token_url"] = token_url
 
-        response=requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
+        response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
         if response.status_code == 200:
             print("Updated environment variables")
             print("Secrets and env has been updated, now go and do your development!")
