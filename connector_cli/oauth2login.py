@@ -57,12 +57,6 @@ def login_callback():
         "oauth_client_secret": client_secret,
     }
 
-    with open(".oauth.secrets", "w") as f:
-        f.write("oauth_access_token=%s" % data["access_token"])
-        f.write("\n")
-        f.write("oauth_refresh_token=%s" % data["refresh_token"])
-
-
     # post secrets
     for secret, value in secrets.items():
         response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
