@@ -939,7 +939,8 @@ class SesamCmdClient:
 
     def upload(self):
         if self.args.is_connector:
-            expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir)
+            expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir, self.args.profile)
+            self.authenticate()
             os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
 
         # Find env vars to upload
@@ -1694,6 +1695,10 @@ class SesamCmdClient:
                              % (added_entities, modified_sources))
         elif modified_sources + added_entities == 0:
             self.logger.info("No pipe configurations were modified.")
+
+        if not self.args.is_connector and self.args.connector_dir!=".":
+            with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
+                json.dump({"datatypes": {}, "additional_parameters": {}}, f, indent=2, sort_keys=True)
 
     def update(self):
         self.logger.info("Updating expected output from current output...")

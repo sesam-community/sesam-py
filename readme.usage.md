@@ -36,8 +36,9 @@ EMPLOYEE_TOKEN=<client secret for Tripletex authentication>
 ```
 
 * The secrets and environment variables will be updated in the node specified in the `syncconfig` file.
-* Remember you have to clone the connector repo and add the `.authconfig` file to the working directory.
+* It is recommended to clone a connector repo and add the `.authconfig` file to the working directory.
 * Optionally the secrets can also be passed as command line arguments specified below.
+* To upload additional secrets and environment variables, add them to the profile file (e.g. test-env.json).
 
 #### 3- sesamconfig
 
@@ -85,7 +86,7 @@ Commands:
   authenticate   Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
-  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
+  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present and updates secrets and environment variables when working on a connector (might ask for authentication).
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
   status    Compare node config with local config (requires external diff command)
@@ -95,7 +96,7 @@ Commands:
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
-  init      Add conditional sources to input pipes with a "test" and "prod" alternative
+  init      Add conditional sources to input pipes with a "test" and "prod" alternative. Also initializes the connector if used.
 
 positional arguments:
   command               a valid command from the list above

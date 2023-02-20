@@ -8,20 +8,22 @@ from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoad
 
 
 def render(template, props, wrap=True):
-    config = json.loads(template.render(** props))
+    config = json.loads(template.render(**props))
     if type(config) is list or not wrap:
         return config
     else:
         # template is a single component, wrap it a list to make it consistent
         return [config]
 
+
 node_metadata = {
-  "_id": "node",
-  "type": "metadata",
-  "task_manager": {
-    "disable_user_pipes": True
-  }
+    "_id": "node",
+    "type": "metadata",
+    "task_manager": {
+        "disable_user_pipes": True
+    }
 }
+
 
 def expand_connector_config(connector_dir, system_placeholder):
     output = []
@@ -66,7 +68,8 @@ def expand_connector_config(connector_dir, system_placeholder):
             output.extend(render(shim_template, {"system": system_placeholder, "datatype": datatype}))
     return output, manifest
 
-def expand_connector(connector_dir=".", system_placeholder="xxxxxx",expanded_dir=".expanded"):
+
+def expand_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"):
     # put the expanded configuration into a subfolder in the connector directory in a form that can be used by sesam-py
     output, manifest = expand_connector_config(connector_dir, system_placeholder)
     dirpath = Path(connector_dir, expanded_dir)
@@ -77,9 +80,15 @@ def expand_connector(connector_dir=".", system_placeholder="xxxxxx",expanded_dir
     os.makedirs(dirpath / "systems")
     with open(dirpath / "node-metadata.conf.json", "w") as f:
         json.dump(node_metadata, f, indent=2, sort_keys=True)
-    with open(dirpath / "test-env.json", "w") as f:
+    profile_file = "%s-env.json" % profile
+    # get the existing profile file if it exists
+    if os.path.exists(os.path.join(connector_dir, profile_file)):
+        with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
+            new_manifest = json.load(f)
+    else:
         new_manifest = {**{"node-env": "test"},
                         **{key: "" for key in list(manifest.get("additional_parameters", {}).keys())}}
+    with open(dirpath / profile_file, "w") as f:
         json.dump(new_manifest, f, indent=2, sort_keys=True)
     for component in output:
         if component["type"] == "pipe":
@@ -88,6 +97,7 @@ def expand_connector(connector_dir=".", system_placeholder="xxxxxx",expanded_dir
         elif component["type"].startswith("system:"):
             with open(dirpath / f"systems/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
+
 
 def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded"):
     # reconstruct the templates
