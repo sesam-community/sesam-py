@@ -75,8 +75,7 @@ def login_callback():
 
     # update env
 
-    # env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-    env = {}
+    env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
     if os.path.isfile(os.path.join(connector_dir,profile_file)):
         with open(os.path.join(connector_dir,profile_file), "r",encoding="utf-8-sig") as f:
             for key, value in json.load(f).items():

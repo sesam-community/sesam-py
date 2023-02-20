@@ -42,9 +42,7 @@ def login_via_tripletex(args):
 
         # update env
         profile_file = "%s-env.json" % args.profile
-        # env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-
-        env = {}
+        env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
         if os.path.isfile(os.path.join(args.connector_dir,profile_file)):
             with open(os.path.join(args.connector_dir,profile_file), "r",encoding="utf-8-sig") as f:
                 for key, value in json.load(f).items():
