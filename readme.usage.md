@@ -38,6 +38,7 @@ EMPLOYEE_TOKEN=<client secret for Tripletex authentication>
 * The secrets and environment variables will be updated in the node specified in the `syncconfig` file.
 * It is recommended to clone a connector repo and add the `.authconfig` file to the working directory.
 * Optionally the secrets can also be passed as command line arguments specified below.
+* To upload additional secrets and environment variables, add them to the profile file (e.g. test-env.json)
 
 #### 3- sesamconfig
 
