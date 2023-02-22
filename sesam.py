@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.10"
+sesam_version = "2.5.11"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
