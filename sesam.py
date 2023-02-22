@@ -924,6 +924,9 @@ class SesamCmdClient:
             else:
                 self.args.client_id = args.client_id
                 self.args.client_secret = args.client_secret
+            if self.args.client_id is None or self.args.client_secret is None:
+                logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
+                sys.exit(1)
             login_via_oauth(self.args)
 
         elif self.args.login_service=="tripletex":
@@ -932,17 +935,14 @@ class SesamCmdClient:
             else:
                 self.args.consumer_token = args.consumer_token
                 self.args.employee_token = args.employee_token
-
+            if self.args.consumer_token is None or self.args.employee_token is None:
+                logger.error("Missing consumer_token and/or employee_token. Please provide them in .authconfig or as arguments.")
+                sys.exit(1)
             self.args.base_url = args.base_url
             login_via_tripletex(self.args)
 
 
     def upload(self):
-        if self.args.is_connector:
-            expand_connector(self.args.connector_dir, self.args.system_placeholder, self.args.expanded_dir, self.args.profile)
-            self.authenticate()
-            os.chdir(os.path.join(self.args.connector_dir,self.args.expanded_dir))
-
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -2419,7 +2419,14 @@ Commands:
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
             elif command == "upload":
-                sesam_cmd_client.upload()
+                if not args.is_connector:
+                    sesam_cmd_client.upload()
+                else:
+                    expand_connector(args.connector_dir, args.system_placeholder, args.expanded_dir,args.profile)
+                    os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
+                    sesam_cmd_client.upload()
+                    os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
+                    sesam_cmd_client.authenticate()
             elif command == "download":
                 sesam_cmd_client.download()
             elif command == "status":
