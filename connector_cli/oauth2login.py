@@ -57,28 +57,16 @@ def login_callback():
         "oauth_client_secret": client_secret,
     }
 
-    sesam_node.post_secrets(dict(secrets.items()))
-    is_failed_params = False
     # post secrets
-    # for secret, value in secrets.items():
-    #     response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
-    #                              headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
-    #     if response.status_code == 200:
-    #         print("Updated secret: %s successfully" % secret)
-    #     else:
-    #         is_failed_params = True
-    #         print("Failed to update secret: %s" % secret)
-    #         print(response.text)
-
+    secrets_info=sesam_node.post_secret(dict(secrets.items()))
     # update env
-
     env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
     if os.path.isfile(os.path.join(connector_dir, profile_file)):
         with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
             for key, value in json.load(f).items():
                 env[key] = value
     env["token_url"] = token_url
-    sesam_node.put_env(env)
+    env_info=sesam_node.put_env(env)
     # response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
     # if response.status_code == 200:
     #     print("Updated environment variables successfully")
@@ -87,11 +75,7 @@ def login_callback():
     #     print("Failed to update environment variables")
     #     print(response.text)
     g.shutdown_server = True
-    if is_failed_params:
-        print("Failed to update some/all of the parameters, please see the logs for more details.")
-        return "Failed to update some/all of the parameters, please see the logs for more details."
-    else:
-        return "All secrets and environment variables have been updated successfully, now go and do your development!"
+    return "All secrets and environment variables have been updated successfully, now go and do your development!"
 
 
 def start_server(args):
