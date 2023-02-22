@@ -38,7 +38,7 @@ def expand_connector_config(connector_dir, system_placeholder):
             block_end_string="%}}",
         )
 
-    main_env = jinja_env(loader=PackageLoader("connectorpy"))
+    main_env = jinja_env(loader=PackageLoader("connector_cli.connectorpy"))
 
     shim_template = main_env.get_template("shim.json")
 
