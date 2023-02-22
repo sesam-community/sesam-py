@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.8"
+sesam_version = "2.5.10"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -192,7 +192,7 @@ class SesamNode:
         starttime = time.time()
         while True:
             deploying = []
-            for pipe in self.api_connection.get_pipes():
+            for pipe in [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]:
                 if pipe.runtime["state"] == "Deploying":
                     deploying.append(pipe)
 
@@ -227,7 +227,15 @@ class SesamNode:
             time.sleep(5)
 
     def is_user_pipe(self, pipe):
-        return self.get_pipe_origin(pipe) not in ["system", "search", "replica", "aggregator-storage-node"]
+        if self.get_pipe_origin(pipe) in ["system", "search", "replica", "aggregator-storage-node"]:
+            return False
+
+        if pipe.id.find(":singlenode") > -1:
+            # IS-14078: temporary fix for the API intermittently returning pipes from worker-nodes (with pre or
+            # postfixes). This typically happens after a wipe or config update that deletes multiple pipes.
+            return False
+
+        return True
 
     def get_pipe_origin(self, pipe):
         return pipe.config.get("original", {}).get("metadata", {}).get("origin", "user")
@@ -303,11 +311,8 @@ class SesamNode:
 
     def put_env(self, env_vars):
         self.logger.log(LOGLEVEL_TRACE, "PUT env vars to %s" % self.node_url)
-        return self.api_connection.put_env_vars(env_vars)
+        self.api_connection.put_env_vars(env_vars)
 
-    def post_secret(self, secrets):
-        self.logger.log(LOGLEVEL_TRACE, "POST secrets to %s" % self.node_url)
-        return self.api_connection.post_secrets(secrets)
     def get_env(self):
         self.logger.log(LOGLEVEL_TRACE, "GET env vars from %s" % self.node_url)
         return self.api_connection.get_env_vars()
@@ -930,7 +935,7 @@ class SesamCmdClient:
             if self.args.client_id is None or self.args.client_secret is None:
                 logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
-            login_via_oauth(self.sesam_node,self.args)
+            login_via_oauth(self.args)
 
         elif self.args.login_service=="tripletex":
             if os.path.exists(".authconfig"):
@@ -942,7 +947,7 @@ class SesamCmdClient:
                 logger.error("Missing consumer_token and/or employee_token. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
             self.args.base_url = args.base_url
-            login_via_tripletex(self.sesam_node,self.args)
+            login_via_tripletex(self.args)
 
 
     def upload(self):
