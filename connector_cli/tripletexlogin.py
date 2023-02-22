@@ -6,7 +6,7 @@ import requests
 
 # bespoke login flow for Tripletex
 
-def login_via_tripletex(args):
+def login_via_tripletex(sesam_node,args):
     system_placeholder = args.system_placeholder
     consumer_token = args.consumer_token
     employee_token = args.employee_token

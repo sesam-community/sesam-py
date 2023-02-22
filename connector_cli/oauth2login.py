@@ -57,17 +57,18 @@ def login_callback():
         "oauth_client_secret": client_secret,
     }
 
+    sesam_node.post_secrets(dict(secrets.items()))
     is_failed_params = False
     # post secrets
-    for secret, value in secrets.items():
-        response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
-                                 headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
-        if response.status_code == 200:
-            print("Updated secret: %s successfully" % secret)
-        else:
-            is_failed_params = True
-            print("Failed to update secret: %s" % secret)
-            print(response.text)
+    # for secret, value in secrets.items():
+    #     response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
+    #                              headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
+    #     if response.status_code == 200:
+    #         print("Updated secret: %s successfully" % secret)
+    #     else:
+    #         is_failed_params = True
+    #         print("Failed to update secret: %s" % secret)
+    #         print(response.text)
 
     # update env
 
@@ -77,13 +78,14 @@ def login_callback():
             for key, value in json.load(f).items():
                 env[key] = value
     env["token_url"] = token_url
-    response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
-    if response.status_code == 200:
-        print("Updated environment variables successfully")
-    else:
-        is_failed_params = True
-        print("Failed to update environment variables")
-        print(response.text)
+    sesam_node.put_env(env)
+    # response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
+    # if response.status_code == 200:
+    #     print("Updated environment variables successfully")
+    # else:
+    #     is_failed_params = True
+    #     print("Failed to update environment variables")
+    #     print(response.text)
     g.shutdown_server = True
     if is_failed_params:
         print("Failed to update some/all of the parameters, please see the logs for more details.")
@@ -129,7 +131,9 @@ def start_server(args):
         app.run(port=5010)
 
 
-def login_via_oauth(args):
+def login_via_oauth(node,args):
+    global sesam_node
+    sesam_node=node
     start_server_thread = threading.Thread(target=start_server, args=(args,))
     wait_on_server_shutdown_thread = threading.Thread(target=wait_on_server_shutdown)
 
