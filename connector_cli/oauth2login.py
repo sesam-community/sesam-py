@@ -57,13 +57,15 @@ def login_callback():
         "oauth_client_secret": client_secret,
     }
 
+    is_failed_params = False
     # post secrets
     for secret, value in secrets.items():
         response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
                                  headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
         if response.status_code == 200:
-            print("Updated secret: %s" % secret)
+            print("Updated secret: %s successfully" % secret)
         else:
+            is_failed_params = True
             print("Failed to update secret: %s" % secret)
             print(response.text)
 
@@ -77,13 +79,17 @@ def login_callback():
     env["token_url"] = token_url
     response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
     if response.status_code == 200:
-        print("Updated environment variables")
-        print("Secrets and env has been updated, now go and do your development!")
+        print("Updated environment variables successfully")
     else:
+        is_failed_params = True
         print("Failed to update environment variables")
         print(response.text)
     g.shutdown_server = True
-    return "Secrets and env has been updated, now go and do your development!"
+    if is_failed_params:
+        print("Failed to update some/all of the parameters, please see the logs for more details.")
+        return "Failed to update some/all of the parameters, please see the logs for more details."
+    else:
+        return "All secrets and environment variables have been updated successfully, now go and do your development!"
 
 
 def start_server(args):

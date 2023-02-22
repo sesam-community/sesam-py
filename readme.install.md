@@ -12,7 +12,7 @@ $ virtualenv --python=python3 venv
 $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ python sesam.py -version
-sesam version 2.5.9
+sesam version 2.5.10
 ```
 
 
@@ -24,7 +24,7 @@ $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ pyinstaller --onefile sesam.py
 $ dist/sesam -version
-sesam version 2.5.9
+sesam version 2.5.10
 ```
 
 ### [Back to main page](./README.md)
