@@ -27,21 +27,23 @@ node_metadata = {
 
 def expand_connector_config(connector_dir, system_placeholder):
     output = []
-    main_env = Environment(
-        loader=PackageLoader("connector_cli.connectorpy"),
-        autoescape=select_autoescape(),
-        variable_start_string="{{@",
-        variable_end_string="@}}"
-    )
+
+    def jinja_env(loader):
+        return Environment(
+            loader=loader,
+            autoescape=select_autoescape(),
+            variable_start_string="{{@",
+            variable_end_string="@}}",
+            block_start_string="{{%",
+            block_end_string="%}}",
+        )
+
+    main_env = jinja_env(loader=PackageLoader("connectorpy"))
+
     shim_template = main_env.get_template("shim.json")
 
     with open(os.path.join(connector_dir, "manifest.json"), "r") as f:
-        system_env = Environment(
-            loader=FileSystemLoader(connector_dir),
-            autoescape=select_autoescape(),
-            variable_start_string="{{@",
-            variable_end_string="@}}"
-        )
+        system_env = jinja_env(loader=FileSystemLoader(connector_dir))
 
         manifest = json.load(f)
 
