@@ -922,26 +922,18 @@ class SesamCmdClient:
 
     def authenticate(self):
         self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
-        if os.path.isfile("manifest.json"): # If manifest.json is in working directory
+        if os.path.isfile("manifest.json"): # If workdir is connector
             self.args.connector_manifest = "manifest.json"
-        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
+        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")): # If workdir is sesam root
             self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
-        else:# If manifest.json is not found
+        else: # If manifest.json is not found
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
-        if self.args.login_service=="oauth2":
-            if os.path.exists(".authconfig"):
-                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
-            else:
-                self.args.client_id = args.client_id
-                self.args.client_secret = args.client_secret
-            if self.args.client_id is None or self.args.client_secret is None:
-                logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
-                sys.exit(1)
-            login_via_oauth(self.sesam_node,self.args)
+        with open(args.connector_manifest, "r") as f:
+            connector_manifest = json.load(f)
 
-        elif self.args.login_service=="tripletex":
+        if "auth_variant" in connector_manifest and connector_manifest["auth_variant"].lower() == "tripletex":
             if os.path.exists(".authconfig"):
                 self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
             else:
@@ -952,7 +944,19 @@ class SesamCmdClient:
                 sys.exit(1)
             self.args.base_url = args.base_url
             login_via_tripletex(self.sesam_node,self.args)
-
+        else:
+            self.args.login_url = connector_manifest["oauth2"]["login_url"]
+            self.args.token_url = connector_manifest["oauth2"]["token_url"]
+            self.args.scopes = connector_manifest["oauth2"]["scopes"]
+            if os.path.exists(".authconfig"):
+                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
+            else:
+                self.args.client_id = args.client_id
+                self.args.client_secret = args.client_secret
+            if self.args.client_id is None or self.args.client_secret is None:
+                logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
+                sys.exit(1)
+            login_via_oauth(self.sesam_node,self.args)
 
     def upload(self):
         # Find env vars to upload
@@ -2307,9 +2311,6 @@ Commands:
 
     parser.add_argument("--days", metavar="<string>",
                         type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
-
-    parser.add_argument("--login_service", metavar="<string>",
-                        type=str, default="oauth2",choices=["oauth2", "tripletex"], help="login service to use (available only when working on connectors)")
 
     try:
         args = parser.parse_args()
