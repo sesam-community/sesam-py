@@ -31,7 +31,7 @@ def login_via_tripletex(sesam_node, args):
             "sessionToken": data["value"]["token"],
         }
         # put secrets
-        secrets_info = sesam_node.put_secret(dict(secrets.items()))
+        sesam_node.put_secret(secrets)
         # get env
         profile_file = "%s-env.json" % args.profile
         env = sesam_node.get_env()
@@ -42,7 +42,7 @@ def login_via_tripletex(sesam_node, args):
         env["base_url"] = base_url
         env["token_url"] = token_url
         # put env
-        env_info = sesam_node.put_env(dict(env.items()))
+        sesam_node.put_env(dict(env.items()))
         print("All secrets and environment variables have been updated successfully, now go and do your development!")
     else:
         print("Missing arguments, please provide all required arguments")

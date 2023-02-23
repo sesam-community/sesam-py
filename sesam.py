@@ -311,11 +311,11 @@ class SesamNode:
 
     def put_env(self, env_vars):
         self.logger.log(LOGLEVEL_TRACE, "PUT env vars to %s" % self.node_url)
-        return self.api_connection.put_env_vars(env_vars)
+        self.api_connection.put_env_vars(env_vars)
 
     def put_secret(self, secrets):
-        self.logger.log(LOGLEVEL_TRACE, "POST secrets to %s" % self.node_url)
-        return self.api_connection.put_secrets(secrets)
+        self.logger.log(LOGLEVEL_TRACE, "PUT secrets to %s" % self.node_url)
+        self.api_connection.put_secrets(secrets)
 
     def get_env(self):
         self.logger.log(LOGLEVEL_TRACE, "GET env vars from %s" % self.node_url)

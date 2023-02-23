@@ -57,7 +57,7 @@ def login_callback():
         "oauth_client_secret": client_secret,
     }
     # put secrets
-    secrets_info=sesam_node.put_secret(dict(secrets.items()))
+    sesam_node.put_secret(secrets)
     # get env
     env = sesam_node.get_env()
     if os.path.isfile(os.path.join(connector_dir, profile_file)):
@@ -66,8 +66,9 @@ def login_callback():
                 env[key] = value
     env["token_url"] = token_url
     # put env
-    env_info=sesam_node.put_env(env)
+    sesam_node.put_env(env)
     g.shutdown_server = True
+    print("All secrets and environment variables have been updated successfully, now go and do your development!")
     return "All secrets and environment variables have been updated successfully, now go and do your development!"
 
 
