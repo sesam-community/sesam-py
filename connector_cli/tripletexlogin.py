@@ -12,8 +12,6 @@ def login_via_tripletex(sesam_node, args):
     employee_token = args.employee_token
     service_url = args.service_url
     service_jwt = args.service_jwt
-    with open(args.connector_manifest, "r") as f:
-        connector_manifest = json.load(f)
     base_url = args.base_url
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")

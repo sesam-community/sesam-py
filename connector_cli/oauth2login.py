@@ -81,11 +81,9 @@ def start_server(args):
     client_secret = args.client_secret
     service_url = args.service_url
     service_jwt = args.service_jwt
-    with open(args.connector_manifest, "r") as f:
-        connector_manifest = json.load(f)
-    login_url = connector_manifest["oauth2"]["login_url"]
-    token_url = connector_manifest["oauth2"]["token_url"]
-    scopes = connector_manifest["oauth2"]["scopes"]
+    login_url = args.login_url
+    token_url = args.token_url
+    scopes = args.scopes
 
     if system_placeholder and client_id and client_secret and service_url and service_jwt and login_url and token_url and scopes:
         params = {
