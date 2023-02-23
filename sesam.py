@@ -944,7 +944,7 @@ class SesamCmdClient:
                 sys.exit(1)
             self.args.base_url = args.base_url
             login_via_tripletex(self.sesam_node,self.args)
-        else:
+        elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "oauth2":
             self.args.login_url = connector_manifest["oauth2"]["login_url"]
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
@@ -957,6 +957,8 @@ class SesamCmdClient:
                 logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
             login_via_oauth(self.sesam_node,self.args)
+        else:
+            pass
 
     def upload(self):
         # Find env vars to upload
