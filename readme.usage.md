@@ -39,6 +39,7 @@ EMPLOYEE_TOKEN=<client secret for Tripletex authentication>
 * It is recommended to clone a connector repo and add the `.authconfig` file to the working directory.
 * Optionally the secrets can also be passed as command line arguments specified below.
 * To upload additional secrets and environment variables, add them to the profile file (e.g. test-env.json).
+* sesam-py automatically detects the login service required for the connector.
 
 #### 3- sesamconfig
 
@@ -178,8 +179,6 @@ optional arguments:
                         override to use prod env (available only when working on a connector)
   --days <string>       
                         number of days until the token should expire (available only when working on a connector)
-  --login_service <string>
-                        login service to use (available only when working on a connector)
 ```
 
 ### Preparing input pipes for testing
