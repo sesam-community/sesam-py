@@ -921,7 +921,6 @@ class SesamCmdClient:
         return buffer.read()
 
     def authenticate(self):
-        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
         if os.path.isfile("manifest.json"): # If workdir is connector
             self.args.connector_manifest = "manifest.json"
         elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")): # If workdir is sesam root
@@ -930,6 +929,7 @@ class SesamCmdClient:
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
+        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
         with open(args.connector_manifest, "r") as f:
             connector_manifest = json.load(f)
 
