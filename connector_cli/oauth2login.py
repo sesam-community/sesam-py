@@ -40,6 +40,7 @@ def index():
 
 @app.route("/login_callback")
 def login_callback():
+    # get secrets
     the_data = {
         "code": request.args.get('code'),
         "client_id": client_id,
@@ -49,31 +50,23 @@ def login_callback():
     }
     resp = requests.post(token_url, data=the_data)
     data = resp.json()
-
     secrets = {
         "oauth_access_token": data["access_token"],
         "oauth_refresh_token": data["refresh_token"],
         "oauth_client_id": client_id,
         "oauth_client_secret": client_secret,
     }
-
-    # post secrets
-    secrets_info=sesam_node.post_secret(dict(secrets.items()))
-    # update env
-    env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
+    # put secrets
+    secrets_info=sesam_node.put_secret(dict(secrets.items()))
+    # get env
+    env = sesam_node.get_env()
     if os.path.isfile(os.path.join(connector_dir, profile_file)):
         with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
             for key, value in json.load(f).items():
                 env[key] = value
     env["token_url"] = token_url
+    # put env
     env_info=sesam_node.put_env(env)
-    # response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
-    # if response.status_code == 200:
-    #     print("Updated environment variables successfully")
-    # else:
-    #     is_failed_params = True
-    #     print("Failed to update environment variables")
-    #     print(response.text)
     g.shutdown_server = True
     return "All secrets and environment variables have been updated successfully, now go and do your development!"
 
