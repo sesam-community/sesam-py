@@ -311,7 +311,11 @@ class SesamNode:
 
     def put_env(self, env_vars):
         self.logger.log(LOGLEVEL_TRACE, "PUT env vars to %s" % self.node_url)
-        self.api_connection.put_env_vars(env_vars)
+        return self.api_connection.put_env_vars(env_vars)
+
+    def put_secret(self, secrets):
+        self.logger.log(LOGLEVEL_TRACE, "POST secrets to %s" % self.node_url)
+        return self.api_connection.put_secrets(secrets)
 
     def get_env(self):
         self.logger.log(LOGLEVEL_TRACE, "GET env vars from %s" % self.node_url)
@@ -935,7 +939,7 @@ class SesamCmdClient:
             if self.args.client_id is None or self.args.client_secret is None:
                 logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
-            login_via_oauth(self.args)
+            login_via_oauth(self.sesam_node,self.args)
 
         elif self.args.login_service=="tripletex":
             if os.path.exists(".authconfig"):
@@ -947,7 +951,7 @@ class SesamCmdClient:
                 logger.error("Missing consumer_token and/or employee_token. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
             self.args.base_url = args.base_url
-            login_via_tripletex(self.args)
+            login_via_tripletex(self.sesam_node,self.args)
 
 
     def upload(self):
