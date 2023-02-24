@@ -929,7 +929,7 @@ class SesamCmdClient:
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
-        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
+        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig")["node"], self.read_config_file(".syncconfig")["jwt"]
         with open(args.connector_manifest, "r") as f:
             connector_manifest = json.load(f)
 
