@@ -57,7 +57,8 @@ def login_callback():
         "oauth_client_secret": client_secret,
     }
     # put secrets
-    sesam_node.put_secret(secrets)
+    system = sesam_node.api_connection.get_system(system_id)
+    system.put_secrets(secrets)
     # get env
     env = sesam_node.get_env()
     if os.path.isfile(os.path.join(connector_dir, profile_file)):
@@ -73,21 +74,20 @@ def login_callback():
 
 
 def start_server(args):
-    global system_placeholder, client_id, client_secret, service_url, service_jwt, login_url, token_url, scopes, event, profile_file, connector_dir
+    global system_id, client_id, client_secret, login_url, token_url, event, profile_file, connector_dir
     connector_dir = args.connector_dir
     profile_file = "%s-env.json" % args.profile
-    system_placeholder = args.system_placeholder
+    system_id = args.system_placeholder
     client_id = args.client_id
     client_secret = args.client_secret
     service_url = args.service_url
-    service_jwt = args.service_jwt
     with open(args.connector_manifest, "r") as f:
         connector_manifest = json.load(f)
     login_url = connector_manifest["oauth2"]["login_url"]
     token_url = connector_manifest["oauth2"]["token_url"]
     scopes = connector_manifest["oauth2"]["scopes"]
 
-    if system_placeholder and client_id and client_secret and service_url and service_jwt and login_url and token_url and scopes:
+    if system_id and client_id and client_secret and login_url and token_url and scopes:
         params = {
             "client_id": client_id,
             "client_secret": client_secret,
@@ -100,7 +100,7 @@ def start_server(args):
         print()
         print("This tool will add oauth2 system secrets and add token_url to the environment variables:")
         print("  Service API: %s" % service_url)
-        print("  System id: %s" % system_placeholder)
+        print("  System id: %s" % system_id)
         print()
         print("To continue open the following link in your browser:")
         print("  Link: %s" % login_url + urlencode(params))
