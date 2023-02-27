@@ -7,17 +7,13 @@ import requests
 # bespoke login flow for Tripletex
 
 def login_via_tripletex(sesam_node, args):
-    system_placeholder = args.system_placeholder
+    system_id = args.system_placeholder
     consumer_token = args.consumer_token
     employee_token = args.employee_token
-    service_url = args.service_url
-    service_jwt = args.service_jwt
-    with open(args.connector_manifest, "r") as f:
-        connector_manifest = json.load(f)
     base_url = args.base_url
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
-    if system_placeholder and consumer_token and employee_token and service_url and service_jwt and base_url:
+    if system_id and consumer_token and employee_token and base_url:
         # get secrets
         params = {
             "consumerToken": consumer_token,
@@ -31,7 +27,8 @@ def login_via_tripletex(sesam_node, args):
             "sessionToken": data["value"]["token"],
         }
         # put secrets
-        sesam_node.put_secret(secrets)
+        system = sesam_node.get_system(system_id)
+        system.put_secrets(secrets)
         # get env
         profile_file = "%s-env.json" % args.profile
         env = sesam_node.get_env()
