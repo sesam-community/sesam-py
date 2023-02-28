@@ -935,7 +935,11 @@ class SesamCmdClient:
 
         if "auth_variant" in connector_manifest and connector_manifest["auth_variant"].lower() == "tripletex":
             if os.path.exists(".authconfig"):
-                self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
+                self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig")["consumer_token"], self.read_config_file(".authconfig")["employee_token"]
+                if self.args.consumer_token[0] == '"' and self.args.consumer_token[-1] == '"':
+                    self.args.consumer_token = self.args.consumer_token[1:-1]
+                if self.args.employee_token[0] == '"' and self.args.employee_token[-1] == '"':
+                    self.args.employee_token = self.args.employee_token[1:-1]
             else:
                 self.args.consumer_token = args.consumer_token
                 self.args.employee_token = args.employee_token
