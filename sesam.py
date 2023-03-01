@@ -313,10 +313,6 @@ class SesamNode:
         self.logger.log(LOGLEVEL_TRACE, "PUT env vars to %s" % self.node_url)
         self.api_connection.put_env_vars(env_vars)
 
-    def put_secret(self, secrets):
-        self.logger.log(LOGLEVEL_TRACE, "PUT secrets to %s" % self.node_url)
-        self.api_connection.put_secrets(secrets)
-
     def get_env(self):
         self.logger.log(LOGLEVEL_TRACE, "GET env vars from %s" % self.node_url)
         return self.api_connection.get_env_vars()
@@ -921,11 +917,12 @@ class SesamCmdClient:
         return buffer.read()
 
     def authenticate(self):
-        if os.path.isfile("manifest.json"): # If workdir is connector
+        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
+        if os.path.isfile("manifest.json"): # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
-        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")): # If workdir is sesam root
+        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
             self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
-        else: # If manifest.json is not found
+        else:# If manifest.json is not found
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
@@ -2313,6 +2310,9 @@ Commands:
 
     parser.add_argument("--days", metavar="<string>",
                         type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
+
+    parser.add_argument("--login_service", metavar="<string>",
+                        type=str, default="oauth2",choices=["oauth2", "tripletex"], help="login service to use (available only when working on connectors)")
 
     try:
         args = parser.parse_args()
