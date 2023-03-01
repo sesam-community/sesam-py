@@ -43,6 +43,7 @@ def login_via_tripletex(sesam_node, args):
             is_failed = True
             sesam_node.logger.error("Failed to put secrets: %s" % e)
         # get env
+        env = {}
         try:
             profile_file = "%s-env.json" % profile
             env = sesam_node.get_env()
