@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.10"
+sesam_version = "2.5.14"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -312,10 +312,6 @@ class SesamNode:
     def put_env(self, env_vars):
         self.logger.log(LOGLEVEL_TRACE, "PUT env vars to %s" % self.node_url)
         self.api_connection.put_env_vars(env_vars)
-
-    def put_secret(self, secrets):
-        self.logger.log(LOGLEVEL_TRACE, "PUT secrets to %s" % self.node_url)
-        self.api_connection.put_secrets(secrets)
 
     def get_env(self):
         self.logger.log(LOGLEVEL_TRACE, "GET env vars from %s" % self.node_url)
@@ -921,25 +917,22 @@ class SesamCmdClient:
         return buffer.read()
 
     def authenticate(self):
-        if os.path.isfile("manifest.json"): # If workdir is connector
+        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
+        if os.path.isfile("manifest.json"): # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
-        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")): # If workdir is sesam root
+        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
             self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
-        else: # If manifest.json is not found
+        else:# If manifest.json is not found
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
-        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig")["node"], self.read_config_file(".syncconfig")["jwt"]
+        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
         with open(args.connector_manifest, "r") as f:
             connector_manifest = json.load(f)
 
         if "auth_variant" in connector_manifest and connector_manifest["auth_variant"].lower() == "tripletex":
             if os.path.exists(".authconfig"):
-                self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig")["consumer_token"], self.read_config_file(".authconfig")["employee_token"]
-                if self.args.consumer_token[0] == '"' and self.args.consumer_token[-1] == '"':
-                    self.args.consumer_token = self.args.consumer_token[1:-1]
-                if self.args.employee_token[0] == '"' and self.args.employee_token[-1] == '"':
-                    self.args.employee_token = self.args.employee_token[1:-1]
+                self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
             else:
                 self.args.consumer_token = args.consumer_token
                 self.args.employee_token = args.employee_token
@@ -2317,6 +2310,9 @@ Commands:
 
     parser.add_argument("--days", metavar="<string>",
                         type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
+
+    parser.add_argument("--login_service", metavar="<string>",
+                        type=str, default="oauth2",choices=["oauth2", "tripletex"], help="login service to use (available only when working on connectors)")
 
     try:
         args = parser.parse_args()
