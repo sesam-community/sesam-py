@@ -109,7 +109,7 @@ def start_server(args):
     token_url = args.token_url
     scopes = args.scopes
 
-    if system_id and client_id and client_secret:
+    if system_id and client_id and client_secret and service_url and login_url and token_url and scopes:
         params = {
             "client_id": client_id,
             "client_secret": client_secret,
