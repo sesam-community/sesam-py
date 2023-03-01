@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.11"
+sesam_version = "2.5.12"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -935,7 +935,7 @@ class SesamCmdClient:
             if self.args.client_id is None or self.args.client_secret is None:
                 logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
-            login_via_oauth(self.args)
+            login_via_oauth(self.sesam_node,self.args)
 
         elif self.args.login_service=="tripletex":
             if os.path.exists(".authconfig"):
@@ -947,7 +947,7 @@ class SesamCmdClient:
                 logger.error("Missing consumer_token and/or employee_token. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
             self.args.base_url = args.base_url
-            login_via_tripletex(self.args)
+            login_via_tripletex(self.sesam_node,self.args)
 
 
     def upload(self):

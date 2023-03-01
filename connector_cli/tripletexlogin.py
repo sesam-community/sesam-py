@@ -6,63 +6,61 @@ import requests
 
 # bespoke login flow for Tripletex
 
-def login_via_tripletex(args):
-    system_placeholder = args.system_placeholder
+def login_via_tripletex(sesam_node, args):
+    system_id = args.system_placeholder
     consumer_token = args.consumer_token
     employee_token = args.employee_token
-    service_url = args.service_url
-    service_jwt = args.service_jwt
-    with open(args.connector_manifest, "r") as f:
-        connector_manifest = json.load(f)
     base_url = args.base_url
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
-    if system_placeholder and consumer_token and employee_token and service_url and service_jwt and base_url:
-        params = {
-            "consumerToken": consumer_token,
-            "employeeToken": employee_token,
-            "expirationDate": expiration,
-        }
-        token_url = base_url + "/v2/token/session/:create"
-        resp = requests.put(token_url, params=params)
-        data = resp.json()
+    if system_id and consumer_token and employee_token and base_url:
+        is_failed = False
+        # get secrets
+        try:
+            params = {
+                "consumerToken": consumer_token,
+                "employeeToken": employee_token,
+                "expirationDate": expiration,
+            }
+            token_url = base_url + "/v2/token/session/:create"
+            resp = requests.put(token_url, params=params)
+            data = resp.json()
+            secrets = {
+                "sessionToken": data["value"]["token"],
+            }
+        except Exception as e:
+            is_failed = True
+            sesam_node.logger.error("Failed to get secrets: %s" % e)
+        # put secrets
+        try:
+            system = sesam_node.get_system(system_id)
+            system.put_secrets(secrets)
+        except Exception as e:
+            is_failed = True
+            sesam_node.logger.error("Failed to put secrets: %s" % e)
+        # get env
+        try:
+            profile_file = "%s-env.json" % args.profile
+            env = sesam_node.get_env()
+            if os.path.isfile(os.path.join(args.connector_dir, profile_file)):
+                with open(os.path.join(args.connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
+                    for key, value in json.load(f).items():
+                        env[key] = value
+            env["base_url"] = base_url
+            env["token_url"] = token_url
+        except Exception as e:
+            is_failed = True
+            sesam_node.logger.error("Failed to get env: %s" % e)
+        # put env
+        try:
+            sesam_node.put_env(dict(env.items()))
+        except Exception as e:
+            is_failed = True
+            sesam_node.logger.error("Failed to put env: %s" % e)
 
-        secrets = {
-            "sessionToken": data["value"]["token"],
-        }
-        is_failed_params = False
-        # post secrets
-        for secret, value in secrets.items():
-            response = requests.post(service_url + "/systems/%s/secrets" % system_placeholder,
-                                     headers={"Authorization": "Bearer %s" % service_jwt}, json={secret: value})
-            if response.status_code == 200:
-                print("Updated secret: %s successfully" % secret)
-            else:
-                is_failed_params = True
-                print("Failed to update secret: %s" % secret)
-                print(response.text)
-
-        # update env
-        profile_file = "%s-env.json" % args.profile
-        env = requests.get(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}).json()
-        if os.path.isfile(os.path.join(args.connector_dir, profile_file)):
-            with open(os.path.join(args.connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
-                for key, value in json.load(f).items():
-                    env[key] = value
-        env["base_url"] = base_url
-        env["token_url"] = token_url
-
-        response = requests.put(service_url + "/env", headers={"Authorization": "Bearer %s" % service_jwt}, json=env)
-        if response.status_code == 200:
-            print("Updated environment variables successfully.")
+        if not is_failed:
+            sesam_node.logger.info("All secrets and environment variables have been updated successfully, now go and do your development!")
         else:
-            is_failed_params = True
-            print("Failed to update environment variables")
-            print(response.text)
-
-        if is_failed_params:
-            print("Failed to update some/all of the parameters, please see the logs for more details.")
-        else:
-            print("All secrets and environment variables have been updated successfully, now go and do your development!")
+            sesam_node.logger.error("Failed to update all secrets and environment variables. see the log for details.")
     else:
-        print("Missing arguments, please provide all required arguments")
+        sesam_node.logger.error("Missing arguments, please provide all required arguments")
