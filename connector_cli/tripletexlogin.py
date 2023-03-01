@@ -11,11 +11,15 @@ def login_via_tripletex(sesam_node, args):
     consumer_token = args.consumer_token
     employee_token = args.employee_token
     base_url = args.base_url
+    profile= args.profile
+    connector_dir = args.connector_dir
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
     if system_id and consumer_token and employee_token and base_url:
         is_failed = False
         # get secrets
+        secrets = {}
+        token_url = ""
         try:
             params = {
                 "consumerToken": consumer_token,
@@ -39,11 +43,12 @@ def login_via_tripletex(sesam_node, args):
             is_failed = True
             sesam_node.logger.error("Failed to put secrets: %s" % e)
         # get env
+        env = {}
         try:
-            profile_file = "%s-env.json" % args.profile
+            profile_file = "%s-env.json" % profile
             env = sesam_node.get_env()
-            if os.path.isfile(os.path.join(args.connector_dir, profile_file)):
-                with open(os.path.join(args.connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
+            if os.path.isfile(os.path.join(connector_dir, profile_file)):
+                with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
                     for key, value in json.load(f).items():
                         env[key] = value
             env["base_url"] = base_url

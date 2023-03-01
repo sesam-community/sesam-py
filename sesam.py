@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.12"
+sesam_version = "2.5.13"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -926,18 +926,10 @@ class SesamCmdClient:
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
-        if self.args.login_service=="oauth2":
-            if os.path.exists(".authconfig"):
-                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
-            else:
-                self.args.client_id = args.client_id
-                self.args.client_secret = args.client_secret
-            if self.args.client_id is None or self.args.client_secret is None:
-                logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
-                sys.exit(1)
-            login_via_oauth(self.sesam_node,self.args)
+        with open(args.connector_manifest, "r") as f:
+            connector_manifest = json.load(f)
 
-        elif self.args.login_service=="tripletex":
+        if "auth_variant" in connector_manifest and connector_manifest["auth_variant"].lower() == "tripletex":
             if os.path.exists(".authconfig"):
                 self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
             else:
@@ -948,7 +940,19 @@ class SesamCmdClient:
                 sys.exit(1)
             self.args.base_url = args.base_url
             login_via_tripletex(self.sesam_node,self.args)
-
+        else:
+            self.args.login_url = connector_manifest["oauth2"]["login_url"]
+            self.args.token_url = connector_manifest["oauth2"]["token_url"]
+            self.args.scopes = connector_manifest["oauth2"]["scopes"]
+            if os.path.exists(".authconfig"):
+                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
+            else:
+                self.args.client_id = args.client_id
+                self.args.client_secret = args.client_secret
+            if self.args.client_id is None or self.args.client_secret is None:
+                logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
+                sys.exit(1)
+            login_via_oauth(self.sesam_node,self.args)
 
     def upload(self):
         # Find env vars to upload

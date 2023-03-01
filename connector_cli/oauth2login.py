@@ -40,7 +40,9 @@ def index():
 
 @app.route("/login_callback")
 def login_callback():
+    is_failed = False
     # get secrets
+    secrets = {}
     try:
         the_data = {
             "code": request.args.get('code'),
@@ -60,7 +62,6 @@ def login_callback():
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get secrets: %s" % e)
-    is_failed = False
     # put secrets
     try:
         system = sesam_node.api_connection.get_system(system_id)
@@ -69,6 +70,7 @@ def login_callback():
         is_failed = True
         sesam_node.logger.error("Failed to put secrets: %s" % e)
     # get env
+    env = {}
     try:
         env = sesam_node.get_env()
         if os.path.isfile(os.path.join(connector_dir, profile_file)):
@@ -87,11 +89,12 @@ def login_callback():
         sesam_node.logger.error("Failed to put env: %s" % e)
     g.shutdown_server = True
     if not is_failed:
-        sesam_node.logger.info("All secrets and environment variables have been updated successfully, now go and do your development!")
+        sesam_node.logger.info(
+            "All secrets and environment variables have been updated successfully, now go and do your development!")
         return "All secrets and environment variables have been updated successfully, now go and do your development!"
     else:
         sesam_node.logger.error("Failed to update all secrets and environment variables. see the log for details.")
-        return "Failed to update all secrets and environment variables"
+        return "Failed to update all secrets and environment variables. see the log for details."
 
 
 def start_server(args):
@@ -102,13 +105,11 @@ def start_server(args):
     client_id = args.client_id
     client_secret = args.client_secret
     service_url = args.service_url
-    with open(args.connector_manifest, "r") as f:
-        connector_manifest = json.load(f)
-    login_url = connector_manifest["oauth2"]["login_url"]
-    token_url = connector_manifest["oauth2"]["token_url"]
-    scopes = connector_manifest["oauth2"]["scopes"]
+    login_url = args.login_url
+    token_url = args.token_url
+    scopes = args.scopes
 
-    if system_id and client_id and client_secret and login_url and token_url and scopes:
+    if system_id and client_id and client_secret and service_url and login_url and token_url and scopes:
         params = {
             "client_id": client_id,
             "client_secret": client_secret,
@@ -118,19 +119,20 @@ def start_server(args):
         }
         if not login_url.endswith("?"):
             login_url += "?"
-        sesam_node.logger.info("\nThis tool will add oauth2 system secrets and add token_url to the environment variables:"
-                               "\n  Service API: %s"
-                               "\n  System id: %s"
-                               "\n"
-                               "\nTo continue open the following link in your browser:"
-                               "\n  Link: %s"
-                               "\n\n" % (service_url, system_id, login_url + urlencode(params)))
+        sesam_node.logger.info(
+            "\nThis tool will add oauth2 system secrets and add token_url to the environment variables:"
+            "\n  Service API: %s"
+            "\n  System id: %s"
+            "\n"
+            "\nTo continue open the following link in your browser:"
+            "\n  Link: %s"
+            "\n\n" % (service_url, system_id, login_url + urlencode(params)))
         app.run(port=5010)
 
 
-def login_via_oauth(node,args):
+def login_via_oauth(node, args):
     global sesam_node
-    sesam_node=node
+    sesam_node = node
     start_server_thread = threading.Thread(target=start_server, args=(args,))
     wait_on_server_shutdown_thread = threading.Thread(target=wait_on_server_shutdown)
 
