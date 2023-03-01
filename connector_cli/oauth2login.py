@@ -113,7 +113,7 @@ def start_server(args):
         params = {
             "client_id": client_id,
             "client_secret": client_secret,
-            "scope": " ".join(args.scopes),
+            "scope": " ".join(scopes),
             "redirect_uri": redirect_uri,
             "response_type": "code",
         }
