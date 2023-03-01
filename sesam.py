@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.13"
+sesam_version = "2.5.14"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -926,6 +926,7 @@ class SesamCmdClient:
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
+        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
         with open(args.connector_manifest, "r") as f:
             connector_manifest = json.load(f)
 
@@ -940,7 +941,7 @@ class SesamCmdClient:
                 sys.exit(1)
             self.args.base_url = args.base_url
             login_via_tripletex(self.sesam_node,self.args)
-        else:
+        elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "oauth2":
             self.args.login_url = connector_manifest["oauth2"]["login_url"]
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
@@ -953,6 +954,8 @@ class SesamCmdClient:
                 logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
                 sys.exit(1)
             login_via_oauth(self.sesam_node,self.args)
+        else:
+            pass
 
     def upload(self):
         # Find env vars to upload

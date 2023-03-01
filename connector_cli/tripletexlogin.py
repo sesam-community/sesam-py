@@ -11,7 +11,7 @@ def login_via_tripletex(sesam_node, args):
     consumer_token = args.consumer_token
     employee_token = args.employee_token
     base_url = args.base_url
-    profile= args.profile
+    profile = args.profile
     connector_dir = args.connector_dir
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
