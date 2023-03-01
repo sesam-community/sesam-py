@@ -916,8 +916,15 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
+    def get_reformatted_string(self, string):
+        if (string.startswith('"') and string.endswith('"')) or (string.startswith("'") and string.endswith("'")):
+            return string[1:-1]
+        else:
+            return string
+
     def authenticate(self):
-        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
+        self.args.service_url, self.args.service_jwt = self.get_reformatted_string(self.read_config_file(".syncconfig")["node"]), \
+                                                         self.get_reformatted_string(self.read_config_file(".syncconfig")["jwt"])
         if os.path.isfile("manifest.json"): # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
         elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
@@ -926,13 +933,13 @@ class SesamCmdClient:
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
-        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
         with open(args.connector_manifest, "r") as f:
             connector_manifest = json.load(f)
 
         if "auth_variant" in connector_manifest and connector_manifest["auth_variant"].lower() == "tripletex":
             if os.path.exists(".authconfig"):
-                self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
+                self.args.consumer_token, self.args.employee_token = self.get_reformatted_string(self.read_config_file(".authconfig")["consumer_token"]), \
+                                                                    self.get_reformatted_string(self.read_config_file(".authconfig")["employee_token"])
             else:
                 self.args.consumer_token = args.consumer_token
                 self.args.employee_token = args.employee_token
@@ -946,7 +953,8 @@ class SesamCmdClient:
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
             if os.path.exists(".authconfig"):
-                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
+                self.args.client_id, self.args.client_secret = self.get_reformatted_string(self.read_config_file(".authconfig")["client_id"]), \
+                                                                self.get_reformatted_string(self.read_config_file(".authconfig")["client_secret"])
             else:
                 self.args.client_id = args.client_id
                 self.args.client_secret = args.client_secret
