@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.14"
+sesam_version = "2.5.15"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -916,8 +916,24 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
+
+    def set_authconfig_credentials(self, *args):
+        try:
+            auth_credentials = self.read_config_file(".authconfig")
+            for arg in args:
+                token=auth_credentials[arg]
+                if token.startswith('"') and token.endswith('"'):
+                    setattr(self.args, arg, token[1:-1])
+                else:
+                    setattr(self.args, arg, token)
+            logger.info("Found authentication credentials in .authconfig file.")
+        except KeyError:
+            logger.warning("Could not find %s in .authconfig file. Checking the arguments." % arg)
+
+
     def authenticate(self):
-        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
+        self.args.service_url=self.node_url
+        self.args.service_jwt=self.jwt_token
         if os.path.isfile("manifest.json"): # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
         elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
@@ -926,13 +942,12 @@ class SesamCmdClient:
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
-        self.args.service_url, self.args.service_jwt = self.read_config_file(".syncconfig").values()
         with open(args.connector_manifest, "r") as f:
             connector_manifest = json.load(f)
 
         if "auth_variant" in connector_manifest and connector_manifest["auth_variant"].lower() == "tripletex":
             if os.path.exists(".authconfig"):
-                self.args.consumer_token, self.args.employee_token = self.read_config_file(".authconfig").values()
+                self.set_authconfig_credentials("consumer_token", "employee_token")
             else:
                 self.args.consumer_token = args.consumer_token
                 self.args.employee_token = args.employee_token
@@ -946,7 +961,7 @@ class SesamCmdClient:
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
             if os.path.exists(".authconfig"):
-                self.args.client_id, self.args.client_secret = self.read_config_file(".authconfig").values()
+                self.set_authconfig_credentials("client_id", "client_secret")
             else:
                 self.args.client_id = args.client_id
                 self.args.client_secret = args.client_secret
@@ -2310,9 +2325,6 @@ Commands:
 
     parser.add_argument("--days", metavar="<string>",
                         type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
-
-    parser.add_argument("--login_service", metavar="<string>",
-                        type=str, default="oauth2",choices=["oauth2", "tripletex"], help="login service to use (available only when working on connectors)")
 
     try:
         args = parser.parse_args()
