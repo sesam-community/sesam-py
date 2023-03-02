@@ -932,8 +932,8 @@ class SesamCmdClient:
 
 
     def authenticate(self):
-        self.args.service_url=node_url
-        self.args.service_jwt=jwt_token
+        self.args.service_url=self.node_url
+        self.args.service_jwt=self.jwt_token
         if os.path.isfile("manifest.json"): # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
         elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
