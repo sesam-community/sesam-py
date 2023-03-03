@@ -1153,10 +1153,10 @@ class SesamCmdClient:
         zip_config.close()
         self.logger.info("Replaced local config successfully")
 
-
+        curr_dir = os.getcwd()
         if self.args.is_connector:
-            if os.getcwd().endswith(self.args.expanded_dir):
-                os.chdir("..")
+            if curr_dir.endswith(self.args.expanded_dir):
+                os.chdir(os.pardir)
                 collapse_connector(".", self.args.system_placeholder, self.args.expanded_dir)
 
 
