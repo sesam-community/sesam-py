@@ -1092,7 +1092,7 @@ class SesamCmdClient:
 
     def download(self):
         if self.args.is_connector:
-            if not os.path.isdir(self.args.expanded_dir):
+            if not os.path.isdir(os.path.join(self.args.connector_dir, self.args.expanded_dir)):
                 logger.warning("Expanded directory '%s' does not exist. creating the directory." % self.args.expanded_dir)
                 os.makedirs(os.path.join(self.args.connector_dir, self.args.expanded_dir))
             os.chdir(os.path.join(self.args.connector_dir, self.args.expanded_dir))
