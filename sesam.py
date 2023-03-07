@@ -932,6 +932,7 @@ class SesamCmdClient:
 
 
     def authenticate(self):
+        os.chdir(self.args.connector_dir)
         self.args.service_url=self.node_url
         self.args.service_jwt=self.jwt_token
         if os.path.isfile("manifest.json"): # If manifest.json is in working directory
@@ -1091,9 +1092,10 @@ class SesamCmdClient:
 
     def download(self):
         if self.args.is_connector:
-            os.chdir(os.path.join(self.args.connector_dir))
-            if not os.path.isdir(self.args.expanded_dir):
-                logger.warning("Expanded directory '%s' does not exist. Continuing without collapse." % self.args.expanded_dir)
+            if not os.path.isdir(os.path.join(self.args.connector_dir, self.args.expanded_dir)):
+                logger.warning("Expanded directory '%s' does not exist. creating the directory." % self.args.expanded_dir)
+                os.makedirs(os.path.join(self.args.connector_dir, self.args.expanded_dir))
+            os.chdir(os.path.join(self.args.connector_dir, self.args.expanded_dir))
 
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
@@ -1151,10 +1153,12 @@ class SesamCmdClient:
         zip_config.close()
         self.logger.info("Replaced local config successfully")
 
-
+        curr_dir = os.getcwd()
         if self.args.is_connector:
-            if os.path.isdir(self.args.expanded_dir):
+            if curr_dir.endswith(self.args.expanded_dir):
+                os.chdir(os.pardir)
                 collapse_connector(".", self.args.system_placeholder, self.args.expanded_dir)
+
 
     def status(self):
         def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
