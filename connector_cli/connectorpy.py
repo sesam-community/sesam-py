@@ -109,7 +109,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         with open(system, "r") as f:
             templates["system"].append(json.load(f))
     for pipe in Path(input, "pipes").glob('*.json'):
-        datatype = pipe.name.split("-")[1]
+        datatype = pipe.name.split("-", 1)[1].rsplit("-", 1)[0]
         if pipe.name.endswith("-transform.json"):  # shim pipe
             continue
         with open(pipe, "r") as f:
