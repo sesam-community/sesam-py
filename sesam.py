@@ -972,7 +972,31 @@ class SesamCmdClient:
             login_via_oauth(self.sesam_node,self.args)
         else:
             pass
+    def replace_jinja_variables(self, connector_dir, system_placeholder, profile):
+        import re
+        # check if templates_modified exists
+        if os.path.exists("templates_modified"):
+            shutil.rmtree("templates_modified")
+        templates_dir = os.path.join(connector_dir, "templates")
+        shutil.copytree(templates_dir, os.path.join(connector_dir, "templates_modified"))
+        # loop through all files in templates_modified
+        folder_path = "templates_modified"
 
+        for file_name in os.listdir(folder_path):
+            if file_name.endswith(".json"):
+                file_path = os.path.join(folder_path, file_name)
+                with open(file_path, "r") as f:
+                    content = f.read()
+
+                # Replace string pattern with desired value
+                # pattern = r"{{@ (?P<variable>[^@}]+) @}}"
+                pattern = pattern = r"{{@ (?!(system|datatype)\b)(?P<variable>[^@}]+) @}}"
+                content = re.sub(pattern, r"$ENV(\g<variable>)", content)
+
+                # Write modified content back to file
+                with open(file_path, "w") as f:
+                    f.write(content)
+        pass
     def upload(self):
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -2453,6 +2477,7 @@ Commands:
                 if not args.is_connector:
                     sesam_cmd_client.upload()
                 else:
+                    sesam_cmd_client.replace_jinja_variables(args.connector_dir, args.system_placeholder, args.profile)
                     expand_connector(args.connector_dir, args.system_placeholder, args.expanded_dir,args.profile)
                     os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
                     sesam_cmd_client.upload()
