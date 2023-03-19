@@ -990,7 +990,11 @@ class SesamCmdClient:
 
                 # Replace string pattern with desired value
                 # pattern = r"{{@ (?P<variable>[^@}]+) @}}"
-                pattern = pattern = r"{{@ (?!(system|datatype)\b)(?P<variable>[^@}]+) @}}"
+                builtin_variables = ["system", "datatype"]
+                excluded = "|".join(builtin_variables)
+                pattern = r"{{@ (?!({})\b)(?P<variable>[^@}}]+) @}}".format(excluded)
+
+                # pattern = pattern = r"{{@ (?!(system|datatype)\b)(?P<variable>[^@}]+) @}}"
                 content = re.sub(pattern, r"$ENV(\g<variable>)", content)
 
                 # Write modified content back to file
