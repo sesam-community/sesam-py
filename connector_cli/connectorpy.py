@@ -60,7 +60,7 @@ def expand_connector_config(connector_dir, system_placeholder):
             template = datatype_manifest["template"]
             template_name = os.path.splitext(os.path.basename(template))[0]
             datatype_template = system_env.get_template(template)
-            datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
+            datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype, "parent": parent}})
             if template_name != datatype:
                 for pipe in datatype_pipes:
                     pipe["comment"] = "WARNING! This pipe is generated from the template of the '%s' datatype and " \
@@ -150,7 +150,9 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             env_parameters.add(e.replace("{{@ ", "").replace(" @}}", ""))
             fixed = fixed.replace(env, e)
         if template_name != "system":
+            # ordering is imporant, otherwise we would replace 'contactcompany' with '{{@ datatype @}}company' if we used parent first
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
+            fixed = fixed.replace(parent, "{{@ parent @}}")
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
 
