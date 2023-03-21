@@ -982,7 +982,7 @@ class SesamCmdClient:
         else:
             pass
     def replace_jinja_variables(self, contents):
-        pattern = r"~t{{@ (?!({})\b)(?P<variable>[^@}]+) @}}"
+        pattern = r"~t{{@ (?P<variable>[^@}]+) @}}"
         modified_contents = re.sub(pattern, r"$ENV(\g<variable>)", contents)
         modified_contents = modified_contents.encode("utf-8")
         return modified_contents
