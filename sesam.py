@@ -751,12 +751,11 @@ class SesamCmdClient:
                         if normalize_path(filepath) not in self.whitelisted_files:
                             continue
 
-                    with open(os.path.join(root, file), "rb") as f:
-                        contents = f.read()
-
                     if self.args.is_connector:
                         zipfile.write(os.path.join(root, file))
                     else:
+                        with open(os.path.join(root, file), "rb") as f:
+                            contents = f.read()
                         modified_contents=self.replace_jinja_variables(contents.decode())
                         zipfile.writestr(os.path.join(root, file), modified_contents)
 
