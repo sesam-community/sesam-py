@@ -1173,8 +1173,11 @@ class SesamCmdClient:
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
             zip_config.extractall()
             if not self.args.is_connector:
-                self.replace_env_variables("pipes")
-                self.replace_env_variables("systems")
+                if os.path.exists("pipes") and os.path.exists("systems"):
+                    self.replace_env_variables("pipes")
+                    self.replace_env_variables("systems")
+                else:
+                    self.logger.warning("No pipes or systems found in downloaded config")
         except BaseException as e:
             self.logger.error("Failed to unzip config file from Sesam to current directory")
             raise e
