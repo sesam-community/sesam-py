@@ -753,9 +753,13 @@ class SesamCmdClient:
 
                     with open(os.path.join(root, file), "rb") as f:
                         contents = f.read()
-                    modified_contents=self.replace_jinja_variables(contents.decode())
-                    zipfile.writestr(os.path.join(root, file), modified_contents)
-                    # zipfile.write(os.path.join(root, file))
+
+                    if self.args.is_connector:
+                        zipfile.write(os.path.join(root, file))
+                    else:
+                        modified_contents=self.replace_jinja_variables(contents.decode())
+                        zipfile.writestr(os.path.join(root, file), modified_contents)
+
 
     def get_zip_config(self, remove_zip=True):
         """ Create a ZIP file from the local content on disk and return a bytes object
@@ -983,23 +987,17 @@ class SesamCmdClient:
         modified_contents = modified_contents.encode("utf-8")
         return modified_contents
 
-    def replace_env_variables(self):
-        # Define the path to the directory containing the files to edit
+    def replace_env_variables(self,dir):
         pattern = r"\$ENV\((?P<variable>[^)]+)\)"
-
-        # Loop over each file in the directory
-        for filename in os.listdir("pipes"):
+        for filename in os.listdir(dir):
             if filename.endswith('.json'):
-                # Open the file for reading
-                with open(os.path.join("pipes", filename), 'r') as file:
-                    # Load the contents of the file as a JSON object
-                    contents = json.load(file)
+                with open(os.path.join(dir, filename), 'r+') as file:
+                    contents = file.read()
+                    modified_contents = re.sub(pattern, r"~t{{@ \g<variable> @}}", contents)
+                    file.seek(0)
+                    file.write(modified_contents)
+                    file.truncate()
 
-                modified_contents = re.sub(pattern, r"~t{{@ \g<variable> @}}", str(contents))
-
-                # Open the file for writing and write the updated JSON data
-                with open(os.path.join("pipes", filename), 'w') as file:
-                    json.dump(modified_contents, file)
 
     def upload(self):
         # Find env vars to upload
@@ -1174,7 +1172,9 @@ class SesamCmdClient:
             zip_data = self.format_zip_config(zip_data)
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
             zip_config.extractall()
-            self.replace_env_variables()
+            if not self.args.is_connector:
+                self.replace_env_variables("pipes")
+                self.replace_env_variables("systems")
         except BaseException as e:
             self.logger.error("Failed to unzip config file from Sesam to current directory")
             raise e
