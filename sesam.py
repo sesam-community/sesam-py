@@ -996,6 +996,7 @@ class SesamCmdClient:
                     file.seek(0)
                     file.write(modified_contents)
                     file.truncate()
+                    file.close()
 
 
     def upload(self):
