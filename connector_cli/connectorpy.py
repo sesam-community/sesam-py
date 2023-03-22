@@ -60,7 +60,10 @@ def expand_connector_config(connector_dir, system_placeholder):
             template = datatype_manifest["template"]
             template_name = os.path.splitext(os.path.basename(template))[0]
             datatype_template = system_env.get_template(template)
-            datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
+            if "parent" in datatype_manifest:
+                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype,"parent":datatype_manifest.get("parent")}})
+            else:
+                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
             if template_name != datatype:
                 for pipe in datatype_pipes:
                     pipe["comment"] = "WARNING! This pipe is generated from the template of the '%s' datatype and " \
