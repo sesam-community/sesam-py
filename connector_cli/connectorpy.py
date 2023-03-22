@@ -150,11 +150,8 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
     env_parameters = set()
     p = re.compile('\$ENV\(\w+\)')
 
-    # update the templates with sorted pipes
     for template_name, components in templates.items():
-        templates[template_name] = sorted(components, key=lambda x: x["_id"])
-
-    for template_name, components in templates.items():
+        components = sorted(components, key=lambda x: x["_id"])
         if template_name in datatypes_with_no_master_template:
             continue
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
