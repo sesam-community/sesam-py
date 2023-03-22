@@ -149,6 +149,11 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
     # write the datatype templates
     env_parameters = set()
     p = re.compile('\$ENV\(\w+\)')
+
+    # update the templates with sorted pipes
+    for template_name, components in templates.items():
+        templates[template_name] = sorted(components, key=lambda x: x["_id"])
+
     for template_name, components in templates.items():
         if template_name in datatypes_with_no_master_template:
             continue
