@@ -154,8 +154,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             continue
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
         fixed = template.replace(system_placeholder, "{{@ system @}}")
-        if template_name in datatypes_with_parents:
-            fixed = fixed.replace(datatypes_with_parents[template_name], "{{@ parent @}}")
+
         envs = p.findall(fixed)
         for env in envs:
             e = env.replace("$ENV(", "{{@ ").replace(")", " @}}")
@@ -163,6 +162,8 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             fixed = fixed.replace(env, e)
         if template_name != "system":
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
+        if template_name in datatypes_with_parents:
+            fixed = fixed.replace(datatypes_with_parents[template_name], "{{@ parent @}}")
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
 
