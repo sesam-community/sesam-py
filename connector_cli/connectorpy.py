@@ -154,7 +154,6 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             continue
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
         fixed = template.replace(system_placeholder, "{{@ system @}}")
-
         envs = p.findall(fixed)
         for env in envs:
             e = env.replace("$ENV(", "{{@ ").replace(")", " @}}")
