@@ -5,5 +5,21 @@
     "type": "dataset",
     "dataset": "{{@ system @}}-{{@ datatype @}}-collect",
     "supports_signalling": false
+  },
+  "transform": {
+    "type": "dtl",
+    "rules": {
+      "default": [
+        ["add", "$based_on",
+          ["apply", "based-on", "_S."]
+        ],
+        ["copy", "*"]
+      ],
+      "based-on": [
+        ["copy", "*",
+          ["list", "_*", "$*"]
+        ]
+      ]
+    }
   }
 }
