@@ -131,6 +131,13 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         with open(manifest_path, "r") as f:
             existing_manifest = json.load(f)
 
+    # find parents
+    datatypes_with_parents = {}
+    for datatype, datatype_manifest in existing_manifest.get("datatypes", {}).items():
+        if "parent" in datatype_manifest:
+            datatypes_with_parents[datatype] = datatype_manifest["parent"]
+
+
     # ignore templates that doesn't match the name of the datatype (re-used templates)
     datatypes_with_no_master_template = set()
     for datatype, datatype_manifest in existing_manifest.get("datatypes", {}).items():
@@ -147,6 +154,8 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             continue
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
         fixed = template.replace(system_placeholder, "{{@ system @}}")
+        if template_name in datatypes_with_parents:
+            fixed = fixed.replace(datatypes_with_parents[template_name], "{{@ parent @}}")
         envs = p.findall(fixed)
         for env in envs:
             e = env.replace("$ENV(", "{{@ ").replace(")", " @}}")
