@@ -60,7 +60,10 @@ def expand_connector_config(connector_dir, system_placeholder):
             template = datatype_manifest["template"]
             template_name = os.path.splitext(os.path.basename(template))[0]
             datatype_template = system_env.get_template(template)
-            datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
+            if "parent" in datatype_manifest:
+                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype,"parent":datatype_manifest.get("parent")}})
+            else:
+                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
             if template_name != datatype:
                 for pipe in datatype_pipes:
                     pipe["comment"] = "WARNING! This pipe is generated from the template of the '%s' datatype and " \
@@ -128,6 +131,13 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         with open(manifest_path, "r") as f:
             existing_manifest = json.load(f)
 
+    # find parents
+    datatypes_with_parent = {}
+    for datatype, datatype_manifest in existing_manifest.get("datatypes", {}).items():
+        if "parent" in datatype_manifest:
+            datatypes_with_parent[datatype] = datatype_manifest["parent"]
+
+
     # ignore templates that doesn't match the name of the datatype (re-used templates)
     datatypes_with_no_master_template = set()
     for datatype, datatype_manifest in existing_manifest.get("datatypes", {}).items():
@@ -151,6 +161,8 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             fixed = fixed.replace(env, e)
         if template_name != "system":
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
+        if template_name in datatypes_with_parent:
+            fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
 
