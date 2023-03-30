@@ -7,14 +7,31 @@ from collections import defaultdict
 from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoader
 
 
-def render(template, props, wrap=True):
-    config = json.loads(template.render(**props))
-    if type(config) is list or not wrap:
-        return config
-    else:
-        # template is a single component, wrap it a list to make it consistent
-        return [config]
+def render(template, props):
+    # Workaround for inserting bools during rendering: set the property to a dummy value so that the render does
+    # not fail, then do .replace() later on the rendered config and replace the dummy values with JSON bools
+    booleans = {}
+    for prop, value in props.items():
+        if isinstance(value, bool):
+            props[prop] = '{{@ %s @}}' % prop
+            booleans[prop] = str(value).lower()
 
+    config = json.loads(template.render(**props))  # TODO what if there is a quote in the string
+    if not isinstance(config, list):
+        config = [config]
+
+    if booleans:
+        _config = []
+        for cfg in config:
+            cfg_str = json.dumps(cfg)
+            for param, _bool in booleans.items():
+                cfg_str = cfg_str.replace('"{{@ %s @}}"' % param, str(_bool).lower())
+
+            _config.append(json.loads(cfg_str))
+
+        config = _config
+
+    return config
 
 node_metadata = {
     "_id": "node",
@@ -60,6 +77,9 @@ def expand_connector_config(connector_dir, system_placeholder):
             template = datatype_manifest["template"]
             template_name = os.path.splitext(os.path.basename(template))[0]
             datatype_template = system_env.get_template(template)
+            datatype_parameters = datatype_manifest.get('parameters', {})
+            subst.update(datatype_parameters)
+
             if "parent" in datatype_manifest:
                 datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype,"parent":datatype_manifest.get("parent")}})
             else:
@@ -155,6 +175,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         if template_name in datatypes_with_no_master_template:
             continue
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
+        datatype_parameters = existing_manifest.get(template_name, {}).get('parameters', {})
         fixed = template.replace(system_placeholder, "{{@ system @}}")
         envs = p.findall(fixed)
         for env in envs:
@@ -165,6 +186,8 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
             fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
+        for param_name, value in datatype_parameters.values():
+            fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
 
