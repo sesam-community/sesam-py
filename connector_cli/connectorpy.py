@@ -16,7 +16,7 @@ def render(template, props):
             props[prop] = '{{@ %s @}}' % prop
             booleans[prop] = str(value).lower()
 
-    config = json.loads(template.render(**props))  # TODO what if there is a quote in the string
+    config = json.loads(template.render(**props))
     if not isinstance(config, list):
         config = [config]
 
@@ -175,7 +175,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         if template_name in datatypes_with_no_master_template:
             continue
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
-        datatype_parameters = existing_manifest.get(template_name, {}).get('parameters', {})
+        datatype_parameters = existing_manifest.get('datatypes', {}).get(template_name, {}).get('parameters', {})
         fixed = template.replace(system_placeholder, "{{@ system @}}")
         envs = p.findall(fixed)
         for env in envs:
@@ -186,7 +186,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
             fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
-        for param_name, value in datatype_parameters.values():
+        for param_name, value in datatype_parameters.items():  # TODO: best effort, might result in unintended replacements
             fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
