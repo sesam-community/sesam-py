@@ -6,6 +6,10 @@ import shutil
 from collections import defaultdict
 from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoader
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def render(template, props):
     # Workaround for inserting bools during rendering: set the property to a dummy value so that the render does
@@ -119,6 +123,17 @@ def expand_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_di
         if component["type"] == "pipe":
             with open(dirpath / f"pipes/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
+
+            source = component["source"]
+            if source["type"] == 'http_endpoint' and component["_id"].endswith('event') and \
+                    new_manifest.get('use_webhook_secret'):
+                endpoint_permissions = [["allow", ["group:Anonymous"], ["write_data"]]]
+                if component["permissions"]:
+                    logger.warning(f"Permissions are already set for endpoint pipe '{component['_id']}'. They will be "
+                                   f"overwritten with: {endpoint_permissions}")
+
+                component['permissions'] = endpoint_permissions
+
         elif component["type"].startswith("system:"):
             with open(dirpath / f"systems/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
