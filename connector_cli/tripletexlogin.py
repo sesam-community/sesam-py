@@ -1,7 +1,10 @@
+import hashlib
 import json
 import os
 from datetime import timedelta, date
 import requests
+
+from connector_cli.connectorpy import expand_connector_config
 
 
 # bespoke login flow for Tripletex
@@ -13,6 +16,7 @@ def login_via_tripletex(sesam_node, args):
     base_url = args.base_url
     profile = args.profile
     connector_dir = args.connector_dir
+    output, manifest = expand_connector_config(connector_dir, system_id)
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
     if system_id and consumer_token and employee_token and base_url:
@@ -32,6 +36,12 @@ def login_via_tripletex(sesam_node, args):
             secrets = {
                 "sessionToken": data["value"]["token"],
             }
+
+            if manifest.get("requires_service_api_access"):
+                secrets["service_api_access"] = args.service_jwt
+            if manifest.get("use_webhook_secret"):
+                to_hash = args.service_url+"/"+system_id
+                secrets["webhook_secret"] = hashlib.sha256(to_hash.encode('utf-8-sig')).hexdigest()[:12]
         except Exception as e:
             is_failed = True
             sesam_node.logger.error("Failed to get secrets: %s" % e)
