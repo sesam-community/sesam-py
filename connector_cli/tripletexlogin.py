@@ -4,7 +4,7 @@ import os
 from datetime import timedelta, date
 import requests
 
-from connector_cli.connectorpy import expand_connector_config
+from connectorpy import expand_connector_config
 
 
 # bespoke login flow for Tripletex
