@@ -1,3 +1,4 @@
+import hashlib
 import threading
 import os
 import signal
@@ -7,6 +8,7 @@ import os.path
 from flask import Flask, request, redirect, g
 from urllib.parse import urlencode
 import requests
+from connector_cli.connectorpy import expand_connector_config
 
 redirect_uri = "http://localhost:5010/login_callback"
 
@@ -59,6 +61,11 @@ def login_callback():
             "oauth_client_id": client_id,
             "oauth_client_secret": client_secret,
         }
+        if manifest.get("requires_service_api_access"):
+            secrets["service_api_access"] = service_jwt
+        if manifest.get("use_webhook_secret"):
+            to_hash = service_url + "/" + system_id
+            secrets["webhook_secret"] = hashlib.sha256(to_hash.encode('utf-8-sig')).hexdigest()[:12]
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get secrets: %s" % e)
@@ -98,17 +105,18 @@ def login_callback():
 
 
 def start_server(args):
-    global system_id, client_id, client_secret, login_url, token_url, event, profile_file, connector_dir
+    global system_id, client_id, client_secret, login_url, token_url, event, profile_file, connector_dir,manifest,service_url,service_jwt
     connector_dir = args.connector_dir
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
     client_secret = args.client_secret
     service_url = args.service_url
+    service_jwt = args.service_jwt
     login_url = args.login_url
     token_url = args.token_url
     scopes = args.scopes
-
+    _, manifest = expand_connector_config(connector_dir, system_id)
     if system_id and client_id and client_secret and service_url and login_url and token_url and scopes:
         params = {
             "client_id": client_id,
