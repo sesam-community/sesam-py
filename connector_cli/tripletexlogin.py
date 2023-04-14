@@ -3,8 +3,7 @@ import json
 import os
 from datetime import timedelta, date
 import requests
-
-from connectorpy import expand_connector_config
+from connector_cli.connectorpy import expand_connector_config
 
 
 # bespoke login flow for Tripletex
@@ -16,7 +15,7 @@ def login_via_tripletex(sesam_node, args):
     base_url = args.base_url
     profile = args.profile
     connector_dir = args.connector_dir
-    output, manifest = expand_connector_config(connector_dir, system_id)
+    _, manifest = expand_connector_config(connector_dir, system_id)
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
     if system_id and consumer_token and employee_token and base_url:
