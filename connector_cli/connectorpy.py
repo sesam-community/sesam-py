@@ -121,18 +121,21 @@ def expand_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_di
         json.dump(new_manifest, f, indent=2, sort_keys=True)
     for component in output:
         if component["type"] == "pipe":
+            if component.get("source").get("type") == 'http_endpoint' and component.get("_id").endswith('event') and \
+                    manifest.get('use_webhook_secret'):
+                endpoint_permissions = [["allow", ["group:Anonymous"], ["write_data"]]]
+                if component.get("permissions"):
+                    logger.warning(
+                        f"Permissions are already set for endpoint pipe '{component['_id']}'. They will be "
+                        f"overwritten with: {endpoint_permissions}")
+
+                component['permissions'] = endpoint_permissions
+                logger.warning(f"Set permissions for endpoint pipe '{component['_id']}' to: {endpoint_permissions}")
+
             with open(dirpath / f"pipes/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
 
-            source = component["source"]
-            if source["type"] == 'http_endpoint' and component["_id"].endswith('event') and \
-                    new_manifest.get('use_webhook_secret'):
-                endpoint_permissions = [["allow", ["group:Anonymous"], ["write_data"]]]
-                if component["permissions"]:
-                    logger.warning(f"Permissions are already set for endpoint pipe '{component['_id']}'. They will be "
-                                   f"overwritten with: {endpoint_permissions}")
 
-                component['permissions'] = endpoint_permissions
 
         elif component["type"].startswith("system:"):
             with open(dirpath / f"systems/{component['_id']}.conf.json", "w") as f:
