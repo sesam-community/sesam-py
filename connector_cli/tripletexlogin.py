@@ -37,7 +37,7 @@ def login_via_tripletex(sesam_node, args):
             }
 
             if manifest.get("requires_service_api_access"):
-                secrets["service_api_access"] = args.service_jwt
+                secrets["service_jwt"] = args.service_jwt
             if manifest.get("use_webhook_secret"):
                 to_hash = args.service_url+"/"+system_id
                 secrets["webhook_secret"] = hashlib.sha256(to_hash.encode('utf-8-sig')).hexdigest()[:12]

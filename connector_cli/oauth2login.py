@@ -62,7 +62,7 @@ def login_callback():
             "oauth_client_secret": client_secret,
         }
         if manifest.get("requires_service_api_access"):
-            secrets["service_api_access"] = service_jwt
+            secrets["service_jwt"] = service_jwt
         if manifest.get("use_webhook_secret"):
             to_hash = service_url + "/" + system_id
             secrets["webhook_secret"] = hashlib.sha256(to_hash.encode('utf-8-sig')).hexdigest()[:12]
