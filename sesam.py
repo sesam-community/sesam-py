@@ -973,6 +973,23 @@ class SesamCmdClient:
         else:
             pass
 
+    def validate(self):
+        # check if all the json files are valid
+        # check if .expanded directory exists
+        logger.info("Validating config files")
+        if os.path.exists(self.args.connector_dir + "/.expanded"):
+            for root, dirs, files in os.walk(os.path.join(self.args.connector_dir, ".expanded","pipes")):
+                for file in files:
+                    if file.endswith(".json"):
+                        try:
+                            with open(os.path.join(root, file), "r") as f:
+                                config=json.load(f)
+                        except BaseException as e:
+                            logger.error("Config file '%s' is not valid json" % file)
+
+
+            logger.warning("All json files are valid")
+
     def upload(self):
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
@@ -2396,7 +2413,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["authenticate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
+    if command not in ["authenticate","validate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2449,6 +2466,8 @@ Commands:
                 (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
+            elif command == "validate":
+                sesam_cmd_client.validate()
             elif command == "upload":
                 if not args.is_connector:
                     sesam_cmd_client.upload()
