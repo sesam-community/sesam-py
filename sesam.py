@@ -977,6 +977,7 @@ class SesamCmdClient:
         # check if all the json files are valid
         # check if .expanded directory exists
         logger.info("Validating config files")
+        is_valid=True
         if os.path.exists(self.args.connector_dir + "/.expanded"):
             for root, dirs, files in os.walk(os.path.join(self.args.connector_dir, ".expanded","pipes")):
                 for file in files:
@@ -986,18 +987,38 @@ class SesamCmdClient:
                                 config=json.load(f)
                         except BaseException as e:
                             logger.error("Config file '%s' is not valid json" % file)
+                            is_valid=False
 
                         if "collect" in file:
                             if type(config.get("transform"))==dict:
                                 if config.get("transform").get("template") == "transform-collect-rest":
                                     if not "exclude_completeness" in config.keys():
                                         logger.error("Config file '%s' is missing 'exclude_completeness' property" % file)
+                                        is_valid=False
                             elif type(config.get("transform"))==list:
                                 for transform in config.get("transform"):
                                     if transform.get("template") == "transform-collect-rest":
                                         if not "exclude_completeness" in config.keys():
                                             logger.error("Config file '%s' is missing 'exclude_completeness' property" % file)
-            logger.warning("All json files are valid")
+                                            is_valid=False
+
+                        if "share" in file:
+                            # validate "batch_size": 1 exists on the pipes that has "template": "transform-share-rest"
+                            if type(config.get("transform"))==dict:
+                                if config.get("transform").get("template") == "transform-share-rest":
+                                    if not "batch_size" in config.keys() or config.get("batch_size") != 1:
+                                        logger.error("Config file '%s' is missing 'batch_size' property with value: 1" % file)
+                                        is_valid=False
+                            elif type(config.get("transform"))==list:
+                                for transform in config.get("transform"):
+                                    if transform.get("template") == "transform-share-rest":
+                                        if not "batch_size" in config.keys() or config.get("batch_size") != 1:
+                                            logger.error("Config file '%s' is missing 'batch_size' property with value: 1" % file)
+                                            is_valid=False
+            if is_valid:
+                logger.warning("All config files are valid")
+            else:
+                logger.error("One or more config files are not valid. Check the log for more information")
 
     def upload(self):
         # Find env vars to upload
