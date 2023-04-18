@@ -987,7 +987,16 @@ class SesamCmdClient:
                         except BaseException as e:
                             logger.error("Config file '%s' is not valid json" % file)
 
-
+                        if "collect" in file:
+                            if type(config.get("transform"))==dict:
+                                if config.get("transform").get("template") == "transform-collect-rest":
+                                    if not "exclude_completeness" in config.keys():
+                                        logger.error("Config file '%s' is missing 'exclude_completeness' property" % file)
+                            elif type(config.get("transform"))==list:
+                                for transform in config.get("transform"):
+                                    if transform.get("template") == "transform-collect-rest":
+                                        if not "exclude_completeness" in config.keys():
+                                            logger.error("Config file '%s' is missing 'exclude_completeness' property" % file)
             logger.warning("All json files are valid")
 
     def upload(self):
