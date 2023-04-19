@@ -1001,6 +1001,15 @@ class SesamCmdClient:
                                         if not "exclude_completeness" in config.keys():
                                             logger.error("Config file '%s' is missing 'exclude_completeness' property" % file)
                                             is_valid=False
+                                        elif not transform.get("properties"):
+                                            logger.error("Config file '%s' is missing 'properties' property" % file)
+                                            is_valid=False
+                                        elif not transform.get("properties").get("share_dataset"):
+                                            logger.error("Config file '%s' is missing 'share_dataset' property in 'properties'" % file)
+                                            is_valid=False
+                                        elif not transform.get("properties").get("share_dataset") in config.get("exclude_completeness"):
+                                            logger.error("Config file '%s' is missing '%s' in 'exclude_completeness'" % (file, transform.get("properties").get("share_dataset")))
+                                            is_valid=False
 
                         if "share" in file:
                             # validate "batch_size": 1 exists on the pipes that has "template": "transform-share-rest"
@@ -1019,6 +1028,8 @@ class SesamCmdClient:
                 logger.warning("All config files are valid")
             else:
                 logger.error("One or more config files are not valid. Check the log for more information")
+        else:
+            logger.error("Failed to validate. Config files are not expanded.")
 
     def upload(self):
         # Find env vars to upload
