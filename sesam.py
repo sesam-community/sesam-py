@@ -989,27 +989,21 @@ class SesamCmdClient:
                             logger.error("Config file '%s' is not valid json" % file)
                             is_valid=False
 
-                        if "collect" in file:
-                            if type(config.get("transform"))==dict:
-                                if config.get("transform").get("template") == "transform-collect-rest":
+                        if "collect" in file and type(config.get("transform"))==list:
+                            for transform in config.get("transform"):
+                                if transform.get("template") == "transform-collect-rest":
                                     if not "exclude_completeness" in config.keys():
                                         logger.error("Config file '%s' is missing 'exclude_completeness' property" % file)
                                         is_valid=False
-                            elif type(config.get("transform"))==list:
-                                for transform in config.get("transform"):
-                                    if transform.get("template") == "transform-collect-rest":
-                                        if not "exclude_completeness" in config.keys():
-                                            logger.error("Config file '%s' is missing 'exclude_completeness' property" % file)
-                                            is_valid=False
-                                        elif not transform.get("properties"):
-                                            logger.error("Config file '%s' is missing 'properties' property" % file)
-                                            is_valid=False
-                                        elif not transform.get("properties").get("share_dataset"):
-                                            logger.error("Config file '%s' is missing 'share_dataset' property in 'properties'" % file)
-                                            is_valid=False
-                                        elif not transform.get("properties").get("share_dataset") in config.get("exclude_completeness"):
-                                            logger.error("Config file '%s' is missing '%s' in 'exclude_completeness'" % (file, transform.get("properties").get("share_dataset")))
-                                            is_valid=False
+                                    elif not transform.get("properties"):
+                                        logger.error("Config file '%s' is missing 'properties' property" % file)
+                                        is_valid=False
+                                    elif not transform.get("properties").get("share_dataset"):
+                                        logger.error("Config file '%s' is missing 'share_dataset' property in 'properties'" % file)
+                                        is_valid=False
+                                    elif not transform.get("properties").get("share_dataset") in config.get("exclude_completeness"):
+                                        logger.error("Config file '%s' is missing '%s' in 'exclude_completeness'" % (file, transform.get("properties").get("share_dataset")))
+                                        is_valid=False
 
                         if "share" in file:
                             # validate "batch_size": 1 exists on the pipes that has "template": "transform-share-rest"
