@@ -80,8 +80,8 @@ def login_callback():
     env = {}
     try:
         env = sesam_node.get_env()
-        if os.path.isfile(os.path.join(connector_dir, profile_file)):
-            with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
+        if os.path.isfile(profile_file):
+            with open(profile_file, "r", encoding="utf-8-sig") as f:
                 for key, value in json.load(f).items():
                     env[key] = value
         env["token_url"] = token_url
@@ -105,8 +105,7 @@ def login_callback():
 
 
 def start_server(args):
-    global system_id, client_id, client_secret, login_url, token_url, event, profile_file, connector_dir,manifest,service_url,service_jwt
-    connector_dir = args.connector_dir
+    global system_id, client_id, client_secret, login_url, token_url, event, profile_file,manifest,service_url,service_jwt
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
@@ -116,7 +115,7 @@ def start_server(args):
     login_url = args.login_url
     token_url = args.token_url
     scopes = args.scopes
-    _, manifest = expand_connector_config(connector_dir, system_id)
+    _, manifest = expand_connector_config(system_id)
     if system_id and client_id and client_secret and service_url and login_url and token_url and scopes:
         params = {
             "client_id": client_id,

@@ -14,8 +14,7 @@ def login_via_tripletex(sesam_node, args):
     employee_token = args.employee_token
     base_url = args.base_url
     profile = args.profile
-    connector_dir = args.connector_dir
-    _, manifest = expand_connector_config(connector_dir, system_id)
+    _, manifest = expand_connector_config(system_id)
 
     expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
     if system_id and consumer_token and employee_token and base_url:
@@ -56,8 +55,8 @@ def login_via_tripletex(sesam_node, args):
         try:
             profile_file = "%s-env.json" % profile
             env = sesam_node.get_env()
-            if os.path.isfile(os.path.join(connector_dir, profile_file)):
-                with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
+            if os.path.isfile(profile_file):
+                with open(profile_file, "r", encoding="utf-8-sig") as f:
                     for key, value in json.load(f).items():
                         env[key] = value
             env["base_url"] = base_url
