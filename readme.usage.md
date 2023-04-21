@@ -221,6 +221,10 @@ Verifying output (2/3)...passed!
 Run completed.
 Verifying output (3/3)...passed!
 ```
+* "upload" command is tied together with validate (before upload) and authenticate (after upload), 
+so if you have a local config that does not pass the validation criteria, it will not be uploaded.
+Above that, "upload" will set the necessary environment variables and secrets through the authentication process.
+For the case of using webhook pipes, "upload" command sets the correct permissions for the pipe as well.
 
 ## Configuring tests
 
@@ -396,5 +400,7 @@ systems/email-system.conf.json
 Please note the path separator, it should always be given as a forward slash - even if you're running on Windows.
 
 Example: `sesam -whitelist-file whitelist.txt test`
+
+
 
 ### [Back to main page](./README.md)
