@@ -975,9 +975,12 @@ class SesamCmdClient:
 
     def validate(self):
         logger.info("Validating config files")
+        # set the current directory when sesam validate is called from root.
+        if self.args.command == "validate" and self.args.connector_dir!=".":
+            os.chdir(self.args.connector_dir)
         is_valid=True
-        if os.path.exists(self.args.connector_dir + "/.expanded"):
-            for root, _, files in os.walk(os.path.join(self.args.connector_dir, ".expanded")):
+        if os.path.exists(".expanded"):
+            for root, _, files in os.walk(".expanded"):
                 if root.endswith("/.expanded"):
                     for file in files:
                         if file.endswith(".json"):
@@ -1045,8 +1048,10 @@ class SesamCmdClient:
                 logger.warning("All config files are valid")
             else:
                 logger.error("One or more config files are not valid. Check the log for more information")
+                sys.exit(1)
         else:
             logger.error("Failed to validate. Config files are not expanded.")
+            sys.exit(1)
 
 
     def upload(self):
@@ -2533,6 +2538,7 @@ Commands:
                 else:
                     os.chdir(args.connector_dir)
                     expand_connector(args.system_placeholder, args.expanded_dir,args.profile)
+                    sesam_cmd_client.validate()
                     os.chdir(args.expanded_dir)
                     sesam_cmd_client.upload()
                     os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
