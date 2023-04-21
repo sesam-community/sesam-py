@@ -80,6 +80,8 @@ def login_callback():
     env = {}
     try:
         env = sesam_node.get_env()
+        if manifest.get("requires_service_api_access"):
+            env["service_url"] = service_url
         if os.path.isfile(profile_file):
             with open(profile_file, "r", encoding="utf-8-sig") as f:
                 for key, value in json.load(f).items():

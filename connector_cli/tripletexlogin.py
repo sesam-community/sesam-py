@@ -55,6 +55,8 @@ def login_via_tripletex(sesam_node, args):
         try:
             profile_file = "%s-env.json" % profile
             env = sesam_node.get_env()
+            if manifest.get("requires_service_api_access"):
+                env["service_url"] = args.service_url
             if os.path.isfile(profile_file):
                 with open(profile_file, "r", encoding="utf-8-sig") as f:
                     for key, value in json.load(f).items():
