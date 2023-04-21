@@ -2224,6 +2224,7 @@ Commands:
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
   init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
+  validate  Validate local config for proper formatting and internal consistency
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'

@@ -87,6 +87,7 @@ Commands:
   authenticate   Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
   wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
+  validate  Validate local config for proper formatting and internal consistency (will be run automatically before upload. can also be run independently)
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present and updates secrets and environment variables when working on a connector (might ask for authentication).
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
