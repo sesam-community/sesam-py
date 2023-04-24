@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.21"
+sesam_version = "2.5.22"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -972,6 +972,87 @@ class SesamCmdClient:
             login_via_oauth(self.sesam_node,self.args)
         else:
             pass
+
+    def validate(self):
+        logger.info("Validating config files")
+        # set the current directory when sesam validate is called from root.
+        if self.args.command == "validate" and self.args.connector_dir!=".":
+            os.chdir(self.args.connector_dir)
+        is_valid=True
+        if os.path.exists(".expanded"):
+            for root, _, files in os.walk(".expanded"):
+                if root.endswith("/.expanded"):
+                    for file in files:
+                        if file.endswith(".json"):
+                            try:
+                                with open(os.path.join(root, file), "r") as f:
+                                    config=json.load(f)
+                            except BaseException as e:
+                                logger.error("Config file '%s' is not valid json" % file)
+                                is_valid=False
+                elif root.endswith("/systems"):
+                    for file in files:
+                        if file.endswith(".json"):
+                            try:
+                                with open(os.path.join(root, file), "r") as f:
+                                    config=json.load(f)
+                            except BaseException as e:
+                                logger.error("Config file '/systems/%s' is not valid json" % file)
+                                is_valid=False
+                elif root.endswith("/pipes"):
+                    for file in files:
+                        if file.endswith(".json"):
+                            try:
+                                with open(os.path.join(root, file), "r") as f:
+                                    config = json.load(f)
+                            except BaseException as e:
+                                logger.error("Config file '/pipes/%s' is not valid json" % file)
+                                is_valid = False
+
+                            if "collect" in file and type(config.get("transform")) == list:
+                                for transform in config.get("transform"):
+                                    if transform.get("template") == "transform-collect-rest":
+                                        if not "exclude_completeness" in config.keys():
+                                            logger.error(
+                                                "Config file '/pipes/%s' is missing 'exclude_completeness' property" % file)
+                                            is_valid = False
+                                        elif not transform.get("properties"):
+                                            logger.error("Config file '/pipes/%s' is missing 'properties' property" % file)
+                                            is_valid = False
+                                        elif not transform.get("properties").get("share_dataset"):
+                                            logger.error(
+                                                "Config file '/pipes/%s' is missing 'share_dataset' property in 'properties'" % file)
+                                            is_valid = False
+                                        elif not transform.get("properties").get("share_dataset") in config.get(
+                                                "exclude_completeness"):
+                                            logger.error(
+                                                "Config file '/pipes/%s' is missing '%s' in 'exclude_completeness'" % (
+                                                file, transform.get("properties").get("share_dataset")))
+                                            is_valid = False
+
+                            if "share" in file:
+                                if type(config.get("transform")) == dict:
+                                    if config.get("transform").get("template") == "transform-share-rest":
+                                        if not "batch_size" in config.keys() or config.get("batch_size") != 1:
+                                            logger.error(
+                                                "Config file '%s' is missing 'batch_size' property with value: 1" % file)
+                                            is_valid = False
+                                elif type(config.get("transform")) == list:
+                                    for transform in config.get("transform"):
+                                        if transform.get("template") == "transform-share-rest":
+                                            if not "batch_size" in config.keys() or config.get("batch_size") != 1:
+                                                logger.error(
+                                                    "Config file '%s' is missing 'batch_size' property with value: 1" % file)
+                                                is_valid = False
+            if is_valid:
+                logger.warning("All config files are valid")
+            else:
+                logger.error("One or more config files are not valid. Check the log for more information")
+                sys.exit(1)
+        else:
+            logger.error("Failed to validate. Config files are not expanded.")
+            sys.exit(1)
+
 
     def upload(self):
         # Find env vars to upload
@@ -2143,6 +2224,7 @@ Commands:
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
   init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
+  validate  Validate local config for proper formatting and internal consistency
   upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
   download  Replace local config with node config
   dump      Create a zip archive of the config and store it as 'sesam-config.zip'
@@ -2396,7 +2478,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["authenticate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
+    if command not in ["authenticate","validate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2449,12 +2531,16 @@ Commands:
                 (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
+            elif command == "validate":
+                sesam_cmd_client.validate()
             elif command == "upload":
                 if not args.is_connector:
                     sesam_cmd_client.upload()
                 else:
-                    expand_connector(args.connector_dir, args.system_placeholder, args.expanded_dir,args.profile)
-                    os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
+                    os.chdir(args.connector_dir)
+                    expand_connector(args.system_placeholder, args.expanded_dir,args.profile)
+                    sesam_cmd_client.validate()
+                    os.chdir(args.expanded_dir)
                     sesam_cmd_client.upload()
                     os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
                     sesam_cmd_client.authenticate()

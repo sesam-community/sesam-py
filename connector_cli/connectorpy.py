@@ -46,7 +46,7 @@ node_metadata = {
 }
 
 
-def expand_connector_config(connector_dir, system_placeholder):
+def expand_connector_config(system_placeholder):
     output = []
 
     def jinja_env(loader):
@@ -63,8 +63,8 @@ def expand_connector_config(connector_dir, system_placeholder):
 
     shim_template = main_env.get_template("shim.json")
 
-    with open(os.path.join(connector_dir, "manifest.json"), "r") as f:
-        system_env = jinja_env(loader=FileSystemLoader(connector_dir))
+    with open(os.path.join("manifest.json"), "r") as f:
+        system_env = jinja_env(loader=FileSystemLoader("."))
 
         manifest = json.load(f)
 
@@ -98,10 +98,10 @@ def expand_connector_config(connector_dir, system_placeholder):
     return output, manifest
 
 
-def expand_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"):
+def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"):
     # put the expanded configuration into a subfolder in the connector directory in a form that can be used by sesam-py
-    output, manifest = expand_connector_config(connector_dir, system_placeholder)
-    dirpath = Path(connector_dir, expanded_dir)
+    output, manifest = expand_connector_config(system_placeholder)
+    dirpath = Path(expanded_dir)
     if dirpath.exists() and dirpath.is_dir():
         shutil.rmtree(dirpath)
     os.makedirs(dirpath)
@@ -111,8 +111,8 @@ def expand_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_di
         json.dump(node_metadata, f, indent=2, sort_keys=True)
     profile_file = "%s-env.json" % profile
     # get the existing profile file if it exists
-    if os.path.exists(os.path.join(connector_dir, profile_file)):
-        with open(os.path.join(connector_dir, profile_file), "r", encoding="utf-8-sig") as f:
+    if os.path.exists(profile_file):
+        with open(profile_file, "r", encoding="utf-8-sig") as f:
             new_manifest = json.load(f)
     else:
         new_manifest = {**{"node-env": "test"},
