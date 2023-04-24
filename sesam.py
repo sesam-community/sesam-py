@@ -750,7 +750,44 @@ class SesamCmdClient:
                         if normalize_path(filepath) not in self.whitelisted_files:
                             continue
 
-                    zipfile.write(os.path.join(root, file))
+                    if self.args.is_connector:
+                        zipfile.write(os.path.join(root, file))
+                    else:
+                        with open(os.path.join(root, file), "rb") as f:
+                            contents = f.read()
+                        # if "~t{{@ " in contents.decode():
+                        modified_contents = self.replace_jinja_variables(contents.decode())
+                        zipfile.writestr(os.path.join(root, file), modified_contents)
+
+                    # zipfile.write(os.path.join(root, file))
+
+    def replace_jinja_variables(self, contents):
+        jinja_vars=self.read_config_file(".jinja_vars", is_required=False)
+        pattern=r"~t{{@ (?P<variable>[^@}]+) @}}"
+        if "connected_ts" in contents:
+            print(12)
+        modified_contents=re.sub(pattern,r"~t2023-03-21T13:17:22Z",contents)
+        modified_contents = modified_contents.encode("utf-8")
+        return modified_contents
+
+    def replace_env_variables(self, dir):
+
+        jinja_vars = {v: k for k, v in self.read_config_file(".jinja_vars", is_required=False).items()}
+
+        for filename in os.listdir(dir):
+            if filename.endswith('.json'):
+                with open(os.path.join(dir, filename), 'r+') as file:
+                    contents = file.read()
+                    modified_contents = contents
+                    for var in jinja_vars:
+                        pattern = rf"{var}"
+                        modified_contents = re.sub(pattern, rf"{{@ {jinja_vars[var]} @}}", modified_contents)
+
+                    # modified_contents = re.sub(pattern, r"~t{{@ connected_ts @}}", contents)
+                    file.seek(0)
+                    file.write(modified_contents)
+                    file.truncate()
+                    file.close()
 
     def get_zip_config(self, remove_zip=True):
         """ Create a ZIP file from the local content on disk and return a bytes object
@@ -1227,6 +1264,12 @@ class SesamCmdClient:
             zip_data = self.format_zip_config(zip_data)
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
             zip_config.extractall()
+            if not self.args.is_connector:
+                if os.path.exists("pipes") and os.path.exists("systems"):
+                    self.replace_env_variables("pipes")
+                    self.replace_env_variables("systems")
+                else:
+                    self.logger.warning("No pipes or systems found in downloaded config")
         except BaseException as e:
             self.logger.error("Failed to unzip config file from Sesam to current directory")
             raise e
