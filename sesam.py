@@ -2547,7 +2547,12 @@ Commands:
             elif command == "download":
                 sesam_cmd_client.download()
             elif command == "status":
-                sesam_cmd_client.status()
+                if not args.is_connector:
+                    sesam_cmd_client.status()
+                else:
+                    os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
+                    sesam_cmd_client.status()
+                    os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
             elif command == "init":
                 sesam_cmd_client.init()
             elif command == "update":
