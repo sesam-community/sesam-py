@@ -763,25 +763,25 @@ class SesamCmdClient:
 
     def replace_jinja_variables(self, contents):
         jinja_vars=self.read_config_file(".jinja_vars", is_required=False)
-        pattern=r"~t{{@ (?P<variable>[^@}]+) @}}"
-        if "connected_ts" in contents:
-            print(12)
-        modified_contents=re.sub(pattern,r"~t2023-03-21T13:17:22Z",contents)
+        modified_contents=contents
+        for var in jinja_vars:
+            pattern = rf"{{{{@ {var} @}}}}"
+            new_pattern=rf"{jinja_vars[var]}"
+            modified_contents=re.sub(pattern,new_pattern,modified_contents)
         modified_contents = modified_contents.encode("utf-8")
         return modified_contents
 
     def replace_env_variables(self, dir):
-
-        jinja_vars = {v: k for k, v in self.read_config_file(".jinja_vars", is_required=False).items()}
-
+        jinja_vars = self.read_config_file(".jinja_vars", is_required=False)
         for filename in os.listdir(dir):
             if filename.endswith('.json'):
                 with open(os.path.join(dir, filename), 'r+') as file:
                     contents = file.read()
                     modified_contents = contents
                     for var in jinja_vars:
-                        pattern = rf"{var}"
-                        modified_contents = re.sub(pattern, rf"{{@ {jinja_vars[var]} @}}", modified_contents)
+                        pattern=rf"{jinja_vars[var]}"
+                        new_pattern = rf"{{{{@ {var} @}}}}"
+                        modified_contents = re.sub(pattern,new_pattern, modified_contents)
 
                     # modified_contents = re.sub(pattern, r"~t{{@ connected_ts @}}", contents)
                     file.seek(0)
