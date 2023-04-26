@@ -2545,16 +2545,17 @@ Commands:
         logger.error("jwt and node must be specified either as parameter, os env or in syncconfig file")
         sys.exit(1)
 
-    try:
-        args.jinja_vars=sesam_cmd_client.parse_config_file(".jinja_vars")
-        if args.jinja_vars == {}:
-            logger.warning("No variables found in .jinja_vars file. proceeding without it.")
-        else:
-            logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
-    except BaseException as e:
-        args.jinja_vars = None
-        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
-            logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
+    if not args.is_connector:
+        try:
+            args.jinja_vars=sesam_cmd_client.parse_config_file(".jinja_vars")
+            if args.jinja_vars == {}:
+                logger.warning("No variables found in .jinja_vars file. proceeding without it.")
+            else:
+                logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
+        except BaseException as e:
+            args.jinja_vars = None
+            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+                logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
 
     try:
         sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
