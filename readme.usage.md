@@ -72,6 +72,24 @@ P.S. Optionally, you can use another filename and location, and then specify it 
 }
 ```
 
+#### 4- jinja_vars
+In order to support custom template parameters in sesampy with json transit encoding, you can add a file named `.jinja_vars`
+in the root directory, paste and edit the following:
+
+```pythonverboseregexp
+custom_param1=custom_value1
+custom_param2=custom_value2
+...
+```
+
+for example:
+```pythonverboseregexp
+connected_ts=2023-03-21T13:17:22Z
+uid=12688f21-c4f5-481d-9b07-dd6a88b738f3
+...
+```
+Note that the value must be of the corresponding parameter datatype, though the value itself can be arbitrary.
+
 ## Usage
 
 ```
