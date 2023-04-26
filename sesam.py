@@ -2550,9 +2550,12 @@ Commands:
                 if not args.is_connector:
                     sesam_cmd_client.status()
                 else:
-                    os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
-                    sesam_cmd_client.status()
-                    os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
+                    if os.path.exists(os.path.join(args.connector_dir, args.expanded_dir)):
+                        os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
+                        sesam_cmd_client.status()
+                        os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
+                    else:
+                        logger.error("expanded directory not found. Please upload the configs first or check the input args.")
             elif command == "init":
                 sesam_cmd_client.init()
             elif command == "update":
