@@ -72,7 +72,7 @@ P.S. Optionally, you can use another filename and location, and then specify it 
 }
 ```
 
-#### 4- jinja_vars
+#### 4- jinja_vars (regular sesam configuration only)
 In order to support custom template parameters in sesampy with json transit encoding, you can add a file named `.jinja_vars`
 in the root directory, paste and edit the following:
 
@@ -88,10 +88,11 @@ connected_ts=2023-03-21T13:17:22Z
 uid=12688f21-c4f5-481d-9b07-dd6a88b738f3
 ...
 ```
-Note that the value must be of the corresponding parameter datatype, though the value itself can be arbitrary.
+* Note that the value must be of the corresponding parameter datatype, though the value itself can be arbitrary.
 It is then used to parse the json with transit encoding when running "upload" command. A reverse lookup takes place
 when running "download" command, and the value is replaced with the corresponding parameter name. So it is recommended to 
 use a near-unique value for each parameter to avoid collisions.
+* The .jinja_vars file is only used when the sesam commands are running on a regular sesam configuration (no connector).
 
 ## Usage
 
