@@ -89,6 +89,9 @@ uid=12688f21-c4f5-481d-9b07-dd6a88b738f3
 ...
 ```
 Note that the value must be of the corresponding parameter datatype, though the value itself can be arbitrary.
+It is then used to parse the json with transit encoding when running "upload" command. A reverse lookup takes place
+when running "download" command, and the value is replaced with the corresponding parameter name. So it is recommended to 
+use a near-unique value for each parameter to avoid collisions.
 
 ## Usage
 
