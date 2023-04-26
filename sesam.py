@@ -764,30 +764,37 @@ class SesamCmdClient:
     def replace_jinja_variables(self, contents):
         jinja_vars=self.read_config_file(".jinja_vars", is_required=False)
         modified_contents=contents
-        for var in jinja_vars:
-            pattern = rf"{{{{@ {var} @}}}}"
-            new_pattern=rf"{jinja_vars[var]}"
-            modified_contents=re.sub(pattern,new_pattern,modified_contents)
-        modified_contents = modified_contents.encode("utf-8")
+        if len(jinja_vars) == 0:
+            logger.warning("No jinja variables found in .jinja_vars file. Skipping replacement of jinja variables.")
+        else:
+            for var in jinja_vars:
+                pattern = rf"{{{{@ {var} @}}}}"
+                new_pattern=rf"{jinja_vars[var]}"
+                modified_contents=re.sub(pattern,new_pattern,modified_contents)
+            modified_contents = modified_contents.encode("utf-8")
+
         return modified_contents
 
-    def replace_env_variables(self, dir):
+    def replace_template_variables(self, dir):
         jinja_vars = self.read_config_file(".jinja_vars", is_required=False)
-        for filename in os.listdir(dir):
-            if filename.endswith('.json'):
-                with open(os.path.join(dir, filename), 'r+') as file:
-                    contents = file.read()
-                    modified_contents = contents
-                    for var in jinja_vars:
-                        pattern=rf"{jinja_vars[var]}"
-                        new_pattern = rf"{{{{@ {var} @}}}}"
-                        modified_contents = re.sub(pattern,new_pattern, modified_contents)
+        if len(jinja_vars) == 0:
+            logger.warning("No jinja variables found in .jinja_vars file. Skipping replacement of template variables.")
+        else:
+            for filename in os.listdir(dir):
+                if filename.endswith('.json'):
+                    with open(os.path.join(dir, filename), 'r+') as file:
+                        contents = file.read()
+                        modified_contents = contents
+                        for var in jinja_vars:
+                            pattern=rf"{jinja_vars[var]}"
+                            new_pattern = rf"{{{{@ {var} @}}}}"
+                            modified_contents = re.sub(pattern,new_pattern, modified_contents)
 
-                    # modified_contents = re.sub(pattern, r"~t{{@ connected_ts @}}", contents)
-                    file.seek(0)
-                    file.write(modified_contents)
-                    file.truncate()
-                    file.close()
+                        file.seek(0)
+                        file.write(modified_contents)
+                        file.truncate()
+                        file.close()
+
 
     def get_zip_config(self, remove_zip=True):
         """ Create a ZIP file from the local content on disk and return a bytes object
@@ -1266,8 +1273,8 @@ class SesamCmdClient:
             zip_config.extractall()
             if not self.args.is_connector:
                 if os.path.exists("pipes") and os.path.exists("systems"):
-                    self.replace_env_variables("pipes")
-                    self.replace_env_variables("systems")
+                    self.replace_template_variables("pipes")
+                    self.replace_template_variables("systems")
                 else:
                     self.logger.warning("No pipes or systems found in downloaded config")
         except BaseException as e:
