@@ -770,21 +770,20 @@ class SesamCmdClient:
         return modified_contents
 
     def replace_template_variables(self, dir):
-        if self.args.jinja_vars:
-            for filename in os.listdir(dir):
-                if filename.endswith('.json'):
-                    with open(os.path.join(dir, filename), 'r+') as file:
-                        contents = file.read()
-                        modified_contents = contents
-                        for var in self.args.jinja_vars:
-                            pattern=rf"{self.args.jinja_vars[var]}"
-                            new_pattern = rf"{{{{@ {var} @}}}}"
-                            modified_contents = re.sub(pattern,new_pattern, modified_contents)
+        for filename in os.listdir(dir):
+            if filename.endswith('.json'):
+                with open(os.path.join(dir, filename), 'r+') as file:
+                    contents = file.read()
+                    modified_contents = contents
+                    for var in self.args.jinja_vars:
+                        pattern=rf"{self.args.jinja_vars[var]}"
+                        new_pattern = rf"{{{{@ {var} @}}}}"
+                        modified_contents = re.sub(pattern,new_pattern, modified_contents)
 
-                        file.seek(0)
-                        file.write(modified_contents)
-                        file.truncate()
-                        file.close()
+                    file.seek(0)
+                    file.write(modified_contents)
+                    file.truncate()
+                    file.close()
 
 
     def get_zip_config(self, remove_zip=True):
@@ -1263,11 +1262,14 @@ class SesamCmdClient:
             zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
             zip_config.extractall()
             if not self.args.is_connector:
-                if os.path.exists("pipes") and os.path.exists("systems"):
-                    self.replace_template_variables("pipes")
-                    self.replace_template_variables("systems")
+                if self.args.jinja_vars:
+                    if os.path.exists("pipes") and os.path.exists("systems"):
+                        self.replace_template_variables("pipes")
+                        self.replace_template_variables("systems")
+                    else:
+                        self.logger.warning("No pipes or systems found in downloaded config")
                 else:
-                    self.logger.warning("No pipes or systems found in downloaded config")
+                    self.logger.info("No jinja variables found. Not replacing any variables in config files")
         except BaseException as e:
             self.logger.error("Failed to unzip config file from Sesam to current directory")
             raise e
