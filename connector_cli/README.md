@@ -123,3 +123,5 @@ $ connectorpy expand
 $ cd .expanded
 $ sesampy upload
 ```
+
+### [Back to main page](../README.md)
