@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.23"
+sesam_version = "2.5.24"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -2602,7 +2602,15 @@ Commands:
             elif command == "download":
                 sesam_cmd_client.download()
             elif command == "status":
-                sesam_cmd_client.status()
+                if not args.is_connector:
+                    sesam_cmd_client.status()
+                else:
+                    if os.path.exists(os.path.join(args.connector_dir, args.expanded_dir)):
+                        os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
+                        sesam_cmd_client.status()
+                        os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
+                    else:
+                        logger.error("expanded directory not found. Please upload the configs first or check the input args.")
             elif command == "init":
                 sesam_cmd_client.init()
             elif command == "update":
