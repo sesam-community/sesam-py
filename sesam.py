@@ -1042,6 +1042,8 @@ class SesamCmdClient:
                             except BaseException as e:
                                 logger.error("Config file '/pipes/%s' is not valid json" % file)
                                 is_valid = False
+                            if config.get("description","").startswith("WARNING"):
+                                logger.warning("Config file '/pipes/%s' has a WARNING in the description." % file)
 
                             if "collect" in file and type(config.get("transform")) == list:
                                 for transform in config.get("transform"):
