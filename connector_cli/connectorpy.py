@@ -190,6 +190,9 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
 
     for template_name, components in templates.items():
         components = sorted(components, key=lambda x: x["_id"])
+        print(template_name)
+        if components[0]["type"] == "pipe": #TODO: change the condition to check if no use of template param found
+            components[0]["description"] = "WARNING! There is no use for template parameter"
         if template_name in datatypes_with_no_master_template:
             continue
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
