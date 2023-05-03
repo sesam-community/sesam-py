@@ -201,14 +201,14 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         datatype_parameters = existing_manifest.get('datatypes', {}).get(template_name, {}).get('parameters', {})
         for comp in components:
             should_exit = False
-            param_names = []
+            param_values = []
             for param_name,value in datatype_parameters.items():
                 if value not in str(comp):
-                    comp["description"] = "WARNING! There is no use for template parameter %s" % param_name
-                    param_names.append(param_name)
+                    param_values.append(value.upper())
                     should_exit = True
             if should_exit:
-                print("WARNING! There is no use for template parameter(s) %s in pipe: %s" % (param_names, comp.get("_id")))
+                comp["description"] = "WARNING! There is no use for template parameter %s" % param_values
+                print("WARNING! There is no use for template parameter(s) %s in pipe: %s" % (param_values, comp.get("_id")))
 
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
         fixed = template.replace(system_placeholder, "{{@ system @}}")
