@@ -190,26 +190,21 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
 
     for template_name, components in templates.items():
         components = sorted(components, key=lambda x: x["_id"])
-        # # TODO: check the logic for all configs
-        # if template_name != "system":
-        #     for comp in components:
-        #         props = comp.get("source", {}).get("properties", {})
-        #         params = existing_manifest.get("datatypes", {}).get(template_name, {}).get("parameters", {})
         if template_name in datatypes_with_no_master_template:
             continue
-        # template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
         datatype_parameters = existing_manifest.get('datatypes', {}).get(template_name, {}).get('parameters', {})
-        for comp in components:
-            should_exit = False
-            param_values = []
-            for param_name,value in datatype_parameters.items():
-                if value not in str(comp):
-                    param_values.append(value.upper())
-                    should_exit = True
-            if should_exit:
-                comp["description"] = "WARNING! There is no use for template parameter %s" % param_values
-                print("WARNING! There is no use for template parameter(s) %s in pipe: %s" % (param_values, comp.get("_id")))
-
+        should_warn = False
+        param_values = []
+        for param_name, value in datatype_parameters.items():
+            if value not in str(components):
+                param_values.append(value.upper())
+                should_warn = True
+        if should_warn:
+            if len(components) > 0:
+                components[0]["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+            else:
+                components["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+            logger.error("WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper()))
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
         fixed = template.replace(system_placeholder, "{{@ system @}}")
         envs = p.findall(fixed)
