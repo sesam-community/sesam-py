@@ -201,9 +201,15 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
                 should_warn = True
         if should_warn:
             if len(components) > 0:
-                components[0]["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+                if "description" not in components[0].keys():
+                    components[0]["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+                else:
+                    components[0]["description"] += "\nWARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
             else:
-                components["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+                if "description" not in components.keys():
+                    components["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+                else:
+                    components["description"] += "\nWARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
             logger.error("WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper()))
         template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
         fixed = template.replace(system_placeholder, "{{@ system @}}")
