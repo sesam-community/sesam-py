@@ -9,6 +9,7 @@ from flask import Flask, request, redirect, g
 from urllib.parse import urlencode
 import requests
 from connector_cli.connectorpy import expand_connector_config
+from urllib.parse import urlparse
 
 redirect_uri = "http://localhost:5010/login_callback"
 
@@ -87,6 +88,7 @@ def login_callback():
                 for key, value in json.load(f).items():
                     env[key] = value
         env["token_url"] = token_url
+        env["base_url"] = f"{urlparse(token_url).scheme}://{urlparse(token_url).netloc}"
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get env: %s" % e)
