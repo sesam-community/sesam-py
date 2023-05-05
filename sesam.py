@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.25"
+sesam_version = "2.5.26"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -2426,6 +2426,9 @@ Commands:
                         help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
                              "subscriptions")
 
+    parser.add_argument('-skip-auth', dest='skip_auth', required=False, action='store_true',
+                        help="skips the authentication step after upload command.")
+
     parser.add_argument("--system-placeholder", metavar="<string>",
                         default="xxxxxx", type=str, help="Name of the system _id placeholder (available only when working on connectors)")
 
@@ -2602,7 +2605,8 @@ Commands:
                     os.chdir(args.expanded_dir)
                     sesam_cmd_client.upload()
                     os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
-                    sesam_cmd_client.authenticate()
+                    if not args.skip_auth:
+                        sesam_cmd_client.authenticate()
             elif command == "download":
                 sesam_cmd_client.download()
             elif command == "status":
