@@ -1042,6 +1042,10 @@ class SesamCmdClient:
                             except BaseException as e:
                                 logger.error("Config file '/pipes/%s' is not valid json" % file)
                                 is_valid = False
+                            # TODO: change the validation for detecting warnings before expanding the config files. This could lead to unexpected behaviour.
+                            if "WARNING" in config.get("description",""):
+                                logger.error("Config file '/pipes/%s' has a WARNING in the description." % file)
+                                is_valid = False
 
                             if "collect" in file and type(config.get("transform")) == list:
                                 for transform in config.get("transform"):
