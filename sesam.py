@@ -30,7 +30,7 @@ from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
 
-sesam_version = "2.5.24"
+sesam_version = "2.5.25"
 
 logger = logging.getLogger('sesam')
 LOGLEVEL_TRACE = 2
@@ -1041,6 +1041,10 @@ class SesamCmdClient:
                                     config = json.load(f)
                             except BaseException as e:
                                 logger.error("Config file '/pipes/%s' is not valid json" % file)
+                                is_valid = False
+                            # TODO: change the validation for detecting warnings before expanding the config files. This could lead to unexpected behaviour.
+                            if "WARNING" in config.get("description",""):
+                                logger.error("Config file '/pipes/%s' has a WARNING in the description." % file)
                                 is_valid = False
 
                             if "collect" in file and type(config.get("transform")) == list:
