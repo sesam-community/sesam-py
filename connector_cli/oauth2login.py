@@ -8,6 +8,7 @@ import os.path
 from flask import Flask, request, redirect, g
 from urllib.parse import urlencode
 import requests
+from base64 import urlsafe_b64decode
 from connector_cli.connectorpy import expand_connector_config
 
 redirect_uri = "http://localhost:5010/login_callback"
@@ -40,11 +41,32 @@ def index():
     return redirect(login_url)
 
 
+def get_account_id_from_jwt(jwt_token):
+    """
+    Decode the JWT and retrieve the account_id
+
+    Params:
+        jwt_token - str: JSON Web Token
+    returns:
+        account_id - str: Account ID/name (sometimes used in requests)
+    """
+
+    _, payload, _ = jwt_token.split('.')
+    account_info = json.loads(urlsafe_b64decode(f"{payload}"))
+
+    account_id = account_info.get(
+        manifest.get("oauth2", {}).get("tenant_id_expression")[1]
+    )
+
+    return account_id
+
+
 @app.route("/login_callback")
 def login_callback():
     is_failed = False
     # get secrets
     secrets = {}
+    account_id = ""
     try:
         the_data = {
             "code": request.args.get('code'),
@@ -53,14 +75,29 @@ def login_callback():
             "grant_type": "authorization_code",
             "redirect_uri": redirect_uri,
         }
+
         resp = requests.post(token_url, data=the_data)
         data = resp.json()
         secrets = {
             "oauth_access_token": data["access_token"],
             "oauth_refresh_token": data["refresh_token"],
+
             "oauth_client_id": client_id,
             "oauth_client_secret": client_secret,
         }
+
+        identity_url = manifest.get("oauth2", {}).get("identity_url")
+        tenant_id = manifest.get("oauth2", {}).get("tenant_id_expression")
+
+        if type(tenant_id) is list:
+            account_id = get_account_id_from_jwt(data.get("id_token"))
+        elif tenant_id in data:
+            account_id = data.get(tenant_id)
+        elif identity_url:
+            account_id = requests.get(
+                f"{identity_url}{data.get('access_token')}"
+            ).json().get(tenant_id)
+
         if manifest.get("requires_service_api_access"):
             secrets["service_jwt"] = service_jwt
         if manifest.get("use_webhook_secret"):
@@ -88,6 +125,7 @@ def login_callback():
                     env[key] = value
         env["token_url"] = token_url
         env["base_url"] = base_url
+        env["account_id"] = account_id
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get env: %s" % e)
