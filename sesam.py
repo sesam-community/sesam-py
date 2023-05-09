@@ -26,6 +26,7 @@ from decimal import Decimal
 import pprint
 from jsonformat import format_object, FormatStyle
 import simplejson as json
+from urllib.parse import urlparse
 from connector_cli.connectorpy import *
 from connector_cli.oauth2login import *
 from connector_cli.tripletexlogin import *
@@ -995,6 +996,7 @@ class SesamCmdClient:
             self.args.login_url = connector_manifest["oauth2"]["login_url"]
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
+            self.args.base_url=args.base_url if args.base_url!=parser.get_default("base_url") else f"{urlparse(self.args.token_url).scheme}://{urlparse(self.args.token_url).netloc}"
             if os.path.exists(".authconfig"):
                 self.set_authconfig_credentials("client_id", "client_secret")
             else:
