@@ -180,6 +180,8 @@ optional arguments:
                         use with the init command to add test entities to input pipes
   -force-add
                         use with the '-add-test-entities' option to overwrite test entities that exist locally
+  -skip-auth            
+                        skip the authentication step after the upload command (available only when working on a connector).
   --system-placeholder <string>
                         Name of the system _id placeholder (available only when working on a connector)
   -d <string>           
