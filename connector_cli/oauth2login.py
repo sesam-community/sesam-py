@@ -87,6 +87,7 @@ def login_callback():
                 for key, value in json.load(f).items():
                     env[key] = value
         env["token_url"] = token_url
+        env["base_url"] = base_url
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get env: %s" % e)
@@ -107,13 +108,14 @@ def login_callback():
 
 
 def start_server(args):
-    global system_id, client_id, client_secret, login_url, token_url, event, profile_file,manifest,service_url,service_jwt
+    global system_id, client_id, client_secret, base_url, login_url, token_url, event, profile_file,manifest,service_url,service_jwt
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
     client_secret = args.client_secret
     service_url = args.service_url
     service_jwt = args.service_jwt
+    base_url = args.base_url
     login_url = args.login_url
     token_url = args.token_url
     scopes = args.scopes
