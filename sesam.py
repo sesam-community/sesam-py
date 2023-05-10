@@ -1862,18 +1862,56 @@ class SesamCmdClient:
 
         if not self.args.is_connector and self.args.connector_dir!=".":
             with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
-                json.dump({"datatypes": {}, "additional_parameters": {}}, f, indent=2, sort_keys=True)
+                json.dump(
+                {
+                    "datatypes": {},
+                    "additional_parameters": {}
+                },
+                    f, indent=2, sort_keys=True)
 
     def init_connector(self):
         with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
-            json.dump({"datatypes": {}, "additional_parameters": {},"system-template": "templates/system.json"}, f, indent=2, sort_keys=True)
+            json.dump(
+            {
+                "datatypes": {},
+                "additional_parameters": {},
+                "system-template": "templates/system.json"
+            },
+                f, indent=2, sort_keys=True)
 
         templates_dir = os.path.join(self.args.connector_dir, "templates")
         if not os.path.exists(templates_dir):
             os.makedirs(templates_dir)
 
+        with open(Path(self.args.connector_dir, "templates", "sample.json"), "w") as f:
+            json.dump(
+            [
+                {
+                    "_id": "{{@ system @}}-{{@ datatype @}}-collect",
+                    "namespaced_identifiers": False,
+                    "source":{},
+                    "transform":{},
+                    "type": "pipe"
+                },
+                {
+                    "_id": "{{@ system @}}-{{@ datatype @}}-share",
+                    "namespaced_identifiers": False,
+                    "sink":{},
+                    "source":{},
+                    "transform":{},
+                    "type": "pipe"
+                },
+            ],
+                f, indent=2, sort_keys=True)
+
         with open(Path(self.args.connector_dir, "templates", "system.json"), "w") as f:
-            json.dump({"_id": "{{@ system @}}","operations":{},"type":"system:rest","url_pattern":"","verify_ssl":True}, f, indent=2, sort_keys=True)
+            json.dump(
+            {
+                "_id": "{{@ system @}}","operations":{},
+                "type":"system:rest","url_pattern":"",
+                "verify_ssl":True
+            },
+                f, indent=2, sort_keys=True)
 
 
     def update(self):
