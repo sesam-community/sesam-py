@@ -1864,6 +1864,18 @@ class SesamCmdClient:
             with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
                 json.dump({"datatypes": {}, "additional_parameters": {}}, f, indent=2, sort_keys=True)
 
+    def init_connector(self):
+        with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
+            json.dump({"datatypes": {}, "additional_parameters": {},"system-template": "templates/system.json"}, f, indent=2, sort_keys=True)
+
+        templates_dir = os.path.join(self.args.connector_dir, "templates")
+        if not os.path.exists(templates_dir):
+            os.makedirs(templates_dir)
+
+        with open(Path(self.args.connector_dir, "templates", "system.json"), "w") as f:
+            json.dump({"_id": "{{@ system @}}","operations":{},"type":"system:rest","url_pattern":"","verify_ssl":True}, f, indent=2, sort_keys=True)
+
+
     def update(self):
         self.logger.info("Updating expected output from current output...")
         output_pipes = {}
@@ -2530,7 +2542,7 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["authenticate","validate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
+    if command not in ["authenticate","validate","upload", "download", "status", "init", "init_connector", "update", "verify", "test", "run", "wipe",
                        "restart", "reset", "dump", "stop", "convert"]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -2623,6 +2635,8 @@ Commands:
                         logger.error("expanded directory not found. Please upload the configs first or check the input args.")
             elif command == "init":
                 sesam_cmd_client.init()
+            elif command == "init_connector":
+                sesam_cmd_client.init_connector()
             elif command == "update":
                 sesam_cmd_client.update()
             elif command == "verify":
