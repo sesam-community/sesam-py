@@ -1,0 +1,7 @@
+[tool.black]
+line-length = 88
+include = '\.py$'
+
+[flake8]
+# Match black line length
+max-line-length = 88
