@@ -1,39 +1,35 @@
-import requests
-from requests.exceptions import HTTPError
 import argparse
-import logging
-import threading
-import shutil
-import logging.handlers
-import time
-import sys
-import os
-import os.path
-import io
+import configparser
 import copy
 import glob
-from lxml import etree
-import sesamclient
-import configparser
+import io
 import itertools
 import json
+import logging
+import logging.handlers
 import os
+import os.path
+import pprint
+import re
+import sys
+import threading
+import time
 import zipfile
-import uuid
+from decimal import Decimal
 from difflib import unified_diff
 from fnmatch import fnmatch
-from decimal import Decimal
-import pprint
-from jsonformat import format_object, FormatStyle
-import simplejson as json
 from urllib.parse import urlparse
-from connector_cli.connectorpy import *
-from connector_cli.oauth2login import *
-from connector_cli.tripletexlogin import *
+
+import sesamclient
+from lxml import etree
+from requests.exceptions import HTTPError
+
+from connector_cli import connectorpy, oauth2login, tripletexlogin
+from jsonformat import FormatStyle, format_object
 
 sesam_version = "2.5.28"
 
-logger = logging.getLogger('sesam')
+logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
 BASE_DIR = os.getcwd()
 GIT_ROOT = None
@@ -46,19 +42,19 @@ def normalize_path(filename):
 
 class SesamParser(argparse.ArgumentParser):
     def error(self, message):
-        sys.stderr.write('error: %s\n\n' % message)
+        sys.stderr.write("error: %s\n\n" % message)
         self.print_help()
         sys.exit(2)
 
 
 class TestSpec:
-    """ Test specification """
+    """Test specification"""
 
     def __init__(self, filename):
         self._spec = {}
         self._spec_file = filename
 
-        self._spec["name"] = filename[:-len(".test.json")]
+        self._spec["name"] = filename[: -len(".test.json")]
         self._spec["file"] = self.name + ".json"
         self._spec["endpoint"] = "json"
 
@@ -171,7 +167,7 @@ class TestSpec:
 
 
 class SesamNode:
-    """ Sesam node functions wrapped in a class to facilitate unit tests """
+    """Sesam node functions wrapped in a class to facilitate unit tests"""
 
     def __init__(self, node_url, jwt_token, logger, verify_ssl=True):
         self.logger = logger
@@ -180,45 +176,62 @@ class SesamNode:
         self.jwt_token = jwt_token
 
         safe_jwt = "{}*********{}".format(jwt_token[:10], jwt_token[-10:])
-        self.logger.debug("Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt)
+        self.logger.debug(
+            "Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt
+        )
 
         if verify_ssl is False:
             import urllib3
+
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        self.api_connection = sesamclient.Connection(sesamapi_base_url=self.node_url, jwt_auth_token=self.jwt_token,
-                                                     timeout=60 * 10, verify_ssl=verify_ssl)
+        self.api_connection = sesamclient.Connection(
+            sesamapi_base_url=self.node_url,
+            jwt_auth_token=self.jwt_token,
+            timeout=60 * 10,
+            verify_ssl=verify_ssl,
+        )
 
     def wait_for_all_pipes_to_deploy(self, timeout=30 * 60):
         starttime = time.time()
         while True:
             deploying = []
-            for pipe in [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]:
+            for pipe in [
+                p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)
+            ]:
                 if pipe.runtime["state"] == "Deploying":
                     deploying.append(pipe)
 
             if deploying:
-                # As an optimization we wait for one pipe to be deployed before we call get_pipes() again.
+                # As an optimization we wait for one pipe to be deployed before
+                # we call get_pipes() again.
                 pipe = deploying[0]
                 while True:
                     try:
                         pipe.wait_for_pipe_to_be_deployed(timeout=0)
                         logger.debug(f"Pipe '{pipe.id}' was deployed...")
-                        # We only wait for one pipe, since getting all the pipes with get_pipes() is much faster
-                        # that waiting for each individual pipe. Once one pipe has been deployed, usually all the other
+                        # We only wait for one pipe, since getting all the pipes
+                        # with get_pipes() is much faster
+                        # that waiting for each individual pipe.
+                        # Once one pipe has been deployed, usually all the other
                         # pipes will also be deployed.
                         break
-                    except BaseException as e:
+                    except BaseException:
                         logger.debug(f"Pipe '{pipe.id}' is still deploying...")
                         elapsedtime = time.time() - starttime
                         if elapsedtime > timeout:
-                            raise RuntimeError("Waiting for pipes to deploy timed out after %s seconds!" % timeout)
+                            raise RuntimeError(
+                                "Waiting for pipes to deploy timed "
+                                f"out after {timeout} seconds!"
+                            )
 
                     time.sleep(5)
 
             elapsedtime = time.time() - starttime
             if deploying and elapsedtime > timeout:
-                raise RuntimeError("Waiting for pipes to deploy timed out after %s seconds!" % timeout)
+                raise RuntimeError(
+                    "Waiting for pipes to deploy timed out after %s seconds!" % timeout
+                )
 
             if not deploying:
                 self.logger.debug("All pipes were deployed in %s seconds" % elapsedtime)
@@ -228,12 +241,19 @@ class SesamNode:
             time.sleep(5)
 
     def is_user_pipe(self, pipe):
-        if self.get_pipe_origin(pipe) in ["system", "search", "replica", "aggregator-storage-node"]:
+        if self.get_pipe_origin(pipe) in [
+            "system",
+            "search",
+            "replica",
+            "aggregator-storage-node",
+        ]:
             return False
 
         if pipe.id.find(":singlenode") > -1:
-            # IS-14078: temporary fix for the API intermittently returning pipes from worker-nodes (with pre or
-            # postfixes). This typically happens after a wipe or config update that deletes multiple pipes.
+            # IS-14078: temporary fix for the API intermittently returning pipes from
+            # worker-nodes (with pre or
+            # postfixes). This typically happens after a wipe or config update that
+            # deletes multiple pipes.
             return False
 
         return True
@@ -251,7 +271,10 @@ class SesamNode:
                 return
 
             if elapsedtime > timeout:
-                raise RuntimeError("Waiting for pipes to br removed timed out after %s seconds!" % timeout)
+                raise RuntimeError(
+                    "Waiting for pipes to br removed timed out after %s seconds!"
+                    % timeout
+                )
 
             logger.info(f"Waiting for {len(pipes)} pipes to be removed...")
             time.sleep(5)
@@ -260,8 +283,10 @@ class SesamNode:
         old_stats = self.api_connection.get_status()
         restart = self.api_connection.restart_node()
         if restart != {"message": "OK"}:
-            self.logger.debug("Restart node API call failed! It returned '%s', "
-                              "expected '{\"message\": \"OK\"}'" % restart)
+            self.logger.debug(
+                "Restart node API call failed! It returned '%s', "
+                'expected \'{"message": "OK"}\'' % restart
+            )
             raise RuntimeError("Failed to restart node!")
 
         # Wait until status works and gives a new start-time
@@ -277,16 +302,20 @@ class SesamNode:
 
             elapsed_time = time.monotonic() - starttime
             if elapsed_time > timeout:
-                raise RuntimeError("Failed to start node - wait for node restart timed "
-                                   "out after %s seconds. The last errror was: %s" % (timeout, msg))
+                raise RuntimeError(
+                    "Failed to start node - wait for node restart timed "
+                    "out after %s seconds. The last errror was: %s" % (timeout, msg)
+                )
             time.sleep(3)
 
     def reset(self, timeout):
         old_stats = self.api_connection.get_status()
         restart = self.api_connection.reset_node()
         if restart != {"message": "OK"}:
-            self.logger.debug("Reset node API call failed! It returned '%s', "
-                              "expected '{\"message\": \"OK\"}'" % restart)
+            self.logger.debug(
+                "Reset node API call failed! It returned '%s', "
+                'expected \'{"message": "OK"}\'' % restart
+            )
             raise RuntimeError("Failed to reset node!")
 
         # Wait until status works and gives a new start-time
@@ -302,8 +331,10 @@ class SesamNode:
 
             elapsed_time = time.monotonic() - starttime
             if elapsed_time > timeout:
-                raise RuntimeError("Failed to start node - wait for node restart timed "
-                                   "out after %s seconds. The last errror was: %s" % (timeout, msg))
+                raise RuntimeError(
+                    "Failed to start node - wait for node restart timed "
+                    "out after %s seconds. The last errror was: %s" % (timeout, msg)
+                )
             time.sleep(3)
 
     def put_config(self, config, force=False):
@@ -319,21 +350,27 @@ class SesamNode:
         return self.api_connection.get_env_vars()
 
     def get_system(self, system_id):
-        self.logger.log(LOGLEVEL_TRACE, "Get system '%s' from %s" % (system_id, self.node_url))
+        self.logger.log(
+            LOGLEVEL_TRACE, "Get system '%s' from %s" % (system_id, self.node_url)
+        )
         try:
             return self.api_connection.get_system(system_id)
-        except:
-            return None
+        except BaseException as e:
+            raise RuntimeError(f"Failed to get system. Error: {e}")
 
     def get_pipe(self, pipe_id):
-        self.logger.log(LOGLEVEL_TRACE, "Get pipe '%s' from %s" % (pipe_id, self.node_url))
+        self.logger.log(
+            LOGLEVEL_TRACE, "Get pipe '%s' from %s" % (pipe_id, self.node_url)
+        )
         try:
             return self.api_connection.get_pipe(pipe_id)
-        except:
-            return None
+        except BaseException as e:
+            raise RuntimeError(f"Failed to get pipe. Error: {e}")
 
     def add_system(self, config, verify=False, timeout=300):
-        self.logger.log(LOGLEVEL_TRACE, "Add system '%s' to %s" % (config, self.node_url))
+        self.logger.log(
+            LOGLEVEL_TRACE, "Add system '%s' to %s" % (config, self.node_url)
+        )
 
         self.api_connection.add_systems([config])
 
@@ -351,7 +388,7 @@ class SesamNode:
                     self.logger.debug("Posted system '%s' verified OK!" % config["_id"])
                     return True
             except BaseException as e:
-                pass
+                raise RuntimeError(f"Failed to add system. Error: {e}")
 
             time.sleep(sleep_time)
 
@@ -361,17 +398,24 @@ class SesamNode:
         return False
 
     def add_systems(self, config):
-        self.logger.log(LOGLEVEL_TRACE, "Add systems '%s' to %s" % (config, self.node_url))
+        self.logger.log(
+            LOGLEVEL_TRACE, "Add systems '%s' to %s" % (config, self.node_url)
+        )
         return self.api_connection.add_systems(config)
 
     def remove_system(self, system_id):
-        self.logger.log(LOGLEVEL_TRACE, "Remove system '%s' from %s" % (system_id, self.node_url))
+        self.logger.log(
+            LOGLEVEL_TRACE, "Remove system '%s' from %s" % (system_id, self.node_url)
+        )
         try:
             system = self.api_connection.get_system(system_id)
             if system is not None:
                 system.delete()
-        except:
-            logger.warning("Could not remove system '%s' - perhaps it doesn't exist" % system_id)
+        except BaseException as e:
+            logger.warning(
+                f"Could not remove system '{system_id}' - perhaps it doesn't exist"
+                f"\nError: {e}"
+            )
 
     def get_config(self, binary=False):
         data = self.api_connection.get_config_as_zip()
@@ -392,8 +436,9 @@ class SesamNode:
         if isinstance(sink_type, str) and sink_type.endswith("_endpoint"):
             return "endpoint"
 
-        if (source_config.get("dataset") or source_config.get("datasets")) and \
-                sink_config.get("dataset"):
+        if (
+            source_config.get("dataset") or source_config.get("datasets")
+        ) and sink_config.get("dataset"):
             return "internal"
 
         if not sink_config.get("dataset"):
@@ -402,24 +447,44 @@ class SesamNode:
         return "internal"
 
     def get_output_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p) and
-                self.get_pipe_type(p) == "output"]
+        return [
+            p
+            for p in self.api_connection.get_pipes()
+            if self.is_user_pipe(p) and self.get_pipe_type(p) == "output"
+        ]
 
     def get_input_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p) and
-                self.get_pipe_type(p) == "input"]
+        return [
+            p
+            for p in self.api_connection.get_pipes()
+            if self.is_user_pipe(p) and self.get_pipe_type(p) == "input"
+        ]
 
     def get_endpoint_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p) and
-                self.get_pipe_type(p) == "endpoint"]
+        return [
+            p
+            for p in self.api_connection.get_pipes()
+            if self.is_user_pipe(p) and self.get_pipe_type(p) == "endpoint"
+        ]
 
     def get_internal_pipes(self):
-        return [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p) and
-                self.get_pipe_type(p) == "internal"]
+        return [
+            p
+            for p in self.api_connection.get_pipes()
+            if self.is_user_pipe(p) and self.get_pipe_type(p) == "internal"
+        ]
 
-    def run_internal_scheduler(self, zero_runs=None, max_run_time=None, max_runs=None, delete_input_datasets=True,
-                               check_input_pipes=False, output_run_statistics=False, scheduler_mode=None,
-                               request_mode=None):
+    def run_internal_scheduler(
+        self,
+        zero_runs=None,
+        max_run_time=None,
+        max_runs=None,
+        delete_input_datasets=True,
+        check_input_pipes=False,
+        output_run_statistics=False,
+        scheduler_mode=None,
+        request_mode=None,
+    ):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
         params = {}
@@ -501,7 +566,6 @@ class SesamNode:
         return resp.json()
 
     def get_published_data(self, pipe, type="entities", params=None, binary=False):
-
         pipe_url = "%s/publishers/%s/%s" % (self.node_url, pipe.id, type)
 
         # Enable the pump, if it is disabled, or else we can't get the data
@@ -530,7 +594,6 @@ class SesamNode:
         return None
 
     def get_system_log(self, system_id, params=None):
-
         system_url = self.api_connection.get_system_url(system_id)
 
         resp = self.api_connection.session.get("%s/logs" % system_url, params=params)
@@ -539,21 +602,29 @@ class SesamNode:
         return resp.text
 
     def wait_for_microservice(self, microservice_id, timeout=300):
-        """ Polls the microservice status API until it is running (or we time out) """
+        """Polls the microservice status API until it is running (or we time out)"""
 
         system = self.get_system(microservice_id)
         if system is None:
-            raise AssertionError("Microservice system '%s' doesn't exist" % microservice_id)
+            raise AssertionError(
+                "Microservice system '%s' doesn't exist" % microservice_id
+            )
 
         sleep_time = 5.0
         while timeout > 0:
             try:
                 system_status = self.get_system_status(microservice_id)
             except BaseException as e:
-                self.logger.debug("Failed to get system status for microservice '%s'", microservice_id)
+                self.logger.debug(
+                    f"Failed to get system status for microservice '{microservice_id}'"
+                    f"\nError: {e}"
+                )
                 system_status = None
 
-            if system_status is not None and system_status.get("running", False) is True:
+            if (
+                system_status is not None
+                and system_status.get("running", False) is True
+            ):
                 return True
 
             time.sleep(sleep_time)
@@ -562,14 +633,19 @@ class SesamNode:
 
         return False
 
-    def microservice_get_proxy_request(self, microservice_id, path, params=None, result_as_json=True):
-
+    def microservice_get_proxy_request(
+        self, microservice_id, path, params=None, result_as_json=True
+    ):
         system = self.get_system(microservice_id)
         if system is None:
-            raise AssertionError("Microservice system '%s' doesn't exist" % microservice_id)
+            raise AssertionError(
+                "Microservice system '%s' doesn't exist" % microservice_id
+            )
 
         system_url = self.api_connection.get_system_url(microservice_id)
-        resp = self.api_connection.session.get(system_url + "/proxy/" + path, params=params)
+        resp = self.api_connection.session.get(
+            system_url + "/proxy/" + path, params=params
+        )
         resp.raise_for_status()
 
         if result_as_json:
@@ -577,26 +653,48 @@ class SesamNode:
 
         return resp.text
 
-    def microservice_post_proxy_request(self, microservice_id, path, params=None, data=None, result_as_json=True):
-        return self.microservice_post_put_proxy_request(microservice_id, "POST", path, params=params, data=data,
-                                                        result_as_json=result_as_json)
+    def microservice_post_proxy_request(
+        self, microservice_id, path, params=None, data=None, result_as_json=True
+    ):
+        return self.microservice_post_put_proxy_request(
+            microservice_id,
+            "POST",
+            path,
+            params=params,
+            data=data,
+            result_as_json=result_as_json,
+        )
 
-    def microservice_put_proxy_request(self, microservice_id, path, params=None, data=None, result_as_json=True):
-        return self.microservice_post_put_proxy_request(microservice_id, "PUT", path, params=params, data=data,
-                                                        result_as_json=result_as_json)
+    def microservice_put_proxy_request(
+        self, microservice_id, path, params=None, data=None, result_as_json=True
+    ):
+        return self.microservice_post_put_proxy_request(
+            microservice_id,
+            "PUT",
+            path,
+            params=params,
+            data=data,
+            result_as_json=result_as_json,
+        )
 
-    def microservice_post_put_proxy_request(self, microservice_id, method, path, params=None, data=None,
-                                            result_as_json=True):
-
+    def microservice_post_put_proxy_request(
+        self, microservice_id, method, path, params=None, data=None, result_as_json=True
+    ):
         system = self.get_system(microservice_id)
         if system is None:
-            raise AssertionError("Microservice system '%s' doesn't exist" % microservice_id)
+            raise AssertionError(
+                "Microservice system '%s' doesn't exist" % microservice_id
+            )
 
         system_url = self.api_connection.get_system_url(microservice_id)
         if method.lower() == "post":
-            resp = self.api_connection.session.post(system_url + "/proxy/" + path, params=params, data=data)
+            resp = self.api_connection.session.post(
+                system_url + "/proxy/" + path, params=params, data=data
+            )
         elif method.lower() == "put":
-            resp = self.api_connection.session.put(system_url + "/proxy/" + path, params=params, data=data)
+            resp = self.api_connection.session.put(
+                system_url + "/proxy/" + path, params=params, data=data
+            )
         else:
             raise AssertionError("Unknown method '%s'" % method)
 
@@ -619,12 +717,15 @@ class SesamNode:
         while True:
             resp = self.api_connection.session.post(pipe_url, **kwargs)
 
-            # Sometimes a subscription may take little while to deploy all the API routes, let's give it a chance
+            # Sometimes a subscription may take little while to deploy all the API
+            # routes, let's give it a chance
             # to catch up before we give up
             if resp.status_code == 503:
                 if time.monotonic() - starttime > timeout:
-                    logger.error(f"Failed to post request to HTTP receiver for pipe '{pipe_id}' after "
-                                 f"retrying for {timeout} seconds...")
+                    logger.error(
+                        f"Failed to post request to HTTP receiver for pipe "
+                        f"'{pipe_id}' after retrying for {timeout} seconds..."
+                    )
                     resp.raise_for_status()
                 time.sleep(1)
             else:
@@ -648,7 +749,7 @@ class SesamNode:
 
 
 class SesamCmdClient:
-    """ Commands wrapped in a class to make it easier to write unit tests """
+    """Commands wrapped in a class to make it easier to write unit tests"""
 
     def __init__(self, args, logger):
         self.args = args
@@ -671,7 +772,9 @@ class SesamCmdClient:
                             pipe = line.replace("pipes/", "").replace(".conf.json", "")
                             self.whitelisted_pipes.append(pipe)
                         elif line.startswith("systems/"):
-                            system = line.replace("systems/", "").replace(".conf.json", "")
+                            system = line.replace("systems/", "").replace(
+                                ".conf.json", ""
+                            )
                             self.whitelisted_systems.append(system)
             except BaseException as e:
                 logger.error(f"Failed to read whitelistfile '{args.whitelist_file}'")
@@ -680,17 +783,17 @@ class SesamCmdClient:
     def parse_config_file(self, filename):
         config = {}
         # try to parse as json, if fails parse as ini
-        with open(filename) as fp:
+        with open(filename, "r") as fp:
             try:
                 config = json.load(fp)
-            except ValueError as e:
+            except ValueError:
                 pass
         if not config:
             with open(filename) as fp:
                 parser = configparser.ConfigParser(strict=False)
                 # [sesam] section is prepended to support .syncconfig file
                 #  in which section is omitted
-                parser.read_file(itertools.chain(['[sesam]'], fp), source=filename)
+                parser.read_file(itertools.chain(["[sesam]"], fp), source=filename)
                 config = {}
                 for section in parser.sections():
                     for key, value in parser.items(section):
@@ -702,8 +805,12 @@ class SesamCmdClient:
         try:
             curr_dir = os.getcwd()
             if curr_dir is None:
-                self.logger.error("Failed to open current directory. Check your permissions.")
-                raise AssertionError("Failed to open current directory. Check your permissions.")
+                self.logger.error(
+                    "Failed to open current directory. Check your permissions."
+                )
+                raise AssertionError(
+                    "Failed to open current directory. Check your permissions."
+                )
 
             # Find config on disk, if any
             file_config = {}
@@ -723,18 +830,25 @@ class SesamCmdClient:
                             break
 
             if file_config:
-                self.logger.debug("Found config file '%s' in '%s'" % (filename, curr_dir))
+                self.logger.debug(
+                    "Found config file '%s' in '%s'" % (filename, curr_dir)
+                )
             else:
                 if is_required:
                     raise BaseException()
                 else:
-                    self.logger.debug("Cannot locate config file '%s' in current or parent folder. "
-                                      "Proceeding without it." % (filename))
+                    self.logger.debug(
+                        "Cannot locate config file '%s' in current or parent folder. "
+                        "Proceeding without it." % (filename)
+                    )
             return file_config
         except BaseException as e:
-            self.logger.error("Failed to read '%s' from either the current directory or the "
-                              "parent directory. Check that you are in the correct directory, that you have the"
-                              "required permissions to read the files and that the files have the correct format." % filename)
+            self.logger.error(
+                f"Failed to read '{filename}' from either the current directory or the "
+                "parent directory. Check that you are in the correct directory, that "
+                "you have therequired permissions to read the files and that the files "
+                "have the correct format."
+            )
             raise e
 
     def _coalesce(self, items):
@@ -756,51 +870,56 @@ class SesamCmdClient:
                     else:
                         with open(os.path.join(root, file), "rb") as f:
                             contents = f.read()
-                        modified_contents = self.replace_jinja_variables(contents.decode())
+                        modified_contents = self.replace_jinja_variables(
+                            contents.decode()
+                        )
                         zipfile.writestr(os.path.join(root, file), modified_contents)
 
-
     def replace_jinja_variables(self, contents):
-        modified_contents=contents
+        modified_contents = contents
         if self.args.jinja_vars:
             for var in self.args.jinja_vars:
                 pattern = rf"{{{{@ {var} @}}}}"
-                new_pattern=rf"{self.args.jinja_vars[var]}"
-                modified_contents=re.sub(pattern,new_pattern,modified_contents)
+                new_pattern = rf"{self.args.jinja_vars[var]}"
+                modified_contents = re.sub(pattern, new_pattern, modified_contents)
             modified_contents = modified_contents.encode("utf-8")
         return modified_contents
 
     def replace_template_variables(self, dir):
         for filename in os.listdir(dir):
-            if filename.endswith('.json'):
-                with open(os.path.join(dir, filename), 'r+') as file:
+            if filename.endswith(".json"):
+                with open(os.path.join(dir, filename), "r+") as file:
                     contents = file.read()
                     modified_contents = contents
                     for var in self.args.jinja_vars:
-                        pattern=rf"{self.args.jinja_vars[var]}"
+                        pattern = rf"{self.args.jinja_vars[var]}"
                         new_pattern = rf"{{{{@ {var} @}}}}"
-                        modified_contents = re.sub(pattern,new_pattern, modified_contents)
+                        modified_contents = re.sub(
+                            pattern, new_pattern, modified_contents
+                        )
 
                     file.seek(0)
                     file.write(modified_contents)
                     file.truncate()
                     file.close()
 
-
     def get_zip_config(self, remove_zip=True):
-        """ Create a ZIP file from the local content on disk and return a bytes object
-            If "remove_zip" is False, we dump it to disk as "sesam-config.zip" as well.
+        """Create a ZIP file from the local content on disk and return a bytes object
+        If "remove_zip" is False, we dump it to disk as "sesam-config.zip" as well.
         """
         if os.path.isfile("sesam-config.zip"):
             os.remove("sesam-config.zip")
 
-        zip_file = zipfile.ZipFile('sesam-config.zip', 'w', zipfile.ZIP_DEFLATED)
+        zip_file = zipfile.ZipFile("sesam-config.zip", "w", zipfile.ZIP_DEFLATED)
 
         self.zip_dir(zip_file, "pipes")
         self.zip_dir(zip_file, "systems")
 
         if os.path.isfile("node-metadata.conf.json"):
-            if not self.whitelisted_files or "node-metadata.conf.json" in self.whitelisted_files:
+            if (
+                not self.whitelisted_files
+                or "node-metadata.conf.json" in self.whitelisted_files
+            ):
                 zip_file.write("node-metadata.conf.json")
 
         zip_file.close()
@@ -846,17 +965,22 @@ class SesamCmdClient:
             with open("node-metadata.conf.json", "r") as infile:
                 node_metadata = json.load(infile)
 
-        remote_data = self.get_zipfile_data_by_filename(zip_data, "node-metadata.conf.json")
+        remote_data = self.get_zipfile_data_by_filename(
+            zip_data, "node-metadata.conf.json"
+        )
         if remote_data:
             remote_metadata = json.loads(str(remote_data, encoding="utf-8"))
 
-            if "task_manager" in remote_metadata and "disable_user_pipes" in remote_metadata["task_manager"] and \
-                    remote_metadata["task_manager"]["disable_user_pipes"] is True:
-
+            if (
+                "task_manager" in remote_metadata
+                and "disable_user_pipes" in remote_metadata["task_manager"]
+                and remote_metadata["task_manager"]["disable_user_pipes"] is True
+            ):
                 if "disable_user_pipes" in node_metadata.get("task_manager", {}):
                     # Restore the original, if present
-                    remote_metadata["task_manager"]["disable_user_pipes"] = \
-                        node_metadata["task_manager"]["disable_user_pipes"]
+                    remote_metadata["task_manager"][
+                        "disable_user_pipes"
+                    ] = node_metadata["task_manager"]["disable_user_pipes"]
                 else:
                     # Not present originally, so just remove it from remote
                     remote_metadata["task_manager"].pop("disable_user_pipes")
@@ -865,13 +989,18 @@ class SesamCmdClient:
                         remote_metadata.pop("task_manager")
 
             if "global_defaults" in remote_metadata:
-                if "enable_cpp_extensions" in remote_metadata["global_defaults"] and \
-                        remote_metadata["global_defaults"]["enable_cpp_extensions"] is False:
-
-                    if "enable_cpp_extensions" in node_metadata.get("global_defaults", {}):
+                if (
+                    "enable_cpp_extensions" in remote_metadata["global_defaults"]
+                    and remote_metadata["global_defaults"]["enable_cpp_extensions"]
+                    is False
+                ):
+                    if "enable_cpp_extensions" in node_metadata.get(
+                        "global_defaults", {}
+                    ):
                         # Restore the original, if present
-                        remote_metadata["global_defaults"]["enable_cpp_extensions"] = \
-                            node_metadata["global_defaults"]["enable_cpp_extensions"]
+                        remote_metadata["global_defaults"][
+                            "enable_cpp_extensions"
+                        ] = node_metadata["global_defaults"]["enable_cpp_extensions"]
                     else:
                         # Not present originally, so just remove it from remote
                         remote_metadata["global_defaults"].pop("enable_cpp_extensions")
@@ -879,24 +1008,35 @@ class SesamCmdClient:
                         if len(remote_metadata["global_defaults"]) == 0:
                             remote_metadata.pop("global_defaults")
 
-                if "eager_load_microservices" in remote_metadata["global_defaults"] and \
-                        remote_metadata["global_defaults"]["eager_load_microservices"] is False:
-
-                    if "eager_load_microservices" in node_metadata.get("global_defaults", {}):
+                if (
+                    "eager_load_microservices" in remote_metadata["global_defaults"]
+                    and remote_metadata["global_defaults"]["eager_load_microservices"]
+                    is False
+                ):
+                    if "eager_load_microservices" in node_metadata.get(
+                        "global_defaults", {}
+                    ):
                         # Restore the original, if present
-                        remote_metadata["global_defaults"]["eager_load_microservices"] = \
-                            node_metadata["global_defaults"]["eager_load_microservices"]
+                        remote_metadata["global_defaults"][
+                            "eager_load_microservices"
+                        ] = node_metadata["global_defaults"]["eager_load_microservices"]
                     else:
                         # Not present originally, so just remove it from remote
-                        remote_metadata["global_defaults"].pop("eager_load_microservices")
+                        remote_metadata["global_defaults"].pop(
+                            "eager_load_microservices"
+                        )
                         # Remove the entire global_defaults section if its empty
                         if len(remote_metadata["global_defaults"]) == 0:
                             remote_metadata.pop("global_defaults")
 
             # Replace the file and return the new zipfile
-            return self.replace_file_in_zipfile(zip_data, "node-metadata.conf.json",
-                                                json.dumps(remote_metadata, indent=2,
-                                                           ensure_ascii=False).encode("utf-8"))
+            return self.replace_file_in_zipfile(
+                zip_data,
+                "node-metadata.conf.json",
+                json.dumps(remote_metadata, indent=2, ensure_ascii=False).encode(
+                    "utf-8"
+                ),
+            )
 
         return zip_data
 
@@ -911,10 +1051,18 @@ class SesamCmdClient:
         try:
             file_config = self.read_config_file(configfilename, is_required=False)
 
-            self.node_url = self._coalesce([args.node, os.environ.get("NODE"), file_config.get("node")])
-            self.jwt_token = self._coalesce([args.jwt, os.environ.get("JWT"), file_config.get("jwt")])
+            self.node_url = self._coalesce(
+                [args.node, os.environ.get("NODE"), file_config.get("node")]
+            )
+            self.jwt_token = self._coalesce(
+                [args.jwt, os.environ.get("JWT"), file_config.get("jwt")]
+            )
 
-            if self.jwt_token and self.jwt_token.startswith('"') and self.jwt_token[-1] == '"':
+            if (
+                self.jwt_token
+                and self.jwt_token.startswith('"')
+                and self.jwt_token[-1] == '"'
+            ):
                 self.jwt_token = self.jwt_token[1:-1]
 
             if self.jwt_token.startswith("bearer "):
@@ -926,10 +1074,10 @@ class SesamCmdClient:
             self.node_url = self.node_url.replace('"', "")
 
             if not self.node_url.startswith("http"):
-                self.node_url = "https://%s" % self.node_url
+                self.node_url = f"https://{self.node_url}"
 
             if not self.node_url[-4:] == "/api":
-                self.node_url = "%s/api" % self.node_url
+                self.node_url = f"{self.node_url}/api"
 
             return self.node_url, self.jwt_token
 
@@ -943,7 +1091,9 @@ class SesamCmdClient:
         zout = zipfile.ZipFile(buffer, mode="w")
 
         for item in zip_config.infolist():
-            formatted_item = format_object(json.load(zip_config.open(item.filename)), self.formatstyle)
+            formatted_item = format_object(
+                json.load(zip_config.open(item.filename)), self.formatstyle
+            )
             zout.writestr(item, formatted_item)
 
         zout.close()
@@ -951,70 +1101,93 @@ class SesamCmdClient:
         buffer.seek(0)
         return buffer.read()
 
-
     def set_authconfig_credentials(self, *args):
         try:
             auth_credentials = self.read_config_file(".authconfig")
             for arg in args:
-                token=auth_credentials[arg]
+                token = auth_credentials[arg]
                 if token.startswith('"') and token.endswith('"'):
                     setattr(self.args, arg, token[1:-1])
                 else:
                     setattr(self.args, arg, token)
             logger.info("Found authentication credentials in .authconfig file.")
         except KeyError:
-            logger.warning("Could not find %s in .authconfig file. Checking the arguments." % arg)
-
+            logger.warning(
+                "Could not find %s in .authconfig file. Checking the arguments." % arg
+            )
 
     def authenticate(self):
         os.chdir(self.args.connector_dir)
-        self.args.service_url=self.node_url
-        self.args.service_jwt=self.jwt_token
-        if os.path.isfile("manifest.json"): # If manifest.json is in working directory
+        self.args.service_url = self.node_url
+        self.args.service_jwt = self.jwt_token
+        if os.path.isfile("manifest.json"):  # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
-        elif os.path.exists(os.path.join(args.connector_dir, "manifest.json")):# If manifest.json is in connector directory
-            self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
-        else:# If manifest.json is not found
+        elif os.path.exists(
+            os.path.join(args.connector_dir, "manifest.json")
+        ):  # If manifest.json is in connector directory
+            self.args.connector_manifest = os.path.join(
+                args.connector_dir, "manifest.json"
+            )
+        else:  # If manifest.json is not found
             logger.error("Could not find manifest.json in connector directory")
             sys.exit(1)
 
         with open(args.connector_manifest, "r") as f:
             connector_manifest = json.load(f)
 
-        if "auth_variant" in connector_manifest and connector_manifest["auth_variant"].lower() == "tripletex":
+        if (
+            "auth_variant" in connector_manifest
+            and connector_manifest["auth_variant"].lower() == "tripletex"
+        ):
             if os.path.exists(".authconfig"):
                 self.set_authconfig_credentials("consumer_token", "employee_token")
             else:
                 self.args.consumer_token = args.consumer_token
                 self.args.employee_token = args.employee_token
             if self.args.consumer_token is None or self.args.employee_token is None:
-                logger.error("Missing consumer_token and/or employee_token. Please provide them in .authconfig or as arguments.")
+                logger.error(
+                    "Missing consumer_token and/or employee_token. Please provide them "
+                    "in .authconfig or as arguments."
+                )
                 sys.exit(1)
             self.args.base_url = args.base_url
-            login_via_tripletex(self.sesam_node,self.args)
-        elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "oauth2":
+            tripletexlogin.login_via_tripletex(self.sesam_node, self.args)
+        elif (
+            "auth" in connector_manifest
+            and connector_manifest["auth"].lower() == "oauth2"
+        ):
             self.args.login_url = connector_manifest["oauth2"]["login_url"]
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
-            self.args.base_url=args.base_url if args.base_url!=parser.get_default("base_url") else f"{urlparse(self.args.token_url).scheme}://{urlparse(self.args.token_url).netloc}"
+            self.args.base_url = (
+                args.base_url
+                if args.base_url != parser.get_default("base_url")
+                else (
+                    f"{urlparse(self.args.token_url).scheme}://"
+                    f"{urlparse(self.args.token_url).netloc}"
+                )
+            )
             if os.path.exists(".authconfig"):
                 self.set_authconfig_credentials("client_id", "client_secret")
             else:
                 self.args.client_id = args.client_id
                 self.args.client_secret = args.client_secret
             if self.args.client_id is None or self.args.client_secret is None:
-                logger.error("Missing client_id and/or client_secret. Please provide them in .authconfig or as arguments.")
+                logger.error(
+                    "Missing client_id and/or client_secret. Please provide them in "
+                    ".authconfig or as arguments."
+                )
                 sys.exit(1)
-            login_via_oauth(self.sesam_node,self.args)
+            oauth2login.login_via_oauth(self.sesam_node, self.args)
         else:
             pass
 
     def validate(self):
         logger.info("Validating config files")
         # set the current directory when sesam validate is called from root.
-        if self.args.command == "validate" and self.args.connector_dir!=".":
+        if self.args.command == "validate" and self.args.connector_dir != ".":
             os.chdir(self.args.connector_dir)
-        is_valid=True
+        is_valid = True
         if os.path.exists(".expanded"):
             for root, _, files in os.walk(".expanded"):
                 if root.endswith("/.expanded"):
@@ -1022,77 +1195,129 @@ class SesamCmdClient:
                         if file.endswith(".json"):
                             try:
                                 with open(os.path.join(root, file), "r") as f:
-                                    config=json.load(f)
-                            except BaseException as e:
-                                logger.error("Config file '%s' is not valid json" % file)
-                                is_valid=False
+                                    config = json.load(f)
+                            except BaseException:
+                                logger.error(
+                                    "Config file '%s' is not valid json" % file
+                                )
+                                is_valid = False
                 elif root.endswith("/systems"):
                     for file in files:
                         if file.endswith(".json"):
                             try:
                                 with open(os.path.join(root, file), "r") as f:
-                                    config=json.load(f)
-                            except BaseException as e:
-                                logger.error("Config file '/systems/%s' is not valid json" % file)
-                                is_valid=False
+                                    config = json.load(f)
+                            except BaseException:
+                                logger.error(
+                                    "Config file '/systems/%s' is not valid json" % file
+                                )
+                                is_valid = False
                 elif root.endswith("/pipes"):
                     for file in files:
                         if file.endswith(".json"):
                             try:
                                 with open(os.path.join(root, file), "r") as f:
                                     config = json.load(f)
-                            except BaseException as e:
-                                logger.error("Config file '/pipes/%s' is not valid json" % file)
+                            except BaseException:
+                                logger.error(
+                                    "Config file '/pipes/%s' is not valid json" % file
+                                )
                                 is_valid = False
-                            # TODO: change the validation for detecting warnings before expanding the config files. This could lead to unexpected behaviour.
-                            if "WARNING" in config.get("description",""):
-                                logger.error("Config file '/pipes/%s' has a WARNING in the description." % file)
+                            # TODO: change the validation for detecting warnings before
+                            # expanding the config files. This could lead to unexpected
+                            # behaviour.
+                            if "WARNING" in config.get("description", ""):
+                                logger.error(
+                                    f"Config file '/pipes/{file}' has a WARNING "
+                                    "in the description."
+                                )
                                 is_valid = False
 
-                            if "collect" in file and type(config.get("transform")) == list:
+                            if (
+                                "collect" in file
+                                and type(config.get("transform")) == list
+                            ):
                                 for transform in config.get("transform"):
-                                    if transform.get("template") == "transform-collect-rest":
-                                        if not "exclude_completeness" in config.keys():
+                                    share_dataset = transform.get("properties").get(
+                                        "share_dataset"
+                                    )
+                                    if (
+                                        transform.get("template")
+                                        == "transform-collect-rest"
+                                    ):
+                                        if "exclude_completeness" not in config.keys():
                                             logger.error(
-                                                "Config file '/pipes/%s' is missing 'exclude_completeness' property" % file)
+                                                f"Config file '/pipes/{file}' is "
+                                                "missing 'exclude_completeness' "
+                                                "property"
+                                            )
                                             is_valid = False
                                         elif not transform.get("properties"):
-                                            logger.error("Config file '/pipes/%s' is missing 'properties' property" % file)
-                                            is_valid = False
-                                        elif not transform.get("properties").get("share_dataset"):
                                             logger.error(
-                                                "Config file '/pipes/%s' is missing 'share_dataset' property in 'properties'" % file)
+                                                f"Config file '/pipes/{file}' is "
+                                                "missing 'properties' property"
+                                            )
                                             is_valid = False
-                                        elif not transform.get("properties").get("share_dataset") in config.get(
-                                                "exclude_completeness"):
+                                        elif not share_dataset:
                                             logger.error(
-                                                "Config file '/pipes/%s' is missing '%s' in 'exclude_completeness'" % (
-                                                file, transform.get("properties").get("share_dataset")))
+                                                f"Config file '/pipes/{file}' is "
+                                                "missing 'share_dataset' property in "
+                                                "'properties'"
+                                            )
+                                            is_valid = False
+                                        elif share_dataset not in config.get(
+                                            "exclude_completeness"
+                                        ):
+                                            logger.error(
+                                                f"Config file '/pipes/{file}' is "
+                                                "missing "
+                                                f"'{share_dataset}' in "
+                                                "'exclude_completeness'"
+                                            )
                                             is_valid = False
 
                             if "share" in file:
                                 if type(config.get("transform")) == dict:
-                                    if config.get("transform").get("template") == "transform-share-rest":
-                                        if not "batch_size" in config.keys() or config.get("batch_size") != 1:
+                                    if (
+                                        config.get("transform").get("template")
+                                        == "transform-share-rest"
+                                    ):
+                                        if (
+                                            "batch_size" not in config.keys()
+                                            or config.get("batch_size") != 1
+                                        ):
                                             logger.error(
-                                                "Config file '%s' is missing 'batch_size' property with value: 1" % file)
+                                                f"Config file '{file}' is missing "
+                                                "'batch_size' property with value: 1"
+                                            )
                                             is_valid = False
                                 elif type(config.get("transform")) == list:
                                     for transform in config.get("transform"):
-                                        if transform.get("template") == "transform-share-rest":
-                                            if not "batch_size" in config.keys() or config.get("batch_size") != 1:
+                                        if (
+                                            transform.get("template")
+                                            == "transform-share-rest"
+                                        ):
+                                            if (
+                                                "batch_size" not in config.keys()
+                                                or config.get("batch_size") != 1
+                                            ):
                                                 logger.error(
-                                                    "Config file '%s' is missing 'batch_size' property with value: 1" % file)
+                                                    f"Config file '{file}' is missing "
+                                                    "'batch_size' property with "
+                                                    "value: 1"
+                                                )
                                                 is_valid = False
             if is_valid:
                 logger.warning("All config files are valid")
             else:
-                logger.error("One or more config files are not valid. Check the log for more information")
+                logger.error(
+                    "One or more config files are not valid. "
+                    "Check the log for more information"
+                )
                 sys.exit(1)
         else:
             logger.error("Failed to validate. Config files are not expanded.")
             sys.exit(1)
-
 
     def upload(self):
         # Find env vars to upload
@@ -1155,8 +1380,11 @@ class SesamCmdClient:
 
                 node_metadata["global_defaults"]["eager_load_microservices"] = False
 
-            zip_config = self.replace_file_in_zipfile(zip_config, "node-metadata.conf.json",
-                                                      json.dumps(node_metadata).encode("utf-8"))
+            zip_config = self.replace_file_in_zipfile(
+                zip_config,
+                "node-metadata.conf.json",
+                json.dumps(node_metadata).encode("utf-8"),
+            )
         except BaseException as e:
             logger.error("Failed to create zip archive of config")
             raise e
@@ -1179,25 +1407,35 @@ class SesamCmdClient:
                         continue
 
                     try:
-                        with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+                        with open(
+                            os.path.join(root, filename), "r", encoding="utf-8"
+                        ) as f:
                             entities_json = json.load(f)
 
                         if entities_json is not None:
-                            # deleting dataset before pushing data, since http_endpoint receiver will not delete
+                            # deleting dataset before pushing data,
+                            # since http_endpoint receiver will not delete
                             # existing test data.
                             try:
                                 self.sesam_node.delete_dataset(pipe_id)
                             except HTTPError as http_e:
-                                self.logger.log(LOGLEVEL_TRACE,
-                                                f"Failed to delete dataset {pipe_id}. It probably doesn't exist, "
-                                                f"which is fine. Error: {http_e}")
+                                self.logger.log(
+                                    LOGLEVEL_TRACE,
+                                    f"Failed to delete dataset {pipe_id}. "
+                                    "It probably doesn't exist, "
+                                    f"which is fine. Error: {http_e}",
+                                )
                             self.sesam_node.enable_pipe(pipe_id)
-                            self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+                            self.sesam_node.pipe_receiver_post_request(
+                                pipe_id, json=entities_json
+                            )
                             self.sesam_node.disable_pipe(pipe_id)
 
                     except BaseException as e:
                         self.logger.error(
-                            f"Failed to post payload to pipe {pipe_id}. {e}. Response from server was: {e.response.text}")
+                            f"Failed to post payload to pipe {pipe_id}. "
+                            f"{e}. Response from server was: {e.response.text}"
+                        )
                         raise e
 
             self.logger.info("Test data uploaded successfully")
@@ -1206,16 +1444,23 @@ class SesamCmdClient:
 
     def dump(self):
         try:
-            zip_config = self.get_zip_config(remove_zip=False)
+            self.get_zip_config(remove_zip=False)
         except BaseException as e:
             logger.error("Failed to create zip archive of config")
             raise e
 
     def download(self):
         if self.args.is_connector:
-            if not os.path.isdir(os.path.join(self.args.connector_dir, self.args.expanded_dir)):
-                logger.warning("Expanded directory '%s' does not exist. creating the directory." % self.args.expanded_dir)
-                os.makedirs(os.path.join(self.args.connector_dir, self.args.expanded_dir))
+            if not os.path.isdir(
+                os.path.join(self.args.connector_dir, self.args.expanded_dir)
+            ):
+                logger.warning(
+                    "Expanded directory '%s' does not exist. creating the directory."
+                    % self.args.expanded_dir
+                )
+                os.makedirs(
+                    os.path.join(self.args.connector_dir, self.args.expanded_dir)
+                )
             os.chdir(os.path.join(self.args.connector_dir, self.args.expanded_dir))
 
         # Find env vars to download
@@ -1249,7 +1494,10 @@ class SesamCmdClient:
             for filename in glob.glob("pipes%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
                 # Normalize path
-                if self.whitelisted_files and normalize_path(filename) not in self.whitelisted_files:
+                if (
+                    self.whitelisted_files
+                    and normalize_path(filename) not in self.whitelisted_files
+                ):
                     continue
 
                 self.logger.debug("Deleting pipe config file '%s'" % filename)
@@ -1257,7 +1505,10 @@ class SesamCmdClient:
 
             for filename in glob.glob("systems%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
-                if self.whitelisted_files and normalize_path(filename) not in self.whitelisted_files:
+                if (
+                    self.whitelisted_files
+                    and normalize_path(filename) not in self.whitelisted_files
+                ):
                     continue
 
                 self.logger.debug("Deleting system config file '%s'" % filename)
@@ -1273,11 +1524,18 @@ class SesamCmdClient:
                         self.replace_template_variables("pipes")
                         self.replace_template_variables("systems")
                     else:
-                        self.logger.warning("No pipes or systems found in downloaded config")
+                        self.logger.warning(
+                            "No pipes or systems found in downloaded config"
+                        )
                 else:
-                    self.logger.info("No jinja variables found. Not replacing any variables in config files")
+                    self.logger.info(
+                        "No jinja variables found. Not replacing any variables in "
+                        "config files"
+                    )
         except BaseException as e:
-            self.logger.error("Failed to unzip config file from Sesam to current directory")
+            self.logger.error(
+                "Failed to unzip config file from Sesam to current directory"
+            )
             raise e
 
         zip_config.close()
@@ -1287,16 +1545,21 @@ class SesamCmdClient:
         if self.args.is_connector:
             if curr_dir.endswith(self.args.expanded_dir):
                 os.chdir(os.pardir)
-                collapse_connector(".", self.args.system_placeholder, self.args.expanded_dir)
-
+                connectorpy.collapse_connector(
+                    ".", self.args.system_placeholder, self.args.expanded_dir
+                )
 
     def status(self):
-        def log_and_get_diff_flag(file_content1, file_content2, file_name1, file_name2, log_diff=True):
+        def log_and_get_diff_flag(
+            file_content1, file_content2, file_name1, file_name2, log_diff=True
+        ):
             diff_found = False
             if file_content1 != file_content2:
                 self.logger.info("File '%s' differs from Sesam!" % file_name1)
 
-                diff = self.get_diff_string(file_content1, file_content2, file_name1, file_name2)
+                diff = self.get_diff_string(
+                    file_content1, file_content2, file_name1, file_name2
+                )
                 if log_diff:
                     self.logger.info("Diff:\n%s" % diff)
 
@@ -1328,12 +1591,24 @@ class SesamCmdClient:
         profile_file = "%s-env.json" % self.args.profile
         try:
             with open(profile_file, "r", encoding="utf-8-sig") as local_env_file:
-                local_file_data = format_object(json.load(local_env_file), self.formatstyle)
-            remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
+                local_file_data = format_object(
+                    json.load(local_env_file), self.formatstyle
+                )
+            remote_file_data = format_object(
+                self.sesam_node.get_env(), self.formatstyle
+            )
 
-            diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, profile_file, profile_file,
-                                               self.args.diff) or diff_found
-        except FileNotFoundError as ex:
+            diff_found = (
+                log_and_get_diff_flag(
+                    local_file_data,
+                    remote_file_data,
+                    profile_file,
+                    profile_file,
+                    self.args.diff,
+                )
+                or diff_found
+            )
+        except FileNotFoundError:
             logger.error("Cannot locate profile file '%s'" % profile_file)
 
         for remote_file in remote_files:
@@ -1347,10 +1622,20 @@ class SesamCmdClient:
                 diff_found = True
             else:
                 local_file_data = str(local_config.read(local_file), encoding="utf-8")
-                remote_file_data = format_object(json.load(remote_config.open(local_file)), self.formatstyle)
+                remote_file_data = format_object(
+                    json.load(remote_config.open(local_file)), self.formatstyle
+                )
 
-                diff_found = log_and_get_diff_flag(local_file_data, remote_file_data, local_file, local_file,
-                                                   self.args.diff) or diff_found
+                diff_found = (
+                    log_and_get_diff_flag(
+                        local_file_data,
+                        remote_file_data,
+                        local_file,
+                        local_file,
+                        self.args.diff,
+                    )
+                    or diff_found
+                )
 
         if diff_found:
             logger.info("Sesam config is NOT in sync with local config!")
@@ -1358,7 +1643,7 @@ class SesamCmdClient:
             logger.info("Sesam config is up-to-date with local config!")
 
     def filter_entity(self, entity, test_spec):
-        """ Remove most underscore keys and filter potential blacklisted keys """
+        """Remove most underscore keys and filter potential blacklisted keys"""
 
         def filter_item(parent_path, item):
             result = copy.deepcopy(item)
@@ -1395,37 +1680,54 @@ class SesamCmdClient:
             test_spec = TestSpec(filename)
 
             pipe_id = test_spec.pipe
-            self.logger.log(LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id))
+            self.logger.log(
+                LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id)
+            )
 
             if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
-                logger.warning(f"Skipping test spec for non-whitelisted pipe '{pipe_id} - add it to the whitelist if "
-                               f"this is not correct!'")
+                logger.warning(
+                    f"Skipping test spec for non-whitelisted pipe '{pipe_id} - "
+                    "add it to the whitelist if "
+                    f"this is not correct!'"
+                )
                 continue
 
             if pipe_id not in existing_output_pipes:
                 if update is False:
-                    logger.error("Test spec '%s' references a non-exisiting output "
-                                 "pipe '%s' - please remove '%s'" % (test_spec.spec_file, pipe_id, test_spec.spec_file))
+                    logger.error(
+                        "Test spec '%s' references a non-exisiting output "
+                        "pipe '%s' - please remove '%s'"
+                        % (test_spec.spec_file, pipe_id, test_spec.spec_file)
+                    )
                     failed = True
                 else:
                     if test_spec.ignore is False:
                         # Remove the test spec file
                         if os.path.isfile("%s" % test_spec.spec_file):
-                            logger.warning("Test spec '%s' references a non-exisiting output "
-                                           "pipe '%s' - removing '%s'.." % (test_spec.spec_file, pipe_id,
-                                                                            test_spec.spec_file))
+                            logger.warning(
+                                "Test spec '%s' references a non-exisiting output "
+                                "pipe '%s' - removing '%s'.."
+                                % (test_spec.spec_file, pipe_id, test_spec.spec_file)
+                            )
                             os.remove(test_spec.spec_file)
                             continue
                     else:
-                        logger.warning("Test spec '%s' references a non-exisiting output "
-                                       "pipe '%s' but is marked as 'ignore' - consider "
-                                       "removing '%s'.." % (test_spec.spec_file, pipe_id, test_spec.spec_file))
+                        logger.warning(
+                            "Test spec '%s' references a non-exisiting output "
+                            "pipe '%s' but is marked as 'ignore' - consider "
+                            "removing '%s'.."
+                            % (test_spec.spec_file, pipe_id, test_spec.spec_file)
+                        )
 
             if test_spec.ignore is False and not os.path.isfile("%s" % test_spec.file):
-                logger.warning("Test spec '%s' references non-exisiting 'expected' output "
-                               "file '%s'" % (test_spec.spec_file, test_spec.file))
+                logger.warning(
+                    "Test spec '%s' references non-exisiting 'expected' output "
+                    "file '%s'" % (test_spec.spec_file, test_spec.file)
+                )
                 if update is True:
-                    logger.info("Creating empty 'expected' output file '%s'..." % test_spec.file)
+                    logger.info(
+                        "Creating empty 'expected' output file '%s'..." % test_spec.file
+                    )
                     with open(test_spec.file, "w") as fp:
                         fp.write("[]\n")
                 else:
@@ -1437,11 +1739,15 @@ class SesamCmdClient:
 
                 if os.path.isfile(output_filename):
                     if update:
-                        self.logger.debug("Removing existing output file '%s'" % output_filename)
+                        self.logger.debug(
+                            "Removing existing output file '%s'" % output_filename
+                        )
                         os.remove(output_filename)
                     else:
                         self.logger.warning(
-                            "pipe '%s' is ignored, but output file '%s' still exists" % (pipe_id, filename))
+                            "pipe '%s' is ignored, but output file '%s' still exists"
+                            % (pipe_id, filename)
+                        )
 
             if pipe_id not in test_specs:
                 test_specs[pipe_id] = []
@@ -1455,14 +1761,19 @@ class SesamCmdClient:
         if update:
             for pipe in existing_output_pipes.values():
                 if self.whitelisted_pipes and pipe.id not in self.whitelisted_pipes:
-                    logger.warning(f"Not updating non-whitelisted pipe '{pipe.id} - add it to the whitelist if "
-                                   f"this is not correct!'")
+                    logger.warning(
+                        f"Not updating non-whitelisted pipe '{pipe.id} - add "
+                        "it to the whitelist if "
+                        f"this is not correct!'"
+                    )
                     continue
 
                 self.logger.debug("Updating pipe '%s" % pipe.id)
 
                 if pipe.id not in test_specs:
-                    self.logger.warning("Found no spec for pipe %s - creating empty spec file" % pipe.id)
+                    self.logger.warning(
+                        "Found no spec for pipe %s - creating empty spec file" % pipe.id
+                    )
 
                     filename = os.path.join("expected", "%s.test.json" % pipe.id)
                     with open(filename, "w") as fp:
@@ -1475,23 +1786,36 @@ class SesamCmdClient:
         a_lines = io.StringIO(a).readlines()
         b_lines = io.StringIO(b).readlines()
 
-        return "".join(unified_diff(a_lines, b_lines, fromfile=a_filename, tofile=b_filename))
+        return "".join(
+            unified_diff(a_lines, b_lines, fromfile=a_filename, tofile=b_filename)
+        )
 
     def bytes_to_xml_string(self, xml_data):
-
         xml_declaration, standalone = self.find_xml_header_settings(xml_data)
         xml_doc_root = etree.fromstring(xml_data)
 
         try:
-            result = str(etree.tostring(xml_doc_root, encoding="utf-8",
-                                        xml_declaration=xml_declaration,
-                                        standalone=standalone,
-                                        pretty_print=True), encoding="utf-8")
-        except UnicodeEncodeError as e:
-            result = str(etree.tostring(xml_doc_root, encoding="latin-1",
-                                        xml_declaration=xml_declaration,
-                                        standalone=standalone,
-                                        pretty_print=True), encoding="latin-1")
+            result = str(
+                etree.tostring(
+                    xml_doc_root,
+                    encoding="utf-8",
+                    xml_declaration=xml_declaration,
+                    standalone=standalone,
+                    pretty_print=True,
+                ),
+                encoding="utf-8",
+            )
+        except UnicodeEncodeError:
+            result = str(
+                etree.tostring(
+                    xml_doc_root,
+                    encoding="latin-1",
+                    xml_declaration=xml_declaration,
+                    standalone=standalone,
+                    pretty_print=True,
+                ),
+                encoding="latin-1",
+            )
 
         return result
 
@@ -1521,10 +1845,17 @@ class SesamCmdClient:
         output_pipes = {}
         failed = False
 
-        for p in self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes():
+        for p in (
+            self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes()
+        ):
             if p.runtime.get("is-valid-config", False) is False:
-                self.logger.error("The pipe '%s' has invalid config, cannot verify pipe!" % p.id)
-                self.logger.error("The error(s) reported was: %s" % p.runtime.get("config-errors", "unknown"))
+                self.logger.error(
+                    "The pipe '%s' has invalid config, cannot verify pipe!" % p.id
+                )
+                self.logger.error(
+                    "The error(s) reported was: %s"
+                    % p.runtime.get("config-errors", "unknown")
+                )
             else:
                 output_pipes[p.id] = p
 
@@ -1539,8 +1870,11 @@ class SesamCmdClient:
         missing_tests = []
         for pipe in output_pipes.values():
             if self.whitelisted_pipes and pipe.id not in self.whitelisted_pipes:
-                self.logger.warning(f"Skipping verify for pipe '{pipe.id}' - add it to the whitelist if this is not "
-                                    f"correct!")
+                self.logger.warning(
+                    f"Skipping verify for pipe '{pipe.id}' - add it to the whitelist "
+                    "if this is not "
+                    f"correct!"
+                )
                 continue
 
             self.logger.debug("Verifying pipe '%s'.." % pipe.id)
@@ -1549,89 +1883,172 @@ class SesamCmdClient:
                 # Verify all tests specs for this pipe
                 for test_spec in test_specs[pipe.id]:
                     if test_spec.ignore is True:
-                        self.logger.debug("Skipping test spec '%s' because it was marked as 'ignore'" % test_spec.name)
+                        self.logger.debug(
+                            "Skipping test spec '%s' because it was marked as 'ignore'"
+                            % test_spec.name
+                        )
                         continue
 
                     if test_spec.endpoint == "json" or test_spec.endpoint == "excel":
                         # Get current entities from pipe in json form
                         expected_entities = test_spec.expected_entities
 
-                        expected_output = sorted(expected_entities,
-                                                 key=lambda _e: (_e['_id'],
-                                                                 json.dumps(_e, ensure_ascii=False,
-                                                                            sort_keys=True)))
+                        expected_output = sorted(
+                            expected_entities,
+                            key=lambda _e: (
+                                _e["_id"],
+                                json.dumps(_e, ensure_ascii=False, sort_keys=True),
+                            ),
+                        )
 
                         if test_spec.ignore_deletes:
                             # Gather any expected deletes
-                            expected_deletes = [_e["_id"] for _e in expected_entities if
-                                                _e.get("_deleted", False) is True]
+                            expected_deletes = [
+                                _e["_id"]
+                                for _e in expected_entities
+                                if _e.get("_deleted", False) is True
+                            ]
 
                             # Filter away any unexpected deleted from the current output
                             current_entities = []
-                            for en in [self.filter_entity(_e, test_spec)
-                                       for _e in self.sesam_node.get_pipe_entities(pipe,
-                                                                                   stage=test_spec.stage)]:
-                                if en.get("_deleted", False) is True and en["_id"] not in expected_deletes:
+                            for en in [
+                                self.filter_entity(_e, test_spec)
+                                for _e in self.sesam_node.get_pipe_entities(
+                                    pipe, stage=test_spec.stage
+                                )
+                            ]:
+                                if (
+                                    en.get("_deleted", False) is True
+                                    and en["_id"] not in expected_deletes
+                                ):
                                     continue
                                 current_entities.append(en)
                         else:
-                            current_entities = [self.filter_entity(_e, test_spec)
-                                                for _e in self.sesam_node.get_pipe_entities(pipe,
-                                                                                            stage=test_spec.stage)]
+                            current_entities = [
+                                self.filter_entity(_e, test_spec)
+                                for _e in self.sesam_node.get_pipe_entities(
+                                    pipe, stage=test_spec.stage
+                                )
+                            ]
 
-                        current_output = sorted(current_entities, key=lambda _e: _e['_id'])
+                        current_output = sorted(
+                            current_entities, key=lambda _e: _e["_id"]
+                        )
 
-                        fixed_current_output = self._fix_decimal_to_ints(copy.deepcopy(current_output))
+                        fixed_current_output = self._fix_decimal_to_ints(
+                            copy.deepcopy(current_output)
+                        )
 
-                        fixed_current_output = sorted(fixed_current_output,
-                                                      key=lambda _e: (_e['_id'],
-                                                                      json.dumps(_e, ensure_ascii=False,
-                                                                                 sort_keys=True)))
+                        fixed_current_output = sorted(
+                            fixed_current_output,
+                            key=lambda _e: (
+                                _e["_id"],
+                                json.dumps(_e, ensure_ascii=False, sort_keys=True),
+                            ),
+                        )
 
                         if len(fixed_current_output) != len(expected_output):
-                            file_path = os.path.join(os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file)
-                            msg = "Pipe verify failed! Length mismatch for test spec '%s': " \
-                                  "expected %d got %d" % (test_spec.spec_file,
-                                                          len(expected_output), len(fixed_current_output))
+                            file_path = os.path.join(
+                                os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file
+                            )
+                            msg = (
+                                "Pipe verify failed! Length mismatch for "
+                                "test spec '%s': "
+                                "expected %d got %d"
+                                % (
+                                    test_spec.spec_file,
+                                    len(expected_output),
+                                    len(fixed_current_output),
+                                )
+                            )
                             self.logger.error(msg, {"file_path": file_path})
 
-                            self.logger.info("Expected output:\n%s", pprint.pformat(expected_output))
+                            self.logger.info(
+                                "Expected output:\n%s", pprint.pformat(expected_output)
+                            )
 
                             if self.args.extra_extra_verbose:
-                                self.logger.info("Got raw output:\n%s", pprint.pformat(current_output))
+                                self.logger.info(
+                                    "Got raw output:\n%s",
+                                    pprint.pformat(current_output),
+                                )
 
-                            self.logger.info("Got output:\n%s", pprint.pformat(fixed_current_output))
+                            self.logger.info(
+                                "Got output:\n%s", pprint.pformat(fixed_current_output)
+                            )
 
-                            diff = self.get_diff_string(json.dumps(expected_output, indent=2,
-                                                                   ensure_ascii=False, sort_keys=True),
-                                                        json.dumps(fixed_current_output, indent=2, ensure_ascii=False,
-                                                                   sort_keys=True),
-                                                        test_spec.file, "current-output.json")
+                            diff = self.get_diff_string(
+                                json.dumps(
+                                    expected_output,
+                                    indent=2,
+                                    ensure_ascii=False,
+                                    sort_keys=True,
+                                ),
+                                json.dumps(
+                                    fixed_current_output,
+                                    indent=2,
+                                    ensure_ascii=False,
+                                    sort_keys=True,
+                                ),
+                                test_spec.file,
+                                "current-output.json",
+                            )
                             self.logger.info("Diff:\n%s" % diff)
                             failed_tests.append(test_spec)
                             failed = True
                         else:
-                            expected_json = json.dumps(expected_output, ensure_ascii=False, indent=2, sort_keys=True)
-                            current_json = json.dumps(fixed_current_output, ensure_ascii=False, indent=2,
-                                                      sort_keys=True)
+                            expected_json = json.dumps(
+                                expected_output,
+                                ensure_ascii=False,
+                                indent=2,
+                                sort_keys=True,
+                            )
+                            current_json = json.dumps(
+                                fixed_current_output,
+                                ensure_ascii=False,
+                                indent=2,
+                                sort_keys=True,
+                            )
 
                             if expected_json != current_json:
-                                file_path = os.path.join(os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file)
-                                self.logger.error("Pipe verify failed! "
-                                                  "Content mismatch for test spec '%s'" % test_spec.file,
-                                                  {"file_path": file_path})
+                                file_path = os.path.join(
+                                    os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file
+                                )
+                                self.logger.error(
+                                    "Pipe verify failed! "
+                                    "Content mismatch for test spec '%s'"
+                                    % test_spec.file,
+                                    {"file_path": file_path},
+                                )
 
-                                self.logger.info("Expected output:\n%s" % pprint.pformat(expected_output))
+                                self.logger.info(
+                                    "Expected output:\n%s"
+                                    % pprint.pformat(expected_output)
+                                )
 
                                 if self.args.extra_extra_verbose:
-                                    self.logger.info("Expected output JSON:\n%s" % expected_json)
-                                    self.logger.info("Got raw output:\n%s" % pprint.pformat(current_output))
-                                    self.logger.info("Got output JSON:\n%s" % current_json)
+                                    self.logger.info(
+                                        "Expected output JSON:\n%s" % expected_json
+                                    )
+                                    self.logger.info(
+                                        "Got raw output:\n%s"
+                                        % pprint.pformat(current_output)
+                                    )
+                                    self.logger.info(
+                                        "Got output JSON:\n%s" % current_json
+                                    )
 
-                                self.logger.info("Got output:\n%s" % pprint.pformat(fixed_current_output))
+                                self.logger.info(
+                                    "Got output:\n%s"
+                                    % pprint.pformat(fixed_current_output)
+                                )
 
-                                diff = self.get_diff_string(expected_json, current_json,
-                                                            test_spec.file, "current-output.json")
+                                diff = self.get_diff_string(
+                                    expected_json,
+                                    current_json,
+                                    test_spec.file,
+                                    "current-output.json",
+                                )
 
                                 self.logger.info("Diff:\n%s" % diff)
                                 failed_tests.append(test_spec)
@@ -1641,13 +2058,15 @@ class SesamCmdClient:
                         # Special case: download and format xml document as a string
                         self.logger.debug("Comparing XML output..")
                         expected_output = test_spec.expected_data
-                        current_output = self.sesam_node.get_published_data(pipe, "xml",
-                                                                            params=test_spec.parameters,
-                                                                            binary=True)
+                        current_output = self.sesam_node.get_published_data(
+                            pipe, "xml", params=test_spec.parameters, binary=True
+                        )
 
                         try:
-                            # Compare prettified versions of expected and current output so we have the
-                            # same serialisation to look at (XML documents may be semanticaly identical even if
+                            # Compare prettified versions of expected and current
+                            # output so we have the
+                            # same serialisation to look at (XML documents may be
+                            # semanticaly identical even if
                             # their serialisations differ).
                             expected_output = self.bytes_to_xml_string(expected_output)
                             current_output = self.bytes_to_xml_string(current_output)
@@ -1656,27 +2075,46 @@ class SesamCmdClient:
                                 failed_tests.append(test_spec)
                                 failed = True
 
-                                self.logger.info("Pipe verify failed! Content mismatch:\n%s" %
-                                                 self.get_diff_string(expected_output, current_output, test_spec.file,
-                                                                      "current_data.xml"))
+                                self.logger.info(
+                                    "Pipe verify failed! Content mismatch:\n%s"
+                                    % self.get_diff_string(
+                                        expected_output,
+                                        current_output,
+                                        test_spec.file,
+                                        "current_data.xml",
+                                    )
+                                )
 
-                        except BaseException as e:
-                            # Unable to parse the expected input and/or the current output, we'll have to just
+                        except BaseException:
+                            # Unable to parse the expected input and/or the current
+                            # output, we'll have to just
                             # compare them byte-by-byte
 
-                            self.logger.debug("Failed to parse expected output and/or current output as XML")
-                            self.logger.debug("Falling back to byte-level comparison. Note that this might generate "
-                                              "false differences for XML data.")
+                            self.logger.debug(
+                                "Failed to parse expected output and/or current "
+                                "output as XML"
+                            )
+                            self.logger.debug(
+                                "Falling back to byte-level comparison. Note that "
+                                "this might generate "
+                                "false differences for XML data."
+                            )
 
                             if expected_output != current_output:
                                 failed_tests.append(test_spec)
                                 failed = True
-                                self.logger.error("Pipe verify failed! Content mismatch!")
+                                self.logger.error(
+                                    "Pipe verify failed! Content mismatch!"
+                                )
                     else:
                         # Download contents as-is as a byte buffer
                         expected_output = test_spec.expected_data
-                        current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
-                                                                            params=test_spec.parameters, binary=True)
+                        current_output = self.sesam_node.get_published_data(
+                            pipe,
+                            test_spec.endpoint,
+                            params=test_spec.parameters,
+                            binary=True,
+                        )
 
                         if expected_output != current_output:
                             failed_tests.append(test_spec)
@@ -1686,19 +2124,33 @@ class SesamCmdClient:
                             try:
                                 expected_output = str(expected_output, encoding="utf-8")
                                 current_output = str(current_output, encoding="utf-8")
-                            except UnicodeDecodeError as e:
+                            except UnicodeDecodeError:
                                 try:
-                                    expected_output = str(expected_output, encoding="latin-1")
-                                    current_output = str(current_output, encoding="latin-1")
-                                except UnicodeDecodeError as e2:
-                                    self.logger.error("Pipe verify failed! Content mismatch!")
-                                    self.logger.warning("Unable to read expected and/or output data as "
-                                                        "unicode text so I can't show diff")
+                                    expected_output = str(
+                                        expected_output, encoding="latin-1"
+                                    )
+                                    current_output = str(
+                                        current_output, encoding="latin-1"
+                                    )
+                                except UnicodeDecodeError:
+                                    self.logger.error(
+                                        "Pipe verify failed! Content mismatch!"
+                                    )
+                                    self.logger.warning(
+                                        "Unable to read expected and/or output data as "
+                                        "unicode text so I can't show diff"
+                                    )
                                     continue
 
-                            self.logger.error("Pipe verify failed! Content mismatch:\n%s" %
-                                              self.get_diff_string(expected_output, current_output, test_spec.file,
-                                                                   "current_data.txt"))
+                            self.logger.error(
+                                "Pipe verify failed! Content mismatch:\n%s"
+                                % self.get_diff_string(
+                                    expected_output,
+                                    current_output,
+                                    test_spec.file,
+                                    "current_data.txt",
+                                )
+                            )
             else:
                 self.logger.error("No tests references pipe '%s'" % pipe.id)
                 missing_tests.append(pipe.id)
@@ -1706,10 +2158,15 @@ class SesamCmdClient:
 
         if failed:
             if len(failed_tests) > 0:
-                self.logger.error("Failed %s of %s tests!" % (len(failed_tests), len(list(test_specs.keys()))))
+                self.logger.error(
+                    "Failed %s of %s tests!"
+                    % (len(failed_tests), len(list(test_specs.keys())))
+                )
                 self.logger.error("Failed pipe id (spec file):")
                 for failed_test_spec in failed_tests:
-                    self.logger.error("%s (%s)" % (failed_test_spec.pipe, failed_test_spec.spec_file))
+                    self.logger.error(
+                        "%s (%s)" % (failed_test_spec.pipe, failed_test_spec.spec_file)
+                    )
 
             if len(missing_tests) > 0:
                 self.logger.error("Missing %s tests!" % len(missing_tests))
@@ -1719,7 +2176,9 @@ class SesamCmdClient:
 
             raise RuntimeError("Verify failed")
         else:
-            self.logger.info("All tests passed! Ran %s tests." % len(list(test_specs.keys())))
+            self.logger.info(
+                "All tests passed! Ran %s tests." % len(list(test_specs.keys()))
+            )
 
     def find_xml_header_settings(self, xml_data):
         xml_declaration = False
@@ -1748,35 +2207,48 @@ class SesamCmdClient:
         return xml_declaration, standalone
 
     def test_entities_to_pipe(self, pipe):
-        # Get input entities from a live node and add these to the local pipe configuration as test entities
+        # Get input entities from a live node and add these to the local pipe
+        # configuration as test entities
         self.logger.info(f"Adding test entities to pipe '{pipe['_id']}'")
-        node_pipe = self.sesam_node.get_pipe(pipe['_id'])
+        node_pipe = self.sesam_node.get_pipe(pipe["_id"])
         if node_pipe is not None:
-            dataset_id = node_pipe.config['effective'].get("sink", {}).get("dataset", node_pipe.id)
+            dataset_id = (
+                node_pipe.config["effective"]
+                .get("sink", {})
+                .get("dataset", node_pipe.id)
+            )
         else:
-            self.logger.warning(f"Configuration for '{pipe['_id']}' was not found on the node. Continuing without "
-                                f"adding any test entities.")
+            self.logger.warning(
+                f"Configuration for '{pipe['_id']}' was not found on the node. "
+                f"Continuing without adding any test entities."
+            )
             return pipe, 0
 
         try:
             dataset = self.sesam_node.api_connection.get_dataset(dataset_id)
-            entities = list(dataset.get_entities(history=False, deleted=False, limit=10, do_transit_decoding=False))
+            entities = list(
+                dataset.get_entities(
+                    history=False, deleted=False, limit=10, do_transit_decoding=False
+                )
+            )
         except BaseException as e:
-            self.logger.warning(f"Unable to get entities from '{pipe['_id']}' due to an exception:\n{e}")
+            self.logger.warning(
+                f"Unable to get entities from '{pipe['_id']}' due to an exception:\n{e}"
+            )
             entities = []
 
         pipe["source"]["alternatives"]["test"]["entities"] = entities
         if len(entities) == 0:
-            self.logger.info(f"No input entities were found for '{pipe['_id']}', so test entities will not be updated.")
+            self.logger.info(
+                f"No input entities were found for '{pipe['_id']}', "
+                "so test entities will not be updated."
+            )
 
         return pipe, len(entities)
 
     def add_test_alternative(self, pipe):
         logger.debug(f"Adding test alternative to pipe {pipe['_id']}")
-        pipe["source"]["alternatives"]["test"] = {
-            "type": "embedded",
-            "entities": []
-        }
+        pipe["source"]["alternatives"]["test"] = {"type": "embedded", "entities": []}
 
         return pipe
 
@@ -1788,12 +2260,10 @@ class SesamCmdClient:
             "type": "conditional",
             "alternatives": {
                 "prod": prod_source,
-                "test": {
-                    "type": "embedded",
-                    "entities": []
-                }
+                "test": {"type": "embedded", "entities": []},
             },
-            "condition": "$ENV(node-env)"}
+            "condition": "$ENV(node-env)",
+        }
 
         return pipe
 
@@ -1802,8 +2272,16 @@ class SesamCmdClient:
 
         files = glob.glob("pipes%s*.conf.json" % os.sep)
 
-        # Conditional sources should not be added to dataset-type sources or embedded sources
-        excluded_types = ["dataset", "merge", "merge_datasets", "union_datasets", "diff_datasets", "embedded"]
+        # Conditional sources should not be added to
+        # dataset-type sources or embedded sources
+        excluded_types = [
+            "dataset",
+            "merge",
+            "merge_datasets",
+            "union_datasets",
+            "diff_datasets",
+            "embedded",
+        ]
         added_sources = 0
         added_entities = 0
         modified_sources = 0
@@ -1814,26 +2292,34 @@ class SesamCmdClient:
                 p = json.load(f)
                 source_type = p["source"]["type"]
 
-                # Check if pipe already has a conditional source, then add test alternative if needed
-                # If add-test-entities is True, input entities from prod are added as test entities
-                if source_type == 'conditional':
-                    if 'test' not in p["source"]["alternatives"]:
+                # Check if pipe already has a conditional source,
+                # then add test alternative if needed If add-test-entities is True
+                # input entities from prod are added as test entities
+                if source_type == "conditional":
+                    if "test" not in p["source"]["alternatives"]:
                         new_cfg = self.add_test_alternative(p)
                         added_sources += 1
 
                     if self.args.add_test_entities:
-                        current_entities = p["source"]["alternatives"]["test"]["entities"]
+                        current_entities = p["source"]["alternatives"]["test"][
+                            "entities"
+                        ]
 
-                        # If there are no entities in the test alternative, or if existing test entities should be
-                        # overwritten, then add test entities from a Sesam node (such as prod)
+                        # If there are no entities in the test alternative,
+                        # or if existing test entities should be
+                        # overwritten, then add test entities from a
+                        # Sesam node (such as prod)
                         if len(current_entities) == 0 or self.args.force_add:
                             new_cfg, num_added = self.test_entities_to_pipe(p)
                             added_entities += num_added
                             if num_added > 0:
                                 modified_sources += 1
                         else:
-                            self.logger.info(f"Pipe {p['_id']} already has test entities. Re-run with '-force-add' "
-                                             f"if you want to overwrite these entities.")
+                            self.logger.info(
+                                f"Pipe {p['_id']} already has test entities. "
+                                "Re-run with '-force-add' "
+                                f"if you want to overwrite these entities."
+                            )
 
                 elif source_type not in excluded_types:
                     new_cfg = self.add_conditional_source(p)
@@ -1846,29 +2332,44 @@ class SesamCmdClient:
                     added_sources += 1
 
                 if new_cfg is not None:
-                    with open(cfg_path, 'w', encoding="utf-8") as pipe_file:
+                    with open(cfg_path, "w", encoding="utf-8") as pipe_file:
                         pipe_file.write(format_object(new_cfg, self.formatstyle))
 
         if added_sources > 0:
-            self.logger.info("Successfully added test sources to %i pipes." % added_sources)
+            self.logger.info(
+                "Successfully added test sources to %i pipes." % added_sources
+            )
         else:
-            self.logger.info("All input pipes already have conditional sources with test alternatives. "
-                             "No test sources were added.")
+            self.logger.info(
+                "All input pipes already have conditional sources "
+                "with test alternatives. No test sources were added."
+            )
         if modified_sources > 0:
-            self.logger.info("Successfully added a total of %i test entities to %i pipes."
-                             % (added_entities, modified_sources))
+            self.logger.info(
+                "Successfully added a total of %i test entities to %i pipes."
+                % (added_entities, modified_sources)
+            )
         elif modified_sources + added_entities == 0:
             self.logger.info("No pipe configurations were modified.")
 
-        if not self.args.is_connector and self.args.connector_dir!=".":
-            with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
-                json.dump({"datatypes": {}, "additional_parameters": {}}, f, indent=2, sort_keys=True)
+        if not self.args.is_connector and self.args.connector_dir != ".":
+            with open(
+                connectorpy.Path(self.args.connector_dir, "manifest.json"), "w"
+            ) as f:
+                json.dump(
+                    {"datatypes": {}, "additional_parameters": {}},
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
         output_pipes = {}
 
-        for p in self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes():
+        for p in (
+            self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes()
+        ):
             output_pipes[p.id] = p
 
         test_specs = self.load_test_specs(output_pipes, update=True)
@@ -1881,8 +2382,9 @@ class SesamCmdClient:
             if pipe.id in test_specs:
                 if self.whitelisted_pipes and pipe.id not in self.whitelisted_pipes:
                     self.logger.warning(
-                        f"Skipping updating expected output for pipe '{pipe.id}' - add it to the whitelist if "
-                        f"this is not correct!")
+                        f"Skipping updating expected output for pipe '{pipe.id}' "
+                        "- add it to the whitelist if this is not correct!"
+                    )
                     continue
 
                 self.logger.debug("Updating pipe '%s'.." % pipe.id)
@@ -1890,31 +2392,56 @@ class SesamCmdClient:
                 # Process all tests specs for this pipe
                 for test_spec in test_specs[pipe.id]:
                     if test_spec.ignore is True:
-                        self.logger.debug("Skipping test spec '%s' because it was marked as 'ignore'" % test_spec.name)
+                        self.logger.debug(
+                            "Skipping test spec '%s' because it was marked as 'ignore'"
+                            % test_spec.name
+                        )
                         continue
 
-                    self.logger.debug("Updating spec '%s' for pipe '%s'.." % (test_spec.name, pipe.id))
+                    self.logger.debug(
+                        "Updating spec '%s' for pipe '%s'.." % (test_spec.name, pipe.id)
+                    )
                     if test_spec.endpoint == "json" or test_spec.endpoint == "excel":
                         # Get current entities from pipe in json form
-                        current_output = self._fix_decimal_to_ints([self.filter_entity(e, test_spec)
-                                                                    for e in self.sesam_node.get_pipe_entities(
-                                pipe, stage=test_spec.stage)])
+                        current_output = self._fix_decimal_to_ints(
+                            [
+                                self.filter_entity(e, test_spec)
+                                for e in self.sesam_node.get_pipe_entities(
+                                    pipe, stage=test_spec.stage
+                                )
+                            ]
+                        )
 
                         if test_spec.ignore_deletes:
                             # Filter away any deletes from the current output
-                            current_output = [en for en in current_output if en.get("_deleted", False) is False]
+                            current_output = [
+                                en
+                                for en in current_output
+                                if en.get("_deleted", False) is False
+                            ]
 
-                        current_output = sorted(current_output,
-                                                key=lambda e: (e['_id'],
-                                                               json.dumps(e,
-                                                                          indent="  ",
-                                                                          ensure_ascii=self.args.unicode_encoding,
-                                                                          sort_keys=True)))
+                        current_output = sorted(
+                            current_output,
+                            key=lambda e: (
+                                e["_id"],
+                                json.dumps(
+                                    e,
+                                    indent="  ",
+                                    ensure_ascii=self.args.unicode_encoding,
+                                    sort_keys=True,
+                                ),
+                            ),
+                        )
 
-                        current_output = (json.dumps(current_output, indent="  ",
-                                                     sort_keys=True,
-                                                     ensure_ascii=self.args.unicode_encoding) +
-                                          "\n").encode("utf-8")
+                        current_output = (
+                            json.dumps(
+                                current_output,
+                                indent="  ",
+                                sort_keys=True,
+                                ensure_ascii=self.args.unicode_encoding,
+                            )
+                            + "\n"
+                        ).encode("utf-8")
 
                         if self.args.disable_json_html_escape is False:
                             current_output = current_output.replace(b"<", b"\\u003c")
@@ -1923,20 +2450,30 @@ class SesamCmdClient:
 
                     elif test_spec.endpoint == "xml":
                         # Special case: download and format xml document as a string
-                        xml_data = self.sesam_node.get_published_data(pipe, "xml", params=test_spec.parameters,
-                                                                      binary=True)
+                        xml_data = self.sesam_node.get_published_data(
+                            pipe, "xml", params=test_spec.parameters, binary=True
+                        )
                         xml_doc_root = etree.fromstring(xml_data)
 
-                        xml_declaration, standalone = self.find_xml_header_settings(xml_data)
+                        xml_declaration, standalone = self.find_xml_header_settings(
+                            xml_data
+                        )
 
-                        current_output = etree.tostring(xml_doc_root, encoding="utf-8",
-                                                        xml_declaration=xml_declaration,
-                                                        standalone=standalone,
-                                                        pretty_print=True)
+                        current_output = etree.tostring(
+                            xml_doc_root,
+                            encoding="utf-8",
+                            xml_declaration=xml_declaration,
+                            standalone=standalone,
+                            pretty_print=True,
+                        )
                     else:
                         # Download contents as-is as a string
-                        current_output = self.sesam_node.get_published_data(pipe, test_spec.endpoint,
-                                                                            params=test_spec.parameters, binary=True)
+                        current_output = self.sesam_node.get_published_data(
+                            pipe,
+                            test_spec.endpoint,
+                            params=test_spec.parameters,
+                            binary=True,
+                        )
 
                     test_spec.update_expected_data(current_output)
                     i += 1
@@ -2001,15 +2538,16 @@ class SesamCmdClient:
 
             def run(self):
                 try:
-                    self.result = self.sesam_node.run_internal_scheduler(max_run_time=max_run_time,
-                                                                         max_runs=max_runs,
-                                                                         zero_runs=zero_runs,
-                                                                         delete_input_datasets=delete_input_datasets,
-                                                                         check_input_pipes=check_input_pipes,
-                                                                         output_run_statistics=output_run_statistics,
-                                                                         scheduler_mode=scheduler_mode,
-                                                                         request_mode=requests_mode
-                                                                         )
+                    self.result = self.sesam_node.run_internal_scheduler(
+                        max_run_time=max_run_time,
+                        max_runs=max_runs,
+                        zero_runs=zero_runs,
+                        delete_input_datasets=delete_input_datasets,
+                        check_input_pipes=check_input_pipes,
+                        output_run_statistics=output_run_statistics,
+                        scheduler_mode=scheduler_mode,
+                        request_mode=requests_mode,
+                    )
 
                     if requests_mode == "sync":
                         if self.result["status"] == "success":
@@ -2017,14 +2555,19 @@ class SesamCmdClient:
                         else:
                             self.status = "failed"
                     else:
-                        # In async mode we loop until status changes (or status request fails)
+                        # In async mode we loop until status changes
+                        # (or status request fails)
                         if "token" not in self.result:
-                            raise AssertionError("Response from scheduler with 'async' request_mode didn't "
-                                                 "contain a token!")
+                            raise AssertionError(
+                                "Response from scheduler with 'async' "
+                                "request_mode didn't contain a token!"
+                            )
 
                         self.token = self.result["token"]
                         while True:
-                            status = self.sesam_node.get_internal_scheduler_status(self.token)
+                            status = self.sesam_node.get_internal_scheduler_status(
+                                self.token
+                            )
 
                             if status["status"] == "success":
                                 self.status = "finished"
@@ -2051,13 +2594,21 @@ class SesamCmdClient:
         since = None
 
         def print_internal_scheduler_log(since_val, token=None):
-            log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val, token=token)
+            log_lines = self.sesam_node.get_internal_scheduler_log(
+                since=since_val, token=token
+            )
             for log_line in log_lines:
                 if isinstance(log_line, dict):
-                    s = "%s - %s - %s" % (log_line["timestamp"], log_line["loglevel"], log_line["logdata"])
+                    s = "%s - %s - %s" % (
+                        log_line["timestamp"],
+                        log_line["loglevel"],
+                        log_line["logdata"],
+                    )
                     logger.info(s)
                 else:
-                    logger.debug(f"Log line was not a dict! Was {type(log_line)} ('{log_line}')")
+                    logger.debug(
+                        f"Log line was not a dict! Was {type(log_line)} ('{log_line}')"
+                    )
                     return None
 
             if len(log_lines) > 0:
@@ -2067,7 +2618,9 @@ class SesamCmdClient:
 
         while True:
             if self.args.print_scheduler_log is True:
-                since = print_internal_scheduler_log(since, token=scheduler_runner.token)
+                since = print_internal_scheduler_log(
+                    since, token=scheduler_runner.token
+                )
 
             if scheduler_runner.status is not None:
                 break
@@ -2083,7 +2636,10 @@ class SesamCmdClient:
         if self.args.print_scheduler_log is True:
             print_internal_scheduler_log(since, token=scheduler_runner.token)
 
-        self.logger.info("Successfully ran all pipes to completion in %s seconds" % int(time.monotonic() - start_time))
+        self.logger.info(
+            "Successfully ran all pipes to completion in %s seconds"
+            % int(time.monotonic() - start_time)
+        )
 
         additional_info = scheduler_runner.result.get("additional_info")
         if additional_info is not None:
@@ -2107,18 +2663,16 @@ class SesamCmdClient:
 
             self.logger.info("Wiping node...")
 
-            # We need to include the "disable-user-pipes" setting when wiping the pipes and systems, or they will
-            # start running (asserting datasets, compiling dtl etc) while we're doing the wipe,
-            # which makes it take a lot longer to run
+            # We need to include the "disable-user-pipes" setting when wiping
+            # the pipes and systems, or they will
+            # start running (asserting datasets, compiling dtl etc) while
+            # we're doing the wipe, which makes it take a lot longer to run
 
             if os.path.isfile("node-metadata.conf.json"):
                 with open("node-metadata.conf.json", "rt") as infile:
                     node_metadata = json.loads(infile.read())
             else:
-                node_metadata = {
-                    "_id": "node",
-                    "type": "metadata"
-                }
+                node_metadata = {"_id": "node", "type": "metadata"}
 
             if "task_manager" not in node_metadata:
                 node_metadata["task_manager"] = {}
@@ -2176,7 +2730,6 @@ class SesamCmdClient:
         self.logger.info("Successfully restarted target node!")
 
     def convert(self):
-
         def get_pipe_id(path):
             basename = os.path.basename(path)
             return basename.replace(".conf.json", "")
@@ -2198,20 +2751,20 @@ class SesamCmdClient:
                 alternatives = pipe["source"]["alternatives"]
                 entities = alternatives[self.args.profile]["entities"]
                 # rewrite the case which corresponds to env profile
-                alternatives[self.args.profile] = {
-                    "type": "http_endpoint"
-                }
+                alternatives[self.args.profile] = {"type": "http_endpoint"}
                 modified_pipe_config = pipe_config
 
             return modified_pipe_config, entities
 
         def save_testdata_file(pipe_id, entities):
             os.makedirs("testdata", exist_ok=True)
-            with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8") as testdata_file:
+            with open(
+                f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8"
+            ) as testdata_file:
                 testdata_file.write(format_object(entities, self.formatstyle))
 
         def save_modified_pipe(pipe_json, path):
-            with open(path, 'w', encoding="utf-8") as pipe_file:
+            with open(path, "w", encoding="utf-8") as pipe_file:
                 pipe_file.write(format_object(pipe_json, self.formatstyle))
 
         self.logger.info("Starting converting conditional embedded sources")
@@ -2221,9 +2774,10 @@ class SesamCmdClient:
             self.dump()
 
         for filepath in glob.glob("pipes%s*.conf.json" % os.sep):
-            pipe_id_from_basename = get_pipe_id(filepath)
+            # Not actually used anywhere?
+            # pipe_id_from_basename = get_pipe_id(filepath)
 
-            with open(filepath, 'r', encoding="utf-8") as pipe_file:
+            with open(filepath, "r", encoding="utf-8") as pipe_file:
                 pipe = json.load(pipe_file)
                 pipe_to_rewrite, entities = convert_pipe_config(pipe)
 
@@ -2238,10 +2792,11 @@ class SesamCmdClient:
 
 class AzureFormatter(logging.Formatter):
     """Azure syntax log formatter to enrich build feedback"""
-    error_format = '##vso[task.logissue type=error;]%(message)s'
-    warning_format = '##vso[task.logissue type=warning;]%(message)s'
-    debug_format = '##[debug]%(message)s'
-    default_format = '%(message)s'
+
+    error_format = "##vso[task.logissue type=error;]%(message)s"
+    warning_format = "##vso[task.logissue type=warning;]%(message)s"
+    debug_format = "##[debug]%(message)s"
+    default_format = "%(message)s"
 
     def format(self, record):
         if record.levelno == logging.ERROR:
@@ -2266,210 +2821,494 @@ class AzureFormatter(logging.Formatter):
         return logging.Formatter(self.default_format).format(record)
 
 
-if __name__ == '__main__':
-    parser = SesamParser(prog="sesam", description="""
-Commands:
-  wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
-  restart   Restarts the target node (typically used to release used resources if the environment is strained)
-  reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
-  init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
-  validate  Validate local config for proper formatting and internal consistency
-  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
-  download  Replace local config with node config
-  dump      Create a zip archive of the config and store it as 'sesam-config.zip'
-  status    Compare node config with local config (requires external diff command)
-  run       Run configuration until it stabilizes
-  update    Store current output as expected output
-  convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
-  verify    Compare output against expected output
-  test      Upload, run and verify output
-  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
-""", formatter_class=argparse.RawDescriptionHelpFormatter)
+if __name__ == "__main__":
+    parser = SesamParser(
+        prog="sesam",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
-    parser.add_argument('-version', dest='version', required=False, action='store_true', help="print version number")
+    parser.add_argument(
+        "-version",
+        dest="version",
+        required=False,
+        action="store_true",
+        help="print version number",
+    )
 
-    parser.add_argument('-v', dest='verbose', required=False, action='store_true', help="be verbose")
+    parser.add_argument(
+        "-v", dest="verbose", required=False, action="store_true", help="be verbose"
+    )
 
-    parser.add_argument('-vv', dest='extra_verbose', required=False, action='store_true', help="be extra verbose")
+    parser.add_argument(
+        "-vv",
+        dest="extra_verbose",
+        required=False,
+        action="store_true",
+        help="be extra verbose",
+    )
 
-    parser.add_argument('-vvv', dest='extra_extra_verbose', required=False, action='store_true',
-                        help="be extra extra verbose")
+    parser.add_argument(
+        "-vvv",
+        dest="extra_extra_verbose",
+        required=False,
+        action="store_true",
+        help="be extra extra verbose",
+    )
 
-    parser.add_argument('-skip-tls-verification', dest='skip_tls_verification', required=False, action='store_true',
-                        help="skip verifying the TLS certificate")
+    parser.add_argument(
+        "-skip-tls-verification",
+        dest="skip_tls_verification",
+        required=False,
+        action="store_true",
+        help="skip verifying the TLS certificate",
+    )
 
-    parser.add_argument('-sync-config-file', dest='sync_config_file', metavar="<string>",
-                        default=".syncconfig", type=str, help="sync config file to use, the default is "
-                                                              "'.syncconfig' in the current directory")
+    parser.add_argument(
+        "-sync-config-file",
+        dest="sync_config_file",
+        metavar="<string>",
+        default=".syncconfig",
+        type=str,
+        help="sync config file to use, the default is "
+        "'.syncconfig' in the current directory",
+    )
 
-    parser.add_argument('-whitelist-file', dest='whitelist_file', metavar="<string>",
-                        type=str, help="whitelist file to use, the default is none")
+    parser.add_argument(
+        "-whitelist-file",
+        dest="whitelist_file",
+        metavar="<string>",
+        type=str,
+        help="whitelist file to use, the default is none",
+    )
 
-    parser.add_argument('-dont-remove-scheduler', dest='dont_remove_scheduler', required=False, action='store_true',
-                        help="don't remove scheduler after failure (DEPRECATED)")
+    parser.add_argument(
+        "-dont-remove-scheduler",
+        dest="dont_remove_scheduler",
+        required=False,
+        action="store_true",
+        help="don't remove scheduler after failure (DEPRECATED)",
+    )
 
-    parser.add_argument('-dump', dest='dump', required=False, help="dump zip content to disk", action='store_true')
+    parser.add_argument(
+        "-dump",
+        dest="dump",
+        required=False,
+        help="dump zip content to disk",
+        action="store_true",
+    )
 
-    parser.add_argument('-print-scheduler-log', dest='print_scheduler_log', required=False,
-                        help="print scheduler log during run", action='store_true')
+    parser.add_argument(
+        "-print-scheduler-log",
+        dest="print_scheduler_log",
+        required=False,
+        help="print scheduler log during run",
+        action="store_true",
+    )
 
-    parser.add_argument('-output-run-statistics', dest='output_run_statistics', required=False,
-                        help="output detailed pipe run statistics after scheduler run", action='store_true')
+    parser.add_argument(
+        "-output-run-statistics",
+        dest="output_run_statistics",
+        required=False,
+        help="output detailed pipe run statistics after scheduler run",
+        action="store_true",
+    )
 
-    parser.add_argument('-use-internal-scheduler', dest='use_internal_scheduler', required=False,
-                        help="use the built-in scheduler in sesam instead of a microservice (DEPRECATED)",
-                        action='store_true')
+    parser.add_argument(
+        "-use-internal-scheduler",
+        dest="use_internal_scheduler",
+        required=False,
+        help="use the built-in scheduler in sesam instead of a "
+        "microservice (DEPRECATED)",
+        action="store_true",
+    )
 
-    parser.add_argument('-custom-scheduler', dest='custom_scheduler', required=False,
-                        help="by default a scheduler system will be added, enable this flag if you have configured a "
-                             "custom scheduler as part of the config (DEPRECATED)", action='store_true')
+    parser.add_argument(
+        "-custom-scheduler",
+        dest="custom_scheduler",
+        required=False,
+        help="by default a scheduler system will be added, enable this flag"
+        " if you have configured a custom scheduler as part of the config (DEPRECATED)",
+        action="store_true",
+    )
 
-    parser.add_argument('-scheduler-image-tag', dest='scheduler_image_tag', required=False,
-                        help="the scheduler image tag to use (DEPRECATED)", type=str,
-                        metavar="<string>")
+    parser.add_argument(
+        "-scheduler-image-tag",
+        dest="scheduler_image_tag",
+        required=False,
+        help="the scheduler image tag to use (DEPRECATED)",
+        type=str,
+        metavar="<string>",
+    )
 
-    parser.add_argument('-scheduler-mode', dest='scheduler_mode', required=False,
-                        help="the scheduler mode to use ('active' or 'poll') - the default is 'active'", type=str,
-                        metavar="<string>")
+    parser.add_argument(
+        "-scheduler-mode",
+        dest="scheduler_mode",
+        required=False,
+        help="the scheduler mode to use ('active' or 'poll') - the default is 'active'",
+        type=str,
+        metavar="<string>",
+    )
 
-    parser.add_argument('-node', dest='node', metavar="<string>", required=False, help="service url")
-    parser.add_argument('-scheduler-node', dest='scheduler_node', metavar="<string>", required=False,
-                        help="service url for scheduler")
-    parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
+    parser.add_argument(
+        "-node", dest="node", metavar="<string>", required=False, help="service url"
+    )
+    parser.add_argument(
+        "-scheduler-node",
+        dest="scheduler_node",
+        metavar="<string>",
+        required=False,
+        help="service url for scheduler",
+    )
+    parser.add_argument(
+        "-jwt",
+        dest="jwt",
+        metavar="<string>",
+        required=False,
+        help="authorization token",
+    )
 
-    parser.add_argument('-single', dest='single', required=False, metavar="<string>",
-                        help="update or verify just a single pipe")
+    parser.add_argument(
+        "-single",
+        dest="single",
+        required=False,
+        metavar="<string>",
+        help="update or verify just a single pipe",
+    )
 
-    parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
-                        help="don't reproduce old large int bugs")
+    parser.add_argument(
+        "-no-large-int-bugs",
+        dest="no_large_int_bugs",
+        required=False,
+        action="store_true",
+        help="don't reproduce old large int bugs",
+    )
 
-    parser.add_argument('-disable-user-pipes', dest='disable_user_pipes', required=False, action='store_true',
-                        help="turn off user pipe scheduling in the target node (DEPRECATED)")
+    parser.add_argument(
+        "-disable-user-pipes",
+        dest="disable_user_pipes",
+        required=False,
+        action="store_true",
+        help="turn off user pipe scheduling in the target node (DEPRECATED)",
+    )
 
-    parser.add_argument('-enable-eager-ms', dest='enable_eager_ms', required=False, action='store_true',
-                        help="run all microservices even if they are not in use (note: multinode only)")
+    parser.add_argument(
+        "-enable-eager-ms",
+        dest="enable_eager_ms",
+        required=False,
+        action="store_true",
+        help="run all microservices even if they are not in use (note: multinode only)",
+    )
 
-    parser.add_argument('-enable-user-pipes', dest='enable_user_pipes', required=False, action='store_true',
-                        help="turn on user pipe scheduling in the target node")
+    parser.add_argument(
+        "-enable-user-pipes",
+        dest="enable_user_pipes",
+        required=False,
+        action="store_true",
+        help="turn on user pipe scheduling in the target node",
+    )
 
-    parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False,
-                        action='store_true',
-                        help="compact all execution datasets when running scheduler")
+    parser.add_argument(
+        "-compact-execution-datasets",
+        dest="compact_execution_datasets",
+        required=False,
+        action="store_true",
+        help="compact all execution datasets when running scheduler",
+    )
 
-    parser.add_argument('-disable-cpp-extensions', dest='disable_cpp_extensions', required=False, action='store_true',
-                        help="turns off cpp extensions which saves dtl compile time at the expense of possibly slower dtl exeution time")
+    parser.add_argument(
+        "-disable-cpp-extensions",
+        dest="disable_cpp_extensions",
+        required=False,
+        action="store_true",
+        help="turns off cpp extensions which saves dtl compile time at the expense of "
+        "possibly slower dtl exeution time",
+    )
 
-    parser.add_argument('-unicode-encoding', dest='unicode_encoding', required=False, action='store_true',
-                        help="store the 'expected output' json files using unicode encoding ('\\uXXXX') - "
-                             "the default is UTF-8")
+    parser.add_argument(
+        "-unicode-encoding",
+        dest="unicode_encoding",
+        required=False,
+        action="store_true",
+        help="store the 'expected output' json files using unicode encoding "
+        "('\\uXXXX') - the default is UTF-8",
+    )
 
-    parser.add_argument('-disable-json-html-escape', dest='disable_json_html_escape',
-                        required=False, action='store_true',
-                        help="turn off escaping of '<', '>' and '&' characters in 'expected output' json files")
+    parser.add_argument(
+        "-disable-json-html-escape",
+        dest="disable_json_html_escape",
+        required=False,
+        action="store_true",
+        help="turn off escaping of '<', '>' and '&' characters in "
+        "'expected output' json files",
+    )
 
-    parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False,
-                        help="env profile to use <profile>-env.json")
+    parser.add_argument(
+        "-profile",
+        dest="profile",
+        metavar="<string>",
+        default="test",
+        required=False,
+        help="env profile to use <profile>-env.json",
+    )
 
-    parser.add_argument('-scheduler-id', dest='scheduler_id', metavar="<string>", required=False,
-                        help="system id for the scheduler system (DEPRECATED)")
+    parser.add_argument(
+        "-scheduler-id",
+        dest="scheduler_id",
+        metavar="<string>",
+        required=False,
+        help="system id for the scheduler system (DEPRECATED)",
+    )
 
-    parser.add_argument('-scheduler-request-mode', dest='scheduler_request_mode', required=False, type=str,
-                        metavar="<string>", default="sync",
-                        help="run the scheduler in 'sync' or 'async' mode, long running tests should run "
-                             "in 'async' mode")
+    parser.add_argument(
+        "-scheduler-request-mode",
+        dest="scheduler_request_mode",
+        required=False,
+        type=str,
+        metavar="<string>",
+        default="sync",
+        help="run the scheduler in 'sync' or 'async' mode, "
+        "long running tests should run in 'async' mode",
+    )
 
-    parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int,
-                        required=False,
-                        help="the number of runs that has to yield zero changes for the scheduler to finish")
+    parser.add_argument(
+        "-scheduler-zero-runs",
+        dest="scheduler_zero_runs",
+        default=2,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help="the number of runs that has to yield zero changes for the "
+        "scheduler to finish",
+    )
 
-    parser.add_argument('-scheduler-max-runs', dest='scheduler_max_runs', default=100, metavar="<int>", type=int,
-                        required=False,
-                        help=" maximum number of runs that scheduler can do to before exiting (internal scheduler only)")
+    parser.add_argument(
+        "-scheduler-max-runs",
+        dest="scheduler_max_runs",
+        default=100,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help=" maximum number of runs that scheduler can do to before exiting "
+        "(internal scheduler only)",
+    )
 
-    parser.add_argument('-scheduler-max-run-time', dest='scheduler_max_run_time', default=15 * 60, metavar="<int>",
-                        type=int, required=False,
-                        help="the maximum time the internal scheduler is allowed to use to finish "
-                             "(in seconds, internal scheduler only)")
+    parser.add_argument(
+        "-scheduler-max-run-time",
+        dest="scheduler_max_run_time",
+        default=15 * 60,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help="the maximum time the internal scheduler is allowed to use to finish "
+        "(in seconds, internal scheduler only)",
+    )
 
-    parser.add_argument('-scheduler-check-input-pipes', dest='scheduler_check_input_pipes', required=False,
-                        action="store_true",
-                        help="controls whether failing input pipes should make the scheduler run fail")
+    parser.add_argument(
+        "-scheduler-check-input-pipes",
+        dest="scheduler_check_input_pipes",
+        required=False,
+        action="store_true",
+        help="controls whether failing input pipes should make the scheduler run fail",
+    )
 
-    parser.add_argument('-restart-timeout', dest='restart_timeout', default=15 * 60, metavar="<int>", type=int,
-                        required=False,
-                        help="the maximum time to wait for the node to restart and become available again "
-                             "(in seconds). The default is 15 minutes. A value of 0 will skip the back-up-again verification.")
+    parser.add_argument(
+        "-restart-timeout",
+        dest="restart_timeout",
+        default=15 * 60,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help="the maximum time to wait for the node to restart and become available "
+        "again (in seconds). The default is 15 minutes. "
+        "A value of 0 will skip the back-up-again verification.",
+    )
 
-    parser.add_argument('-runs', dest='runs', type=int, metavar="<int>", required=False, default=1,
-                        help="number of test cycles to check for stability")
+    parser.add_argument(
+        "-runs",
+        dest="runs",
+        type=int,
+        metavar="<int>",
+        required=False,
+        default=1,
+        help="number of test cycles to check for stability",
+    )
 
-    parser.add_argument('-logformat', dest='logformat', type=str, metavar="<string>", required=False, default="short",
-                        help="output format (normal, log or azure)")
+    parser.add_argument(
+        "-logformat",
+        dest="logformat",
+        type=str,
+        metavar="<string>",
+        required=False,
+        default="short",
+        help="output format (normal, log or azure)",
+    )
 
-    parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int,
-                        required=False,
-                        default=5000, help="milliseconds between each poll while waiting for the scheduler")
+    parser.add_argument(
+        "-scheduler-poll-frequency",
+        metavar="<int>",
+        dest="scheduler_poll_frequency",
+        type=int,
+        required=False,
+        default=5000,
+        help="milliseconds between each poll while waiting for the scheduler",
+    )
 
-    parser.add_argument('-sesamconfig-file', dest='sesamconfig_file', metavar="<string>", type=str,
-                        help="sesamconfig file to use, the default is '.sesamconfig.json' in the current directory")
+    parser.add_argument(
+        "-sesamconfig-file",
+        dest="sesamconfig_file",
+        metavar="<string>",
+        type=str,
+        help="sesamconfig file to use, the default is '.sesamconfig.json' "
+        "in the current directory",
+    )
 
-    parser.add_argument('-diff', dest='diff', required=False, action='store_true',
-                        help="use with the status command to show the diff of the files")
+    parser.add_argument(
+        "-diff",
+        dest="diff",
+        required=False,
+        action="store_true",
+        help="use with the status command to show the diff of the files",
+    )
 
-    parser.add_argument('-add-test-entities', dest='add_test_entities', required=False, action='store_true',
-                        help="use with the init command to add test entities to input pipes")
+    parser.add_argument(
+        "-add-test-entities",
+        dest="add_test_entities",
+        required=False,
+        action="store_true",
+        help="use with the init command to add test entities to input pipes",
+    )
 
-    parser.add_argument('-force-add', dest='force_add', required=False, action='store_true',
-                        help="use with the '-add-test-entities' option to overwrite test entities that exist locally")
+    parser.add_argument(
+        "-force-add",
+        dest="force_add",
+        required=False,
+        action="store_true",
+        help="use with the '-add-test-entities' option to overwrite test "
+        "entities that exist locally",
+    )
 
-    parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
+    parser.add_argument(
+        "command",
+        metavar="command",
+        nargs="?",
+        help="a valid command from the list above",
+    )
 
-    parser.add_argument('-force', dest='force', required=False, action='store_true',
-                        help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
-                             "subscriptions")
+    parser.add_argument(
+        "-force",
+        dest="force",
+        required=False,
+        action="store_true",
+        help="force the command to run (only for 'upload' and 'download' commands) "
+        "for non-dev "
+        "subscriptions",
+    )
 
-    parser.add_argument('-skip-auth', dest='skip_auth', required=False, action='store_true',
-                        help="skips the authentication step after upload command.")
+    parser.add_argument(
+        "-skip-auth",
+        dest="skip_auth",
+        required=False,
+        action="store_true",
+        help="skips the authentication step after upload command.",
+    )
 
-    parser.add_argument("--system-placeholder", metavar="<string>",
-                        default="xxxxxx", type=str, help="Name of the system _id placeholder (available only when working on connectors)")
+    parser.add_argument(
+        "--system-placeholder",
+        metavar="<string>",
+        default="xxxxxx",
+        type=str,
+        help="Name of the system _id placeholder "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("-d", dest="connector_dir", metavar="<string>",
-                        default=".", type=str, help="Connector folder to work with (available only when working on connectors)")
+    parser.add_argument(
+        "-d",
+        dest="connector_dir",
+        metavar="<string>",
+        default=".",
+        type=str,
+        help="Connector folder to work with "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
-                        default=".expanded", type=str, help="Directory to expand the config into (available only when working on connectors)")
+    parser.add_argument(
+        "-e",
+        dest="expanded_dir",
+        metavar="<string>",
+        default=".expanded",
+        type=str,
+        help="Directory to expand the config into "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("--client_id", metavar="<string>",
-                        type=str, help="OAuth2 client id (available only when working on connectors)")
+    parser.add_argument(
+        "--client_id",
+        metavar="<string>",
+        type=str,
+        help="OAuth2 client id (available only when working on connectors)",
+    )
 
-    parser.add_argument("--client_secret", metavar="<string>",
-                        type=str, help="OAuth2 client secret (available only when working on connectors)")
+    parser.add_argument(
+        "--client_secret",
+        metavar="<string>",
+        type=str,
+        help="OAuth2 client secret (available only when working on connectors)",
+    )
 
-    parser.add_argument("--service_url", metavar="<string>",
-                        type=str, help="url to service api (include /api) (available only when working on connectors)")
+    parser.add_argument(
+        "--service_url",
+        metavar="<string>",
+        type=str,
+        help="url to service api (include /api) "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("--service_jwt", metavar="<string>",
-                        type=str, help="jwt token to the service api (available only when working on connectors)")
+    parser.add_argument(
+        "--service_jwt",
+        metavar="<string>",
+        type=str,
+        help="jwt token to the service api (available only when working on connectors)",
+    )
 
-    parser.add_argument("--consumer_token", metavar="<string>",
-                        type=str, help="consumer token (available only when working on connectors)")
+    parser.add_argument(
+        "--consumer_token",
+        metavar="<string>",
+        type=str,
+        help="consumer token (available only when working on connectors)",
+    )
 
-    parser.add_argument("--employee_token", metavar="<string>",
-                        type=str, help="employee token (available only when working on connectors)")
+    parser.add_argument(
+        "--employee_token",
+        metavar="<string>",
+        type=str,
+        help="employee token (available only when working on connectors)",
+    )
 
-    parser.add_argument("--base_url", metavar="<string>",
-                        type=str, default="https://api.tripletex.io", help="override to use prod env (available only when working on connectors)")
+    parser.add_argument(
+        "--base_url",
+        metavar="<string>",
+        type=str,
+        default="https://api.tripletex.io",
+        help="override to use prod env (available only when working on connectors)",
+    )
 
-    parser.add_argument("--days", metavar="<string>",
-                        type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
+    parser.add_argument(
+        "--days",
+        metavar="<string>",
+        type=int,
+        default=10,
+        help="number of days until the token should expire "
+        "(available only when working on connectors)",
+    )
 
     try:
         args = parser.parse_args()
-        args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
+        args.is_connector = os.path.isfile(
+            os.path.join(args.connector_dir, "manifest.json")
+        )
     except SystemExit as e:
         sys.exit(e.code)
-    except BaseException as e:
+    except BaseException:
         sys.exit(1)
 
     if args.version:
@@ -2477,7 +3316,7 @@ Commands:
         sys.exit(0)
 
     if args.logformat == "log":
-        format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         formatter = logging.Formatter(format_string)
     elif args.logformat == "azure":
         formatter = AzureFormatter()
@@ -2488,7 +3327,9 @@ Commands:
         while True:
             file_list = os.listdir(cur_dir)
             parent_dir = os.path.dirname(cur_dir)
-            if ".git" in file_list and os.path.isdir(os.path.join(cur_dir, ".git", "objects")):
+            if ".git" in file_list and os.path.isdir(
+                os.path.join(cur_dir, ".git", "objects")
+            ):
                 GIT_ROOT = cur_dir
                 break
             else:
@@ -2498,7 +3339,7 @@ Commands:
                 else:
                     cur_dir = parent_dir
     else:
-        format_string = '%(message)s'
+        format_string = "%(message)s"
         formatter = logging.Formatter(format_string)
 
     # Log to stdout
@@ -2530,8 +3371,24 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["authenticate","validate","upload", "download", "status", "init", "update", "verify", "test", "run", "wipe",
-                       "restart", "reset", "dump", "stop", "convert"]:
+    if command not in [
+        "authenticate",
+        "validate",
+        "upload",
+        "download",
+        "status",
+        "init",
+        "update",
+        "verify",
+        "test",
+        "run",
+        "wipe",
+        "restart",
+        "reset",
+        "dump",
+        "stop",
+        "convert",
+    ]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -2551,48 +3408,75 @@ Commands:
     try:
         node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
     except BaseException as e:
-        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+        if (
+            args.verbose is True
+            or args.extra_verbose is True
+            or args.extra_extra_verbose is True
+        ):
             logger.exception(e)
-        logger.error("jwt and node must be specified either as parameter, os env or in syncconfig file")
+        logger.error(
+            "jwt and node must be specified either as parameter, "
+            "os env or in syncconfig file"
+        )
         sys.exit(1)
 
     if not args.is_connector:
         try:
-            args.jinja_vars=sesam_cmd_client.parse_config_file(".jinja_vars")
+            args.jinja_vars = sesam_cmd_client.parse_config_file(".jinja_vars")
             if args.jinja_vars == {}:
-                logger.warning("No variables found in .jinja_vars file. proceeding without it.")
+                logger.warning(
+                    "No variables found in .jinja_vars file. proceeding without it."
+                )
             else:
                 logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
-        except BaseException as e:
+        except BaseException:
             args.jinja_vars = None
-            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+            if (
+                args.verbose is True
+                or args.extra_verbose is True
+                or args.extra_extra_verbose is True
+            ):
                 logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
 
     try:
-        sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
+        sesam_cmd_client.formatstyle = (
+            sesam_cmd_client.get_formatstyle_from_configfile()
+        )
     except BaseException as e:
-        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+        if (
+            args.verbose is True
+            or args.extra_verbose is True
+            or args.extra_extra_verbose is True
+        ):
             logger.exception(e)
-        logger.error("config file is mandatory when -sesamconfig-file argument is specified")
+        logger.error(
+            "config file is mandatory when -sesamconfig-file argument is specified"
+        )
         sys.exit(1)
 
     try:
-        sesam_cmd_client.sesam_node = SesamNode(node_url, jwt_token, logger,
-                                                verify_ssl=args.skip_tls_verification is False)
+        sesam_cmd_client.sesam_node = SesamNode(
+            node_url, jwt_token, logger, verify_ssl=args.skip_tls_verification is False
+        )
     except BaseException as e:
         if args.verbose or args.extra_verbose:
             logger.exception(e)
-        logger.error("failed to connect to the sesam node using the url and jwt token we were given:\n%s\n%s" %
-                     (node_url, jwt_token))
-        logger.error("please verify the url and token is correct, and that there isn't any network issues "
-                     "(i.e. firewall, internet connection etc)")
+        logger.error(
+            "failed to connect to the sesam node using the url and jwt token "
+            f"we were given:\n{node_url}\n{jwt_token}"
+        )
+        logger.error(
+            "please verify the url and token is correct, and that there isn't "
+            "any network issues (i.e. firewall, internet connection etc)"
+        )
         sys.exit(1)
 
     start_time = time.monotonic()
     allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get("developer_mode") or \
-                (command in allowed_commands_for_non_dev_subscriptions and args.force):
+        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get(
+            "developer_mode"
+        ) or (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
             elif command == "validate":
@@ -2602,11 +3486,15 @@ Commands:
                     sesam_cmd_client.upload()
                 else:
                     os.chdir(args.connector_dir)
-                    expand_connector(args.system_placeholder, args.expanded_dir,args.profile)
+                    connectorpy.expand_connector(
+                        args.system_placeholder, args.expanded_dir, args.profile
+                    )
                     sesam_cmd_client.validate()
                     os.chdir(args.expanded_dir)
                     sesam_cmd_client.upload()
-                    os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
+                    os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(
+                        os.path.join(os.pardir, os.pardir)
+                    )
                     if not args.skip_auth:
                         sesam_cmd_client.authenticate()
             elif command == "download":
@@ -2615,12 +3503,19 @@ Commands:
                 if not args.is_connector:
                     sesam_cmd_client.status()
                 else:
-                    if os.path.exists(os.path.join(args.connector_dir, args.expanded_dir)):
+                    if os.path.exists(
+                        os.path.join(args.connector_dir, args.expanded_dir)
+                    ):
                         os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
                         sesam_cmd_client.status()
-                        os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(os.path.join(os.pardir, os.pardir))
+                        os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(
+                            os.path.join(os.pardir, os.pardir)
+                        )
                     else:
-                        logger.error("expanded directory not found. Please upload the configs first or check the input args.")
+                        logger.error(
+                            "expanded directory not found. Please upload the "
+                            "configs first or check the input args."
+                        )
             elif command == "init":
                 sesam_cmd_client.init()
             elif command == "update":
@@ -2633,17 +3528,24 @@ Commands:
                 sesam_cmd_client.stop()
             elif command == "run":
                 if args.enable_user_pipes is True:
-                    logger.warning("Note that the -enable-user-pipes flag has no effect on the actual sesam instance "
-                                   "outside the 'upload' or 'test' commands")
+                    logger.warning(
+                        "Note that the -enable-user-pipes flag has no effect on the "
+                        "actual sesam instance outside the 'upload' or 'test' commands"
+                    )
 
                 if args.disable_cpp_extensions is True:
                     logger.warning(
-                        "Note that the -disable-cpp-extensions flag has no effect on the actual node configuration "
-                        "outside the 'upload' or 'test' commands")
+                        "Note that the -disable-cpp-extensions flag has no effect on "
+                        "the actual node configuration outside the 'upload' or "
+                        "'test' commands"
+                    )
 
                 if args.enable_eager_ms is True:
-                    logger.warning("Note that the -enable-eager-ms flag has no effect on the actual node configuration "
-                                   "outside the 'upload' or 'test' commands")
+                    logger.warning(
+                        "Note that the -enable-eager-ms flag has no effect on the "
+                        "actual node configuration outside the 'upload' or 'test' "
+                        "commands"
+                    )
 
                 sesam_cmd_client.run()
             elif command == "wipe":
@@ -2661,8 +3563,10 @@ Commands:
                 sys.exit(1)
         else:
             logger.error(
-                f"The targeted Sesam subscription is not a developer environment, please contact support@sesam.io if this is unexpected. "
-                f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}")
+                "The targeted Sesam subscription is not a developer environment, "
+                "please contact support@sesam.io if this is unexpected. "
+                f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}"  # noqa: E501
+            )
             sys.exit(1)
     except BaseException as e:
         logger.error("Sesam client failed!")
