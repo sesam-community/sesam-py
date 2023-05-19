@@ -1873,6 +1873,7 @@ class SesamCmdClient:
         with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
             json.dump(
             {
+                "auth:": "",
                 "datatypes": {
                     "sample": {
                         "template": "templates/sample.json"
