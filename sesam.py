@@ -1873,7 +1873,11 @@ class SesamCmdClient:
         with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
             json.dump(
             {
-                "datatypes": {},
+                "datatypes": {
+                    "sample": {
+                        "template": "templates/sample.json"
+                    },
+                },
                 "additional_parameters": {},
                 "system-template": "templates/system.json"
             },
