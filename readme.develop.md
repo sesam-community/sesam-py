@@ -11,4 +11,17 @@
 8. Write down description in the Release 
 9. A workflow should have been triggered when you created a Release which builds new assets and pushes them to the Release
 
+## Installing pre-commit:
+Commands:
+
+```
+$ pip install -r dev-requirements.txt
+$ ./.pre-commit/install.sh
+$ pre-commit install -f --hook-type pre-commit
+```
+
+And voila, you're good to go. Your python files will be formatted and checked when you commit your changes.
+If there is an issue with your file you will be notified about it and can't push that file until it's fixed.
+
+
 ### [Back to main page](./README.md)
