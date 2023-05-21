@@ -1,0 +1,24 @@
+#!/bin/bash
+
+precommitDir='.git/hooks/pre-commit.d'
+precommitFile='.git/hooks/pre-commit'
+precommitLegacyFile='.git/hooks/pre-commit.legacy'
+
+pythonPrecommit=${precommitDir}/pre-commit-python
+
+pythonFiles=$(git diff --cached --name-only --diff-filter=ACMR -- ***.{py,})
+
+if [[ $pythonFiles != '' ]]; then
+    if [[ -f $pythonPrecommit ]]; then
+        $pythonPrecommit || exit 1
+    else
+        if [[ $(command -v pre-commit) = "" ]]; then
+            pip install -r dev-requirements.txt || exit 1
+        fi
+        pre-commit install --install-hooks || exit 1
+        pre-commit install --install-hooks --hook-type commit-msg
+        mv $precommitFile $pythonPrecommit
+        mv $precommitLegacyFile $precommitFile
+        $pythonPrecommit || exit 1
+    fi
+fi

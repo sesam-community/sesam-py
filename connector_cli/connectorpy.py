@@ -1,23 +1,24 @@
 import json
+import logging
 import os
 import re
-from pathlib import Path
 import shutil
 from collections import defaultdict
-from jinja2 import Environment, PackageLoader, select_autoescape, FileSystemLoader
+from pathlib import Path
 
-import logging
+from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape
 
 logger = logging.getLogger(__name__)
 
 
 def render(template, props):
-    # Workaround for inserting bools during rendering: set the property to a dummy value so that the render does
-    # not fail, then do .replace() later on the rendered config and replace the dummy values with JSON bools
+    # Workaround for inserting bools during rendering: set the property to a
+    # dummy value so that the render doesnot fail, then do .replace() later
+    # on the rendered config and replace the dummy values with JSON bools
     booleans = {}
     for prop, value in props.items():
         if isinstance(value, bool):
-            props[prop] = '{{@ %s @}}' % prop
+            props[prop] = "{{@ %s @}}" % prop
             booleans[prop] = str(value).lower()
 
     config = json.loads(template.render(**props))
@@ -37,12 +38,11 @@ def render(template, props):
 
     return config
 
+
 node_metadata = {
     "_id": "node",
     "type": "metadata",
-    "task_manager": {
-        "disable_user_pipes": True
-    }
+    "task_manager": {"disable_user_pipes": True},
 }
 
 
@@ -68,8 +68,13 @@ def expand_connector_config(system_placeholder):
 
         manifest = json.load(f)
 
-        subst = {**{"system": system_placeholder},
-                 **{key: "$ENV(%s)" % key for key in list(manifest.get("additional_parameters", {}).keys())}}
+        subst = {
+            **{"system": system_placeholder},
+            **{
+                key: "$ENV(%s)" % key
+                for key in list(manifest.get("additional_parameters", {}).keys())
+            },
+        }
 
         system_template = manifest.get("system-template")
         if system_template:
@@ -81,25 +86,47 @@ def expand_connector_config(system_placeholder):
             template = datatype_manifest["template"]
             template_name = os.path.splitext(os.path.basename(template))[0]
             datatype_template = system_env.get_template(template)
-            datatype_parameters = datatype_manifest.get('parameters', {})
+            datatype_parameters = datatype_manifest.get("parameters", {})
             subst.update(datatype_parameters)
 
             if "parent" in datatype_manifest:
-                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype,"parent":datatype_manifest.get("parent")}})
+                datatype_pipes = render(
+                    datatype_template,
+                    {
+                        **subst,
+                        **{
+                            "datatype": datatype,
+                            "parent": datatype_manifest.get("parent"),
+                        },
+                    },
+                )
             else:
-                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
+                datatype_pipes = render(
+                    datatype_template, {**subst, **{"datatype": datatype}}
+                )
             if template_name != datatype:
                 for pipe in datatype_pipes:
-                    pipe["comment"] = "WARNING! This pipe is generated from the template of the '%s' datatype and " \
-                                      "changes will be silently ignored during collapse. " \
-                                      "For more information see the connectorpy README." % template_name
+                    pipe["comment"] = (
+                        "WARNING! This pipe is generated from the template "
+                        "of the '%s' datatype and "
+                        "changes will be silently ignored during collapse. "
+                        "For more information see the connectorpy README."
+                        % template_name
+                    )
             output.extend(datatype_pipes)
-            output.extend(render(shim_template, {"system": system_placeholder, "datatype": datatype}))
+            output.extend(
+                render(
+                    shim_template, {"system": system_placeholder, "datatype": datatype}
+                )
+            )
     return output, manifest
 
 
-def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"):
-    # put the expanded configuration into a subfolder in the connector directory in a form that can be used by sesam-py
+def expand_connector(
+    system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"
+):
+    # put the expanded configuration into a subfolder in the connector directory
+    # in a form that can be used by sesam-py
     output, manifest = expand_connector_config(system_placeholder)
     dirpath = Path(expanded_dir)
     if dirpath.exists() and dirpath.is_dir():
@@ -115,41 +142,54 @@ def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", prof
         with open(profile_file, "r", encoding="utf-8-sig") as f:
             new_manifest = json.load(f)
     else:
-        new_manifest = {**{"node-env": "test"},
-                        **{key: "" for key in list(manifest.get("additional_parameters", {}).keys())}}
+        new_manifest = {
+            **{"node-env": "test"},
+            **{
+                key: ""
+                for key in list(manifest.get("additional_parameters", {}).keys())
+            },
+        }
     with open(dirpath / profile_file, "w") as f:
         json.dump(new_manifest, f, indent=2, sort_keys=True)
     for component in output:
         if component["type"] == "pipe":
-            if component.get("source").get("type") == 'http_endpoint' and component.get("_id").endswith('event') and \
-                    manifest.get('use_webhook_secret'):
+            if (
+                component.get("source").get("type") == "http_endpoint"
+                and component.get("_id").endswith("event")
+                and manifest.get("use_webhook_secret")
+            ):
                 endpoint_permissions = [["allow", ["group:Anonymous"], ["write_data"]]]
                 if component.get("permissions"):
                     logger.warning(
-                        f"Permissions are already set for endpoint pipe '{component['_id']}'. They will be "
-                        f"overwritten with: {endpoint_permissions}")
+                        "Permissions are already set for endpoint pipe "
+                        f"'{component['_id']}'. They will be "
+                        f"overwritten with: {endpoint_permissions}"
+                    )
 
-                component['permissions'] = endpoint_permissions
-                logger.warning(f"Set permissions for endpoint pipe '{component['_id']}' to: {endpoint_permissions}")
+                component["permissions"] = endpoint_permissions
+                logger.warning(
+                    "Set permissions for endpoint pipe"
+                    f"'{component['_id']}' to: {endpoint_permissions}"
+                )
 
             with open(dirpath / f"pipes/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
-
-
 
         elif component["type"].startswith("system:"):
             with open(dirpath / f"systems/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
 
 
-def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded"):
+def collapse_connector(
+    connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded"
+):
     # reconstruct the templates
     input = Path(connector_dir, expanded_dir)
     templates = defaultdict(list)
-    for system in Path(input, "systems").glob('*.json'):
+    for system in Path(input, "systems").glob("*.json"):
         with open(system, "r") as f:
             templates["system"].append(json.load(f))
-    for pipe in Path(input, "pipes").glob('*.json'):
+    for pipe in Path(input, "pipes").glob("*.json"):
         datatype = pipe.name.split("-", 1)[1].rsplit("-", 1)[0]
         if pipe.name.endswith("-transform.json"):  # shim pipe
             continue
@@ -175,7 +215,6 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         if "parent" in datatype_manifest:
             datatypes_with_parent[datatype] = datatype_manifest["parent"]
 
-
     # ignore templates that doesn't match the name of the datatype (re-used templates)
     datatypes_with_no_master_template = set()
     for datatype, datatype_manifest in existing_manifest.get("datatypes", {}).items():
@@ -186,13 +225,17 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
 
     # write the datatype templates
     env_parameters = set()
-    p = re.compile('\$ENV\(\w+\)')
+    p = re.compile("\$ENV\(\w+\)")
 
     for template_name, components in templates.items():
         components = sorted(components, key=lambda x: x["_id"])
         if template_name in datatypes_with_no_master_template:
             continue
-        datatype_parameters = existing_manifest.get('datatypes', {}).get(template_name, {}).get('parameters', {})
+        datatype_parameters = (
+            existing_manifest.get("datatypes", {})
+            .get(template_name, {})
+            .get("parameters", {})
+        )
         should_warn = False
         param_values = []
         for param_name, value in datatype_parameters.items():
@@ -200,18 +243,26 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
                 param_values.append(value.upper())
                 should_warn = True
         if should_warn:
+            warning_text = (
+                "WARNING! There is no use for template parameter(s) "
+                f"{param_values} in template: {template_name.upper()}"
+            )
             if len(components) > 0:
                 if "description" not in components[0].keys():
-                    components[0]["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+                    components[0]["description"] = warning_text
                 else:
-                    components[0]["description"] += "\nWARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+                    components[0]["description"] += warning_text
             else:
                 if "description" not in components.keys():
-                    components["description"] = "WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
+                    components["description"] = warning_text
                 else:
-                    components["description"] += "\nWARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper())
-            logger.error("WARNING! There is no use for template parameter(s) %s in template: %s" % (param_values,template_name.upper()))
-        template = json.dumps(components if len(components) > 1 else components[0], indent=2, sort_keys=True)
+                    components["description"] += warning_text
+            logger.error(warning_text)
+        template = json.dumps(
+            components if len(components) > 1 else components[0],
+            indent=2,
+            sort_keys=True,
+        )
         fixed = template.replace(system_placeholder, "{{@ system @}}")
         envs = p.findall(fixed)
         for env in envs:
@@ -221,8 +272,15 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         if template_name != "system":
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
-            fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
-        for param_name, value in datatype_parameters.items():  # TODO: best effort, might result in unintended replacements
+            fixed = fixed.replace(
+                datatypes_with_parent[template_name], "{{@ parent @}}"
+            )
+        for (
+            param_name,
+            value,
+        ) in (
+            datatype_parameters.items()
+        ):  # TODO: best effort, might result in unintended replacements
             fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
@@ -230,12 +288,19 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
     # create manifest
     datatypes = list(templates.keys()) + list(datatypes_with_no_master_template)
     new_manifest = {
-        "additional_parameters": {key: existing_manifest.get("additional_parameters", {}).get(key, {}) for key in
-                                  env_parameters},
+        "additional_parameters": {
+            key: existing_manifest.get("additional_parameters", {}).get(key, {})
+            for key in env_parameters
+        },
         "system-template": "templates/system.json",
-        "datatypes": {datatype: {**{"template": "templates/%s.json" % datatype},
-                                 **existing_manifest.get("datatypes", {}).get(datatype, {})} for datatype in datatypes
-                      if datatype != "system"}
+        "datatypes": {
+            datatype: {
+                **{"template": "templates/%s.json" % datatype},
+                **existing_manifest.get("datatypes", {}).get(datatype, {}),
+            }
+            for datatype in datatypes
+            if datatype != "system"
+        },
     }
     manifest = {**existing_manifest, **new_manifest}
     with open(dirpath / "manifest.json", "w") as f:

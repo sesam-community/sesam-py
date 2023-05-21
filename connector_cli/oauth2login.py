@@ -1,13 +1,16 @@
 import hashlib
-import threading
+import json
 import os
+import os.path
 import signal
 import subprocess
-import json
-import os.path
-from flask import Flask, request, redirect, g
+import threading
+from base64 import urlsafe_b64decode
 from urllib.parse import urlencode
+
 import requests
+from flask import Flask, g, redirect, request
+
 from connector_cli.connectorpy import expand_connector_config
 
 redirect_uri = "http://localhost:5010/login_callback"
@@ -19,7 +22,9 @@ app = Flask(__name__)
 def wait_on_server_shutdown():
     event.wait()
     cmd = "lsof -i tcp:5010"
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = subprocess.run(
+        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     lines = result.stdout.decode().split("\n")
     header = lines[0]
     pid_index = header.split().index("PID")
@@ -31,7 +36,7 @@ def wait_on_server_shutdown():
 
 @app.teardown_appcontext
 def teardown_appcontext(exception=None):
-    if hasattr(g, 'shutdown_server'):
+    if hasattr(g, "shutdown_server"):
         event.set()
 
 
@@ -40,19 +45,41 @@ def index():
     return redirect(login_url)
 
 
+def get_account_id_from_jwt(jwt_token):
+    """
+    Decode the JWT and retrieve the account_id
+
+    Params:
+        jwt_token - str: JSON Web Token
+    returns:
+        account_id - str: Account ID/name (sometimes used in requests)
+    """
+
+    _, payload, _ = jwt_token.split(".")
+    account_info = json.loads(urlsafe_b64decode(f"{payload}"))
+
+    account_id = account_info.get(
+        manifest.get("oauth2", {}).get("tenant_id_expression")[1]
+    )
+
+    return account_id
+
+
 @app.route("/login_callback")
 def login_callback():
     is_failed = False
     # get secrets
     secrets = {}
+    account_id = ""
     try:
         the_data = {
-            "code": request.args.get('code'),
+            "code": request.args.get("code"),
             "client_id": client_id,
             "client_secret": client_secret,
             "grant_type": "authorization_code",
             "redirect_uri": redirect_uri,
         }
+
         resp = requests.post(token_url, data=the_data)
         data = resp.json()
         secrets = {
@@ -61,11 +88,28 @@ def login_callback():
             "oauth_client_id": client_id,
             "oauth_client_secret": client_secret,
         }
+
+        identity_url = manifest.get("oauth2", {}).get("identity_url")
+        tenant_id = manifest.get("oauth2", {}).get("tenant_id_expression")
+
+        if type(tenant_id) is list:
+            account_id = get_account_id_from_jwt(data.get("id_token"))
+        elif tenant_id in data:
+            account_id = data.get(tenant_id)
+        elif identity_url:
+            account_id = (
+                requests.get(f"{identity_url}{data.get('access_token')}")
+                .json()
+                .get(tenant_id)
+            )
+
         if manifest.get("requires_service_api_access"):
             secrets["service_jwt"] = service_jwt
         if manifest.get("use_webhook_secret"):
             to_hash = service_url + "/" + system_id
-            secrets["webhook_secret"] = hashlib.sha256(to_hash.encode('utf-8-sig')).hexdigest()[:12]
+            secrets["webhook_secret"] = hashlib.sha256(
+                to_hash.encode("utf-8-sig")
+            ).hexdigest()[:12]
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get secrets: %s" % e)
@@ -88,6 +132,7 @@ def login_callback():
                     env[key] = value
         env["token_url"] = token_url
         env["base_url"] = base_url
+        env["account_id"] = account_id
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get env: %s" % e)
@@ -100,15 +145,27 @@ def login_callback():
     g.shutdown_server = True
     if not is_failed:
         sesam_node.logger.info(
-            "All secrets and environment variables have been updated successfully, now go and do your development!")
-        return "All secrets and environment variables have been updated successfully, now go and do your development!"
+            "All secrets and environment variables have been updated successfully, "
+            "now go and do your development!"
+        )
+        return (
+            "All secrets and environment variables have been updated successfully, "
+            "now go and do your development!"
+        )
     else:
-        sesam_node.logger.error("Failed to update all secrets and environment variables. see the log for details.")
-        return "Failed to update all secrets and environment variables. see the log for details."
+        sesam_node.logger.error(
+            "Failed to update all secrets and environment variables. "
+            "See the log for details."
+        )
+        return (
+            "Failed to update all secrets and environment variables. "
+            "See the log for details."
+        )
 
 
 def start_server(args):
-    global system_id, client_id, client_secret, base_url, login_url, token_url, event, profile_file,manifest,service_url,service_jwt
+    global system_id, client_id, client_secret, base_url, login_url
+    global token_url, event, profile_file, manifest, service_url, service_jwt
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
@@ -120,7 +177,15 @@ def start_server(args):
     token_url = args.token_url
     scopes = args.scopes
     _, manifest = expand_connector_config(system_id)
-    if system_id and client_id and client_secret and service_url and login_url and token_url and scopes:
+    if (
+        system_id
+        and client_id
+        and client_secret
+        and service_url
+        and login_url
+        and token_url
+        and scopes
+    ):
         params = {
             "client_id": client_id,
             "client_secret": client_secret,
@@ -131,13 +196,14 @@ def start_server(args):
         if not login_url.endswith("?"):
             login_url += "?"
         sesam_node.logger.info(
-            "\nThis tool will add oauth2 system secrets and add token_url to the environment variables:"
+            "\nThis tool will add oauth2 system secrets and add token_url to the environment variables:"  # noqa: E501
             "\n  Service API: %s"
             "\n  System id: %s"
             "\n"
             "\nTo continue open the following link in your browser:"
             "\n  Link: %s"
-            "\n\n" % (service_url, system_id, login_url + urlencode(params)))
+            "\n\n" % (service_url, system_id, login_url + urlencode(params))
+        )
         app.run(port=5010)
 
 

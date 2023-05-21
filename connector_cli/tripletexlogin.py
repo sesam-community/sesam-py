@@ -1,12 +1,14 @@
 import hashlib
 import json
 import os
-from datetime import timedelta, date
+from datetime import date, timedelta
+
 import requests
+
 from connector_cli.connectorpy import expand_connector_config
 
-
 # bespoke login flow for Tripletex
+
 
 def login_via_tripletex(sesam_node, args):
     system_id = args.system_placeholder
@@ -38,8 +40,10 @@ def login_via_tripletex(sesam_node, args):
             if manifest.get("requires_service_api_access"):
                 secrets["service_jwt"] = args.service_jwt
             if manifest.get("use_webhook_secret"):
-                to_hash = args.service_url+"/"+system_id
-                secrets["webhook_secret"] = hashlib.sha256(to_hash.encode('utf-8-sig')).hexdigest()[:12]
+                to_hash = args.service_url + "/" + system_id
+                secrets["webhook_secret"] = hashlib.sha256(
+                    to_hash.encode("utf-8-sig")
+                ).hexdigest()[:12]
         except Exception as e:
             is_failed = True
             sesam_node.logger.error("Failed to get secrets: %s" % e)
@@ -74,8 +78,16 @@ def login_via_tripletex(sesam_node, args):
             sesam_node.logger.error("Failed to put env: %s" % e)
 
         if not is_failed:
-            sesam_node.logger.info("All secrets and environment variables have been updated successfully, now go and do your development!")
+            sesam_node.logger.info(
+                "All secrets and environment variables have been updated successfully, "
+                "now go and do your development!"
+            )
         else:
-            sesam_node.logger.error("Failed to update all secrets and environment variables. see the log for details.")
+            sesam_node.logger.error(
+                "Failed to update all secrets and environment variables. see the log "
+                "for details."
+            )
     else:
-        sesam_node.logger.error("Missing arguments, please provide all required arguments")
+        sesam_node.logger.error(
+            "Missing arguments, please provide all required arguments"
+        )
