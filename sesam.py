@@ -18,6 +18,7 @@ import zipfile
 from decimal import Decimal
 from difflib import unified_diff
 from fnmatch import fnmatch
+from pathlib import Path
 from urllib.parse import urlparse
 
 import sesamclient
@@ -1238,8 +1239,8 @@ class SesamCmdClient:
                                 and type(config.get("transform")) == list
                             ):
                                 for transform in config.get("transform"):
-                                    share_dataset = transform.get("properties").get(
-                                        "share_dataset"
+                                    share_dataset = transform.get("properties",{}).get(
+                                        "share_dataset", {}
                                     )
                                     if (
                                         transform.get("template")
@@ -2362,53 +2363,60 @@ class SesamCmdClient:
                     f, indent=2, sort_keys=True)
 
     def init_connector(self):
-        with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
-            json.dump(
-            {
-                "auth:": "",
-                "datatypes": {
-                    "sample": {
-                        "template": "templates/sample.json"
+        # check if manifest.json exists
+        if not os.path.exists(Path(self.args.connector_dir, "manifest.json")):
+            self.logger.info("manifest.json not found, initializing it...")
+            with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
+                json.dump(
+                {
+                    "auth:": "",
+                    "datatypes": {
+                        "sample": {
+                            "template": "templates/sample.json"
+                        },
                     },
+                    "additional_parameters": {},
+                    "system-template": "templates/system.json"
                 },
-                "additional_parameters": {},
-                "system-template": "templates/system.json"
-            },
-                f, indent=2, sort_keys=True)
+                    f, indent=2, sort_keys=True)
+        else:
+            self.logger.info("manifest.json found, skipping initialization...")
 
         templates_dir = os.path.join(self.args.connector_dir, "templates")
         if not os.path.exists(templates_dir):
+            self.logger.info("templates directory not found, initializing it...")
             os.makedirs(templates_dir)
+            with open(Path(self.args.connector_dir, "templates", "sample.json"), "w") as f:
+                json.dump(
+                [
+                    {
+                        "_id": "{{@ system @}}-{{@ datatype @}}-collect",
+                        "namespaced_identifiers": False,
+                        "source":{},
+                        "transform":{},
+                        "type": "pipe"
+                    },
+                    {
+                        "_id": "{{@ system @}}-{{@ datatype @}}-share",
+                        "namespaced_identifiers": False,
+                        "sink":{},
+                        "source":{},
+                        "transform":{},
+                        "type": "pipe"
+                    },
+                ],
+                    f, indent=2, sort_keys=True)
 
-        with open(Path(self.args.connector_dir, "templates", "sample.json"), "w") as f:
-            json.dump(
-            [
+            with open(Path(self.args.connector_dir, "templates", "system.json"), "w") as f:
+                json.dump(
                 {
-                    "_id": "{{@ system @}}-{{@ datatype @}}-collect",
-                    "namespaced_identifiers": False,
-                    "source":{},
-                    "transform":{},
-                    "type": "pipe"
+                    "_id": "{{@ system @}}","operations":{},
+                    "type":"system:rest","url_pattern":"",
+                    "verify_ssl":True
                 },
-                {
-                    "_id": "{{@ system @}}-{{@ datatype @}}-share",
-                    "namespaced_identifiers": False,
-                    "sink":{},
-                    "source":{},
-                    "transform":{},
-                    "type": "pipe"
-                },
-            ],
-                f, indent=2, sort_keys=True)
-
-        with open(Path(self.args.connector_dir, "templates", "system.json"), "w") as f:
-            json.dump(
-            {
-                "_id": "{{@ system @}}","operations":{},
-                "type":"system:rest","url_pattern":"",
-                "verify_ssl":True
-            },
-                f, indent=2, sort_keys=True)
+                    f, indent=2, sort_keys=True)
+        else:
+            self.logger.info("templates directory found, skipping initialization...")
 
 
     def update(self):
