@@ -27,8 +27,8 @@ from requests.exceptions import HTTPError
 
 from connector_cli import connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
-sesam_version = "2.5.30"
 
+sesam_version = "2.5.30"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1183,12 +1183,52 @@ class SesamCmdClient:
         else:
             pass
 
+    def check_template_sink(self):
+        """
+        Checks the pipe templates for `sink.dataset`, if it has a value we exit with a
+        warning. (See task IS-14872)
+
+        Returns:
+            Boolean: True/False
+        """
+        connector_dir = os.getcwd()
+        with open(f"{connector_dir}/manifest.json", "r") as mf:
+            manifest = json.load(mf)
+            template_files = [
+                manifest.get("datatypes").get(tf).get("template")
+                for tf in manifest.get("datatypes")
+            ]
+
+        files_with_warnings = list()
+        for template_file in template_files:
+            with open(f"{connector_dir}/{template_file}", "r") as tf:
+                template = json.load(tf)
+
+            if type(template) is not list:
+                continue
+
+            for obj in template:
+                if obj.get("type") == "pipe" and obj.get("sink", {}).get("dataset"):
+                    files_with_warnings.append(
+                        f"[!] Sink.dataset should not have a value in {template_file}. "
+                        "Please remove the value to continue."
+                    )
+
+        if len(files_with_warnings) > 0:
+            for warning in files_with_warnings:
+                logger.error(warning)
+            return False
+
+        return True
+
     def validate(self):
         logger.info("Validating config files")
         # set the current directory when sesam validate is called from root.
         if self.args.command == "validate" and self.args.connector_dir != ".":
             os.chdir(self.args.connector_dir)
-        is_valid = True
+
+        is_valid = self.check_template_sink()
+
         if os.path.exists(".expanded"):
             for root, _, files in os.walk(".expanded"):
                 if root.endswith("/.expanded"):
