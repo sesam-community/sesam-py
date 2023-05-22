@@ -2363,7 +2363,6 @@ class SesamCmdClient:
                     f, indent=2, sort_keys=True)
 
     def init_connector(self):
-        # check if manifest.json exists
         if not os.path.exists(Path(self.args.connector_dir, "manifest.json")):
             self.logger.info("manifest.json not found, initializing it...")
             with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
