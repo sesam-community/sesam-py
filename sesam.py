@@ -3128,6 +3128,7 @@ Commands:
         print("sesam version %s" % sesam_version)
         sys.exit(0)
 
+
     if args.logformat == "log":
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         formatter = logging.Formatter(format_string)
