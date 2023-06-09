@@ -25,10 +25,10 @@ import sesamclient
 from lxml import etree
 from requests.exceptions import HTTPError
 
-from connector_cli import connectorpy, oauth2login, tripletexlogin
+from connector_cli import connectorpy, oauth2login, tripletexlogin, api_key_login
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.5.31"
+sesam_version = "2.5.32"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1180,6 +1180,15 @@ class SesamCmdClient:
                 )
                 sys.exit(1)
             oauth2login.login_via_oauth(self.sesam_node, self.args)
+
+        elif (
+            "auth" in connector_manifest
+            and connector_manifest["auth"].lower() == "api_key"
+        ):
+            if os.path.exists(".authconfig"):
+                self.set_authconfig_credentials("api_key")
+                api_key_login.login_via_api_key(self.sesam_node, self.args)
+
         else:
             pass
 
@@ -3095,6 +3104,9 @@ Commands:
 
     parser.add_argument("--client_secret", metavar="<string>",
                         type=str, help="OAuth2 client secret (available only when working on connectors)")
+
+    parser.add_argument("--api_key", metavar="<string>",
+                        type=str, help="api_key secret (available only when working on connectors)")
 
     parser.add_argument("--service_url", metavar="<string>",
                         type=str, help="url to service api (include /api) (available only when working on connectors)")
