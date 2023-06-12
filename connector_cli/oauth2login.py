@@ -176,6 +176,7 @@ def start_server(args):
     login_url = args.login_url
     token_url = args.token_url
     scopes = args.scopes
+    use_client_secret = args.use_client_secret
     _, manifest = expand_connector_config(system_id)
     if (
         system_id
@@ -188,11 +189,14 @@ def start_server(args):
     ):
         params = {
             "client_id": client_id,
-            "client_secret": client_secret,
             "scope": " ".join(scopes),
             "redirect_uri": redirect_uri,
             "response_type": "code",
         }
+
+        if use_client_secret:
+            params["client_secret"] = client_secret
+            
         if not login_url.endswith("?"):
             login_url += "?"
         sesam_node.logger.info(

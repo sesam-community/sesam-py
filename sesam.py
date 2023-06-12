@@ -28,7 +28,7 @@ from requests.exceptions import HTTPError
 from connector_cli import connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.5.30"
+sesam_version = "2.5.31"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3113,6 +3113,10 @@ Commands:
 
     parser.add_argument("--days", metavar="<string>",
                         type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
+    
+    parser.add_argument('--use-client-secret', dest='use_client_secret', required=False,
+                        action="store_true",
+                        help="use with sesam upload/authenticate to send add the client_secret parameter to the /authorize URL")
 
     try:
         args = parser.parse_args()
