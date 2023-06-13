@@ -70,7 +70,7 @@ def login_callback():
     is_failed = False
     # get secrets
     secrets = {}
-    account_id = ""
+    account_id = account_id_override is not None and account_id_override or ""
     try:
         the_data = {
             "code": request.args.get("code"),
@@ -92,16 +92,17 @@ def login_callback():
         identity_url = manifest.get("oauth2", {}).get("identity_url")
         tenant_id = manifest.get("oauth2", {}).get("tenant_id_expression")
 
-        if type(tenant_id) is list:
-            account_id = get_account_id_from_jwt(data.get("id_token"))
-        elif tenant_id in data:
-            account_id = data.get(tenant_id)
-        elif identity_url:
-            account_id = (
-                requests.get(f"{identity_url}{data.get('access_token')}")
-                .json()
-                .get(tenant_id)
-            )
+        if not account_id:
+            if type(tenant_id) is list:
+                account_id = get_account_id_from_jwt(data.get("id_token"))
+            elif tenant_id in data:
+                account_id = data.get(tenant_id)
+            elif identity_url:
+                account_id = (
+                    requests.get(f"{identity_url}{data.get('access_token')}")
+                    .json()
+                    .get(tenant_id)
+                )
 
         if manifest.get("requires_service_api_access"):
             secrets["service_jwt"] = service_jwt
@@ -165,11 +166,12 @@ def login_callback():
 
 def start_server(args):
     global system_id, client_id, client_secret, base_url, login_url
-    global token_url, event, profile_file, manifest, service_url, service_jwt
+    global token_url, event, profile_file, manifest, service_url, service_jwt, account_id_override
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
     client_secret = args.client_secret
+    account_id_override = args.account_id
     service_url = args.service_url
     service_jwt = args.service_jwt
     base_url = args.base_url
