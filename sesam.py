@@ -28,7 +28,7 @@ from requests.exceptions import HTTPError
 from connector_cli import connectorpy, oauth2login, tripletexlogin, api_key_login
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.5.32"
+sesam_version = "2.5.33"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1170,9 +1170,12 @@ class SesamCmdClient:
             )
             if os.path.exists(".authconfig"):
                 self.set_authconfig_credentials("client_id", "client_secret")
+                self.set_authconfig_credentials("account_id")
             else:
                 self.args.client_id = args.client_id
                 self.args.client_secret = args.client_secret
+                self.args.account_id = args.account_id
+
             if self.args.client_id is None or self.args.client_secret is None:
                 logger.error(
                     "Missing client_id and/or client_secret. Please provide them in "
@@ -3104,6 +3107,9 @@ Commands:
 
     parser.add_argument("--client_secret", metavar="<string>",
                         type=str, help="OAuth2 client secret (available only when working on connectors)")
+
+    parser.add_argument("--account_id", metavar="<string>",
+                        type=str, help="OAuth2 account_id variable override (available only when working on connectors)")
 
     parser.add_argument("--api_key", metavar="<string>",
                         type=str, help="api_key secret (available only when working on connectors)")
