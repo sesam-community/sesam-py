@@ -28,7 +28,7 @@ from requests.exceptions import HTTPError
 from connector_cli import connectorpy, oauth2login, tripletexlogin, api_key_login
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.5.32"
+sesam_version = "2.5.33"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2

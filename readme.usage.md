@@ -26,16 +26,17 @@ directory, paste and edit the following:
 
 for OAuth2 authentication:
 ```bash
-CLIENT_ID=<client id for OAuth2 authentication>
-CLIENT_SECRET=<client secret for OAuth2 authentication>
+client_id=<client id for OAuth2 authentication>
+client_secret=<client secret for OAuth2 authentication>
+account_id=<optional account_id override if not possible to get from the OAuth2 api>
 ```
 for Tripletex authentication:
 ```bash
-CONSUMER_TOKEN=<client id for Tripletex authentication>
-EMPLOYEE_TOKEN=<client secret for Tripletex authentication>
+consumer_token=<client id for Tripletex authentication>
+employee_token=<client secret for Tripletex authentication>
 ```
 
-* The secrets and environment variables will be updated in the node specified in the `syncconfig` file.
+* The secrets and environment variables will be updated in the node specified in the `.syncconfig` file.
 * It is recommended to clone a connector repo and add the `.authconfig` file to the working directory.
 * Optionally the secrets can also be passed as command line arguments specified below.
 * To upload additional secrets and environment variables, add them to the profile file (e.g. test-env.json).
@@ -192,6 +193,8 @@ optional arguments:
                         OAuth2 client id (available only when working on a connector)
   --client_secret <string>
                         OAuth2 client secret (available only when working on a connector)
+  --account_id <string>
+                        OAuth2 account_id variable override (available only when working on connectors)
   --service_url <string>
                         url to service api (include /api) (available only when working on a connector)
   --service_jwt <string>
