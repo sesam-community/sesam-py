@@ -199,8 +199,10 @@ def start_server(args):
         if use_client_secret:
             params["client_secret"] = client_secret
             
-        if not login_url.endswith("?"):
+        if login_url.find("?") == -1:
             login_url += "?"
+        else:
+            login_url += "&"
         sesam_node.logger.info(
             "\nThis tool will add oauth2 system secrets and add token_url to the environment variables:"  # noqa: E501
             "\n  Service API: %s"
