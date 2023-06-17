@@ -28,7 +28,7 @@ from requests.exceptions import HTTPError
 from connector_cli import connectorpy, oauth2login, tripletexlogin, api_key_login
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.5.34"
+sesam_version = "2.5.35"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3110,7 +3110,11 @@ Commands:
 
     parser.add_argument("--account_id", metavar="<string>",
                         type=str, help="OAuth2 account_id variable override (available only when working on connectors)")
-
+    
+    parser.add_argument('--ignore-refresh-token', dest='ignore_refresh_token', required=False,
+                        action="store_true",
+                        help="use with sesam upload/authenticate to ignore refresh tokens for systems that don't have them")
+    
     parser.add_argument("--api_key", metavar="<string>",
                         type=str, help="api_key secret (available only when working on connectors)")
 
