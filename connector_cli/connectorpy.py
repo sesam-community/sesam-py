@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 from collections import defaultdict
+from copy import deepcopy
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape
@@ -305,3 +306,100 @@ def collapse_connector(
     manifest = {**existing_manifest, **new_manifest}
     with open(dirpath / "manifest.json", "w") as f:
         json.dump(manifest, f, indent=2, sort_keys=True)
+
+
+def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
+    dirpath = Path(connector_dir)
+    os.makedirs(dirpath / "schemas", exist_ok=True)
+
+    # Set 'infer_pipe_entity_types' to true if not already set
+    node_metadata = connection.get_metadata().get("config", {}).get("effective", {})
+    global_defaults = node_metadata.get("global_defaults", {})
+    if global_defaults.get("infer_pipe_entity_types") is not True:
+        global_defaults["infer_pipe_entity_types"] = True
+        connection.set_metadata(node_metadata)
+
+    # Find datatypes defined for the connector and run the corresponding collect pipes
+    manifest_path = Path(connector_dir, "manifest.json")
+    manifest = {}
+    if manifest_path.exists():
+        with open(manifest_path, "r") as f:
+            manifest = json.load(f)
+
+    datatypes = [datatype for datatype in manifest.get("datatypes", {}).keys()]
+    collect_pipe_ids = [
+        f"{system_placeholder}-{datatype}-collect" for datatype in datatypes
+    ]
+    for pipe_id, datatype in zip(collect_pipe_ids, datatypes):
+        # Fetch inferred schema
+        endpoint = f"{connection.pipes_url}/{pipe_id}/entity-types/sink"
+        r = connection.do_get_request(endpoint, allowable_response_status_codes=[200])
+        live_schema = r.json()
+        incomplete_schema_path = dirpath / "schemas" / f"{datatype}.json"
+
+        pipe = connection.get_pipe(pipe_id)
+        if pipe:
+            logger.info(f"Running pipe '{pipe_id}'")
+            pump = pipe.get_pump()
+            pump.run_pump_until_there_are_no_pending_work()
+        else:
+            logger.warning(
+                f"Expected to find collect pipe '{pipe_id}' in subscription, but it was not found. "
+                f"Maybe you need to do a 'sesam upload' first?"
+            )
+
+        incomplete_schema = deepcopy(live_schema)
+        datatype_properties = live_schema.get("properties", {})
+        num_nulls = 0
+
+        # Check which properties are null and write those properties to a separate 'incomplete' schema
+        if not os.path.exists(incomplete_schema_path):
+            logger.info(
+                f"Writing incomplete schema with {num_nulls} null-properties to {incomplete_schema_path}"
+            )
+            with open(incomplete_schema_path, "w") as f:
+                json.dump(incomplete_schema, f, indent=2, sort_keys=True)
+            for prop_name, _property in datatype_properties.items():
+                is_null = True
+                if prop_name.startswith("$"):  # ignore internal properties
+                    incomplete_schema["properties"].pop(prop_name, None)
+                    continue
+
+                if _property.get("anyOf"):
+                    for alternative in _property["anyOf"]:
+                        if alternative.get("type") != "null":
+                            is_null = False
+                            break
+                else:
+                    if _property.get("type") != "null":
+                        is_null = False
+
+                if is_null is True:
+                    logger.debug(f"{datatype}.{prop_name} is null")
+                    num_nulls += 1
+                    incomplete_schema["properties"][prop_name]["type"] = None
+                else:
+                    incomplete_schema["properties"].pop(prop_name, None)
+
+        # If the auto-generated schema already exists, check if the properties can be merged. They will only be merged
+        # if the property type is not null (i.e. manually set by the user).
+        else:
+            print(
+                f"Checking if properties in {incomplete_schema_path} can be merged..."
+            )
+            with open(incomplete_schema_path, "r") as f:
+                existing_schema = json.load(f)
+
+            merged_schema = deepcopy(live_schema)
+            datatype_properties = existing_schema.get("properties", {})
+            for prop_name, _property in datatype_properties.items():
+                if _property.get("type") is None:
+                    print(
+                        f"Skipping merge of '{datatype}.{prop_name}' because the type has not been set"
+                    )
+                else:
+                    # The type has been set manually, so use the properties from this schema in the merged version
+                    merged_schema["properties"][prop_name] = _property
+
+            with open(dirpath / "schemas" / f"{datatype}.merged.json", "w") as f:
+                json.dump(merged_schema, f, indent=2, sort_keys=True)
