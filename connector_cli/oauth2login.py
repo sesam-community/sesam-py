@@ -84,10 +84,12 @@ def login_callback():
         data = resp.json()
         secrets = {
             "oauth_access_token": data["access_token"],
-            "oauth_refresh_token": data["refresh_token"],
             "oauth_client_id": client_id,
             "oauth_client_secret": client_secret,
         }
+
+        if not ignore_refresh_token:
+            secrets["oauth_refresh_token"] = data["refresh_token"]
 
         identity_url = manifest.get("oauth2", {}).get("identity_url")
         tenant_id = manifest.get("oauth2", {}).get("tenant_id_expression")
@@ -166,7 +168,7 @@ def login_callback():
 
 def start_server(args):
     global system_id, client_id, client_secret, base_url, login_url
-    global token_url, event, profile_file, manifest, service_url, service_jwt, account_id_override
+    global token_url, event, profile_file, manifest, service_url, service_jwt, account_id_override, ignore_refresh_token
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
@@ -179,6 +181,7 @@ def start_server(args):
     token_url = args.token_url
     scopes = args.scopes
     use_client_secret = args.use_client_secret
+    ignore_refresh_token = args.ignore_refresh_token
     _, manifest = expand_connector_config(system_id)
     if (
         system_id
