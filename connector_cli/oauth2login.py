@@ -84,10 +84,11 @@ def login_callback():
         data = resp.json()
         secrets = {
             "oauth_access_token": data["access_token"],
-            "oauth_refresh_token": data["refresh_token"],
             "oauth_client_id": client_id,
             "oauth_client_secret": client_secret,
         }
+        if "refresh_token" in data:
+            secrets["oauth_refresh_token"] = data["refresh_token"]
 
         identity_url = manifest.get("oauth2", {}).get("identity_url")
         tenant_id = manifest.get("oauth2", {}).get("tenant_id_expression")
