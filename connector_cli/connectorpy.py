@@ -354,11 +354,6 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
         # Check which properties are null and write those properties to a separate 'incomplete' schema
         if not os.path.exists(incomplete_schema_path):
-            logger.info(
-                f"Writing incomplete schema with {num_nulls} null-properties to {incomplete_schema_path}"
-            )
-            with open(incomplete_schema_path, "w") as f:
-                json.dump(incomplete_schema, f, indent=2, sort_keys=True)
             for prop_name, _property in datatype_properties.items():
                 is_null = True
                 if prop_name.startswith("$"):  # ignore internal properties
@@ -367,26 +362,30 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
                 if _property.get("anyOf"):
                     for alternative in _property["anyOf"]:
-                        if alternative.get("type") != "null":
+                        # Set '' as default since we can't use the 'None' default here
+                        if alternative.get("subtype") not in ['null', None] or alternative.get("type") not in ['null', None]:
                             is_null = False
                             break
                 else:
-                    if _property.get("type") != "null":
+                    if _property.get("subtype") not in ['null', None] or _property.get("type") not in ['null', None]:
                         is_null = False
 
                 if is_null is True:
-                    logger.debug(f"{datatype}.{prop_name} is null")
-                    num_nulls += 1
+                    num_nulls = 1
                     incomplete_schema["properties"][prop_name]["type"] = None
                 else:
                     incomplete_schema["properties"].pop(prop_name, None)
 
+            logger.info(
+                f"Writing incomplete schema with {num_nulls} null-properties to {incomplete_schema_path}"
+            )
+            with open(incomplete_schema_path, "w") as f:
+                json.dump(incomplete_schema, f, indent=2, sort_keys=True)
+
         # If the auto-generated schema already exists, check if the properties can be merged. They will only be merged
         # if the property type is not null (i.e. manually set by the user).
         else:
-            print(
-                f"Checking if properties in {incomplete_schema_path} can be merged..."
-            )
+            logger.info(f"Checking if properties in {incomplete_schema_path} can be merged...")
             with open(incomplete_schema_path, "r") as f:
                 existing_schema = json.load(f)
 
@@ -394,9 +393,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
             datatype_properties = existing_schema.get("properties", {})
             for prop_name, _property in datatype_properties.items():
                 if _property.get("type") is None:
-                    print(
-                        f"Skipping merge of '{datatype}.{prop_name}' because the type has not been set"
-                    )
+                    logger.info(f"Skipping merge of '{datatype}.{prop_name}' because the type has not been set")
                 else:
                     # The type has been set manually, so use the properties from this schema in the merged version
                     merged_schema["properties"][prop_name] = _property
