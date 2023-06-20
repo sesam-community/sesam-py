@@ -346,7 +346,8 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
             )
 
         endpoint = f"{connection.pipes_url}/{pipe_id}/entity-types/sink"
-        r = connection.do_get_request(endpoint, allowable_response_status_codes=[200])
+        r = connection.do_get_request(endpoint, retries=20, retry_delay=3)
+
         live_schema = r.json()
         incomplete_schema_path = dirpath / "schemas" / f"{datatype}.json"
 
@@ -396,7 +397,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
         # be merged. They will only be merged if the property type is not null (i.e.
         # manually set by the user).
         logger.info(
-            f"Checking if properties in {incomplete_schema_path} can be " f"merged..."
+            f"Checking if properties in {incomplete_schema_path} can be merged..."
         )
         with open(incomplete_schema_path, "r") as f:
             existing_schema = json.load(f)
