@@ -25,7 +25,7 @@ import sesamclient
 from lxml import etree
 from requests.exceptions import HTTPError
 
-from connector_cli import connectorpy, oauth2login, tripletexlogin, api_key_login
+from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
 sesam_version = "2.5.35"
@@ -356,7 +356,7 @@ class SesamNode:
         )
         try:
             return self.api_connection.get_system(system_id)
-        except:
+        except BaseException:
             return None
 
     def get_pipe(self, pipe_id):
@@ -365,7 +365,7 @@ class SesamNode:
         )
         try:
             return self.api_connection.get_pipe(pipe_id)
-        except:
+        except BaseException:
             return None
 
     def add_system(self, config, verify=False, timeout=300):
@@ -388,7 +388,7 @@ class SesamNode:
                 if system.config["original"] == config:
                     self.logger.debug("Posted system '%s' verified OK!" % config["_id"])
                     return True
-            except BaseException as e:
+            except BaseException:
                 pass
 
             time.sleep(sleep_time)
@@ -1291,7 +1291,7 @@ class SesamCmdClient:
                                 and type(config.get("transform")) == list
                             ):
                                 for transform in config.get("transform"):
-                                    share_dataset = transform.get("properties",{}).get(
+                                    share_dataset = transform.get("properties", {}).get(
                                         "share_dataset", {}
                                     )
                                     if (
@@ -1497,7 +1497,7 @@ class SesamCmdClient:
 
     def dump(self):
         try:
-            zip_config = self.get_zip_config(remove_zip=False)
+            self.get_zip_config(remove_zip=False)
         except BaseException as e:
             logger.error("Failed to create zip archive of config")
             raise e
@@ -2405,31 +2405,32 @@ class SesamCmdClient:
         elif modified_sources + added_entities == 0:
             self.logger.info("No pipe configurations were modified.")
 
-        if not self.args.is_connector and self.args.connector_dir!=".":
+        if not self.args.is_connector and self.args.connector_dir != ".":
             with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
                 json.dump(
-                {
-                    "datatypes": {},
-                    "additional_parameters": {}
-                },
-                    f, indent=2, sort_keys=True)
+                    {"datatypes": {}, "additional_parameters": {}},
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
 
     def init_connector(self):
         if not os.path.exists(Path(self.args.connector_dir, "manifest.json")):
             self.logger.info("manifest.json not found, initializing it...")
             with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
                 json.dump(
-                {
-                    "auth:": "",
-                    "datatypes": {
-                        "sample": {
-                            "template": "templates/sample.json"
+                    {
+                        "auth:": "",
+                        "datatypes": {
+                            "sample": {"template": "templates/sample.json"},
                         },
+                        "additional_parameters": {},
+                        "system-template": "templates/system.json",
                     },
-                    "additional_parameters": {},
-                    "system-template": "templates/system.json"
-                },
-                    f, indent=2, sort_keys=True)
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
         else:
             self.logger.info("manifest.json found, skipping initialization...")
 
@@ -2437,38 +2438,49 @@ class SesamCmdClient:
         if not os.path.exists(templates_dir):
             self.logger.info("templates directory not found, initializing it...")
             os.makedirs(templates_dir)
-            with open(Path(self.args.connector_dir, "templates", "sample.json"), "w") as f:
+            with open(
+                Path(self.args.connector_dir, "templates", "sample.json"), "w"
+            ) as f:
                 json.dump(
-                [
-                    {
-                        "_id": "{{@ system @}}-{{@ datatype @}}-collect",
-                        "namespaced_identifiers": False,
-                        "source":{},
-                        "transform":{},
-                        "type": "pipe"
-                    },
-                    {
-                        "_id": "{{@ system @}}-{{@ datatype @}}-share",
-                        "namespaced_identifiers": False,
-                        "sink":{},
-                        "source":{},
-                        "transform":{},
-                        "type": "pipe"
-                    },
-                ],
-                    f, indent=2, sort_keys=True)
+                    [
+                        {
+                            "_id": "{{@ system @}}-{{@ datatype @}}-collect",
+                            "namespaced_identifiers": False,
+                            "source": {},
+                            "transform": {},
+                            "type": "pipe",
+                        },
+                        {
+                            "_id": "{{@ system @}}-{{@ datatype @}}-share",
+                            "namespaced_identifiers": False,
+                            "sink": {},
+                            "source": {},
+                            "transform": {},
+                            "type": "pipe",
+                        },
+                    ],
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
 
-            with open(Path(self.args.connector_dir, "templates", "system.json"), "w") as f:
+            with open(
+                Path(self.args.connector_dir, "templates", "system.json"), "w"
+            ) as f:
                 json.dump(
-                {
-                    "_id": "{{@ system @}}","operations":{},
-                    "type":"system:rest","url_pattern":"",
-                    "verify_ssl":True
-                },
-                    f, indent=2, sort_keys=True)
+                    {
+                        "_id": "{{@ system @}}",
+                        "operations": {},
+                        "type": "system:rest",
+                        "url_pattern": "",
+                        "verify_ssl": True,
+                    },
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
         else:
             self.logger.info("templates directory found, skipping initialization...")
-
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
@@ -2928,10 +2940,13 @@ class AzureFormatter(logging.Formatter):
         return logging.Formatter(self.default_format).format(record)
 
 
-if __name__ == '__main__':
-    parser = SesamParser(prog="sesam", description="""
+if __name__ == "__main__":
+    parser = SesamParser(
+        prog="sesam",
+        # Need to rework this I think
+        description="""
 Commands:
-  wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
+  wipe      Deletes all the pipes, systems, user datasets and environment variables in the node # noqa - E501
   restart   Restarts the target node (typically used to release used resources if the environment is strained)
   reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
   init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
@@ -2946,199 +2961,515 @@ Commands:
   verify    Compare output against expected output
   test      Upload, run and verify output
   stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
-""", formatter_class=argparse.RawDescriptionHelpFormatter)
+""",  # noqa: E501
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
-    parser.add_argument('-version', dest='version', required=False, action='store_true', help="print version number")
+    parser.add_argument(
+        "-version",
+        dest="version",
+        required=False,
+        action="store_true",
+        help="print version number",
+    )
 
-    parser.add_argument('-v', dest='verbose', required=False, action='store_true', help="be verbose")
+    parser.add_argument(
+        "-v", dest="verbose", required=False, action="store_true", help="be verbose"
+    )
 
-    parser.add_argument('-vv', dest='extra_verbose', required=False, action='store_true', help="be extra verbose")
+    parser.add_argument(
+        "-vv",
+        dest="extra_verbose",
+        required=False,
+        action="store_true",
+        help="be extra verbose",
+    )
 
-    parser.add_argument('-vvv', dest='extra_extra_verbose', required=False, action='store_true',
-                        help="be extra extra verbose")
+    parser.add_argument(
+        "-vvv",
+        dest="extra_extra_verbose",
+        required=False,
+        action="store_true",
+        help="be extra extra verbose",
+    )
 
-    parser.add_argument('-skip-tls-verification', dest='skip_tls_verification', required=False, action='store_true',
-                        help="skip verifying the TLS certificate")
+    parser.add_argument(
+        "-skip-tls-verification",
+        dest="skip_tls_verification",
+        required=False,
+        action="store_true",
+        help="skip verifying the TLS certificate",
+    )
 
-    parser.add_argument('-sync-config-file', dest='sync_config_file', metavar="<string>",
-                        default=".syncconfig", type=str, help="sync config file to use, the default is "
-                                                              "'.syncconfig' in the current directory")
+    parser.add_argument(
+        "-sync-config-file",
+        dest="sync_config_file",
+        metavar="<string>",
+        default=".syncconfig",
+        type=str,
+        help="sync config file to use, the default is "
+        "'.syncconfig' in the current directory",
+    )
 
-    parser.add_argument('-whitelist-file', dest='whitelist_file', metavar="<string>",
-                        type=str, help="whitelist file to use, the default is none")
+    parser.add_argument(
+        "-whitelist-file",
+        dest="whitelist_file",
+        metavar="<string>",
+        type=str,
+        help="whitelist file to use, the default is none",
+    )
 
-    parser.add_argument('-dont-remove-scheduler', dest='dont_remove_scheduler', required=False, action='store_true',
-                        help="don't remove scheduler after failure (DEPRECATED)")
+    parser.add_argument(
+        "-dont-remove-scheduler",
+        dest="dont_remove_scheduler",
+        required=False,
+        action="store_true",
+        help="don't remove scheduler after failure (DEPRECATED)",
+    )
 
-    parser.add_argument('-dump', dest='dump', required=False, help="dump zip content to disk", action='store_true')
+    parser.add_argument(
+        "-dump",
+        dest="dump",
+        required=False,
+        help="dump zip content to disk",
+        action="store_true",
+    )
 
-    parser.add_argument('-print-scheduler-log', dest='print_scheduler_log', required=False,
-                        help="print scheduler log during run", action='store_true')
+    parser.add_argument(
+        "-print-scheduler-log",
+        dest="print_scheduler_log",
+        required=False,
+        help="print scheduler log during run",
+        action="store_true",
+    )
 
-    parser.add_argument('-output-run-statistics', dest='output_run_statistics', required=False,
-                        help="output detailed pipe run statistics after scheduler run", action='store_true')
+    parser.add_argument(
+        "-output-run-statistics",
+        dest="output_run_statistics",
+        required=False,
+        help="output detailed pipe run statistics after scheduler run",
+        action="store_true",
+    )
 
-    parser.add_argument('-use-internal-scheduler', dest='use_internal_scheduler', required=False,
-                        help="use the built-in scheduler in sesam instead of a microservice (DEPRECATED)",
-                        action='store_true')
+    parser.add_argument(
+        "-use-internal-scheduler",
+        dest="use_internal_scheduler",
+        required=False,
+        help="use the built-in scheduler in sesam instead "
+        "of a microservice (DEPRECATED)",
+        action="store_true",
+    )
 
-    parser.add_argument('-custom-scheduler', dest='custom_scheduler', required=False,
-                        help="by default a scheduler system will be added, enable this flag if you have configured a "
-                             "custom scheduler as part of the config (DEPRECATED)", action='store_true')
+    parser.add_argument(
+        "-custom-scheduler",
+        dest="custom_scheduler",
+        required=False,
+        help="by default a scheduler system will be added, enable this flag "
+        "if you have configured a custom scheduler as part of the config (DEPRECATED)",
+        action="store_true",
+    )
 
-    parser.add_argument('-scheduler-image-tag', dest='scheduler_image_tag', required=False,
-                        help="the scheduler image tag to use (DEPRECATED)", type=str,
-                        metavar="<string>")
+    parser.add_argument(
+        "-scheduler-image-tag",
+        dest="scheduler_image_tag",
+        required=False,
+        help="the scheduler image tag to use (DEPRECATED)",
+        type=str,
+        metavar="<string>",
+    )
 
-    parser.add_argument('-scheduler-mode', dest='scheduler_mode', required=False,
-                        help="the scheduler mode to use ('active' or 'poll') - the default is 'active'", type=str,
-                        metavar="<string>")
+    parser.add_argument(
+        "-scheduler-mode",
+        dest="scheduler_mode",
+        required=False,
+        help="the scheduler mode to use ('active' or 'poll') - the default is 'active'",
+        type=str,
+        metavar="<string>",
+    )
 
-    parser.add_argument('-node', dest='node', metavar="<string>", required=False, help="service url")
-    parser.add_argument('-scheduler-node', dest='scheduler_node', metavar="<string>", required=False,
-                        help="service url for scheduler")
-    parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
+    parser.add_argument(
+        "-node", dest="node", metavar="<string>", required=False, help="service url"
+    )
+    parser.add_argument(
+        "-scheduler-node",
+        dest="scheduler_node",
+        metavar="<string>",
+        required=False,
+        help="service url for scheduler",
+    )
+    parser.add_argument(
+        "-jwt",
+        dest="jwt",
+        metavar="<string>",
+        required=False,
+        help="authorization token",
+    )
 
-    parser.add_argument('-single', dest='single', required=False, metavar="<string>",
-                        help="update or verify just a single pipe")
+    parser.add_argument(
+        "-single",
+        dest="single",
+        required=False,
+        metavar="<string>",
+        help="update or verify just a single pipe",
+    )
 
-    parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
-                        help="don't reproduce old large int bugs")
+    parser.add_argument(
+        "-no-large-int-bugs",
+        dest="no_large_int_bugs",
+        required=False,
+        action="store_true",
+        help="don't reproduce old large int bugs",
+    )
 
-    parser.add_argument('-disable-user-pipes', dest='disable_user_pipes', required=False, action='store_true',
-                        help="turn off user pipe scheduling in the target node (DEPRECATED)")
+    parser.add_argument(
+        "-disable-user-pipes",
+        dest="disable_user_pipes",
+        required=False,
+        action="store_true",
+        help="turn off user pipe scheduling in the target node (DEPRECATED)",
+    )
 
-    parser.add_argument('-enable-eager-ms', dest='enable_eager_ms', required=False, action='store_true',
-                        help="run all microservices even if they are not in use (note: multinode only)")
+    parser.add_argument(
+        "-enable-eager-ms",
+        dest="enable_eager_ms",
+        required=False,
+        action="store_true",
+        help="run all microservices even if they are not in use (note: multinode only)",
+    )
 
-    parser.add_argument('-enable-user-pipes', dest='enable_user_pipes', required=False, action='store_true',
-                        help="turn on user pipe scheduling in the target node")
+    parser.add_argument(
+        "-enable-user-pipes",
+        dest="enable_user_pipes",
+        required=False,
+        action="store_true",
+        help="turn on user pipe scheduling in the target node",
+    )
 
-    parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False,
-                        action='store_true',
-                        help="compact all execution datasets when running scheduler")
+    parser.add_argument(
+        "-compact-execution-datasets",
+        dest="compact_execution_datasets",
+        required=False,
+        action="store_true",
+        help="compact all execution datasets when running scheduler",
+    )
 
-    parser.add_argument('-disable-cpp-extensions', dest='disable_cpp_extensions', required=False, action='store_true',
-                        help="turns off cpp extensions which saves dtl compile time at the expense of possibly slower dtl exeution time")
+    parser.add_argument(
+        "-disable-cpp-extensions",
+        dest="disable_cpp_extensions",
+        required=False,
+        action="store_true",
+        help="turns off cpp extensions which saves dtl compile time "
+        "at the expense of possibly slower dtl exeution time",
+    )
 
-    parser.add_argument('-unicode-encoding', dest='unicode_encoding', required=False, action='store_true',
-                        help="store the 'expected output' json files using unicode encoding ('\\uXXXX') - "
-                             "the default is UTF-8")
+    parser.add_argument(
+        "-unicode-encoding",
+        dest="unicode_encoding",
+        required=False,
+        action="store_true",
+        help="store the 'expected output' json files using unicode "
+        "encoding ('\\uXXXX') - the default is UTF-8",
+    )
 
-    parser.add_argument('-disable-json-html-escape', dest='disable_json_html_escape',
-                        required=False, action='store_true',
-                        help="turn off escaping of '<', '>' and '&' characters in 'expected output' json files")
+    parser.add_argument(
+        "-disable-json-html-escape",
+        dest="disable_json_html_escape",
+        required=False,
+        action="store_true",
+        help="turn off escaping of '<', '>' and '&' characters "
+        "in 'expected output' json files",
+    )
 
-    parser.add_argument('-profile', dest='profile', metavar="<string>", default="test", required=False,
-                        help="env profile to use <profile>-env.json")
+    parser.add_argument(
+        "-profile",
+        dest="profile",
+        metavar="<string>",
+        default="test",
+        required=False,
+        help="env profile to use <profile>-env.json",
+    )
 
-    parser.add_argument('-scheduler-id', dest='scheduler_id', metavar="<string>", required=False,
-                        help="system id for the scheduler system (DEPRECATED)")
+    parser.add_argument(
+        "-scheduler-id",
+        dest="scheduler_id",
+        metavar="<string>",
+        required=False,
+        help="system id for the scheduler system (DEPRECATED)",
+    )
 
-    parser.add_argument('-scheduler-request-mode', dest='scheduler_request_mode', required=False, type=str,
-                        metavar="<string>", default="sync",
-                        help="run the scheduler in 'sync' or 'async' mode, long running tests should run "
-                             "in 'async' mode")
+    parser.add_argument(
+        "-scheduler-request-mode",
+        dest="scheduler_request_mode",
+        required=False,
+        type=str,
+        metavar="<string>",
+        default="sync",
+        help="run the scheduler in 'sync' or 'async' mode, long running "
+        "tests should run in 'async' mode",
+    )
 
-    parser.add_argument('-scheduler-zero-runs', dest='scheduler_zero_runs', default=2, metavar="<int>", type=int,
-                        required=False,
-                        help="the number of runs that has to yield zero changes for the scheduler to finish")
+    parser.add_argument(
+        "-scheduler-zero-runs",
+        dest="scheduler_zero_runs",
+        default=2,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help="the number of runs that has to yield zero "
+        "changes for the scheduler to finish",
+    )
 
-    parser.add_argument('-scheduler-max-runs', dest='scheduler_max_runs', default=100, metavar="<int>", type=int,
-                        required=False,
-                        help=" maximum number of runs that scheduler can do to before exiting (internal scheduler only)")
+    parser.add_argument(
+        "-scheduler-max-runs",
+        dest="scheduler_max_runs",
+        default=100,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help="maximum number of runs that scheduler can do "
+        "to before exiting (internal scheduler only)",
+    )
 
-    parser.add_argument('-scheduler-max-run-time', dest='scheduler_max_run_time', default=15 * 60, metavar="<int>",
-                        type=int, required=False,
-                        help="the maximum time the internal scheduler is allowed to use to finish "
-                             "(in seconds, internal scheduler only)")
+    parser.add_argument(
+        "-scheduler-max-run-time",
+        dest="scheduler_max_run_time",
+        default=15 * 60,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help="the maximum time the internal scheduler is allowed to use to finish "
+        "(in seconds, internal scheduler only)",
+    )
 
-    parser.add_argument('-scheduler-check-input-pipes', dest='scheduler_check_input_pipes', required=False,
-                        action="store_true",
-                        help="controls whether failing input pipes should make the scheduler run fail")
+    parser.add_argument(
+        "-scheduler-check-input-pipes",
+        dest="scheduler_check_input_pipes",
+        required=False,
+        action="store_true",
+        help="controls whether failing input pipes should make the scheduler run fail",
+    )
 
-    parser.add_argument('-restart-timeout', dest='restart_timeout', default=15 * 60, metavar="<int>", type=int,
-                        required=False,
-                        help="the maximum time to wait for the node to restart and become available again "
-                             "(in seconds). The default is 15 minutes. A value of 0 will skip the back-up-again verification.")
+    parser.add_argument(
+        "-restart-timeout",
+        dest="restart_timeout",
+        default=15 * 60,
+        metavar="<int>",
+        type=int,
+        required=False,
+        help="the maximum time to wait for the node to restart and become "
+        "available again (in seconds). The default is 15 minutes. "
+        "A value of 0 will skip the back-up-again verification.",
+    )
 
-    parser.add_argument('-runs', dest='runs', type=int, metavar="<int>", required=False, default=1,
-                        help="number of test cycles to check for stability")
+    parser.add_argument(
+        "-runs",
+        dest="runs",
+        type=int,
+        metavar="<int>",
+        required=False,
+        default=1,
+        help="number of test cycles to check for stability",
+    )
 
-    parser.add_argument('-logformat', dest='logformat', type=str, metavar="<string>", required=False, default="short",
-                        help="output format (normal, log or azure)")
+    parser.add_argument(
+        "-logformat",
+        dest="logformat",
+        type=str,
+        metavar="<string>",
+        required=False,
+        default="short",
+        help="output format (normal, log or azure)",
+    )
 
-    parser.add_argument('-scheduler-poll-frequency', metavar="<int>", dest='scheduler_poll_frequency', type=int,
-                        required=False,
-                        default=5000, help="milliseconds between each poll while waiting for the scheduler")
+    parser.add_argument(
+        "-scheduler-poll-frequency",
+        metavar="<int>",
+        dest="scheduler_poll_frequency",
+        type=int,
+        required=False,
+        default=5000,
+        help="milliseconds between each poll while waiting for the scheduler",
+    )
 
-    parser.add_argument('-sesamconfig-file', dest='sesamconfig_file', metavar="<string>", type=str,
-                        help="sesamconfig file to use, the default is '.sesamconfig.json' in the current directory")
+    parser.add_argument(
+        "-sesamconfig-file",
+        dest="sesamconfig_file",
+        metavar="<string>",
+        type=str,
+        help="sesamconfig file to use, the default is "
+        "'.sesamconfig.json' in the current directory",
+    )
 
-    parser.add_argument('-diff', dest='diff', required=False, action='store_true',
-                        help="use with the status command to show the diff of the files")
+    parser.add_argument(
+        "-diff",
+        dest="diff",
+        required=False,
+        action="store_true",
+        help="use with the status command to show the diff of the files",
+    )
 
-    parser.add_argument('-add-test-entities', dest='add_test_entities', required=False, action='store_true',
-                        help="use with the init command to add test entities to input pipes")
+    parser.add_argument(
+        "-add-test-entities",
+        dest="add_test_entities",
+        required=False,
+        action="store_true",
+        help="use with the init command to add test entities to input pipes",
+    )
 
-    parser.add_argument('-force-add', dest='force_add', required=False, action='store_true',
-                        help="use with the '-add-test-entities' option to overwrite test entities that exist locally")
+    parser.add_argument(
+        "-force-add",
+        dest="force_add",
+        required=False,
+        action="store_true",
+        help="use with the '-add-test-entities' option to "
+        "overwrite test entities that exist locally",
+    )
 
-    parser.add_argument('command', metavar="command", nargs='?', help="a valid command from the list above")
+    parser.add_argument(
+        "command",
+        metavar="command",
+        nargs="?",
+        help="a valid command from the list above",
+    )
 
-    parser.add_argument('-force', dest='force', required=False, action='store_true',
-                        help="force the command to run (only for 'upload' and 'download' commands) for non-dev "
-                             "subscriptions")
+    parser.add_argument(
+        "-force",
+        dest="force",
+        required=False,
+        action="store_true",
+        help="force the command to run (only for 'upload' and 'download' commands) "
+        "for non-dev subscriptions",
+    )
 
-    parser.add_argument('-skip-auth', dest='skip_auth', required=False, action='store_true',
-                        help="skips the authentication step after upload command.")
+    parser.add_argument(
+        "-skip-auth",
+        dest="skip_auth",
+        required=False,
+        action="store_true",
+        help="skips the authentication step after upload command.",
+    )
 
-    parser.add_argument("--system-placeholder", metavar="<string>",
-                        default="xxxxxx", type=str, help="Name of the system _id placeholder (available only when working on connectors)")
+    parser.add_argument(
+        "--system-placeholder",
+        metavar="<string>",
+        default="xxxxxx",
+        type=str,
+        help="Name of the system _id placeholder "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("-d", dest="connector_dir", metavar="<string>",
-                        default=".", type=str, help="Connector folder to work with (available only when working on connectors)")
+    parser.add_argument(
+        "-d",
+        dest="connector_dir",
+        metavar="<string>",
+        default=".",
+        type=str,
+        help="Connector folder to work with "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("-e", dest="expanded_dir", metavar="<string>",
-                        default=".expanded", type=str, help="Directory to expand the config into (available only when working on connectors)")
+    parser.add_argument(
+        "-e",
+        dest="expanded_dir",
+        metavar="<string>",
+        default=".expanded",
+        type=str,
+        help="Directory to expand the config into "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("--client_id", metavar="<string>",
-                        type=str, help="OAuth2 client id (available only when working on connectors)")
+    parser.add_argument(
+        "--client_id",
+        metavar="<string>",
+        type=str,
+        help="OAuth2 client id (available only when working on connectors)",
+    )
 
-    parser.add_argument("--client_secret", metavar="<string>",
-                        type=str, help="OAuth2 client secret (available only when working on connectors)")
+    parser.add_argument(
+        "--client_secret",
+        metavar="<string>",
+        type=str,
+        help="OAuth2 client secret (available only when working on connectors)",
+    )
 
-    parser.add_argument("--account_id", metavar="<string>",
-                        type=str, help="OAuth2 account_id variable override (available only when working on connectors)")
-    
-    parser.add_argument('--ignore-refresh-token', dest='ignore_refresh_token', required=False,
-                        action="store_true",
-                        help="use with sesam upload/authenticate to ignore refresh tokens for systems that don't have them")
-    
-    parser.add_argument("--api_key", metavar="<string>",
-                        type=str, help="api_key secret (available only when working on connectors)")
+    parser.add_argument(
+        "--account_id",
+        metavar="<string>",
+        type=str,
+        help="OAuth2 account_id variable override "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("--service_url", metavar="<string>",
-                        type=str, help="url to service api (include /api) (available only when working on connectors)")
+    parser.add_argument(
+        "--ignore-refresh-token",
+        dest="ignore_refresh_token",
+        required=False,
+        action="store_true",
+        help="use with sesam upload/authenticate to ignore "
+        "refresh tokens for systems that don't have them",
+    )
 
-    parser.add_argument("--service_jwt", metavar="<string>",
-                        type=str, help="jwt token to the service api (available only when working on connectors)")
+    parser.add_argument(
+        "--api_key",
+        metavar="<string>",
+        type=str,
+        help="api_key secret (available only when working on connectors)",
+    )
 
-    parser.add_argument("--consumer_token", metavar="<string>",
-                        type=str, help="consumer token (available only when working on connectors)")
+    parser.add_argument(
+        "--service_url",
+        metavar="<string>",
+        type=str,
+        help="url to service api (include /api) "
+        "(available only when working on connectors)",
+    )
 
-    parser.add_argument("--employee_token", metavar="<string>",
-                        type=str, help="employee token (available only when working on connectors)")
+    parser.add_argument(
+        "--service_jwt",
+        metavar="<string>",
+        type=str,
+        help="jwt token to the service api (available only when working on connectors)",
+    )
 
-    parser.add_argument("--base_url", metavar="<string>",
-                        type=str, default="https://api.tripletex.io", help="override to use prod env (available only when working on connectors)")
+    parser.add_argument(
+        "--consumer_token",
+        metavar="<string>",
+        type=str,
+        help="consumer token (available only when working on connectors)",
+    )
 
-    parser.add_argument("--days", metavar="<string>",
-                        type=int, default=10, help="number of days until the token should expire (available only when working on connectors)")
+    parser.add_argument(
+        "--employee_token",
+        metavar="<string>",
+        type=str,
+        help="employee token (available only when working on connectors)",
+    )
 
-    parser.add_argument('--use-client-secret', dest='use_client_secret', required=False,
-                        action="store_true",
-                        help="use with sesam upload/authenticate to send add the client_secret parameter to the /authorize URL")
+    parser.add_argument(
+        "--base_url",
+        metavar="<string>",
+        type=str,
+        default="https://api.tripletex.io",
+        help="override to use prod env (available only when working on connectors)",
+    )
+
+    parser.add_argument(
+        "--days",
+        metavar="<string>",
+        type=int,
+        default=10,
+        help="number of days until the token should "
+        "expire(available only when working on connectors)",
+    )
+
+    parser.add_argument(
+        "--use-client-secret",
+        dest="use_client_secret",
+        required=False,
+        action="store_true",
+        help="use with sesam upload/authenticate to send add "
+        "the client_secret parameter to the /authorize URL",
+    )
 
     try:
         args = parser.parse_args()
@@ -3210,8 +3541,25 @@ Commands:
 
     command = args.command and args.command.lower() or ""
 
-    if command not in ["authenticate","validate","upload", "download", "status", "init", "init_connector", "update", "verify", "test", "run", "wipe",
-                       "restart", "reset", "dump", "stop", "convert"]:
+    if command not in [
+        "authenticate",
+        "validate",
+        "upload",
+        "download",
+        "status",
+        "init",
+        "init_connector",
+        "update",
+        "verify",
+        "test",
+        "run",
+        "wipe",
+        "restart",
+        "reset",
+        "dump",
+        "stop",
+        "convert",
+    ]:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -3387,10 +3735,14 @@ Commands:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
         else:
+            if command in allowed_commands_for_non_dev_subscriptions:
+                error_text = "To override this check use -force flag."
+            else:
+                error_text = ""
+
             logger.error(
                 "The targeted Sesam subscription is not a developer environment, "
-                "please contact support@sesam.io if this is unexpected. "
-                f"{'To override this check use -force flag.' if command in allowed_commands_for_non_dev_subscriptions else ''}"  # noqa: E501
+                f"please contact support@sesam.io if this is unexpected. {error_text}"
             )
             sys.exit(1)
     except BaseException as e:

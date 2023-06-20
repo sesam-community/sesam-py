@@ -168,7 +168,8 @@ def login_callback():
 
 def start_server(args):
     global system_id, client_id, client_secret, base_url, login_url
-    global token_url, event, profile_file, manifest, service_url, service_jwt, account_id_override, ignore_refresh_token
+    global token_url, event, profile_file, manifest, service_url
+    global service_jwt, account_id_override, ignore_refresh_token
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
@@ -201,7 +202,7 @@ def start_server(args):
 
         if use_client_secret:
             params["client_secret"] = client_secret
-            
+
         if login_url.find("?") == -1:
             login_url += "?"
         else:
