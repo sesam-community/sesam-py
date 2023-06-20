@@ -108,13 +108,11 @@ def expand_connector_config(system_placeholder):
             if template_name != datatype:
                 for pipe in datatype_pipes:
                     pipe["comment"] = (
-                        "WARNING! This pipe is generated from the"
-                        " template "
+                        "WARNING! This pipe is generated from the template "
                         "of the '%s' datatype and "
-                        "changes will be silently ignored during "
-                        "collapse. "
-                        "For more information see the "
-                        "connectorpy README." % template_name
+                        "changes will be silently ignored during collapse. "
+                        "For more information see the connectorpy README."
+                        % template_name
                     )
             output.extend(datatype_pipes)
             output.extend(
@@ -281,8 +279,9 @@ def collapse_connector(
         for (
             param_name,
             value,
-        ) in datatype_parameters.items():  # TODO: best effort, might result in
-            # unintended replacements
+        ) in (
+            datatype_parameters.items()
+        ):  # TODO: best effort, might result in unintended replacements
             fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
