@@ -1,6 +1,7 @@
 # This workflow tests the current version when a pull request is made
 name: test
 on: pull_request
+concurrency: sesam_py_environment
 jobs:
   build:
     runs-on: ${{ matrix.os }}
