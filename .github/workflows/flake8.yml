@@ -23,4 +23,4 @@ jobs:
         uses: py-actions/flake8@v2
         with:
           ignore: "\"E203, E231, W503, W605\""
-          max-line-length: "88"
+          max-line-length: "100"
