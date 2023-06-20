@@ -277,7 +277,7 @@ def collapse_connector(
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
             fixed = fixed.replace(
-                datatypes_with_parent[template_name], "{{@ parent " "@}}"
+                datatypes_with_parent[template_name], "{{@ parent @}}"
             )
         for (
             param_name,
