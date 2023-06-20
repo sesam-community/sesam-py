@@ -2962,99 +2962,6 @@ Commands:
   test            Upload, run and verify output
   stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
-""", formatter_class=argparse.RawDescriptionHelpFormatter)
-
-    parser.add_argument('-version', dest='version', required=False, action='store_true', help="print version number")
-
-    parser.add_argument('-v', dest='verbose', required=False, action='store_true', help="be verbose")
-
-    parser.add_argument('-vv', dest='extra_verbose', required=False, action='store_true', help="be extra verbose")
-
-    parser.add_argument('-vvv', dest='extra_extra_verbose', required=False, action='store_true',
-                        help="be extra extra verbose")
-
-    parser.add_argument('-skip-tls-verification', dest='skip_tls_verification', required=False, action='store_true',
-                        help="skip verifying the TLS certificate")
-
-    parser.add_argument('-sync-config-file', dest='sync_config_file', metavar="<string>",
-                        default=".syncconfig", type=str, help="sync config file to use, the default is "
-                                                              "'.syncconfig' in the current directory")
-
-    parser.add_argument('-whitelist-file', dest='whitelist_file', metavar="<string>",
-                        type=str, help="whitelist file to use, the default is none")
-
-    parser.add_argument('-dont-remove-scheduler', dest='dont_remove_scheduler', required=False, action='store_true',
-                        help="don't remove scheduler after failure (DEPRECATED)")
-
-    parser.add_argument('-dump', dest='dump', required=False, help="dump zip content to disk", action='store_true')
-
-    parser.add_argument('-print-scheduler-log', dest='print_scheduler_log', required=False,
-                        help="print scheduler log during run", action='store_true')
-
-    parser.add_argument('-output-run-statistics', dest='output_run_statistics', required=False,
-                        help="output detailed pipe run statistics after scheduler run", action='store_true')
-
-    parser.add_argument('-use-internal-scheduler', dest='use_internal_scheduler', required=False,
-                        help="use the built-in scheduler in sesam instead of a microservice (DEPRECATED)",
-                        action='store_true')
-
-    parser.add_argument('-custom-scheduler', dest='custom_scheduler', required=False,
-                        help="by default a scheduler system will be added, enable this flag if you have configured a "
-                             "custom scheduler as part of the config (DEPRECATED)", action='store_true')
-
-    parser.add_argument('-scheduler-image-tag', dest='scheduler_image_tag', required=False,
-                        help="the scheduler image tag to use (DEPRECATED)", type=str,
-                        metavar="<string>")
-
-    parser.add_argument('-scheduler-mode', dest='scheduler_mode', required=False,
-                        help="the scheduler mode to use ('active' or 'poll') - the default is 'active'", type=str,
-                        metavar="<string>")
-
-    parser.add_argument('-node', dest='node', metavar="<string>", required=False, help="service url")
-    parser.add_argument('-scheduler-node', dest='scheduler_node', metavar="<string>", required=False,
-                        help="service url for scheduler")
-    parser.add_argument('-jwt', dest='jwt', metavar="<string>", required=False, help="authorization token")
-
-    parser.add_argument('-single', dest='single', required=False, metavar="<string>",
-                        help="update or verify just a single pipe")
-
-    parser.add_argument('-no-large-int-bugs', dest='no_large_int_bugs', required=False, action='store_true',
-                        help="don't reproduce old large int bugs")
-
-    parser.add_argument('-disable-user-pipes', dest='disable_user_pipes', required=False, action='store_true',
-                        help="turn off user pipe scheduling in the target node (DEPRECATED)")
-
-    parser.add_argument('-enable-eager-ms', dest='enable_eager_ms', required=False, action='store_true',
-                        help="run all microservices even if they are not in use (note: multinode only)")
-
-    parser.add_argument('-enable-user-pipes', dest='enable_user_pipes', required=False, action='store_true',
-                        help="turn on user pipe scheduling in the target node")
-
-    parser.add_argument('-compact-execution-datasets', dest='compact_execution_datasets', required=False,
-                        action='store_true',
-                        help="compact all execution datasets when running scheduler")
-
-    parser.add_argument('-disable-cpp-extensions', dest='disable_cpp_extensions', required=False, action='store_true',
-                        help="turns off cpp extensions which saves dtl compile time at the expense of possibly slower dtl exeution time")
-
-    parser.add_argument('-unicode-encoding', dest='unicode_encoding', required=False, action='store_true',
-                        help="store the 'expected output' json files using unicode encoding ('\\uXXXX') - "
-                             "the default is UTF-8")
-  wipe      Deletes all the pipes, systems, user datasets and environment variables in the node # noqa - E501
-  restart   Restarts the target node (typically used to release used resources if the environment is strained)
-  reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
-  init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
-  validate  Validate local config for proper formatting and internal consistency
-  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
-  download  Replace local config with node config
-  dump      Create a zip archive of the config and store it as 'sesam-config.zip'
-  status    Compare node config with local config (requires external diff command)
-  run       Run configuration until it stabilizes
-  update    Store current output as expected output
-  convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
-  verify    Compare output against expected output
-  test      Upload, run and verify output
-  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
 """,  # noqa: E501
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -3767,7 +3674,9 @@ Commands:
                 sesam_cmd_client.download()
             elif command == "update-schemas":
                 os.chdir(args.connector_dir)
-                connectorpy.update_schemas(connection=sesam_cmd_client.sesam_node.api_connection)
+                connectorpy.update_schemas(
+                    connection=sesam_cmd_client.sesam_node.api_connection
+                )
             elif command == "status":
                 if not args.is_connector:
                     sesam_cmd_client.status()
