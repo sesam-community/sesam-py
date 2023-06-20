@@ -446,10 +446,23 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
     system = manifest.get("system", "unknown")
 
     def write_property(outfile, datatype, parent, property_name, property_schema):
-        property_type = property_schema.get("subtype", property_schema.get("type"))
-
         if parent is not None:
             property_name = parent + "." + property_name
+
+        if "anyOf" in property_schema:
+            if len(property_schema["anyOf"]) == 2:
+                is_null = (
+                    len(
+                        [e for e in property_schema["anyOf"] if e.get("type") == "null"]
+                    )
+                    > 0
+                )
+                if is_null:
+                    property_schema = [
+                        e for e in property_schema["anyOf"] if e.get("type") != "null"
+                    ][0]
+
+        property_type = property_schema.get("subtype", property_schema.get("type"))
 
         if property_type == "object":
             for subproperty_name, subschema in property_schema["properties"].items():
@@ -463,7 +476,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                     description = subschema.get("description", "").replace('"', '"')
                     subproperty_type = subschema.get("type")
                     outfile.write(
-                        f'" {system}","{datatype}","{property_name}",'
+                        f'"{system}","{datatype}","{property_name}",'
                         f'"{subproperty_name}","{subproperty_type}",'
                         f'"{description}"\n'
                     )
