@@ -172,7 +172,6 @@ def expand_connector(
                 component["permissions"] = endpoint_permissions
                 logger.warning(
                     "Set permissions for endpoint pipe"
-                    f""
                     f"'{component['_id']}' to: {endpoint_permissions}"
                 )
 
