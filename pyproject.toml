@@ -1,11 +1,11 @@
 [tool.black]
-line-length = 88
+line-length = 256
 include = '\.py$'
 
 [tool.isort]
-line_length = 88
+line_length = 256
 profile = "black"
 
 [flake8]
 # Match black line length
-max-line-length = 88
+max-line-length = 256

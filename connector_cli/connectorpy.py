@@ -9,7 +9,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("sesam.connector")
 
 
 def render(template, props):
@@ -71,10 +71,7 @@ def expand_connector_config(system_placeholder):
 
         subst = {
             **{"system": system_placeholder},
-            **{
-                key: "$ENV(%s)" % key
-                for key in list(manifest.get("additional_parameters", {}).keys())
-            },
+            **{key: "$ENV(%s)" % key for key in list(manifest.get("additional_parameters", {}).keys())},
         }
 
         system_template = manifest.get("system-template")
@@ -102,30 +99,16 @@ def expand_connector_config(system_placeholder):
                     },
                 )
             else:
-                datatype_pipes = render(
-                    datatype_template, {**subst, **{"datatype": datatype}}
-                )
+                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
             if template_name != datatype:
                 for pipe in datatype_pipes:
-                    pipe["comment"] = (
-                        "WARNING! This pipe is generated from the template "
-                        "of the '%s' datatype and "
-                        "changes will be silently ignored during collapse. "
-                        "For more information see the connectorpy README."
-                        % template_name
-                    )
+                    pipe["comment"] = "WARNING! This pipe is generated from the template " "of the '%s' datatype and " "changes will be silently ignored during collapse. " "For more information see the connectorpy README." % template_name
             output.extend(datatype_pipes)
-            output.extend(
-                render(
-                    shim_template, {"system": system_placeholder, "datatype": datatype}
-                )
-            )
+            output.extend(render(shim_template, {"system": system_placeholder, "datatype": datatype}))
     return output, manifest
 
 
-def expand_connector(
-    system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"
-):
+def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"):
     # put the expanded configuration into a subfolder in the connector directory
     # in a form that can be used by sesam-py
     output, manifest = expand_connector_config(system_placeholder)
@@ -145,33 +128,19 @@ def expand_connector(
     else:
         new_manifest = {
             **{"node-env": "test"},
-            **{
-                key: ""
-                for key in list(manifest.get("additional_parameters", {}).keys())
-            },
+            **{key: "" for key in list(manifest.get("additional_parameters", {}).keys())},
         }
     with open(dirpath / profile_file, "w") as f:
         json.dump(new_manifest, f, indent=2, sort_keys=True)
     for component in output:
         if component["type"] == "pipe":
-            if (
-                component.get("source").get("type") == "http_endpoint"
-                and component.get("_id").endswith("event")
-                and manifest.get("use_webhook_secret")
-            ):
+            if component.get("source").get("type") == "http_endpoint" and component.get("_id").endswith("event") and manifest.get("use_webhook_secret"):
                 endpoint_permissions = [["allow", ["group:Anonymous"], ["write_data"]]]
                 if component.get("permissions"):
-                    logger.warning(
-                        "Permissions are already set for endpoint pipe "
-                        f"'{component['_id']}'. They will be "
-                        f"overwritten with: {endpoint_permissions}"
-                    )
+                    logger.warning("Permissions are already set for endpoint pipe " f"'{component['_id']}'. They will be " f"overwritten with: {endpoint_permissions}")
 
                 component["permissions"] = endpoint_permissions
-                logger.warning(
-                    "Set permissions for endpoint pipe"
-                    f"'{component['_id']}' to: {endpoint_permissions}"
-                )
+                logger.warning("Set permissions for endpoint pipe" f"'{component['_id']}' to: {endpoint_permissions}")
 
             with open(dirpath / f"pipes/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
@@ -181,9 +150,7 @@ def expand_connector(
                 json.dump(component, f, indent=2, sort_keys=True)
 
 
-def collapse_connector(
-    connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded"
-):
+def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded"):
     # reconstruct the templates
     input = Path(connector_dir, expanded_dir)
     templates = defaultdict(list)
@@ -232,11 +199,7 @@ def collapse_connector(
         components = sorted(components, key=lambda x: x["_id"])
         if template_name in datatypes_with_no_master_template:
             continue
-        datatype_parameters = (
-            existing_manifest.get("datatypes", {})
-            .get(template_name, {})
-            .get("parameters", {})
-        )
+        datatype_parameters = existing_manifest.get("datatypes", {}).get(template_name, {}).get("parameters", {})
         should_warn = False
         param_values = []
         for param_name, value in datatype_parameters.items():
@@ -244,10 +207,7 @@ def collapse_connector(
                 param_values.append(value.upper())
                 should_warn = True
         if should_warn:
-            warning_text = (
-                "WARNING! There is no use for template parameter(s) "
-                f"{param_values} in template: {template_name.upper()}"
-            )
+            warning_text = "WARNING! There is no use for template parameter(s) " f"{param_values} in template: {template_name.upper()}"
             if len(components) > 0:
                 if "description" not in components[0].keys():
                     components[0]["description"] = warning_text
@@ -273,15 +233,11 @@ def collapse_connector(
         if template_name != "system":
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
-            fixed = fixed.replace(
-                datatypes_with_parent[template_name], "{{@ parent @}}"
-            )
+            fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
         for (
             param_name,
             value,
-        ) in (
-            datatype_parameters.items()
-        ):  # TODO: best effort, might result in unintended replacements
+        ) in datatype_parameters.items():  # TODO: best effort, might result in unintended replacements
             fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
@@ -289,10 +245,7 @@ def collapse_connector(
     # create manifest
     datatypes = list(templates.keys()) + list(datatypes_with_no_master_template)
     new_manifest = {
-        "additional_parameters": {
-            key: existing_manifest.get("additional_parameters", {}).get(key, {})
-            for key in env_parameters
-        },
+        "additional_parameters": {key: existing_manifest.get("additional_parameters", {}).get(key, {}) for key in env_parameters},
         "system-template": "templates/system.json",
         "datatypes": {
             datatype: {
@@ -328,26 +281,21 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
     incomplete_schema_info = {}
     datatypes = [datatype for datatype in manifest.get("datatypes", {}).keys()]
-    collect_pipe_ids = [
-        f"{system_placeholder}-{datatype}-collect" for datatype in datatypes
-    ]
+    collect_pipe_ids = [f"{system_placeholder}-{datatype}-collect" for datatype in datatypes]
     for pipe_id, datatype in zip(collect_pipe_ids, datatypes):
         # Fetch inferred schema
-        endpoint = f"{connection.pipes_url}/{pipe_id}/entity-types/sink"
-        r = connection.do_get_request(endpoint, allowable_response_status_codes=[200])
-        live_schema = r.json()
-        incomplete_schema_path = dirpath / "schemas" / f"{datatype}.json"
-
         pipe = connection.get_pipe(pipe_id)
         if pipe:
             logger.info(f"Running pipe '{pipe_id}'")
             pump = pipe.get_pump()
             pump.run_pump_until_there_are_no_pending_work()
         else:
-            logger.warning(
-                f"Expected to find collect pipe '{pipe_id}' in subscription, but it was not found. "
-                f"Maybe you need to do a 'sesam upload' first?"
-            )
+            logger.warning(f"Expected to find collect pipe '{pipe_id}' in subscription, but it was not found. " f"Maybe you need to do a 'sesam upload' first?")
+
+        endpoint = f"{connection.pipes_url}/{pipe_id}/entity-types/sink"
+        r = connection.do_get_request(endpoint, allowable_response_status_codes=[200])
+        live_schema = r.json()
+        incomplete_schema_path = dirpath / "schemas" / f"{datatype}.json"
 
         incomplete_schema = deepcopy(live_schema)
         datatype_properties = live_schema.get("properties", {})
@@ -364,23 +312,26 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                 if _property.get("anyOf"):
                     for alternative in _property["anyOf"]:
                         # Set '' as default since we can't use the 'None' default here
-                        if alternative.get("subtype") not in ['null', None] or alternative.get("type") not in ['null', None]:
+                        if alternative.get("subtype") not in [
+                            "null",
+                            None,
+                        ] or alternative.get(
+                            "type"
+                        ) not in ["null", None]:
                             is_null = False
                             break
                 else:
-                    if _property.get("subtype") not in ['null', None] or _property.get("type") not in ['null', None]:
+                    if _property.get("subtype") not in ["null", None] or _property.get("type") not in ["null", None]:
                         is_null = False
 
                 if is_null is True:
-                    num_nulls = 1
+                    num_nulls += 1
                     incomplete_schema_info[datatype] = num_nulls
                     incomplete_schema["properties"][prop_name]["type"] = None
                 else:
                     incomplete_schema["properties"].pop(prop_name, None)
 
-            logger.info(
-                f"Writing incomplete schema with {num_nulls} null-properties to {incomplete_schema_path}"
-            )
+            logger.info(f"Writing incomplete schema with {num_nulls} null-properties to {incomplete_schema_path}")
             with open(incomplete_schema_path, "w") as f:
                 json.dump(incomplete_schema, f, indent=2, sort_keys=True)
 
@@ -403,6 +354,56 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
             json.dump(merged_schema, f, indent=2, sort_keys=True)
 
     if incomplete_schema_info:
-        schemas_str = '\n'.join({schema_id: num_nulls for schema_id, num_nulls in incomplete_schema_info.items()})
-        logger.info(f"Finished writing schemas. There are null-type properties in the following schemas that need "
-                    f"to be manually inserted:\n %s" % schemas_str)
+        schemas_str = ",".join({schema_id: num_nulls for schema_id, num_nulls in incomplete_schema_info.items()})
+        logger.info(f"Finished writing schemas. There are null-type properties in the following schemas that need " f"to be manually inserted: {schemas_str}")
+
+    import glob
+
+    schemas = {}
+    for filename in glob.glob("schemas/*.merged.json"):
+        with open(filename, "r") as infile:
+            datatype = filename.replace("schemas/", "").split(".merged.json")[0]
+            schema = json.load(infile)
+            schemas[datatype] = schema
+
+    with open("manifest.json", "r") as infile:
+        manifest = json.load(infile)
+
+    system = manifest.get("system", "unknown")
+
+    def write_property(outfile, datatype, parent, property_name, property_schema):
+        property_type = property_schema.get("subtype", property_schema.get("type"))
+
+        if parent is not None:
+            property_name = parent + "." + property_name
+
+        if property_type == "object":
+            for subproperty_name, subschema in property_schema["properties"].items():
+                write_property(outfile, datatype, property_name, subproperty_name, subschema)
+        elif property_type == "array":
+            items_schema = property_schema["items"]
+            if items_schema.get("type", "") == "object":
+                for subproperty_name, subschema in items_schema["properties"].items():
+                    description = subschema.get("description", "").replace('"', '"')
+                    subproperty_type = subschema.get("type")
+                    outfile.write(f'"{system}","{datatype}","{property_name}","{subproperty_name}","{subproperty_type}","{description}"\n')
+            else:
+                description = property_schema.get("description", "").replace('"', '"')
+                outfile.write(f'"{system}","{datatype}","{property_name}","","{property_type}","{description}"\n')
+        else:
+            description = property_schema.get("description", "").replace('"', '"')
+            outfile.write(f'"{system}","{datatype}","{property_name}","","{property_type}","{description}"\n')
+
+    with open("schema.csv", "w") as outfile:
+        outfile.write('"System","Type","Name","SubName","Datatype","Description"\n')
+        schema_items = list(schemas.items())
+        schema_items.sort()
+
+        for datatype, schema in schema_items:
+            for property_name, property_schema in schema["properties"].items():
+                if property_name.startswith("$"):
+                    continue
+
+                write_property(outfile, datatype, None, property_name, property_schema)
+
+    logger.info("Wrote updated connector schema to 'schema.csv'")
