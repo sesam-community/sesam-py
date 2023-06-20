@@ -326,6 +326,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
         with open(manifest_path, "r") as f:
             manifest = json.load(f)
 
+    incomplete_schema_info = {}
     datatypes = [datatype for datatype in manifest.get("datatypes", {}).keys()]
     collect_pipe_ids = [
         f"{system_placeholder}-{datatype}-collect" for datatype in datatypes
@@ -372,6 +373,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
                 if is_null is True:
                     num_nulls = 1
+                    incomplete_schema_info[datatype] = num_nulls
                     incomplete_schema["properties"][prop_name]["type"] = None
                 else:
                     incomplete_schema["properties"].pop(prop_name, None)
@@ -384,19 +386,23 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
         # If the auto-generated schema already exists, check if the properties can be merged. They will only be merged
         # if the property type is not null (i.e. manually set by the user).
-        else:
-            logger.info(f"Checking if properties in {incomplete_schema_path} can be merged...")
-            with open(incomplete_schema_path, "r") as f:
-                existing_schema = json.load(f)
+        logger.info(f"Checking if properties in {incomplete_schema_path} can be merged...")
+        with open(incomplete_schema_path, "r") as f:
+            existing_schema = json.load(f)
 
-            merged_schema = deepcopy(live_schema)
-            datatype_properties = existing_schema.get("properties", {})
-            for prop_name, _property in datatype_properties.items():
-                if _property.get("type") is None:
-                    logger.info(f"Skipping merge of '{datatype}.{prop_name}' because the type has not been set")
-                else:
-                    # The type has been set manually, so use the properties from this schema in the merged version
-                    merged_schema["properties"][prop_name] = _property
+        merged_schema = deepcopy(live_schema)
+        datatype_properties = existing_schema.get("properties", {})
+        for prop_name, _property in datatype_properties.items():
+            if _property.get("type") is None:
+                logger.info(f"Skipping merge of '{datatype}.{prop_name}' because the type has not been set")
+            else:
+                # The type has been set manually, so use the properties from this schema in the merged version
+                merged_schema["properties"][prop_name] = _property
 
-            with open(dirpath / "schemas" / f"{datatype}.merged.json", "w") as f:
-                json.dump(merged_schema, f, indent=2, sort_keys=True)
+        with open(dirpath / "schemas" / f"{datatype}.merged.json", "w") as f:
+            json.dump(merged_schema, f, indent=2, sort_keys=True)
+
+    if incomplete_schema_info:
+        schemas_str = '\n'.join({schema_id: num_nulls for schema_id, num_nulls in incomplete_schema_info.items()})
+        logger.info(f"Finished writing schemas. There are null-type properties in the following schemas that need "
+                    f"to be manually inserted:\n %s" % schemas_str)
