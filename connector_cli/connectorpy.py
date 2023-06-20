@@ -102,7 +102,7 @@ def expand_connector_config(system_placeholder):
                 datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
             if template_name != datatype:
                 for pipe in datatype_pipes:
-                    pipe["comment"] = "WARNING! This pipe is generated from the template " "of the '%s' datatype and " "changes will be silently ignored during collapse. " "For more information see the connectorpy README." % template_name
+                    pipe["comment"] = "WARNING! This pipe is generated from the" " template " "of the '%s' datatype and " "changes will be silently ignored during " "collapse. " "For more information see the " "connectorpy README." % template_name
             output.extend(datatype_pipes)
             output.extend(render(shim_template, {"system": system_placeholder, "datatype": datatype}))
     return output, manifest
@@ -140,7 +140,7 @@ def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", prof
                     logger.warning("Permissions are already set for endpoint pipe " f"'{component['_id']}'. They will be " f"overwritten with: {endpoint_permissions}")
 
                 component["permissions"] = endpoint_permissions
-                logger.warning("Set permissions for endpoint pipe" f"'{component['_id']}' to: {endpoint_permissions}")
+                logger.warning("Set permissions for endpoint pipe" f"" f"'{component['_id']}' to: {endpoint_permissions}")
 
             with open(dirpath / f"pipes/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
@@ -207,7 +207,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
                 param_values.append(value.upper())
                 should_warn = True
         if should_warn:
-            warning_text = "WARNING! There is no use for template parameter(s) " f"{param_values} in template: {template_name.upper()}"
+            warning_text = "WARNING! There is no use for template parameter(s)" f"{param_values} in template: {template_name.upper()}"
             if len(components) > 0:
                 if "description" not in components[0].keys():
                     components[0]["description"] = warning_text
@@ -233,11 +233,12 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         if template_name != "system":
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
-            fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
+            fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent " "@}}")
         for (
             param_name,
             value,
-        ) in datatype_parameters.items():  # TODO: best effort, might result in unintended replacements
+        ) in datatype_parameters.items():  # TODO: best effort, might result in
+            # unintended replacements
             fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
@@ -290,7 +291,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
             pump = pipe.get_pump()
             pump.run_pump_until_there_are_no_pending_work()
         else:
-            logger.warning(f"Expected to find collect pipe '{pipe_id}' in subscription, but it was not found. " f"Maybe you need to do a 'sesam upload' first?")
+            logger.warning(f"Expected to find collect pipe '{pipe_id}' in " f"subscription, but it was not found. Maybe you need " f"to do a 'sesam upload' first?")
 
         endpoint = f"{connection.pipes_url}/{pipe_id}/entity-types/sink"
         r = connection.do_get_request(endpoint, allowable_response_status_codes=[200])
@@ -301,7 +302,8 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
         datatype_properties = live_schema.get("properties", {})
         num_nulls = 0
 
-        # Check which properties are null and write those properties to a separate 'incomplete' schema
+        # Check which properties are null and write those properties to a separate
+        # 'incomplete' schema
         if not os.path.exists(incomplete_schema_path):
             for prop_name, _property in datatype_properties.items():
                 is_null = True
@@ -331,13 +333,13 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                 else:
                     incomplete_schema["properties"].pop(prop_name, None)
 
-            logger.info(f"Writing incomplete schema with {num_nulls} null-properties to {incomplete_schema_path}")
+            logger.info(f"Writing incomplete schema with {num_nulls} null-properties " f"to {incomplete_schema_path}")
             with open(incomplete_schema_path, "w") as f:
                 json.dump(incomplete_schema, f, indent=2, sort_keys=True)
 
         # If the auto-generated schema already exists, check if the properties can be merged. They will only be merged
         # if the property type is not null (i.e. manually set by the user).
-        logger.info(f"Checking if properties in {incomplete_schema_path} can be merged...")
+        logger.info(f"Checking if properties in {incomplete_schema_path} can be " f"merged...")
         with open(incomplete_schema_path, "r") as f:
             existing_schema = json.load(f)
 
@@ -345,9 +347,10 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
         datatype_properties = existing_schema.get("properties", {})
         for prop_name, _property in datatype_properties.items():
             if _property.get("type") is None:
-                logger.info(f"Skipping merge of '{datatype}.{prop_name}' because the type has not been set")
+                logger.info(f"Skipping merge of '{datatype}.{prop_name}' " f"because the type has not been set")
             else:
-                # The type has been set manually, so use the properties from this schema in the merged version
+                # The type has been set manually, so use the properties from this
+                # schema in the merged version
                 merged_schema["properties"][prop_name] = _property
 
         with open(dirpath / "schemas" / f"{datatype}.merged.json", "w") as f:
@@ -355,7 +358,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
     if incomplete_schema_info:
         schemas_str = ",".join({schema_id: num_nulls for schema_id, num_nulls in incomplete_schema_info.items()})
-        logger.info(f"Finished writing schemas. There are null-type properties in the following schemas that need " f"to be manually inserted: {schemas_str}")
+        logger.info(f"Finished writing schemas. There are null-type properties in " f"the following schemas that need " f"to be manually inserted: {schemas_str}")
 
     import glob
 
@@ -386,13 +389,13 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                 for subproperty_name, subschema in items_schema["properties"].items():
                     description = subschema.get("description", "").replace('"', '"')
                     subproperty_type = subschema.get("type")
-                    outfile.write(f'"{system}","{datatype}","{property_name}","{subproperty_name}","{subproperty_type}","{description}"\n')
+                    outfile.write(f'"{system}","{datatype}","{property_name}",' f'"{subproperty_name}","{subproperty_type}",' f'"{description}"\n')
             else:
                 description = property_schema.get("description", "").replace('"', '"')
-                outfile.write(f'"{system}","{datatype}","{property_name}","","{property_type}","{description}"\n')
+                outfile.write(f'"{system}","{datatype}","{property_name}","",' f'"{property_type}","{description}"\n')
         else:
             description = property_schema.get("description", "").replace('"', '"')
-            outfile.write(f'"{system}","{datatype}","{property_name}","","{property_type}","{description}"\n')
+            outfile.write(f'"{system}","{datatype}","{property_name}","",' f'"{property_type}","{description}"\n')
 
     with open("schema.csv", "w") as outfile:
         outfile.write('"System","Type","Name","SubName","Datatype","Description"\n')
