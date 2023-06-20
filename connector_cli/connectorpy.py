@@ -4,11 +4,12 @@ import os
 import re
 import shutil
 from collections import defaultdict
+from copy import deepcopy
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("sesam.connector")
 
 
 def render(template, props):
@@ -305,3 +306,189 @@ def collapse_connector(
     manifest = {**existing_manifest, **new_manifest}
     with open(dirpath / "manifest.json", "w") as f:
         json.dump(manifest, f, indent=2, sort_keys=True)
+
+
+def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
+    dirpath = Path(connector_dir)
+    os.makedirs(dirpath / "schemas", exist_ok=True)
+
+    # Set 'infer_pipe_entity_types' to true if not already set
+    node_metadata = connection.get_metadata().get("config", {}).get("effective", {})
+    global_defaults = node_metadata.get("global_defaults", {})
+    if global_defaults.get("infer_pipe_entity_types") is not True:
+        global_defaults["infer_pipe_entity_types"] = True
+        connection.set_metadata(node_metadata)
+
+    # Find datatypes defined for the connector and run the corresponding collect pipes
+    manifest_path = Path(connector_dir, "manifest.json")
+    manifest = {}
+    if manifest_path.exists():
+        with open(manifest_path, "r") as f:
+            manifest = json.load(f)
+
+    incomplete_schema_info = {}
+    datatypes = [datatype for datatype in manifest.get("datatypes", {}).keys()]
+    collect_pipe_ids = [
+        f"{system_placeholder}-{datatype}-collect" for datatype in datatypes
+    ]
+    for pipe_id, datatype in zip(collect_pipe_ids, datatypes):
+        # Fetch inferred schema
+        pipe = connection.get_pipe(pipe_id)
+        if pipe:
+            logger.info(f"Running pipe '{pipe_id}'")
+            pump = pipe.get_pump()
+            pump.run_pump_until_there_are_no_pending_work()
+        else:
+            logger.warning(
+                f"Expected to find collect pipe '{pipe_id}' in "
+                f"subscription, but it was not found. Maybe you need "
+                f"to do a 'sesam upload' first?"
+            )
+
+        endpoint = f"{connection.pipes_url}/{pipe_id}/entity-types/sink"
+        r = connection.do_get_request(endpoint, allowable_response_status_codes=[200])
+        live_schema = r.json()
+        incomplete_schema_path = dirpath / "schemas" / f"{datatype}.json"
+
+        incomplete_schema = deepcopy(live_schema)
+        datatype_properties = live_schema.get("properties", {})
+        num_nulls = 0
+
+        # Check which properties are null and write those properties to a separate
+        # 'incomplete' schema
+        if not os.path.exists(incomplete_schema_path):
+            for prop_name, _property in datatype_properties.items():
+                is_null = True
+                if prop_name.startswith("$"):  # ignore internal properties
+                    incomplete_schema["properties"].pop(prop_name, None)
+                    continue
+
+                if _property.get("anyOf"):
+                    for alternative in _property["anyOf"]:
+                        # Set '' as default since we can't use the 'None' default here
+                        if alternative.get("subtype") not in [
+                            "null",
+                            None,
+                        ] or alternative.get("type") not in ["null", None]:
+                            is_null = False
+                            break
+                else:
+                    if _property.get("subtype") not in ["null", None] or _property.get(
+                        "type"
+                    ) not in ["null", None]:
+                        is_null = False
+
+                if is_null is True:
+                    num_nulls += 1
+                    incomplete_schema_info[datatype] = num_nulls
+                    incomplete_schema["properties"][prop_name]["type"] = None
+                else:
+                    incomplete_schema["properties"].pop(prop_name, None)
+
+            logger.info(
+                f"Writing incomplete schema with {num_nulls} null-properties "
+                f"to {incomplete_schema_path}"
+            )
+            with open(incomplete_schema_path, "w") as f:
+                json.dump(incomplete_schema, f, indent=2, sort_keys=True)
+
+        # If the auto-generated schema already exists, check if the properties can
+        # be merged. They will only be merged if the property type is not null (i.e.
+        # manually set by the user).
+        logger.info(
+            f"Checking if properties in {incomplete_schema_path} can be " f"merged..."
+        )
+        with open(incomplete_schema_path, "r") as f:
+            existing_schema = json.load(f)
+
+        merged_schema = deepcopy(live_schema)
+        datatype_properties = existing_schema.get("properties", {})
+        for prop_name, _property in datatype_properties.items():
+            if _property.get("type") is None:
+                logger.info(
+                    f"Skipping merge of '{datatype}.{prop_name}' "
+                    f"because the type has not been set"
+                )
+            else:
+                # The type has been set manually, so use the properties from this
+                # schema in the merged version
+                merged_schema["properties"][prop_name] = _property
+
+        with open(dirpath / "schemas" / f"{datatype}.merged.json", "w") as f:
+            json.dump(merged_schema, f, indent=2, sort_keys=True)
+
+    if incomplete_schema_info:
+        schemas_str = ",".join(
+            {
+                schema_id: num_nulls
+                for schema_id, num_nulls in incomplete_schema_info.items()
+            }
+        )
+        logger.info(
+            f"Finished writing schemas. There are null-type properties in "
+            f"the following schemas that need "
+            f"to be manually inserted: {schemas_str}"
+        )
+
+    import glob
+
+    schemas = {}
+    for filename in glob.glob("schemas/*.merged.json"):
+        with open(filename, "r") as infile:
+            datatype = filename.replace("schemas/", "").split(".merged.json")[0]
+            schema = json.load(infile)
+            schemas[datatype] = schema
+
+    with open("manifest.json", "r") as infile:
+        manifest = json.load(infile)
+
+    system = manifest.get("system", "unknown")
+
+    def write_property(outfile, datatype, parent, property_name, property_schema):
+        property_type = property_schema.get("subtype", property_schema.get("type"))
+
+        if parent is not None:
+            property_name = parent + "." + property_name
+
+        if property_type == "object":
+            for subproperty_name, subschema in property_schema["properties"].items():
+                write_property(
+                    outfile, datatype, property_name, subproperty_name, subschema
+                )
+        elif property_type == "array":
+            items_schema = property_schema["items"]
+            if items_schema.get("type", "") == "object":
+                for subproperty_name, subschema in items_schema["properties"].items():
+                    description = subschema.get("description", "").replace('"', '"')
+                    subproperty_type = subschema.get("type")
+                    outfile.write(
+                        f'" {system}","{datatype}","{property_name}",'
+                        f'"{subproperty_name}","{subproperty_type}",'
+                        f'"{description}"\n'
+                    )
+            else:
+                description = property_schema.get("description", "").replace('"', '"')
+                outfile.write(
+                    f'"{system}","{datatype}","{property_name}","",'
+                    f'"{property_type}","{description}"\n'
+                )
+        else:
+            description = property_schema.get("description", "").replace('"', '"')
+            outfile.write(
+                f'"{system}","{datatype}","{property_name}","",'
+                f'"{property_type}","{description}"\n'
+            )
+
+    with open("schema.csv", "w") as outfile:
+        outfile.write('"System","Type","Name","SubName","Datatype","Description"\n')
+        schema_items = list(schemas.items())
+        schema_items.sort()
+
+        for datatype, schema in schema_items:
+            for property_name, property_schema in schema["properties"].items():
+                if property_name.startswith("$"):
+                    continue
+
+                write_property(outfile, datatype, None, property_name, property_schema)
+
+    logger.info("Wrote updated connector schema to 'schema.csv'")

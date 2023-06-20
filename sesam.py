@@ -28,7 +28,7 @@ from requests.exceptions import HTTPError
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.5.35"
+sesam_version = "2.6.0"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -2946,21 +2946,22 @@ if __name__ == "__main__":
         # Need to rework this I think
         description="""
 Commands:
-  wipe      Deletes all the pipes, systems, user datasets and environment variables in the node # noqa - E501
-  restart   Restarts the target node (typically used to release used resources if the environment is strained)
-  reset     Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
-  init      Add conditional sources with testing and production alternatives to all input pipes in the local config.
-  validate  Validate local config for proper formatting and internal consistency
-  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
-  download  Replace local config with node config
-  dump      Create a zip archive of the config and store it as 'sesam-config.zip'
-  status    Compare node config with local config (requires external diff command)
-  run       Run configuration until it stabilizes
-  update    Store current output as expected output
-  convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
-  verify    Compare output against expected output
-  test      Upload, run and verify output
-  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+  wipe            Deletes all the pipes, systems, user datasets and environment variables in the node
+  restart         Restarts the target node (typically used to release used resources if the environment is strained)
+  reset           Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
+  init            Add conditional sources with testing and production alternatives to all input pipes in the local config.
+  validate        Validate local config for proper formatting and internal consistency
+  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
+  download        Replace local config with node config
+  dump            Create a zip archive of the config and store it as 'sesam-config.zip'
+  status          Compare node config with local config (requires external diff command)
+  run             Run configuration until it stabilizes
+  update          Store current output as expected output
+  convert         Convert embedded sources in input pipes to http_endpoints and extract data into files
+  verify          Compare output against expected output
+  test            Upload, run and verify output
+  stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+  update-schemas  Generate schemas for all datatypes (only works in connector development context)
 """,  # noqa: E501
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -3559,6 +3560,7 @@ Commands:
         "dump",
         "stop",
         "convert",
+        "update-schemas",
     ]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -3670,6 +3672,11 @@ Commands:
                         sesam_cmd_client.authenticate()
             elif command == "download":
                 sesam_cmd_client.download()
+            elif command == "update-schemas":
+                os.chdir(args.connector_dir)
+                connectorpy.update_schemas(
+                    connection=sesam_cmd_client.sesam_node.api_connection
+                )
             elif command == "status":
                 if not args.is_connector:
                     sesam_cmd_client.status()

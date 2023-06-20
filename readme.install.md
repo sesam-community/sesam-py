@@ -12,7 +12,7 @@ $ virtualenv --python=python3 venv
 $ . venv/bin/activate
 $ pip install -r requirements.txt
 $ python sesam.py -version
-sesam version 2.5.35
+sesam version 2.6.0
 ```
 
 
@@ -25,7 +25,7 @@ $ pip install -r requirements.txt
 $ pip install pyinstaller
 $ pyinstaller --onefile --add-data "connector_cli:connector_cli" sesam.py
 $ dist/sesam -version
-sesam version 2.5.35
+sesam version 2.6.0
 ```
 
 ### [Back to main page](./README.md)
