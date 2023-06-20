@@ -1,4 +1,6 @@
-# generic login flow for connectors that uses an api_key for authorization (for instance Freshteam)
+# generic login flow for connectors that uses an api_key
+# for authorization (for instance Freshteam)
+
 
 def login_via_api_key(sesam_node, args):
     system_id = args.system_placeholder
