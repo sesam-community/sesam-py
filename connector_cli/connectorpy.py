@@ -102,30 +102,23 @@ def expand_connector_config(system_placeholder):
                     },
                 )
             else:
-                datatype_pipes = render(
-                    datatype_template, {**subst, **{"datatype": datatype}}
-                )
+                datatype_pipes = render(datatype_template, {**subst, **{"datatype": datatype}})
             if template_name != datatype:
                 for pipe in datatype_pipes:
                     pipe["comment"] = (
                         "WARNING! This pipe is generated from the template "
                         "of the '%s' datatype and "
                         "changes will be silently ignored during collapse. "
-                        "For more information see the connectorpy README."
-                        % template_name
+                        "For more information see the connectorpy README." % template_name
                     )
             output.extend(datatype_pipes)
             output.extend(
-                render(
-                    shim_template, {"system": system_placeholder, "datatype": datatype}
-                )
+                render(shim_template, {"system": system_placeholder, "datatype": datatype})
             )
     return output, manifest
 
 
-def expand_connector(
-    system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"
-):
+def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", profile="test"):
     # put the expanded configuration into a subfolder in the connector directory
     # in a form that can be used by sesam-py
     output, manifest = expand_connector_config(system_placeholder)
@@ -145,10 +138,7 @@ def expand_connector(
     else:
         new_manifest = {
             **{"node-env": "test"},
-            **{
-                key: ""
-                for key in list(manifest.get("additional_parameters", {}).keys())
-            },
+            **{key: "" for key in list(manifest.get("additional_parameters", {}).keys())},
         }
     with open(dirpath / profile_file, "w") as f:
         json.dump(new_manifest, f, indent=2, sort_keys=True)
@@ -181,9 +171,7 @@ def expand_connector(
                 json.dump(component, f, indent=2, sort_keys=True)
 
 
-def collapse_connector(
-    connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded"
-):
+def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_dir=".expanded"):
     # reconstruct the templates
     input = Path(connector_dir, expanded_dir)
     templates = defaultdict(list)
@@ -233,9 +221,7 @@ def collapse_connector(
         if template_name in datatypes_with_no_master_template:
             continue
         datatype_parameters = (
-            existing_manifest.get("datatypes", {})
-            .get(template_name, {})
-            .get("parameters", {})
+            existing_manifest.get("datatypes", {}).get(template_name, {}).get("parameters", {})
         )
         should_warn = False
         param_values = []
@@ -273,9 +259,7 @@ def collapse_connector(
         if template_name != "system":
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
-            fixed = fixed.replace(
-                datatypes_with_parent[template_name], "{{@ parent @}}"
-            )
+            fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
         for (
             param_name,
             value,
@@ -328,9 +312,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
     incomplete_schema_info = {}
     datatypes = [datatype for datatype in manifest.get("datatypes", {}).keys()]
-    collect_pipe_ids = [
-        f"{system_placeholder}-{datatype}-collect" for datatype in datatypes
-    ]
+    collect_pipe_ids = [f"{system_placeholder}-{datatype}-collect" for datatype in datatypes]
     for pipe_id, datatype in zip(collect_pipe_ids, datatypes):
         # Fetch inferred schema
         pipe = connection.get_pipe(pipe_id)
@@ -349,6 +331,15 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
         r = connection.do_get_request(endpoint, retries=20, retry_delay=3)
 
         live_schema = r.json()
+        # TODO might want to retry if it is empty, but we need to know if the endpoint
+        # is just returning an empty json or if the collect dataset is just empty
+        if not live_schema:
+            logger.warning(
+                f"The schema for datatype '{datatype}' is empty. "
+                f"Skipping this datatype for now."
+            )
+            continue
+
         incomplete_schema_path = dirpath / "schemas" / f"{datatype}.json"
 
         incomplete_schema = deepcopy(live_schema)
@@ -370,7 +361,9 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                         if alternative.get("subtype") not in [
                             "null",
                             None,
-                        ] or alternative.get("type") not in ["null", None]:
+                        ] or alternative.get(
+                            "type"
+                        ) not in ["null", None]:
                             is_null = False
                             break
                 else:
@@ -396,34 +389,43 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
         # If the auto-generated schema already exists, check if the properties can
         # be merged. They will only be merged if the property type is not null (i.e.
         # manually set by the user).
-        logger.info(
-            f"Checking if properties in {incomplete_schema_path} can be merged..."
-        )
+        logger.info(f"Checking if properties in {incomplete_schema_path} can be merged...")
         with open(incomplete_schema_path, "r") as f:
             existing_schema = json.load(f)
 
         merged_schema = deepcopy(live_schema)
         datatype_properties = existing_schema.get("properties", {})
-        for prop_name, _property in datatype_properties.items():
-            if _property.get("type") is None:
+        for prop_name, property_schema in datatype_properties.items():
+            if prop_name.startswith("$"):  # ignore properties such as $last-modified
+                continue
+
+            is_null = True
+            if "anyOf" in property_schema:
+                if any([e for e in property_schema["anyOf"] if e.get("type") is not None]):
+                    is_null = False
+                    property_schema = [
+                        e for e in property_schema["anyOf"] if e.get("type") is not None
+                    ][0]
+
+            elif property_schema.get("subtype", property_schema.get("type")) is not None:
+                is_null = False
+
+            if not is_null:
+                # The type has been set manually, so use the properties from this
+                # schema in the merged version
+                merged_schema["properties"][prop_name] = property_schema
+            else:
                 logger.info(
                     f"Skipping merge of '{datatype}.{prop_name}' "
                     f"because the type has not been set"
                 )
-            else:
-                # The type has been set manually, so use the properties from this
-                # schema in the merged version
-                merged_schema["properties"][prop_name] = _property
 
         with open(dirpath / "schemas" / f"{datatype}.merged.json", "w") as f:
             json.dump(merged_schema, f, indent=2, sort_keys=True)
 
     if incomplete_schema_info:
         schemas_str = ",".join(
-            {
-                schema_id: num_nulls
-                for schema_id, num_nulls in incomplete_schema_info.items()
-            }
+            {schema_id: num_nulls for schema_id, num_nulls in incomplete_schema_info.items()}
         )
         logger.info(
             f"Finished writing schemas. There are null-type properties in "
@@ -451,12 +453,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
         if "anyOf" in property_schema:
             if len(property_schema["anyOf"]) == 2:
-                is_null = (
-                    len(
-                        [e for e in property_schema["anyOf"] if e.get("type") == "null"]
-                    )
-                    > 0
-                )
+                is_null = len([e for e in property_schema["anyOf"] if e.get("type") == "null"]) > 0
                 if is_null:
                     property_schema = [
                         e for e in property_schema["anyOf"] if e.get("type") != "null"
@@ -466,9 +463,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
 
         if property_type == "object":
             for subproperty_name, subschema in property_schema["properties"].items():
-                write_property(
-                    outfile, datatype, property_name, subproperty_name, subschema
-                )
+                write_property(outfile, datatype, property_name, subproperty_name, subschema)
         elif property_type == "array":
             items_schema = property_schema["items"]
             if items_schema.get("type", "") == "object":
