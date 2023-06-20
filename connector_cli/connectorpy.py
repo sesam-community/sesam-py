@@ -247,7 +247,7 @@ def collapse_connector(
                 should_warn = True
         if should_warn:
             warning_text = (
-                "WARNING! There is no use for template parameter(s)"
+                "WARNING! There is no use for template parameter(s) "
                 f"{param_values} in template: {template_name.upper()}"
             )
             if len(components) > 0:
@@ -464,9 +464,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                     subproperty_type = subschema.get("type")
                     outfile.write(
                         f'" {system}","{datatype}","{property_name}",'
-                        f""
                         f'"{subproperty_name}","{subproperty_type}",'
-                        f""
                         f'"{description}"\n'
                     )
             else:
