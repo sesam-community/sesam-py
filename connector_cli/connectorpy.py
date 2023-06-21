@@ -478,8 +478,16 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
         property_type = property_schema.get("subtype", property_schema.get("type"))
 
         if property_type == "object":
-            for subproperty_name, subschema in property_schema["properties"].items():
-                write_property(outfile, datatype, property_name, subproperty_name, subschema)
+            if not property_schema.get("properties"):
+                # If there are no subschemas, add the schema as a single entry of type 'object'
+                description = property_schema.get("description", "").replace('"', '"')
+                outfile.write(
+                    f'"{system}","{datatype}","{property_name}","",'
+                    f'"{property_type}","{description}"\n'
+                )
+            else:
+                for subproperty_name, subschema in property_schema["properties"].items():
+                    write_property(outfile, datatype, property_name, subproperty_name, subschema)
         elif property_type == "array":
             items_schema = property_schema["items"]
             if items_schema.get("type", "") == "object":
