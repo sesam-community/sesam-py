@@ -28,7 +28,7 @@ from requests.exceptions import HTTPError
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.6.2"
+sesam_version = "2.6.3"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3478,7 +3478,7 @@ Commands:
                 sesam_cmd_client.download()
             elif command == "update-schemas":
                 os.chdir(args.connector_dir)
-                connectorpy.update_schemas(connection=sesam_cmd_client.sesam_node.api_connection)
+                connectorpy.update_schemas(sesam_cmd_client.sesam_node)
             elif command == "status":
                 if not args.is_connector:
                     sesam_cmd_client.status()
