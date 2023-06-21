@@ -503,14 +503,10 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
         schema_items.sort()
 
         for datatype, schema in schema_items:
-            try:
-                for property_name, property_schema in schema["properties"].items():
-                    if property_name.startswith("$"):
-                        continue
+            for property_name, property_schema in schema["properties"].items():
+                if property_name.startswith("$"):
+                    continue
 
-                    write_property(outfile, datatype, None, property_name, property_schema)
-            except BaseException as e:
-                print(str(e))
-                raise e
+                write_property(outfile, datatype, None, property_name, property_schema)
 
     logger.info("Wrote updated connector schema to 'schema.csv'")
