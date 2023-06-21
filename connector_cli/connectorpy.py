@@ -345,13 +345,13 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
         incomplete_schema_path = dirpath / "schemas" / f"{datatype}.json"
 
         incomplete_schema = deepcopy(live_schema)
-        datatype_properties = live_schema.get("properties", {})
+        manual_datatype_properties = live_schema.get("properties", {})
         num_nulls = 0
 
-        # Check which properties are null and write those properties to a separate
-        # 'incomplete' schema
+        # TODO: merge any new "null" properties discovered into the manual schema
         if not os.path.exists(incomplete_schema_path):
-            for prop_name, _property in datatype_properties.items():
+            # Check which properties are null
+            for prop_name, _property in manual_datatype_properties.items():
                 is_null = True
                 if prop_name.startswith("$"):  # ignore internal properties
                     incomplete_schema["properties"].pop(prop_name, None)
@@ -381,10 +381,13 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
                 else:
                     incomplete_schema["properties"].pop(prop_name, None)
 
+            # If the "manual" schema file doesn't exist already,
+            # write the "null" properties as a separate 'incomplete' schema
             logger.info(
                 f"Writing incomplete schema with {num_nulls} null-properties "
                 f"to {incomplete_schema_path}"
             )
+
             with open(incomplete_schema_path, "w") as f:
                 json.dump(incomplete_schema, f, indent=2, sort_keys=True)
 
@@ -396,31 +399,18 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
             existing_schema = json.load(f)
 
         merged_schema = deepcopy(live_schema)
-        datatype_properties = existing_schema.get("properties", {})
-        for prop_name, property_schema in datatype_properties.items():
-            if prop_name.startswith("$"):  # ignore properties such as $last-modified
-                continue
+        manual_datatype_properties = existing_schema.get("properties", {})
 
-            is_null = True
-            if "anyOf" in property_schema:
-                if any([e for e in property_schema["anyOf"] if e.get("type") is not None]):
-                    is_null = False
-                    property_schema = [
-                        e for e in property_schema["anyOf"] if e.get("type") is not None
-                    ][0]
-
-            elif property_schema.get("subtype", property_schema.get("type")) is not None:
-                is_null = False
+        for prop_name, property_schema in manual_datatype_properties.items():
+            property_type = property_schema.get("subtype", property_schema.get("type"))
+            if property_type is None and "anyOf" in property_schema:
+                not_null_types = [e for e in property_schema["anyOf"] if e.get("type") != "null"]
+                is_null = len(not_null_types) == 0
+            else:
+                is_null = property_type == "null"
 
             if not is_null:
-                # The type has been set manually, so use the properties from this
-                # schema in the merged version
                 merged_schema["properties"][prop_name] = property_schema
-            else:
-                logger.info(
-                    f"Skipping merge of '{datatype}.{prop_name}' "
-                    f"because the type has not been set"
-                )
 
         with open(dirpath / "schemas" / f"{datatype}.merged.json", "w") as f:
             json.dump(merged_schema, f, indent=2, sort_keys=True)
@@ -461,12 +451,29 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
                         e for e in property_schema["anyOf"] if e.get("type") != "null"
                     ][0]
                 else:
-                    anyof_items = sorted(property_schema["anyOf"], key=lambda d: d["type"])
+                    anyof_items = sorted(
+                        deepcopy(property_schema["anyOf"]), key=lambda d: d["type"]
+                    )
+                    for item in anyof_items:
+                        for p in list(item.keys()):
+                            if p not in ["type", "subtype"]:
+                                item.pop(p, None)
                     int_dec = [{"type": "integer"}, {"subtype": "decimal", "type": "string"}]
                     if anyof_items == int_dec:
+                        property_schema = [
+                            e for e in property_schema["anyOf"] if e.get("subtype") == "decimal"
+                        ][0]
                         property_schema["type"] = "decimal"
-                        property_schema["description"] = "Property can be decimal or integer"
-                        property_schema.pop("anyOf", None)
+                        property_schema.pop("subtype", None)
+                        s = "Property can be decimal or integer"
+                        if "description" in property_schema:
+                            desc = property_schema["description"].strip()
+                            if desc.endswith("."):
+                                desc += f" {s}."
+                            else:
+                                desc += f" ({s.lower()})."
+
+                            property_schema["description"] = desc
 
         property_type = property_schema.get("subtype", property_schema.get("type"))
 
