@@ -292,16 +292,18 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         json.dump(manifest, f, indent=2, sort_keys=True)
 
 
-def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
+def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
     dirpath = Path(connector_dir)
     os.makedirs(dirpath / "schemas", exist_ok=True)
 
     # Set 'infer_pipe_entity_types' to true if not already set
-    node_metadata = connection.get_metadata().get("config", {}).get("effective", {})
+    node_metadata = sesam_node.api_connection.get_metadata().get("config", {}).get("effective", {})
     global_defaults = node_metadata.get("global_defaults", {})
     if global_defaults.get("infer_pipe_entity_types") is not True:
         global_defaults["infer_pipe_entity_types"] = True
-        connection.set_metadata(node_metadata)
+        sesam_node.api_connection.set_metadata(node_metadata)
+
+    sesam_node.wait_for_all_pipes_to_deploy()
 
     # Find datatypes defined for the connector and run the corresponding collect pipes
     manifest_path = Path(connector_dir, "manifest.json")
@@ -315,7 +317,7 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
     collect_pipe_ids = [f"{system_placeholder}-{datatype}-collect" for datatype in datatypes]
     for pipe_id, datatype in zip(collect_pipe_ids, datatypes):
         # Fetch inferred schema
-        pipe = connection.get_pipe(pipe_id)
+        pipe = sesam_node.api_connection.get_pipe(pipe_id)
         if pipe:
             logger.info(f"Running pipe '{pipe_id}'")
             pump = pipe.get_pump()
@@ -327,8 +329,8 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                 f"to do a 'sesam upload' first?"
             )
 
-        endpoint = f"{connection.pipes_url}/{pipe_id}/entity-types/sink"
-        r = connection.do_get_request(endpoint, retries=20, retry_delay=3)
+        endpoint = f"{sesam_node.api_connection.pipes_url}/{pipe_id}/entity-types/sink"
+        r = sesam_node.api_connection.do_get_request(endpoint, retries=20, retry_delay=3)
 
         live_schema = r.json()
         # TODO might want to retry if it is empty, but we need to know if the endpoint
@@ -458,6 +460,13 @@ def update_schemas(connection, connector_dir=".", system_placeholder="xxxxxx"):
                     property_schema = [
                         e for e in property_schema["anyOf"] if e.get("type") != "null"
                     ][0]
+                else:
+                    anyof_items = sorted(property_schema["anyOf"], key=lambda d: d["type"])
+                    int_dec = [{"type": "integer"}, {"subtype": "decimal", "type": "string"}]
+                    if anyof_items == int_dec:
+                        property_schema["type"] = "decimal"
+                        property_schema["description"] = "Property can be decimal or integer"
+                        property_schema.pop("anyOf", None)
 
         property_type = property_schema.get("subtype", property_schema.get("type"))
 
