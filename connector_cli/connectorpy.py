@@ -378,6 +378,7 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
                     num_nulls += 1
                     incomplete_schema_info[datatype] = num_nulls
                     incomplete_schema["properties"][prop_name]["type"] = None
+                    incomplete_schema["properties"][prop_name]["description"] = ""
                 else:
                     incomplete_schema["properties"].pop(prop_name, None)
 
