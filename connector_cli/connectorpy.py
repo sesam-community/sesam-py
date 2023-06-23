@@ -378,6 +378,7 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
                     num_nulls += 1
                     incomplete_schema_info[datatype] = num_nulls
                     incomplete_schema["properties"][prop_name]["type"] = None
+                    incomplete_schema["properties"][prop_name]["description"] = ""
                 else:
                     incomplete_schema["properties"].pop(prop_name, None)
 
@@ -487,12 +488,19 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
                 )
             else:
                 for subproperty_name, subschema in property_schema["properties"].items():
-                    write_property(outfile, datatype, property_name, subproperty_name, subschema)
+                    # Drop recursing for now after discussion with model mapping guys
+                    # write_property(outfile, datatype, property_name, subproperty_name, subschema)
+                    description = subschema.get("description", "").replace('"', "'")
+                    subproperty_type = subschema.get("type")
+                    outfile.write(
+                        f'"{system}","{datatype}","{property_name}.{subproperty_name}","",'
+                        f'"{subproperty_type}","{description}"\n'
+                    )
         elif property_type == "array":
             items_schema = property_schema["items"]
             if items_schema.get("type", "") == "object":
                 for subproperty_name, subschema in items_schema["properties"].items():
-                    description = subschema.get("description", "").replace('"', '"')
+                    description = subschema.get("description", "").replace('"', "'")
                     subproperty_type = subschema.get("type")
                     outfile.write(
                         f'"{system}","{datatype}","{property_name}",'
@@ -500,13 +508,13 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
                         f'"{description}"\n'
                     )
             else:
-                description = property_schema.get("description", "").replace('"', '"')
+                description = property_schema.get("description", "").replace('"', "'")
                 outfile.write(
                     f'"{system}","{datatype}","{property_name}","",'
                     f'"{property_type}","{description}"\n'
                 )
         else:
-            description = property_schema.get("description", "").replace('"', '"')
+            description = property_schema.get("description", "").replace('"', "'")
             outfile.write(
                 f'"{system}","{datatype}","{property_name}","",'
                 f'"{property_type}","{description}"\n'
