@@ -6,7 +6,7 @@ def login_via_api_key(sesam_node, args):
     system_id = args.system_placeholder
     api_key = args.api_key
     base_url = args.base_url
-    systems=sesam_node.api_connection.get_systems()
+    systems = sesam_node.api_connection.get_systems()
     if base_url and system_id and api_key:
         is_failed = False
         try:
