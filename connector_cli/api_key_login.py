@@ -6,11 +6,12 @@ def login_via_api_key(sesam_node, args):
     system_id = args.system_placeholder
     api_key = args.api_key
     base_url = args.base_url
+    systems = sesam_node.api_connection.get_systems()
     if base_url and system_id and api_key:
         is_failed = False
         try:
-            system = sesam_node.get_system(system_id)
-            system.put_secrets({"api_key": api_key})
+            for system in systems:
+                system.put_secrets({"api_key": api_key})
         except Exception as e:
             is_failed = True
             sesam_node.logger.error("Failed to put secrets: %s" % e)

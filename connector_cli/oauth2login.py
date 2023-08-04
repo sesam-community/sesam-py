@@ -118,8 +118,9 @@ def login_callback():
         sesam_node.logger.error("Failed to get secrets: %s" % e)
     # put secrets
     try:
-        system = sesam_node.api_connection.get_system(system_id)
-        system.put_secrets(secrets)
+        systems = sesam_node.api_connection.get_systems()
+        for system in systems:
+            system.put_secrets(secrets)
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to put secrets: %s" % e)
