@@ -134,8 +134,8 @@ def login_callback():
             with open(profile_file, "r", encoding="utf-8-sig") as f:
                 for key, value in json.load(f).items():
                     env[key] = value
-        env["token_url"] = token_url
-        env["base_url"] = base_url
+        # env["token_url"] = token_url  # do we replace this with values in the new .additional_properties.json file?
+        # env["base_url"] = base_url
         env["account_id"] = account_id
     except Exception as e:
         is_failed = True

@@ -64,17 +64,31 @@ def expand_connector_config(system_placeholder):
 
     shim_template = main_env.get_template("shim.json")
 
+    additional_parameters_path = os.path.join(".additional_parameters.json")
+    if os.path.isfile(additional_parameters_path):
+        try:
+            with open(additional_parameters_path) as f:
+                additional_parameters = json.load(f)
+        except BaseException as e:
+            logger.error("Failed to parse additional parameters file")
+            raise e
+    else:
+        additional_parameters = {}
+
     with open(os.path.join("manifest.json"), "r") as f:
         system_env = jinja_env(loader=FileSystemLoader("."))
 
         manifest = json.load(f)
 
+        # Use any additional parameters set by the developer for rendering the Jinja templates
+        additional_parameters_manifest = list(manifest.get("additional_parameters", {}).keys())
+        additional_parameters_subst = {key: "$ENV(%s)" % key for key in additional_parameters_manifest}
+        for key, value in additional_parameters.items():
+            additional_parameters_subst[key] = value
+
         subst = {
-            **{"system": system_placeholder},
-            **{
-                key: "$ENV(%s)" % key
-                for key in list(manifest.get("additional_parameters", {}).keys())
-            },
+            "system": system_placeholder,
+            **additional_parameters_subst
         }
 
         system_template = manifest.get("system-template")
