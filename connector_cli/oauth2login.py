@@ -22,9 +22,7 @@ app = Flask(__name__)
 def wait_on_server_shutdown():
     event.wait()
     cmd = "lsof -i tcp:5010"
-    result = subprocess.run(
-        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     lines = result.stdout.decode().split("\n")
     header = lines[0]
     pid_index = header.split().index("PID")
@@ -58,9 +56,7 @@ def get_account_id_from_jwt(jwt_token):
     _, payload, _ = jwt_token.split(".")
     account_info = json.loads(urlsafe_b64decode(f"{payload}"))
 
-    account_id = account_info.get(
-        manifest.get("oauth2", {}).get("tenant_id_expression")[1]
-    )
+    account_id = account_info.get(manifest.get("oauth2", {}).get("tenant_id_expression")[1])
 
     return account_id
 
@@ -101,18 +97,14 @@ def login_callback():
                 account_id = data.get(tenant_id)
             elif identity_url:
                 account_id = (
-                    requests.get(f"{identity_url}{data.get('access_token')}")
-                    .json()
-                    .get(tenant_id)
+                    requests.get(f"{identity_url}{data.get('access_token')}").json().get(tenant_id)
                 )
 
         if manifest.get("requires_service_api_access"):
             secrets["service_jwt"] = service_jwt
         if manifest.get("use_webhook_secret"):
             to_hash = service_url + "/" + system_id
-            secrets["webhook_secret"] = hashlib.sha256(
-                to_hash.encode("utf-8-sig")
-            ).hexdigest()[:12]
+            secrets["webhook_secret"] = hashlib.sha256(to_hash.encode("utf-8-sig")).hexdigest()[:12]
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get secrets: %s" % e)
@@ -134,8 +126,8 @@ def login_callback():
             with open(profile_file, "r", encoding="utf-8-sig") as f:
                 for key, value in json.load(f).items():
                     env[key] = value
-        # env["token_url"] = token_url  # do we replace this with values in the new .additional_properties.json file?
-        # env["base_url"] = base_url
+        env["token_url"] = token_url
+        env["base_url"] = base_url
         env["account_id"] = account_id
     except Exception as e:
         is_failed = True
@@ -158,13 +150,9 @@ def login_callback():
         )
     else:
         sesam_node.logger.error(
-            "Failed to update all secrets and environment variables. "
-            "See the log for details."
+            "Failed to update all secrets and environment variables. " "See the log for details."
         )
-        return (
-            "Failed to update all secrets and environment variables. "
-            "See the log for details."
-        )
+        return "Failed to update all secrets and environment variables. " "See the log for details."
 
 
 def start_server(args):

@@ -1300,6 +1300,25 @@ class SesamCmdClient:
             self.logger.error("Failed to parse profile: '%s'" % profile_file)
             raise e
 
+        additional_parameters_path = os.path.join(os.pardir, ".additional_parameters.json")
+        if os.path.isfile(additional_parameters_path):
+            try:
+                with open(additional_parameters_path) as f:
+                    additional_parameters = json.load(f)
+            except BaseException as e:
+                self.logger.error("Failed to parse additional parameters file")
+                raise e
+        else:
+            additional_parameters = {}
+
+        for param, value in additional_parameters.items():
+            if param in json_data.keys():
+                self.logger.warning(
+                    f"Value for parameter '{param}' set in {profile_file} will be replaced with "
+                    f"the corresponding value set in {additional_parameters_path} before upload."
+                )
+            json_data[param] = value
+
         try:
             self.sesam_node.put_env(json_data)
         except BaseException as e:
