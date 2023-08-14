@@ -41,7 +41,7 @@ employee_token=<client secret for Tripletex authentication>
 * Optionally the secrets can also be passed as command line arguments specified below.
 * To upload additional secrets and environment variables, add them to the profile file (e.g. test-env.json).
 * Additional parameters and their values can be provided in a file `.additional_parameters.json` in the root directory 
-of the connector. These will replace Jinja variables on the form `{{@ foo @}}` in the templates with the provided value.
+of the connector. These parameters will be uploaded as environment variables to the node.
 * sesam-py automatically detects the login service required for the connector.
 
 #### 3- sesamconfig
