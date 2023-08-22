@@ -252,6 +252,13 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         )
         fixed = template.replace(system_placeholder, "{{@ system @}}")
         envs = p.findall(fixed)
+        for (
+            param_name,
+            value,
+        ) in (
+            datatype_parameters.items()
+        ):  # TODO: best effort, might result in unintended replacements
+            fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         for env in envs:
             e = env.replace("$ENV(", "{{@ ").replace(")", " @}}")
             env_parameters.add(e.replace("{{@ ", "").replace(" @}}", ""))
@@ -260,13 +267,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
             fixed = fixed.replace(template_name, "{{@ datatype @}}")
         if template_name in datatypes_with_parent:
             fixed = fixed.replace(datatypes_with_parent[template_name], "{{@ parent @}}")
-        for (
-            param_name,
-            value,
-        ) in (
-            datatype_parameters.items()
-        ):  # TODO: best effort, might result in unintended replacements
-            fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
+
         with open(Path(dirpath, "templates", "%s.json" % template_name), "w") as f:
             f.write(fixed)
 
