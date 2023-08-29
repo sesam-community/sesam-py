@@ -40,6 +40,8 @@ employee_token=<client secret for Tripletex authentication>
 * It is recommended to clone a connector repo and add the `.authconfig` file to the working directory.
 * Optionally the secrets can also be passed as command line arguments specified below.
 * To upload additional secrets and environment variables, add them to the profile file (e.g. test-env.json).
+* Additional parameters and their values can be provided in a file `.additional_parameters.json` in the root directory 
+of the connector. These parameters will be uploaded as environment variables to the node.
 * sesam-py automatically detects the login service required for the connector.
 
 #### 3- sesamconfig
