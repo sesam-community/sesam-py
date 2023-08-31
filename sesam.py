@@ -21,14 +21,15 @@ from fnmatch import fnmatch
 from pathlib import Path
 from urllib.parse import urlparse
 
+import requests
 import sesamclient
 from lxml import etree
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.7.0"
+sesam_version = "2.8.0"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -175,6 +176,7 @@ class SesamNode:
 
         self.node_url = node_url
         self.jwt_token = jwt_token
+        self._last_registered_action_ts = None
 
         safe_jwt = "{}*********{}".format(jwt_token[:10], jwt_token[-10:])
         self.logger.debug("Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt)
@@ -235,6 +237,40 @@ class SesamNode:
 
             logger.info(f"Waiting for {len(deploying)} pipes to finish deploying...")
             time.sleep(5)
+
+    def register_user_interaction(self):
+        # IS-15613: attempt to register a user interaction with the portal
+
+        license_info = self.api_connection.get_license()
+
+        if license_info:
+            # We don't want to spam the analytics api so if it's
+            # less than 60s since the last time we registered
+            # an interaction just skip it
+            if (
+                self._last_registered_action_ts is not None
+                and (time.monotonic() - self._last_registered_action_ts) < 60
+            ):
+                return
+
+            sub_id = license_info["_id"]
+
+            payload = {"subscription_id": sub_id, "action": "api_call"}
+
+            headers = {
+                "Authentication": "bearer %s" % self.jwt_token,
+                "Content-Type": "application/json",
+            }
+
+            self._last_registered_action_ts = time.monotonic()
+
+            try:
+                r = requests.post(
+                    "https://portal.sesam.io/api/analytics", data=payload, headers=headers
+                )
+                r.raise_for_status()
+            except RequestException as e:
+                logger.debug("Failed to register interaction with Sesam Portal: %s" % str(e))
 
     def is_user_pipe(self, pipe):
         if self.get_pipe_origin(pipe) in [
@@ -1165,6 +1201,8 @@ class SesamCmdClient:
         return True
 
     def validate(self):
+        self.sesam_node.register_user_interaction()
+
         logger.info("Validating config files")
         # set the current directory when sesam validate is called from root.
         if self.args.command == "validate" and self.args.connector_dir != ".":
@@ -1288,6 +1326,8 @@ class SesamCmdClient:
             sys.exit(1)
 
     def upload(self):
+        self.sesam_node.register_user_interaction()
+
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -1426,6 +1466,8 @@ class SesamCmdClient:
             self.logger.info("No test data found to upload")
 
     def dump(self):
+        self.sesam_node.register_user_interaction()
+
         try:
             self.get_zip_config(remove_zip=False)
         except BaseException as e:
@@ -1433,6 +1475,8 @@ class SesamCmdClient:
             raise e
 
     def download(self):
+        self.sesam_node.register_user_interaction()
+
         if self.args.is_connector:
             if not os.path.isdir(os.path.join(self.args.connector_dir, self.args.expanded_dir)):
                 logger.warning(
@@ -1524,6 +1568,8 @@ class SesamCmdClient:
                 )
 
     def status(self):
+        self.sesam_node.register_user_interaction()
+
         def log_and_get_diff_flag(
             file_content1, file_content2, file_name1, file_name2, log_diff=True
         ):
@@ -1800,6 +1846,8 @@ class SesamCmdClient:
         return value
 
     def verify(self):
+        self.sesam_node.register_user_interaction()
+
         self.logger.info("Verifying that expected output matches current output...")
         output_pipes = {}
         failed = False
@@ -2350,6 +2398,8 @@ class SesamCmdClient:
             self.logger.info("templates directory found, skipping initialization...")
 
     def update(self):
+        self.sesam_node.register_user_interaction()
+
         self.logger.info("Updating expected output from current output...")
         output_pipes = {}
 
@@ -2461,6 +2511,8 @@ class SesamCmdClient:
         self.logger.info("%s tests updated!" % i)
 
     def stop(self, throw_error=True):
+        self.sesam_node.register_user_interaction()
+
         try:
             self.logger.info("Trying to stop a previously running scheduler..")
 
@@ -2473,6 +2525,8 @@ class SesamCmdClient:
                 raise e
 
     def test(self):
+        self.sesam_node.register_user_interaction()
+
         last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
@@ -2545,6 +2599,9 @@ class SesamCmdClient:
 
                         self.token = self.result["token"]
                         while True:
+                            # IS-15613: long running CI tests are also user interactions
+                            self.sesam_node.register_user_interaction()
+
                             status = self.sesam_node.get_internal_scheduler_status(self.token)
 
                             if status["status"] == "success":
