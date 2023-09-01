@@ -178,6 +178,15 @@ class SesamNode:
         self.node_url = node_url
         self.jwt_token = jwt_token
         self._last_registered_action_ts = None
+        self.subscription_id = None
+
+        # Extract subscription id from the jwt token metadata.
+        jwt_metadata = jwt.decode(self.jwt_token, verify=False)
+        if jwt_metadata:
+            principals = jwt_metadata.get("principals", {})
+            subscriptions = list(principals.keys())
+            if len(subscriptions) > 0:
+                self.subscription_id = subscriptions[0]
 
         safe_jwt = "{}*********{}".format(jwt_token[:10], jwt_token[-10:])
         self.logger.debug("Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt)
@@ -246,42 +255,30 @@ class SesamNode:
 
     def register_user_interaction(self):
         # IS-15613: attempt to register a user interaction with the portal.
-        # Extract subscription id from the jwt token metadata.
-        jwt_metadata = jwt.decode(self.jwt_token, verify=False)
+        # We don't want to spam the analytics api so if it's
+        # less than 60s since the last time we registered
+        # an interaction just skip it
+        now_ts = time.monotonic()
 
-        if jwt_metadata:
-            principals = jwt_metadata.get("principals", {})
-            subscriptions = list(principals.keys())
-            if len(subscriptions) > 0:
-                subscription_id = subscriptions[0]
+        if self.subscription_id is None or (
+            self._last_registered_action_ts is not None
+            and (now_ts - self._last_registered_action_ts) < 60
+        ):
+            return
 
-                # We don't want to spam the analytics api so if it's
-                # less than 60s since the last time we registered
-                # an interaction just skip it
-                if (
-                    self._last_registered_action_ts is not None
-                    and (time.monotonic() - self._last_registered_action_ts) < 60
-                ):
-                    return
-
-                payload = {"subscription_id": subscription_id, "action": "api_call"}
-
-                headers = {
+        self._last_registered_action_ts = now_ts
+        try:
+            r = requests.post(
+                "https://portal.sesam.io/api/analytics",
+                data=json.dumps({"subscription_id": self.subscription_id, "action": "api_call"}),
+                headers={
                     "Authorization": "bearer %s" % self.jwt_token,
                     "Content-Type": "application/json",
-                }
-
-                self._last_registered_action_ts = time.monotonic()
-
-                try:
-                    r = requests.post(
-                        "https://portal.sesam.io/api/analytics",
-                        data=json.dumps(payload),
-                        headers=headers,
-                    )
-                    r.raise_for_status()
-                except RequestException as e:
-                    logger.debug("Failed to register interaction with Sesam Portal: %s" % str(e))
+                },
+            )
+            r.raise_for_status()
+        except RequestException as e:
+            logger.debug("Failed to register interaction with Sesam Portal: %s" % str(e))
 
     def is_user_pipe(self, pipe):
         if self.get_pipe_origin(pipe) in [
