@@ -258,7 +258,7 @@ class SesamNode:
             payload = {"subscription_id": sub_id, "action": "api_call"}
 
             headers = {
-                "Authentication": "bearer %s" % self.jwt_token,
+                "Authorization": "bearer %s" % self.jwt_token,
                 "Content-Type": "application/json",
             }
 
@@ -266,7 +266,9 @@ class SesamNode:
 
             try:
                 r = requests.post(
-                    "https://portal.sesam.io/api/analytics", data=payload, headers=headers
+                    "https://portal.sesam.io/api/analytics",
+                    data=json.dumps(payload),
+                    headers=headers,
                 )
                 r.raise_for_status()
             except RequestException as e:
@@ -2733,6 +2735,8 @@ class SesamCmdClient:
         self.logger.info("Successfully wiped node!")
 
     def reset(self):
+        self.sesam_node.register_user_interaction()
+
         try:
             self.stop(throw_error=False)
 
