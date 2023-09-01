@@ -304,8 +304,6 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
 
 
 def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
-    sesam_node.register_user_interaction()
-
     dirpath = Path(connector_dir)
     os.makedirs(dirpath / "schemas", exist_ok=True)
 
