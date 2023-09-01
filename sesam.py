@@ -21,6 +21,7 @@ from fnmatch import fnmatch
 from pathlib import Path
 from urllib.parse import urlparse
 
+import jwt
 import requests
 import sesamclient
 from lxml import etree
@@ -186,16 +187,17 @@ class SesamNode:
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        try:
-            self.api_connection = sesamclient.Connection(
-                sesamapi_base_url=self.node_url,
-                jwt_auth_token=self.jwt_token,
-                timeout=60 * 10,
-                verify_ssl=verify_ssl,
-            )
-        finally:
-            # Register a user-interaction even if the connection fails (it might be hibernated)
-            self.register_user_interaction()
+        # Register a user-interaction even if the subsequent connection fails
+        # (the subscription might be hibernated or not responding for whatever
+        # reason)
+        self.register_user_interaction()
+
+        self.api_connection = sesamclient.Connection(
+            sesamapi_base_url=self.node_url,
+            jwt_auth_token=self.jwt_token,
+            timeout=60 * 10,
+            verify_ssl=verify_ssl,
+        )
 
     def wait_for_all_pipes_to_deploy(self, timeout=30 * 60):
         starttime = time.time()
@@ -243,39 +245,43 @@ class SesamNode:
             time.sleep(5)
 
     def register_user_interaction(self):
-        # IS-15613: attempt to register a user interaction with the portal
-        license_info = self.api_connection.get_license()
+        # IS-15613: attempt to register a user interaction with the portal.
+        # Extract subscription id from the jwt token metadata.
+        jwt_metadata = jwt.decode(self.jwt_token, verify=False)
 
-        if license_info:
-            # We don't want to spam the analytics api so if it's
-            # less than 60s since the last time we registered
-            # an interaction just skip it
-            if (
-                self._last_registered_action_ts is not None
-                and (time.monotonic() - self._last_registered_action_ts) < 60
-            ):
-                return
+        if jwt_metadata:
+            principals = jwt_metadata.get("principals", {})
+            subscriptions = list(principals.keys())
+            if len(subscriptions) > 0:
+                subscription_id = subscriptions[0]
 
-            sub_id = license_info["_id"]
+                # We don't want to spam the analytics api so if it's
+                # less than 60s since the last time we registered
+                # an interaction just skip it
+                if (
+                    self._last_registered_action_ts is not None
+                    and (time.monotonic() - self._last_registered_action_ts) < 60
+                ):
+                    return
 
-            payload = {"subscription_id": sub_id, "action": "api_call"}
+                payload = {"subscription_id": subscription_id, "action": "api_call"}
 
-            headers = {
-                "Authorization": "bearer %s" % self.jwt_token,
-                "Content-Type": "application/json",
-            }
+                headers = {
+                    "Authorization": "bearer %s" % self.jwt_token,
+                    "Content-Type": "application/json",
+                }
 
-            self._last_registered_action_ts = time.monotonic()
+                self._last_registered_action_ts = time.monotonic()
 
-            try:
-                r = requests.post(
-                    "https://portal.sesam.io/api/analytics",
-                    data=json.dumps(payload),
-                    headers=headers,
-                )
-                r.raise_for_status()
-            except RequestException as e:
-                logger.debug("Failed to register interaction with Sesam Portal: %s" % str(e))
+                try:
+                    r = requests.post(
+                        "https://portal.sesam.io/api/analytics",
+                        data=json.dumps(payload),
+                        headers=headers,
+                    )
+                    r.raise_for_status()
+                except RequestException as e:
+                    logger.debug("Failed to register interaction with Sesam Portal: %s" % str(e))
 
     def is_user_pipe(self, pipe):
         if self.get_pipe_origin(pipe) in [
