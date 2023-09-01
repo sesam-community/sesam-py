@@ -145,9 +145,9 @@ def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", prof
     for component in output:
         if component["type"] == "pipe":
             if (
-                    component.get("source").get("type") == "http_endpoint"
-                    and component.get("_id").endswith("event")
-                    and manifest.get("use_webhook_secret")
+                component.get("source").get("type") == "http_endpoint"
+                and component.get("_id").endswith("event")
+                and manifest.get("use_webhook_secret")
             ):
                 endpoint_permissions = [["allow", ["group:Anonymous"], ["write_data"]]]
                 if component.get("permissions"):
@@ -225,9 +225,12 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         )
 
         for component in components:
-            if component.get("type") == "pipe" \
-                    and component.get("source").get("type") == "http_endpoint" \
-                    and component.get("_id").endswith("event") and "permissions" in component:
+            if (
+                component.get("type") == "pipe"
+                and component.get("source").get("type") == "http_endpoint"
+                and component.get("_id").endswith("event")
+                and "permissions" in component
+            ):
                 component.pop("permissions")
 
         should_warn = False
@@ -260,10 +263,10 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
         fixed = template.replace(system_placeholder, "{{@ system @}}")
         envs = p.findall(fixed)
         for (
-                param_name,
-                value,
+            param_name,
+            value,
         ) in (
-                datatype_parameters.items()
+            datatype_parameters.items()
         ):  # TODO: best effort, might result in unintended replacements
             fixed = fixed.replace(value, "{{@ %s @}}" % param_name)
         for env in envs:
@@ -378,7 +381,7 @@ def update_schemas(sesam_node, connector_dir=".", system_placeholder="xxxxxx"):
                             break
                 else:
                     if _property.get("subtype") not in ["null", None] or _property.get(
-                            "type"
+                        "type"
                     ) not in ["null", None]:
                         is_null = False
 

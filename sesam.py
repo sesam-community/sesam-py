@@ -21,14 +21,16 @@ from fnmatch import fnmatch
 from pathlib import Path
 from urllib.parse import urlparse
 
+import jwt
+import requests
 import sesamclient
 from lxml import etree
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.7.0"
+sesam_version = "2.8.0"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -175,6 +177,16 @@ class SesamNode:
 
         self.node_url = node_url
         self.jwt_token = jwt_token
+        self._last_registered_action_ts = None
+        self.subscription_id = None
+
+        # Extract subscription id from the jwt token metadata.
+        jwt_metadata = jwt.decode(self.jwt_token, verify=False)
+        if jwt_metadata:
+            principals = jwt_metadata.get("principals", {})
+            subscriptions = list(principals.keys())
+            if len(subscriptions) > 0:
+                self.subscription_id = subscriptions[0]
 
         safe_jwt = "{}*********{}".format(jwt_token[:10], jwt_token[-10:])
         self.logger.debug("Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt)
@@ -183,6 +195,11 @@ class SesamNode:
             import urllib3
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        # Register a user-interaction even if the subsequent connection fails
+        # (the subscription might be hibernated or not responding for whatever
+        # reason)
+        self.register_user_interaction()
 
         self.api_connection = sesamclient.Connection(
             sesamapi_base_url=self.node_url,
@@ -235,6 +252,33 @@ class SesamNode:
 
             logger.info(f"Waiting for {len(deploying)} pipes to finish deploying...")
             time.sleep(5)
+
+    def register_user_interaction(self):
+        # IS-15613: attempt to register a user interaction with the portal.
+        # We don't want to spam the analytics api so if it's
+        # less than 60s since the last time we registered
+        # an interaction just skip it
+        now_ts = time.monotonic()
+
+        if self.subscription_id is None or (
+            self._last_registered_action_ts is not None
+            and (now_ts - self._last_registered_action_ts) < 60
+        ):
+            return
+
+        self._last_registered_action_ts = now_ts
+        try:
+            r = requests.post(
+                "https://portal.sesam.io/api/analytics",
+                data=json.dumps({"subscription_id": self.subscription_id, "action": "api_call"}),
+                headers={
+                    "Authorization": "bearer %s" % self.jwt_token,
+                    "Content-Type": "application/json",
+                },
+            )
+            r.raise_for_status()
+        except RequestException as e:
+            logger.debug("Failed to register interaction with Sesam Portal: %s" % str(e))
 
     def is_user_pipe(self, pipe):
         if self.get_pipe_origin(pipe) in [
@@ -2545,6 +2589,9 @@ class SesamCmdClient:
 
                         self.token = self.result["token"]
                         while True:
+                            # IS-15613: long-running CI tests are also user interactions
+                            self.sesam_node.register_user_interaction()
+
                             status = self.sesam_node.get_internal_scheduler_status(self.token)
 
                             if status["status"] == "success":
