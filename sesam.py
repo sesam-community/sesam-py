@@ -186,14 +186,16 @@ class SesamNode:
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        self.api_connection = sesamclient.Connection(
-            sesamapi_base_url=self.node_url,
-            jwt_auth_token=self.jwt_token,
-            timeout=60 * 10,
-            verify_ssl=verify_ssl,
-        )
-
-        self.register_user_interaction()
+        try:
+            self.api_connection = sesamclient.Connection(
+                sesamapi_base_url=self.node_url,
+                jwt_auth_token=self.jwt_token,
+                timeout=60 * 10,
+                verify_ssl=verify_ssl,
+            )
+        finally:
+            # Register a user-interaction even if the connection fails (it might be hibernated)
+            self.register_user_interaction()
 
     def wait_for_all_pipes_to_deploy(self, timeout=30 * 60):
         starttime = time.time()
