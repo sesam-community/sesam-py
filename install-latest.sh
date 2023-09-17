@@ -11,13 +11,31 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
         os=osx
 fi
 
-while getopts o: flag
+usage() {
+	echo "By default the output filename is 'sesam-latest'"
+	echo "Usage: $0 [OPTIONS]"
+	echo "Options:"
+	echo " -h		Show this help message"
+	echo " -o filename	Specify the output filename"
+}
+
+while getopts 'o:h' flag
 do
     case "${flag}" in
-        o) output_file=${OPTARG};;
-        *) output_file="sesam-latest";;
+        o) output_file="$OPTARG";;
+	h)
+		usage
+		exit;;
+	?)
+		echo "Non-existant flag: $1"
+		usage
+		exit;;
     esac
 done
+
+if [ -z "$output_file" ]; then
+	output_file="sesam-latest"
+fi
 
 
 echo "[+] Downloading latest executable"
