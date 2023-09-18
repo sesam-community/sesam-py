@@ -5,11 +5,14 @@ if [ "$(id -u)" -ne 0 ]; then
         exit
 fi
 
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        os=linux
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-        os=osx
-fi
+
+case "$OSTYPE" in
+	"linux-gnu") os="linux";;
+	"darwin") os="osx";;
+	*)
+		echo "OS isn't supported by this script"
+		exit;;
+esac
 
 usage() {
 	echo "By default the output filename is 'sesam-latest'"
