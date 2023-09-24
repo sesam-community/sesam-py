@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.8.0"
+sesam_version = "2.8.1"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -508,6 +508,7 @@ class SesamNode:
         max_run_time=None,
         max_runs=None,
         delete_input_datasets=True,
+        reset_pipes_and_delete_sink_datasets=None,
         check_input_pipes=False,
         output_run_statistics=False,
         scheduler_mode=None,
@@ -532,6 +533,9 @@ class SesamNode:
 
         if check_input_pipes is True:
             params["check_input_pipes"] = True
+
+        if reset_pipes_and_delete_sink_datasets is False:
+            params["reset_pipes_and_delete_sink_datasets"] = reset_pipes_and_delete_sink_datasets
 
         if output_run_statistics is True:
             params["output_run_statistics"] = True
@@ -2544,6 +2548,8 @@ class SesamCmdClient:
         output_run_statistics = self.args.output_run_statistics
         scheduler_mode = self.args.scheduler_mode
         requests_mode = self.args.scheduler_request_mode
+        reset_pipes_and_delete_sink_datasets =\
+            self.args.scheduler_dont_reset_pipes_or_delete_sink_datasets is not True
 
         if scheduler_mode is not None and scheduler_mode not in ["active", "poll"]:
             raise RuntimeError("'scheduler_mode' can only be set to 'active' or 'poll'")
@@ -2571,6 +2577,7 @@ class SesamCmdClient:
                         output_run_statistics=output_run_statistics,
                         scheduler_mode=scheduler_mode,
                         request_mode=requests_mode,
+                        reset_pipes_and_delete_sink_datasets=reset_pipes_and_delete_sink_datasets,
                     )
 
                     if requests_mode == "sync":
@@ -3142,6 +3149,15 @@ Commands:
         required=False,
         action="store_true",
         help="controls whether failing input pipes should make the scheduler run fail",
+    )
+
+    parser.add_argument(
+        "-scheduler-dont-reset-pipes-or-delete-sink-datasets",
+        dest="scheduler_dont_reset_pipes_or_delete_sink_datasets",
+        required=False,
+        default=False,
+        action="store_true",
+        help="controls whether the scheduler should reset any pipes or delete their sink-datasets",
     )
 
     parser.add_argument(
