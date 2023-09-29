@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.8.1"
+sesam_version = "2.8.2"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1244,7 +1244,7 @@ class SesamCmdClient:
 
                     def extract_datatype(file):
                         return file.split("-")[1]
-                    
+
                     # preprocess all files to know which collect pipes has a corresponding share
                     shared_datatypes = set()
                     for file in files:
@@ -1279,11 +1279,15 @@ class SesamCmdClient:
                                         if transform.get("template") == "transform-collect-rest":
                                             found = True
                                 elif type(config.get("transform")) == dict:
-                                    if config.get("transform").get("template") == "transform-collect-rest":
+                                    if (
+                                        config.get("transform").get("template")
+                                        == "transform-collect-rest"
+                                    ):
                                         found = True
                                 if not found:
                                     logger.error(
-                                        f"Config file '/pipes/{file}' has a corresponding share pipe but is missing the 'transform-collect-rest' transform"
+                                        f"Config file '/pipes/{file}' has a corresponding share "
+                                        "pipe but is missing the 'transform-collect-rest' transform"
                                     )
                                     is_valid = False
 
@@ -2576,8 +2580,9 @@ class SesamCmdClient:
         output_run_statistics = self.args.output_run_statistics
         scheduler_mode = self.args.scheduler_mode
         requests_mode = self.args.scheduler_request_mode
-        reset_pipes_and_delete_sink_datasets =\
+        reset_pipes_and_delete_sink_datasets = (
             self.args.scheduler_dont_reset_pipes_or_delete_sink_datasets is not True
+        )
 
         if scheduler_mode is not None and scheduler_mode not in ["active", "poll"]:
             raise RuntimeError("'scheduler_mode' can only be set to 'active' or 'poll'")
@@ -3512,10 +3517,15 @@ Commands:
         try:
             node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
         except BaseException as e:
-            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+            if (
+                args.verbose is True
+                or args.extra_verbose is True
+                or args.extra_extra_verbose is True
+            ):
                 logger.exception(e)
             logger.error(
-                "jwt and node must be specified either as parameter, " "os env or in syncconfig file"
+                "jwt and node must be specified either as parameter, "
+                "os env or in syncconfig file"
             )
             sys.exit(1)
 
@@ -3538,7 +3548,11 @@ Commands:
         try:
             sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
         except BaseException as e:
-            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+            if (
+                args.verbose is True
+                or args.extra_verbose is True
+                or args.extra_extra_verbose is True
+            ):
                 logger.exception(e)
             logger.error("config file is mandatory when -sesamconfig-file argument is specified")
             sys.exit(1)
@@ -3563,9 +3577,13 @@ Commands:
     start_time = time.monotonic()
     allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if offline or sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get(
-            "developer_mode"
-        ) or (command in allowed_commands_for_non_dev_subscriptions and args.force):
+        if (
+            offline
+            or sesam_cmd_client.sesam_node.api_connection.get_api_info()
+            .get("status")
+            .get("developer_mode")
+            or (command in allowed_commands_for_non_dev_subscriptions and args.force)
+        ):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
             elif command == "validate":
