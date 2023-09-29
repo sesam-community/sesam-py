@@ -1241,8 +1241,20 @@ class SesamCmdClient:
                                 logger.error("Config file '/systems/%s' is not valid json" % file)
                                 is_valid = False
                 elif root.endswith("/pipes"):
+
+                    def extract_datatype(file):
+                        return file.split("-")[1]
+                    
+                    # preprocess all files to know which collect pipes has a corresponding share
+                    shared_datatypes = set()
                     for file in files:
                         if file.endswith(".json"):
+                            if "share" in file:
+                                shared_datatypes.add(extract_datatype(file))
+
+                    for file in files:
+                        if file.endswith(".json"):
+                            datatype = extract_datatype(file)
                             try:
                                 with open(os.path.join(root, file), "r") as f:
                                     config = json.load(f)
@@ -1258,6 +1270,22 @@ class SesamCmdClient:
                                     "in the description."
                                 )
                                 is_valid = False
+
+                            if "collect" in file and datatype in shared_datatypes:
+                                found = False
+                                # TODO: handle if we have a chained transform
+                                if type(config.get("transform")) == list:
+                                    for transform in config.get("transform"):
+                                        if transform.get("template") == "transform-collect-rest":
+                                            found = True
+                                elif type(config.get("transform")) == dict:
+                                    if config.get("transform").get("template") == "transform-collect-rest":
+                                        found = True
+                                if not found:
+                                    logger.error(
+                                        f"Config file '/pipes/{file}' has a corresponding share pipe but is missing the 'transform-collect-rest' transform"
+                                    )
+                                    is_valid = False
 
                             if "collect" in file and type(config.get("transform")) == list:
                                 for transform in config.get("transform"):
@@ -3479,66 +3507,71 @@ Commands:
 
         sys.exit(1)
 
-    try:
-        node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
-    except BaseException as e:
-        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
-            logger.exception(e)
-        logger.error(
-            "jwt and node must be specified either as parameter, " "os env or in syncconfig file"
-        )
-        sys.exit(1)
-
-    if not args.is_connector:
+    offline = command == "validate"
+    if not offline:
         try:
-            args.jinja_vars = sesam_cmd_client.parse_config_file(".jinja_vars")
-            if args.jinja_vars == {}:
-                logger.warning("No variables found in .jinja_vars file. proceeding without it.")
-            else:
-                logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
-        except BaseException:
-            args.jinja_vars = None
-            if (
-                args.verbose is True
-                or args.extra_verbose is True
-                or args.extra_extra_verbose is True
-            ):
-                logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
+            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
+        except BaseException as e:
+            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+                logger.exception(e)
+            logger.error(
+                "jwt and node must be specified either as parameter, " "os env or in syncconfig file"
+            )
+            sys.exit(1)
 
-    try:
-        sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
-    except BaseException as e:
-        if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
-            logger.exception(e)
-        logger.error("config file is mandatory when -sesamconfig-file argument is specified")
-        sys.exit(1)
+        if not args.is_connector:
+            try:
+                args.jinja_vars = sesam_cmd_client.parse_config_file(".jinja_vars")
+                if args.jinja_vars == {}:
+                    logger.warning("No variables found in .jinja_vars file. proceeding without it.")
+                else:
+                    logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
+            except BaseException:
+                args.jinja_vars = None
+                if (
+                    args.verbose is True
+                    or args.extra_verbose is True
+                    or args.extra_extra_verbose is True
+                ):
+                    logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
 
-    try:
-        sesam_cmd_client.sesam_node = SesamNode(
-            node_url, jwt_token, logger, verify_ssl=args.skip_tls_verification is False
-        )
-    except BaseException as e:
-        if args.verbose or args.extra_verbose:
-            logger.exception(e)
-        logger.error(
-            "failed to connect to the sesam node using the url and jwt token "
-            f"we were given:\n{node_url}\n{jwt_token}"
-        )
-        logger.error(
-            "please verify the url and token is correct, and that there isn't "
-            "any network issues (i.e. firewall, internet connection etc)"
-        )
-        sys.exit(1)
+        try:
+            sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
+        except BaseException as e:
+            if args.verbose is True or args.extra_verbose is True or args.extra_extra_verbose is True:
+                logger.exception(e)
+            logger.error("config file is mandatory when -sesamconfig-file argument is specified")
+            sys.exit(1)
+
+        try:
+            sesam_cmd_client.sesam_node = SesamNode(
+                node_url, jwt_token, logger, verify_ssl=args.skip_tls_verification is False
+            )
+        except BaseException as e:
+            if args.verbose or args.extra_verbose:
+                logger.exception(e)
+            logger.error(
+                "failed to connect to the sesam node using the url and jwt token "
+                f"we were given:\n{node_url}\n{jwt_token}"
+            )
+            logger.error(
+                "please verify the url and token is correct, and that there isn't "
+                "any network issues (i.e. firewall, internet connection etc)"
+            )
+            sys.exit(1)
 
     start_time = time.monotonic()
     allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
-        if sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get(
+        if offline or sesam_cmd_client.sesam_node.api_connection.get_api_info().get("status").get(
             "developer_mode"
         ) or (command in allowed_commands_for_non_dev_subscriptions and args.force):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
             elif command == "validate":
+                connectorpy.expand_connector(
+                    args.system_placeholder, args.expanded_dir, args.profile
+                )
                 sesam_cmd_client.validate()
             elif command == "upload":
                 if not args.is_connector:

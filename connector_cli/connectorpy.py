@@ -158,10 +158,6 @@ def expand_connector(system_placeholder="xxxxxx", expanded_dir=".expanded", prof
                     )
 
                 component["permissions"] = endpoint_permissions
-                logger.warning(
-                    "Set permissions for endpoint pipe"
-                    f"'{component['_id']}' to: {endpoint_permissions}"
-                )
 
             with open(dirpath / f"pipes/{component['_id']}.conf.json", "w") as f:
                 json.dump(component, f, indent=2, sort_keys=True)
