@@ -3,7 +3,7 @@
 1. Checkout the repository if you haven't
 2. Create a new branch
 3. Add your modifications
-4. Make sure you increment the version number in the `sesam.py` and `install-latest.sh` files
+4. Make sure you increment the version number in the `sesam.py` files
 4. Push branch to remote and create a PR in GitHub
 5. When the PR passes tests, submit for review
 6. After the PR is approved, merge it
