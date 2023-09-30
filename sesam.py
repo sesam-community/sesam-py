@@ -1698,11 +1698,11 @@ class SesamCmdClient:
             if isinstance(item, dict):
                 for key, value in item.items():
                     path = parent_path + [key]
-                    if key.startswith("_"):
+                    if test_spec.is_path_blacklisted(path):
+                        result.pop(key)
+                    elif key.startswith("_"):
                         if key == "_id" or (key == "_deleted" and value is True):
                             continue
-                        result.pop(key)
-                    elif test_spec.is_path_blacklisted(path):
                         result.pop(key)
                     else:
                         result[key] = filter_item(path, value)
