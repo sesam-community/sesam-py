@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-20.04, windows-latest]
+        os: [macos-latest, macos-latest-xlarge, ubuntu-20.04, windows-latest]
         python: [3.7]
     steps:
       - name: Checkout code
@@ -65,4 +65,14 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./dist/sesam-macos-${{ github.event.release.tag_name }}.tar.gz
           asset_name: sesam-osx-${{ github.event.release.tag_name }}.tar.gz
+          asset_content_type: application/tar
+      - name: Upload MacOS arm arch assets to release
+        if: ${{ matrix.os == 'macos-latest-xlarge' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/sesam-macos-${{ github.event.release.tag_name }}.tar.gz
+          asset_name: sesam-osx-m-chip-${{ github.event.release.tag_name }}.tar.gz
           asset_content_type: application/tar

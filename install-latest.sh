@@ -14,6 +14,11 @@ case "$OSTYPE" in
 		exit;;
 esac
 
+arch=$(uname -i)
+if [ "$OSTYPE" == "darwin" ] && [[ $arch == arm* ]]; then
+	os="osx-m-chip"
+fi
+
 usage() {
 	echo "By default the output filename is 'sesam-latest'"
 	echo "Usage: $0 [OPTIONS]"

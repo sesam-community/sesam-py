@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-latest, windows-latest]
+        os: [ubuntu-20.04, macos-latest, macos-latest-xlarge, windows-latest]
         python: [3.7]
       # The tests for each OS talk to the same CI node (called Sesam client CI test node)
       # So if they run at the same time they will mess each other up
