@@ -1,36 +1,35 @@
-import argparse
-import configparser
-import copy
-import glob
-import io
 import itertools
 import json
 import logging
 import logging.handlers
 import os
-import os.path
-import pprint
 import re
 import sys
-import threading
 import time
-import zipfile
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from base64 import b64decode
+from configparser import ConfigParser
+from copy import deepcopy
 from decimal import Decimal
 from difflib import unified_diff
 from fnmatch import fnmatch
+from glob import glob
+from io import BytesIO, StringIO
 from pathlib import Path
+from pprint import pformat
+from threading import Thread
 from urllib.parse import urlparse
+from zipfile import ZIP_DEFLATED, ZipFile
 
-import requests
 import sesamclient
 from lxml import etree
+from requests import post
 from requests.exceptions import HTTPError, RequestException
 
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.8.4"
+sesam_version = "2.8.5"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -43,7 +42,7 @@ def normalize_path(filename):
     return filename.replace("\\", "/")
 
 
-class SesamParser(argparse.ArgumentParser):
+class SesamParser(ArgumentParser):
     def error(self, message):
         sys.stderr.write("error: %s\n\n" % message)
         self.print_help()
@@ -291,7 +290,7 @@ class SesamNode:
 
         self._last_registered_action_ts = now_ts
         try:
-            r = requests.post(
+            r = post(
                 "https://portal.sesam.io/api/analytics",
                 data=json.dumps({"subscription_id": self.subscription_id, "action": "api_call"}),
                 headers={
@@ -471,7 +470,7 @@ class SesamNode:
     def get_config(self, binary=False):
         data = self.api_connection.get_config_as_zip()
         if not binary:
-            return zipfile.ZipFile(io.BytesIO(data))
+            return ZipFile(BytesIO(data))
 
         return data
 
@@ -832,7 +831,7 @@ class SesamCmdClient:
                 pass
         if not config:
             with open(filename) as fp:
-                parser = configparser.ConfigParser(strict=False)
+                parser = ConfigParser(strict=False)
                 # [sesam] section is prepended to support .syncconfig file
                 #  in which section is omitted
                 parser.read_file(itertools.chain(["[sesam]"], fp), source=filename)
@@ -942,7 +941,7 @@ class SesamCmdClient:
         if os.path.isfile("sesam-config.zip"):
             os.remove("sesam-config.zip")
 
-        zip_file = zipfile.ZipFile("sesam-config.zip", "w", zipfile.ZIP_DEFLATED)
+        zip_file = ZipFile("sesam-config.zip", "w", ZIP_DEFLATED)
 
         self.zip_dir(zip_file, "pipes")
         self.zip_dir(zip_file, "systems")
@@ -962,7 +961,7 @@ class SesamCmdClient:
         return zip_data
 
     def get_zipfile_data_by_filename(self, zip_data, filename):
-        zin = zipfile.ZipFile(io.BytesIO(zip_data))
+        zin = ZipFile(BytesIO(zip_data))
 
         for item in zin.infolist():
             if item.filename == filename:
@@ -972,9 +971,9 @@ class SesamCmdClient:
         return None
 
     def replace_file_in_zipfile(self, zip_data, filename, replacement):
-        zin = zipfile.ZipFile(io.BytesIO(zip_data))
-        buffer = io.BytesIO()
-        zout = zipfile.ZipFile(buffer, mode="w")
+        zin = ZipFile(BytesIO(zip_data))
+        buffer = BytesIO()
+        zout = ZipFile(buffer, mode="w")
 
         for item in zin.infolist():
             if item.filename == filename:
@@ -1099,9 +1098,9 @@ class SesamCmdClient:
             raise e
 
     def format_zip_config(self, zip_data, binary=False):
-        zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
-        buffer = io.BytesIO()
-        zout = zipfile.ZipFile(buffer, mode="w")
+        zip_config = ZipFile(BytesIO(zip_data))
+        buffer = BytesIO()
+        zout = ZipFile(buffer, mode="w")
 
         for item in zip_config.infolist():
             formatted_item = format_object(
@@ -1573,7 +1572,7 @@ class SesamCmdClient:
 
         try:
             # Remove all previous pipes and systems
-            for filename in glob.glob("pipes%s*.conf.json" % os.sep):
+            for filename in glob("pipes%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
                 # Normalize path
                 if (
@@ -1585,7 +1584,7 @@ class SesamCmdClient:
                 self.logger.debug("Deleting pipe config file '%s'" % filename)
                 os.remove(filename)
 
-            for filename in glob.glob("systems%s*.conf.json" % os.sep):
+            for filename in glob("systems%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
                 if (
                     self.whitelisted_files
@@ -1598,7 +1597,7 @@ class SesamCmdClient:
 
             # normalize formatting
             zip_data = self.format_zip_config(zip_data)
-            zip_config = zipfile.ZipFile(io.BytesIO(zip_data))
+            zip_config = ZipFile(BytesIO(zip_data))
             zip_config.extractall()
             if not self.args.is_connector:
                 if self.args.jinja_vars:
@@ -1643,7 +1642,7 @@ class SesamCmdClient:
 
         logger.error("Comparing local and node config...")
 
-        local_config = zipfile.ZipFile(io.BytesIO(self.get_zip_config()))
+        local_config = ZipFile(BytesIO(self.get_zip_config()))
         if self.args.dump:
             zip_data = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings(zip_data)
@@ -1656,7 +1655,7 @@ class SesamCmdClient:
             remote_config = self.sesam_node.get_config(binary=True)
             zip_data = self.remove_task_manager_settings(remote_config)
 
-        remote_config = zipfile.ZipFile(io.BytesIO(zip_data))
+        remote_config = ZipFile(BytesIO(zip_data))
 
         remote_files = sorted(remote_config.namelist())
         local_files = sorted(local_config.namelist())
@@ -1717,7 +1716,7 @@ class SesamCmdClient:
         """Remove most underscore keys and filter potential blacklisted keys"""
 
         def filter_item(parent_path, item):
-            result = copy.deepcopy(item)
+            result = deepcopy(item)
             if isinstance(item, dict):
                 for key, value in item.items():
                     path = parent_path + [key]
@@ -1745,7 +1744,7 @@ class SesamCmdClient:
         failed = False
 
         # Load test specifications
-        for filename in glob.glob("expected%s*.test.json" % os.sep):
+        for filename in glob("expected%s*.test.json" % os.sep):
             self.logger.debug("Processing spec file '%s'" % filename)
 
             test_spec = TestSpec(filename)
@@ -1847,8 +1846,8 @@ class SesamCmdClient:
         return test_specs
 
     def get_diff_string(self, a, b, a_filename, b_filename):
-        a_lines = io.StringIO(a).readlines()
-        b_lines = io.StringIO(b).readlines()
+        a_lines = StringIO(a).readlines()
+        b_lines = StringIO(b).readlines()
 
         return "".join(unified_diff(a_lines, b_lines, fromfile=a_filename, tofile=b_filename))
 
@@ -1991,9 +1990,7 @@ class SesamCmdClient:
 
                         current_output = sorted(current_entities, key=entity_sorter_func)
 
-                        fixed_current_output = self._fix_decimal_to_ints(
-                            copy.deepcopy(current_output)
-                        )
+                        fixed_current_output = self._fix_decimal_to_ints(deepcopy(current_output))
 
                         fixed_current_output = sorted(
                             fixed_current_output,
@@ -2016,19 +2013,15 @@ class SesamCmdClient:
                             )
                             self.logger.error(msg, {"file_path": file_path})
 
-                            self.logger.info(
-                                "Expected output:\n%s", pprint.pformat(expected_output)
-                            )
+                            self.logger.info("Expected output:\n%s", pformat(expected_output))
 
                             if self.args.extra_extra_verbose:
                                 self.logger.info(
                                     "Got raw output:\n%s",
-                                    pprint.pformat(current_output),
+                                    pformat(current_output),
                                 )
 
-                            self.logger.info(
-                                "Got output:\n%s", pprint.pformat(fixed_current_output)
-                            )
+                            self.logger.info("Got output:\n%s", pformat(fixed_current_output))
 
                             diff = self.get_diff_string(
                                 json.dumps(
@@ -2073,20 +2066,16 @@ class SesamCmdClient:
                                     {"file_path": file_path},
                                 )
 
-                                self.logger.info(
-                                    "Expected output:\n%s" % pprint.pformat(expected_output)
-                                )
+                                self.logger.info("Expected output:\n%s" % pformat(expected_output))
 
                                 if self.args.extra_extra_verbose:
                                     self.logger.info("Expected output JSON:\n%s" % expected_json)
                                     self.logger.info(
-                                        "Got raw output:\n%s" % pprint.pformat(current_output)
+                                        "Got raw output:\n%s" % pformat(current_output)
                                     )
                                     self.logger.info("Got output JSON:\n%s" % current_json)
 
-                                self.logger.info(
-                                    "Got output:\n%s" % pprint.pformat(fixed_current_output)
-                                )
+                                self.logger.info("Got output:\n%s" % pformat(fixed_current_output))
 
                                 diff = self.get_diff_string(
                                     expected_json,
@@ -2299,7 +2288,7 @@ class SesamCmdClient:
     def init(self):
         self.logger.info("Adding conditional sources to input pipes...")
 
-        files = glob.glob("pipes%s*.conf.json" % os.sep)
+        files = glob("pipes%s*.conf.json" % os.sep)
 
         # Conditional sources should not be added to
         # dataset-type sources or embedded sources
@@ -2603,7 +2592,7 @@ class SesamCmdClient:
         if requests_mode is not None and requests_mode not in ["sync", "async"]:
             raise RuntimeError("'request_mode' can only be set to 'sync' or 'async'")
 
-        class SchedulerRunner(threading.Thread):
+        class SchedulerRunner(Thread):
             def __init__(self, sesam_node):
                 super().__init__()
                 self.sesam_node = sesam_node
@@ -2843,7 +2832,7 @@ class SesamCmdClient:
             self.logger.info("Dumping config for backup")
             self.dump()
 
-        for filepath in glob.glob("pipes%s*.conf.json" % os.sep):
+        for filepath in glob("pipes%s*.conf.json" % os.sep):
             # Not actually used anywhere?
             # pipe_id_from_basename = get_pipe_id(filepath)
 
@@ -2914,7 +2903,7 @@ Commands:
   stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
 """,  # noqa: E501
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
