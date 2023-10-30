@@ -1,9 +1,6 @@
 import hashlib
 import json
 import os
-from datetime import date, timedelta
-
-import requests
 
 from connector_cli.connectorpy import expand_connector_config
 
