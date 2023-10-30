@@ -18,23 +18,15 @@ def login_via_tripletex(sesam_node, args):
     profile = args.profile
     _, manifest = expand_connector_config(system_id)
 
-    expiration = (date.today() + timedelta(days=args.days)).strftime("%Y-%m-%d")
     if system_id and consumer_token and employee_token and base_url:
         is_failed = False
         # get secrets
         secrets = {}
-        token_url = ""
+        token_url = base_url + "/v2/token/session/:create"
         try:
-            params = {
-                "consumerToken": consumer_token,
-                "employeeToken": employee_token,
-                "expirationDate": expiration,
-            }
-            token_url = base_url + "/v2/token/session/:create"
-            resp = requests.put(token_url, params=params)
-            data = resp.json()
             secrets = {
-                "sessionToken": data["value"]["token"],
+                "consumer_token": consumer_token,
+                "employee_token": employee_token
             }
 
             if manifest.get("requires_service_api_access"):
