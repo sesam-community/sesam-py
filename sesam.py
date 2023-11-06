@@ -1411,7 +1411,7 @@ class SesamCmdClient:
                 self.logger.info(
                     f"Finished deleting all sink datasets. "
                     f"elapsed_time={delete_datasets_elapsed_time:.1f}s."
-                    f"{response=}"
+                    f"response={response}"
                 )
             except BaseException as e:
                 self.logger.error("Failed to delete the sink datasets")
