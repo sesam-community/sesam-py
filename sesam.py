@@ -29,7 +29,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.8.6"
+sesam_version = "2.8.7"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1401,6 +1401,21 @@ class SesamCmdClient:
         except BaseException as e:
             self.logger.error("Failed to parse profile: '%s'" % profile_file)
             raise e
+
+        if self.args.upload_delete_sink_datasets:
+            try:
+                delete_datasets_starttime = time.monotonic()
+                self.logger.info("Deleting all sink datasets...")
+                response = self.sesam_node.api_connection.delete_all_sink_datasets()
+                delete_datasets_elapsed_time = time.monotonic() - delete_datasets_starttime
+                self.logger.info(
+                    f"Finished deleting all sink datasets. "
+                    f"elapsed_time={delete_datasets_elapsed_time:.1f}s."
+                    f"response={response}"
+                )
+            except BaseException as e:
+                self.logger.error("Failed to delete the sink datasets")
+                raise e
 
         additional_parameters_path = os.path.join(os.pardir, ".additional_parameters.json")
         if os.path.isfile(additional_parameters_path):
@@ -3116,6 +3131,15 @@ Commands:
         required=False,
         action="store_true",
         help="turn off escaping of '<', '>' and '&' characters " "in 'expected output' json files",
+    )
+
+    parser.add_argument(
+        "-upload-delete-sink-datasets",
+        dest="upload_delete_sink_datasets",
+        required=False,
+        default=False,
+        action="store_true",
+        help="This can be set to true to make the 'upload' command delete all sink-datasets",
     )
 
     parser.add_argument(
