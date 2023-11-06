@@ -156,6 +156,11 @@ optional arguments:
   -no-large-int-bugs    don't reproduce old large int bugs
   -disable-user-pipes   turn off user pipe scheduling in the target node (DEPRECATED)
   -enable-user-pipes    turn on user pipe scheduling in the target node
+  -upload-delete-sink-datasets
+                        If specified with the 'upload' command, the 'upload' command will delete all existing
+                        sink datasets before uploading the new config. In some cases, this can be quicker than
+                        doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. The downside is that
+                        there is a larger risk of data and/or config from previous tests influencing the new test-run.
   -compact-execution-datasets
                         compact all execution datasets when running scheduler
   -unicode-encoding     store the 'expected output' json files using unicode encoding ('\uXXXX') - the default is UTF-8
