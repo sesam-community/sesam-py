@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import time
+import pytest
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from base64 import b64decode
 from configparser import ConfigParser
@@ -2573,6 +2574,9 @@ class SesamCmdClient:
         last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
+            if self.args.run_unit_tests:
+                self.run_local_unit_tests()
+
             self.upload()
 
             for i in range(self.args.runs):
@@ -2585,6 +2589,22 @@ class SesamCmdClient:
         except BaseException as e:
             self.logger.error("Test failed!")
             raise e
+
+    def run_local_unit_tests(self):
+        test_dir = self.args.run_unit_tests
+        test_files = glob(os.path.join(test_dir, 'test_*.py'))
+        if not test_files:
+            self.logger.warning(f"No test_*.py files were found in '{test_dir}', so no unit tests have been run.")
+            return
+
+        self.logger.info(f"Found {len(test_files)} test files in folder '{test_dir}', running the tests now...")
+
+        result = pytest.main([test_dir, '-rP'])
+        if result.value == 0:
+            self.logger.info("Ran unit tests successfully.")
+        else:
+            raise RuntimeError("One or more unit tests failed, see above output.")
+
 
     def run_internal_scheduler(self):
         start_time = time.monotonic()
@@ -3309,6 +3329,14 @@ Commands:
         action="store_true",
         help="force the command to run (only for 'upload' and 'download' commands) "
         "for non-dev subscriptions",
+    )
+
+    parser.add_argument(
+        "-run-unit-tests",
+        dest="run_unit_tests",
+        metavar="<string>",
+        type=str,
+        help="todo"
     )
 
     parser.add_argument(
