@@ -2574,7 +2574,7 @@ class SesamCmdClient:
         last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
-            if self.args.run_unit_tests:
+            if self.args.unit_tests_folder:
                 self.run_local_unit_tests()
 
             self.upload()
@@ -2591,7 +2591,7 @@ class SesamCmdClient:
             raise e
 
     def run_local_unit_tests(self):
-        test_dir = self.args.run_unit_tests
+        test_dir = self.args.unit_tests_folder
         test_files = glob(os.path.join(test_dir, 'test_*.py'))
         if not test_files:
             self.logger.warning(f"No test_*.py files were found in '{test_dir}', so no unit tests have been run.")
@@ -2599,7 +2599,12 @@ class SesamCmdClient:
 
         self.logger.info(f"Found {len(test_files)} test files in folder '{test_dir}', running the tests now...")
 
-        result = pytest.main([test_dir, '-rP'])
+        test_kwargs = self.args.unit_test_kwargs  # TODO
+
+        result = pytest.main([test_dir, '-rP',
+                              f'--node-url={self.node_url}',
+                              f'--jwt={self.jwt_token}'])
+
         if result.value == 0:
             self.logger.info("Ran unit tests successfully.")
         else:
@@ -3333,8 +3338,15 @@ Commands:
 
     parser.add_argument(
         "-run-unit-tests",
-        dest="run_unit_tests",
+        dest="unit_tests_folder",
         metavar="<string>",
+        type=str,
+        help="todo"
+    )
+
+    parser.add_argument(
+        "-unit-test-kwargs",
+        dest="unit_test_kwargs",
         type=str,
         help="todo"
     )
