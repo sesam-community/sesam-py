@@ -2601,9 +2601,13 @@ class SesamCmdClient:
 
         test_kwargs = self.args.unit_test_kwargs  # TODO
 
-        result = pytest.main([test_dir, '-rP',
-                              f'--node-url={self.node_url}',
-                              f'--jwt={self.jwt_token}'])
+        test_args = {
+            "node_url": self.node_url,
+            "jwt": self.jwt_token,
+            # **test_kwargs
+        }
+
+        result = pytest.main([test_dir, '-rP', '--trace-config', '--additional_arguments', json.dumps(test_args)])
 
         if result.value == 0:
             self.logger.info("Ran unit tests successfully.")
