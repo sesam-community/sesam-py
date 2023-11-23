@@ -3346,14 +3346,14 @@ Commands:
         dest="unit_tests_folder",
         metavar="<string>",
         type=str,
-        help="todo"
+        help="specify a folder containing Python tests that should be run along with the 'test' command"
     )
 
     parser.add_argument(
         "-pytest-args",
         dest="pytest_args",
         type=str,
-        help="todo"
+        help="additional arguments that are passed to pytest when running unit tests with -run-unit-tests"
     )
 
     parser.add_argument(
