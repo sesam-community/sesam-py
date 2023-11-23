@@ -2597,23 +2597,24 @@ class SesamCmdClient:
             self.logger.warning(f"No test_*.py files were found in '{test_dir}', so no unit tests have been run.")
             return
 
-        self.logger.info(f"Found {len(test_files)} test files in folder '{test_dir}', running the tests now...")
+        test_args_str = self.args.pytest_args
+        pytest_args = [test_dir]
 
-        test_kwargs = self.args.unit_test_kwargs  # TODO
+        if not test_args_str:
+            pytest_args.extend(['-rP', '-v'])
+        else:
+            test_args = test_args_str.split()
+            pytest_args.extend(test_args)
 
-        test_args = {
-            "node_url": self.node_url,
-            "jwt": self.jwt_token,
-            # **test_kwargs
-        }
+        self.logger.info(f"Found {len(test_files)} test files in folder '{test_dir}', running pytest with these "
+                         f"options: {pytest_args}")
 
-        result = pytest.main([test_dir, '-rP', '--trace-config', '--additional_arguments', json.dumps(test_args)])
+        result = pytest.main(pytest_args)
 
         if result.value == 0:
             self.logger.info("Ran unit tests successfully.")
         else:
             raise RuntimeError("One or more unit tests failed, see above output.")
-
 
     def run_internal_scheduler(self):
         start_time = time.monotonic()
@@ -3349,8 +3350,8 @@ Commands:
     )
 
     parser.add_argument(
-        "-unit-test-kwargs",
-        dest="unit_test_kwargs",
+        "-pytest-args",
+        dest="pytest_args",
         type=str,
         help="todo"
     )
