@@ -2599,12 +2599,9 @@ class SesamCmdClient:
 
         self.logger.info(f"Found {len(test_files)} test files in folder '{test_dir}', running the tests now...")
 
-        test_kwargs = self.args.unit_test_kwargs  # TODO
-
         test_args = {
             "node_url": self.node_url,
-            "jwt": self.jwt_token,
-            # **test_kwargs
+            "jwt": self.jwt_token
         }
 
         result = pytest.main([test_dir, '-rP', '--trace-config', '--additional_arguments', json.dumps(test_args)])
