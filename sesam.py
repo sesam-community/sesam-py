@@ -2936,7 +2936,7 @@ Commands:
   reset           Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
   init            Add conditional sources with testing and production alternatives to all input pipes in the local config.
   validate        Validate local config for proper formatting and internal consistency
-  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
+  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present and updates secrets and environment variables when working on a connector (might ask for authentication).
   download        Replace local config with node config
   dump            Create a zip archive of the config and store it as 'sesam-config.zip'
   status          Compare node config with local config (requires external diff command)
@@ -2945,7 +2945,7 @@ Commands:
   convert         Convert embedded sources in input pipes to http_endpoints and extract data into files
   verify          Compare output against expected output
   test            Upload, run and verify output
-  stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+  stop            Stop any running schedulers (for example if the client was prematurely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
   init_connector  Initialize a connector in the working directory with a sample manifest, template and system
 """,  # noqa: E501
