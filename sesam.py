@@ -2942,6 +2942,7 @@ Commands:
   test            Upload, run and verify output
   stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
+  init_connector  Initialize a connector in the working directory with a sample manifest, template and system
 """,  # noqa: E501
         formatter_class=RawDescriptionHelpFormatter,
     )
