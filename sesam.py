@@ -21,6 +21,7 @@ from threading import Thread
 from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
+import pytest
 import sesamclient
 from lxml import etree
 from requests import post
@@ -29,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.8.7"
+sesam_version = "2.9.0"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -2573,6 +2574,9 @@ class SesamCmdClient:
         last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
+            if self.args.unit_tests_folder:
+                self.run_local_unit_tests()
+
             self.upload()
 
             for i in range(self.args.runs):
@@ -2585,6 +2589,31 @@ class SesamCmdClient:
         except BaseException as e:
             self.logger.error("Test failed!")
             raise e
+
+    def run_local_unit_tests(self):
+        test_dir = self.args.unit_tests_folder
+        test_files = glob(os.path.join(test_dir, "test_*.py"))
+        if not test_files:
+            self.logger.warning(
+                f"No test_*.py files were found in '{test_dir}', so no unit tests "
+                f"have been run."
+            )
+            return
+
+        test_args_str = self.args.pytest_args
+        pytest_args = [test_dir] + test_args_str.split()
+
+        self.logger.info(
+            f"Found {len(test_files)} test files in folder '{test_dir}', running "
+            f"pytest with these options: {pytest_args}"
+        )
+
+        result = pytest.main(pytest_args)
+
+        if result.value == 0:
+            self.logger.info("Ran unit tests successfully.")
+        else:
+            raise RuntimeError("One or more unit tests failed, see above output.")
 
     def run_internal_scheduler(self):
         start_time = time.monotonic()
@@ -2901,12 +2930,13 @@ if __name__ == "__main__":
         # Need to rework this I think
         description="""
 Commands:
+  authenticate    Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
   wipe            Deletes all the pipes, systems, user datasets and environment variables in the node
   restart         Restarts the target node (typically used to release used resources if the environment is strained)
   reset           Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
   init            Add conditional sources with testing and production alternatives to all input pipes in the local config.
   validate        Validate local config for proper formatting and internal consistency
-  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
+  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present and updates secrets and environment variables when working on a connector (might ask for authentication).
   download        Replace local config with node config
   dump            Create a zip archive of the config and store it as 'sesam-config.zip'
   status          Compare node config with local config (requires external diff command)
@@ -2915,8 +2945,9 @@ Commands:
   convert         Convert embedded sources in input pipes to http_endpoints and extract data into files
   verify          Compare output against expected output
   test            Upload, run and verify output
-  stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+  stop            Stop any running schedulers (for example if the client was prematurely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
+  init_connector  Initialize a connector in the working directory with a sample manifest, template and system
 """,  # noqa: E501
         formatter_class=RawDescriptionHelpFormatter,
     )
@@ -3139,7 +3170,11 @@ Commands:
         required=False,
         default=False,
         action="store_true",
-        help="This can be set to true to make the 'upload' command delete all sink-datasets",
+        help="If specified with the 'upload' command, the 'upload' command will delete all "
+        "existing sink datasets before uploading the new config. In some cases, this can be "
+        "quicker than doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. "
+        "The downside is that there is a larger risk of data and/or config from previous tests "
+        "influencing the new test-run.",
     )
 
     parser.add_argument(
@@ -3309,6 +3344,27 @@ Commands:
         action="store_true",
         help="force the command to run (only for 'upload' and 'download' commands) "
         "for non-dev subscriptions",
+    )
+
+    parser.add_argument(
+        "-run-unit-tests",
+        dest="unit_tests_folder",
+        metavar="<string>",
+        type=str,
+        help="name of folder containing Python tests that should be run when running the 'test' "
+        "command. Uses the pytest framework. The folder should be placed on the same level as "
+        "'pipes', 'systems' etc.",
+    )
+
+    parser.add_argument(
+        "-pytest-args",
+        dest="pytest_args",
+        metavar="<string>",
+        default="-rP -v",
+        type=str,
+        help="specify the options that sesam-py should use when running pytest. "
+        "The arguments must be provided inside double quotes with each argument separated by a "
+        'space, e.g. -pytest-args="-vv -x"',
     )
 
     parser.add_argument(

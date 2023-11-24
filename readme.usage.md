@@ -100,30 +100,38 @@ use a near-unique value for each parameter to avoid collisions.
 ## Usage
 
 ```
-usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-config-file <string>] [-dont-remove-scheduler] [-dump]
-             [-print-scheduler-log] [-use-internal-scheduler] [-custom-scheduler] [-scheduler-image-tag <string>] [-node <string>]
-             [-scheduler-node <string>] [-jwt <string>] [-single <string>] [-no-large-int-bugs] [-disable-user-pipes] [-enable-user-pipes]
-             [-compact-execution-datasets] [-unicode-encoding] [-disable-json-html-escape] [-profile <string>] [-scheduler-id <string>]
-             [-scheduler-zero-runs <int>] [-scheduler-max-runs <int>] [-scheduler-max-run-time <int>] [-restart-timeout <int>] [-runs <int>]
-             [-logformat <string>] [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>] [-add-test-entities] [-force-add]
+usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-config-file <string>] [-whitelist-file <string>] [-dont-remove-scheduler] [-dump]
+             [-print-scheduler-log] [-output-run-statistics] [-use-internal-scheduler] [-custom-scheduler] [-scheduler-image-tag <string>]
+             [-scheduler-mode <string>] [-node <string>] [-scheduler-node <string>] [-jwt <string>] [-single <string>] [-no-large-int-bugs] [-disable-user-pipes]
+             [-enable-eager-ms] [-enable-user-pipes] [-compact-execution-datasets] [-disable-cpp-extensions] [-unicode-encoding] [-disable-json-html-escape]
+             [-upload-delete-sink-datasets] [-profile <string>] [-scheduler-id <string>] [-scheduler-request-mode <string>] [-scheduler-zero-runs <int>]
+             [-scheduler-max-runs <int>] [-scheduler-max-run-time <int>] [-scheduler-check-input-pipes] [-scheduler-dont-reset-pipes-or-delete-sink-datasets]
+             [-restart-timeout <int>] [-runs <int>] [-logformat <string>] [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>] [-diff]
+             [-add-test-entities] [-force-add] [-force] [-run-unit-tests <string>] [-pytest-args <string>] [-skip-auth] [--system-placeholder <string>]
+             [-d <string>] [-e <string>] [--client_id <string>] [--client_secret <string>] [--account_id <string>] [--ignore-refresh-token] [--api_key <string>]
+             [--service_url <string>] [--service_jwt <string>] [--consumer_token <string>] [--employee_token <string>] [--base_url <string>] [--days <string>]
+             [--use-client-secret]
              [command]
 
 Commands:
-  authenticate   Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
-  wipe      Deletes all the pipes, systems, user datasets and environment variables in the node
-  restart   Restarts the target node (typically used to release used resources if the environment is strained)
-  validate  Validate local config for proper formatting and internal consistency (will be run automatically before upload. can also be run independently)
-  upload    Replace node config with local config. Also tries to upload testdata if 'testdata' folder present and updates secrets and environment variables when working on a connector (might ask for authentication).
-  download  Replace local config with node config
-  dump      Create a zip archive of the config and store it as 'sesam-config.zip'
-  status    Compare node config with local config (requires external diff command)
-  run       Run configuration until it stabilizes
-  update    Store current output as expected output
-  convert   Convert embedded sources in input pipes to http_endpoints and extract data into files
-  verify    Compare output against expected output
-  test      Upload, run and verify output
-  stop      Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
-  init      Add conditional sources to input pipes with a "test" and "prod" alternative. Also initializes the connector if used.
+  authenticate    Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
+  wipe            Deletes all the pipes, systems, user datasets and environment variables in the node
+  restart         Restarts the target node (typically used to release used resources if the environment is strained)
+  reset           Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
+  init            Add conditional sources with testing and production alternatives to all input pipes in the local config.
+  validate        Validate local config for proper formatting and internal consistency
+  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
+  download        Replace local config with node config
+  dump            Create a zip archive of the config and store it as 'sesam-config.zip'
+  status          Compare node config with local config (requires external diff command)
+  run             Run configuration until it stabilizes
+  update          Store current output as expected output
+  convert         Convert embedded sources in input pipes to http_endpoints and extract data into files
+  verify          Compare output against expected output
+  test            Upload, run and verify output
+  stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+  update-schemas  Generate schemas for all datatypes (only works in connector development context)
+  init_connector  Initialize a connector in the working directory with a sample manifest, template and system
 
 positional arguments:
   command               a valid command from the list above
@@ -138,16 +146,21 @@ optional arguments:
                         skip verifying the TLS certificate
   -sync-config-file <string>
                         sync config file to use, the default is '.syncconfig' in the current directory
+  -whitelist-file <string>
+                        whitelist file to use, the default is none
   -dont-remove-scheduler
                         don't remove scheduler after failure (DEPRECATED)
   -dump                 dump zip content to disk
   -print-scheduler-log  print scheduler log during run
+  -output-run-statistics
+                        output detailed pipe run statistics after scheduler run
   -use-internal-scheduler
                         use the built-in scheduler in sesam instead of a microservice (DEPRECATED)
-  -custom-scheduler     by default a scheduler system will be added, enable this flag if you have configured a custom scheduler as part of the config
-                        (DEPRECATED)
+  -custom-scheduler     by default a scheduler system will be added, enable this flag if you have configured a custom scheduler as part of the config (DEPRECATED)
   -scheduler-image-tag <string>
                         the scheduler image tag to use (DEPRECATED)
+  -scheduler-mode <string>
+                        the scheduler mode to use ('active' or 'poll') - the default is 'active'
   -node <string>        service url
   -scheduler-node <string>
                         service url for scheduler
@@ -155,65 +168,77 @@ optional arguments:
   -single <string>      update or verify just a single pipe
   -no-large-int-bugs    don't reproduce old large int bugs
   -disable-user-pipes   turn off user pipe scheduling in the target node (DEPRECATED)
+  -enable-eager-ms      run all microservices even if they are not in use (note: multinode only)
   -enable-user-pipes    turn on user pipe scheduling in the target node
-  -upload-delete-sink-datasets
-                        If specified with the 'upload' command, the 'upload' command will delete all existing
-                        sink datasets before uploading the new config. In some cases, this can be quicker than
-                        doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. The downside is that
-                        there is a larger risk of data and/or config from previous tests influencing the new test-run.
   -compact-execution-datasets
                         compact all execution datasets when running scheduler
+  -disable-cpp-extensions
+                        turns off cpp extensions which saves dtl compile time at the expense of possibly slower dtl exeution time
   -unicode-encoding     store the 'expected output' json files using unicode encoding ('\uXXXX') - the default is UTF-8
   -disable-json-html-escape
                         turn off escaping of '<', '>' and '&' characters in 'expected output' json files
+  -upload-delete-sink-datasets
+                        If specified with the 'upload' command, the 'upload' command will delete all existing sink datasets before uploading the new config. In some
+                        cases, this can be quicker than doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. The downside is that there is a larger
+                        risk of data and/or config from previous tests influencing the new test-run.
   -profile <string>     env profile to use <profile>-env.json
   -scheduler-id <string>
                         system id for the scheduler system (DEPRECATED)
+  -scheduler-request-mode <string>
+                        run the scheduler in 'sync' or 'async' mode, long running tests should run in 'async' mode
   -scheduler-zero-runs <int>
                         the number of runs that has to yield zero changes for the scheduler to finish
   -scheduler-max-runs <int>
                         maximum number of runs that scheduler can do to before exiting (internal scheduler only)
   -scheduler-max-run-time <int>
                         the maximum time the internal scheduler is allowed to use to finish (in seconds, internal scheduler only)
+  -scheduler-check-input-pipes
+                        controls whether failing input pipes should make the scheduler run fail
+  -scheduler-dont-reset-pipes-or-delete-sink-datasets
+                        controls whether the scheduler should reset any pipes or delete their sink-datasets
   -restart-timeout <int>
-                        the maximum time to wait for the node to restart and become available again (in seconds). The default is 15 minutes. A value of 0
-                        will skip the back-up-again verification.
+                        the maximum time to wait for the node to restart and become available again (in seconds). The default is 15 minutes. A value of 0 will skip
+                        the back-up-again verification.
   -runs <int>           number of test cycles to check for stability
   -logformat <string>   output format (normal, log or azure)
   -scheduler-poll-frequency <int>
                         milliseconds between each poll while waiting for the scheduler
   -sesamconfig-file <string>
                         sesamconfig file to use, the default is '.sesamconfig.json' in the current directory
-  -add-test-entities
-                        use with the init command to add test entities to input pipes
-  -force-add
-                        use with the '-add-test-entities' option to overwrite test entities that exist locally
-  -skip-auth            
-                        skip the authentication step after the upload command (available only when working on a connector).
+  -diff                 use with the status command to show the diff of the files
+  -add-test-entities    use with the init command to add test entities to input pipes
+  -force-add            use with the '-add-test-entities' option to overwrite test entities that exist locally
+  -force                force the command to run (only for 'upload' and 'download' commands) for non-dev subscriptions
+  -run-unit-tests <string>
+                        name of folder containing Python tests that should be run when running the 'test' command. Uses the pytest framework. The folder should be
+                        placed on the same level as 'pipes', 'systems' etc.
+  -pytest-args <string>
+                        specify the options that sesam-py should use when running pytest. The arguments must be provided inside double quotes with each argument
+                        separated by a space, e.g. -pytest-args="-vv -x"
+  -skip-auth            skips the authentication step after upload command.
   --system-placeholder <string>
-                        Name of the system _id placeholder (available only when working on a connector)
-  -d <string>           
-                        Connector folder to work with (available only when working on a connector)
-  -e <string>           
-                        Directory to expand the config into (available only when working on a connector)
-  --client_id <string>  
-                        OAuth2 client id (available only when working on a connector)
+                        Name of the system _id placeholder (available only when working on connectors)
+  -d <string>           Connector folder to work with (available only when working on connectors)
+  -e <string>           Directory to expand the config into (available only when working on connectors)
+  --client_id <string>  OAuth2 client id (available only when working on connectors)
   --client_secret <string>
-                        OAuth2 client secret (available only when working on a connector)
+                        OAuth2 client secret (available only when working on connectors)
   --account_id <string>
                         OAuth2 account_id variable override (available only when working on connectors)
+  --ignore-refresh-token
+                        use with sesam upload/authenticate to ignore refresh tokens for systems that don't have them
+  --api_key <string>    api_key secret (available only when working on connectors)
   --service_url <string>
-                        url to service api (include /api) (available only when working on a connector)
+                        url to service api (include /api) (available only when working on connectors)
   --service_jwt <string>
-                        jwt token to the service api (available only when working on a connector)
+                        jwt token to the service api (available only when working on connectors)
   --consumer_token <string>
-                        consumer token (available only when working on a connector)
+                        consumer token (available only when working on connectors)
   --employee_token <string>
-                        employee token (available only when working on a connector)
-  --base_url <string>   
-                        override to use prod env (available only when working on a connector)
-  --days <string>       
-                        number of days until the token should expire (available only when working on a connector)
+                        employee token (available only when working on connectors)
+  --base_url <string>   override to use prod env (available only when working on connectors)
+  --days <string>       number of days until the token should expire(available only when working on connectors)
+  --use-client-secret   use with sesam upload/authenticate to send add the client_secret parameter to the /authorize URL
 ```
 
 ### Preparing input pipes for testing
