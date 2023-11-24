@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.8.7"
+sesam_version = "2.9.0"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3346,14 +3346,19 @@ Commands:
         dest="unit_tests_folder",
         metavar="<string>",
         type=str,
-        help="specify a folder containing Python tests that should be run along with the 'test' command"
+        help="name of folder containing Python tests that should be run when running the 'test' command. Uses the "
+             "pytest framework. The folder should be placed on the same level as 'pipes', 'systems' etc."
     )
 
     parser.add_argument(
         "-pytest-args",
         dest="pytest_args",
+        metavar="<string>",
+        default="-rP -v",
         type=str,
-        help="additional arguments that are passed to pytest when running unit tests with -run-unit-tests"
+        help='specify the options that sesam-py should use when running pytest. '
+             'The arguments must be provided inside double quotes with each argument separated by a space, e.g.'
+             '-pytest-args="-vv -x"'
     )
 
     parser.add_argument(
