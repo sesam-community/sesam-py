@@ -114,6 +114,7 @@ usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-c
              [command]
 
 Commands:
+  authenticate    Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
   wipe            Deletes all the pipes, systems, user datasets and environment variables in the node
   restart         Restarts the target node (typically used to release used resources if the environment is strained)
   reset           Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
