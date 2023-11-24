@@ -100,17 +100,18 @@ use a near-unique value for each parameter to avoid collisions.
 ## Usage
 
 ```
-usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-config-file <string>] [-whitelist-file <string>] [-dont-remove-scheduler]
-             [-dump] [-print-scheduler-log] [-output-run-statistics] [-use-internal-scheduler] [-custom-scheduler] [-scheduler-image-tag <string>]
-             [-scheduler-mode <string>] [-node <string>] [-scheduler-node <string>] [-jwt <string>] [-single <string>] [-no-large-int-bugs]
-             [-disable-user-pipes] [-enable-eager-ms] [-enable-user-pipes] [-compact-execution-datasets] [-disable-cpp-extensions] [-unicode-encoding]
-             [-disable-json-html-escape] [-upload-delete-sink-datasets] [-profile <string>] [-scheduler-id <string>] [-scheduler-request-mode <string>]
-             [-scheduler-zero-runs <int>] [-scheduler-max-runs <int>] [-scheduler-max-run-time <int>] [-scheduler-check-input-pipes]
-             [-scheduler-dont-reset-pipes-or-delete-sink-datasets] [-restart-timeout <int>] [-runs <int>] [-logformat <string>]
-             [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>] [-diff] [-add-test-entities] [-force-add] [-force] [-run-unit-tests <string>]
-             [-pytest-args <string>] [-skip-auth] [--system-placeholder <string>] [-d <string>] [-e <string>] [--client_id <string>] [--client_secret <string>]
-             [--account_id <string>] [--ignore-refresh-token] [--api_key <string>] [--service_url <string>] [--service_jwt <string>]
-             [--consumer_token <string>] [--employee_token <string>] [--base_url <string>] [--days <string>] [--use-client-secret]
+usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-config-file <string>] [-whitelist-file <string>]
+             [-dont-remove-scheduler] [-dump] [-print-scheduler-log] [-output-run-statistics] [-use-internal-scheduler] [-custom-scheduler]
+             [-scheduler-image-tag <string>] [-scheduler-mode <string>] [-node <string>] [-scheduler-node <string>] [-jwt <string>] [-single <string>]
+             [-no-large-int-bugs] [-disable-user-pipes] [-enable-eager-ms] [-enable-user-pipes] [-compact-execution-datasets] [-disable-cpp-extensions]
+             [-unicode-encoding] [-disable-json-html-escape] [-upload-delete-sink-datasets] [-profile <string>] [-scheduler-id <string>]
+             [-scheduler-request-mode <string>] [-scheduler-zero-runs <int>] [-scheduler-max-runs <int>] [-scheduler-max-run-time <int>]
+             [-scheduler-check-input-pipes] [-scheduler-dont-reset-pipes-or-delete-sink-datasets] [-restart-timeout <int>] [-runs <int>]
+             [-logformat <string>] [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>] [-diff] [-add-test-entities] [-force-add] [-force]
+             [-run-unit-tests <string>] [-pytest-args <string>] [-skip-auth] [--system-placeholder <string>] [-d <string>] [-e <string>]
+             [--client_id <string>] [--client_secret <string>] [--account_id <string>] [--ignore-refresh-token] [--api_key <string>]
+             [--service_url <string>] [--service_jwt <string>] [--consumer_token <string>] [--employee_token <string>] [--base_url <string>]
+             [--days <string>] [--use-client-secret]
              [command]
 
 Commands:
@@ -178,7 +179,9 @@ optional arguments:
   -disable-json-html-escape
                         turn off escaping of '<', '>' and '&' characters in 'expected output' json files
   -upload-delete-sink-datasets
-                        This can be set to true to make the 'upload' command delete all sink-datasets
+                        If specified with the 'upload' command, the 'upload' command will delete all existing sink datasets before uploading the new
+                        config. In some cases, this can be quicker than doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. The
+                        downside is that there is a larger risk of data and/or config from previous tests influencing the new test-run.
   -profile <string>     env profile to use <profile>-env.json
   -scheduler-id <string>
                         system id for the scheduler system (DEPRECATED)
@@ -195,8 +198,8 @@ optional arguments:
   -scheduler-dont-reset-pipes-or-delete-sink-datasets
                         controls whether the scheduler should reset any pipes or delete their sink-datasets
   -restart-timeout <int>
-                        the maximum time to wait for the node to restart and become available again (in seconds). The default is 15 minutes. A value of 0 will
-                        skip the back-up-again verification.
+                        the maximum time to wait for the node to restart and become available again (in seconds). The default is 15 minutes. A value of
+                        0 will skip the back-up-again verification.
   -runs <int>           number of test cycles to check for stability
   -logformat <string>   output format (normal, log or azure)
   -scheduler-poll-frequency <int>
@@ -208,8 +211,8 @@ optional arguments:
   -force-add            use with the '-add-test-entities' option to overwrite test entities that exist locally
   -force                force the command to run (only for 'upload' and 'download' commands) for non-dev subscriptions
   -run-unit-tests <string>
-                        name of folder containing Python tests that should be run when running the 'test' command. Uses the pytest framework. The folder should
-                        be placed on the same level as 'pipes', 'systems' etc.
+                        name of folder containing Python tests that should be run when running the 'test' command. Uses the pytest framework. The
+                        folder should be placed on the same level as 'pipes', 'systems' etc.
   -pytest-args <string>
                         specify the options that sesam-py should use when running pytest. The arguments must be provided inside double quotes with each
                         argument separated by a space, e.g.-pytest-args="-vv -x"

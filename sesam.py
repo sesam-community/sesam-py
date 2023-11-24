@@ -2598,13 +2598,7 @@ class SesamCmdClient:
             return
 
         test_args_str = self.args.pytest_args
-        pytest_args = [test_dir]
-
-        if not test_args_str:
-            pytest_args.extend(['-rP', '-v'])
-        else:
-            test_args = test_args_str.split()
-            pytest_args.extend(test_args)
+        pytest_args = [test_dir] + test_args_str.split()
 
         self.logger.info(f"Found {len(test_files)} test files in folder '{test_dir}', running pytest with these "
                          f"options: {pytest_args}")
@@ -3170,7 +3164,10 @@ Commands:
         required=False,
         default=False,
         action="store_true",
-        help="This can be set to true to make the 'upload' command delete all sink-datasets",
+        help="If specified with the 'upload' command, the 'upload' command will delete all existing "
+             "sink datasets before uploading the new config. In some cases, this can be quicker than "
+             "doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. The downside is that "
+             "there is a larger risk of data and/or config from previous tests influencing the new test-run."
     )
 
     parser.add_argument(
