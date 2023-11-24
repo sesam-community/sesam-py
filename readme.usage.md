@@ -214,7 +214,7 @@ optional arguments:
                         placed on the same level as 'pipes', 'systems' etc.
   -pytest-args <string>
                         specify the options that sesam-py should use when running pytest. The arguments must be provided inside double quotes with each argument
-                        separated by a space, e.g.-pytest-args="-vv -x"
+                        separated by a space, e.g. -pytest-args="-vv -x"
   -skip-auth            skips the authentication step after upload command.
   --system-placeholder <string>
                         Name of the system _id placeholder (available only when working on connectors)

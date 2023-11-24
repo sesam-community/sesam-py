@@ -6,7 +6,6 @@ import os
 import re
 import sys
 import time
-import pytest
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from base64 import b64decode
 from configparser import ConfigParser
@@ -22,6 +21,7 @@ from threading import Thread
 from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
+import pytest
 import sesamclient
 from lxml import etree
 from requests import post
@@ -2592,16 +2592,21 @@ class SesamCmdClient:
 
     def run_local_unit_tests(self):
         test_dir = self.args.unit_tests_folder
-        test_files = glob(os.path.join(test_dir, 'test_*.py'))
+        test_files = glob(os.path.join(test_dir, "test_*.py"))
         if not test_files:
-            self.logger.warning(f"No test_*.py files were found in '{test_dir}', so no unit tests have been run.")
+            self.logger.warning(
+                f"No test_*.py files were found in '{test_dir}', so no unit tests "
+                f"have been run."
+            )
             return
 
         test_args_str = self.args.pytest_args
         pytest_args = [test_dir] + test_args_str.split()
 
-        self.logger.info(f"Found {len(test_files)} test files in folder '{test_dir}', running pytest with these "
-                         f"options: {pytest_args}")
+        self.logger.info(
+            f"Found {len(test_files)} test files in folder '{test_dir}', running "
+            f"pytest with these options: {pytest_args}"
+        )
 
         result = pytest.main(pytest_args)
 
@@ -3165,10 +3170,11 @@ Commands:
         required=False,
         default=False,
         action="store_true",
-        help="If specified with the 'upload' command, the 'upload' command will delete all existing "
-             "sink datasets before uploading the new config. In some cases, this can be quicker than "
-             "doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. The downside is that "
-             "there is a larger risk of data and/or config from previous tests influencing the new test-run."
+        help="If specified with the 'upload' command, the 'upload' command will delete all "
+        "existing sink datasets before uploading the new config. In some cases, this can be "
+        "quicker than doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. "
+        "The downside is that there is a larger risk of data and/or config from previous tests "
+        "influencing the new test-run.",
     )
 
     parser.add_argument(
@@ -3345,8 +3351,9 @@ Commands:
         dest="unit_tests_folder",
         metavar="<string>",
         type=str,
-        help="name of folder containing Python tests that should be run when running the 'test' command. Uses the "
-             "pytest framework. The folder should be placed on the same level as 'pipes', 'systems' etc."
+        help="name of folder containing Python tests that should be run when running the 'test' "
+        "command. Uses the pytest framework. The folder should be placed on the same level as "
+        "'pipes', 'systems' etc.",
     )
 
     parser.add_argument(
@@ -3355,9 +3362,9 @@ Commands:
         metavar="<string>",
         default="-rP -v",
         type=str,
-        help='specify the options that sesam-py should use when running pytest. '
-             'The arguments must be provided inside double quotes with each argument separated by a space, e.g.'
-             '-pytest-args="-vv -x"'
+        help="specify the options that sesam-py should use when running pytest. "
+        "The arguments must be provided inside double quotes with each argument separated by a "
+        'space, e.g. -pytest-args="-vv -x"',
     )
 
     parser.add_argument(
