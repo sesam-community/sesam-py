@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.9.0"
+sesam_version = "2.9.1"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -2574,13 +2574,13 @@ class SesamCmdClient:
         last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
-            if self.args.unit_tests_folder:
-                self.run_local_unit_tests()
-
             self.upload()
 
             for i in range(self.args.runs):
                 last_additional_info = self.run()
+
+            if self.args.unit_tests_folder:
+                self.run_local_unit_tests()
 
             self.verify()
             self.logger.info("Test was successful!")
@@ -3597,7 +3597,13 @@ Commands:
     offline = command == "validate"
     if not offline:
         try:
-            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
+            node_url, jwt_token = sesamclient.utils.get_node_and_jwt_token(
+                node_url=args.node,
+                jwt_token=args.jwt,
+                config_filename=args.sync_config_file
+            )
+            sesam_cmd_client.node_url = node_url
+            sesam_cmd_client.jwt_token = jwt_token
         except BaseException as e:
             if (
                 args.verbose is True
