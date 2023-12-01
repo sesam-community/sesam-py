@@ -803,6 +803,8 @@ class SesamCmdClient:
         self.whitelisted_files = None
         self.whitelisted_pipes = None
         self.whitelisted_systems = None
+        self.node_url = None
+        self.jwt_token = None
 
         if args.whitelist_file is not None:
             try:
@@ -1063,40 +1065,14 @@ class SesamCmdClient:
         configuration = self.read_config_file(configfilename, is_required)
         return FormatStyle(**configuration.get("formatstyle", {}))
 
-    def get_node_and_jwt_token(self):
-        configfilename = self.args.sync_config_file
-        try:
-            file_config = self.read_config_file(configfilename, is_required=False)
+    def get_node_and_jwt_token(self, args):
+        node_url, jwt_token = sesamclient.utils.get_node_and_jwt_token(
+            node_url=args.node, jwt_token=args.jwt, config_filename=args.sync_config_file
+        )
 
-            self.node_url = self._coalesce(
-                [args.node, os.environ.get("NODE"), file_config.get("node")]
-            )
-            self.jwt_token = self._coalesce(
-                [args.jwt, os.environ.get("JWT"), file_config.get("jwt")]
-            )
-
-            if self.jwt_token and self.jwt_token.startswith('"') and self.jwt_token[-1] == '"':
-                self.jwt_token = self.jwt_token[1:-1]
-
-            if self.jwt_token.startswith("bearer "):
-                self.jwt_token = self.jwt_token.replace("bearer ", "")
-
-            if self.jwt_token.startswith("Bearer "):
-                self.jwt_token = self.jwt_token.replace("Bearer ", "")
-
-            self.node_url = self.node_url.replace('"', "")
-
-            if not self.node_url.startswith("http"):
-                self.node_url = f"https://{self.node_url}"
-
-            if not self.node_url[-4:] == "/api":
-                self.node_url = f"{self.node_url}/api"
-
-            return self.node_url, self.jwt_token
-
-        except BaseException as e:
-            logger.error("Failed to find node url and/or jwt token")
-            raise e
+        self.node_url = node_url
+        self.jwt_token = jwt_token
+        return node_url, jwt_token
 
     def format_zip_config(self, zip_data, binary=False):
         zip_config = ZipFile(BytesIO(zip_data))
@@ -3597,13 +3573,7 @@ Commands:
     offline = command == "validate"
     if not offline:
         try:
-            node_url, jwt_token = sesamclient.utils.get_node_and_jwt_token(
-                node_url=args.node,
-                jwt_token=args.jwt,
-                config_filename=args.sync_config_file
-            )
-            sesam_cmd_client.node_url = node_url
-            sesam_cmd_client.jwt_token = jwt_token
+            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token(args)
         except BaseException as e:
             if (
                 args.verbose is True
