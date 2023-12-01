@@ -1066,13 +1066,18 @@ class SesamCmdClient:
         return FormatStyle(**configuration.get("formatstyle", {}))
 
     def get_node_and_jwt_token(self, args):
-        node_url, jwt_token = sesamclient.utils.get_node_and_jwt_token(
-            node_url=args.node, jwt_token=args.jwt, config_filename=args.sync_config_file
-        )
+        try:
+            node_url, jwt_token = sesamclient.utils.get_node_and_jwt_token(
+                node_url=args.node, jwt_token=args.jwt, config_filename=args.sync_config_file
+            )
 
-        self.node_url = node_url
-        self.jwt_token = jwt_token
-        return node_url, jwt_token
+            self.node_url = node_url
+            self.jwt_token = jwt_token
+            return node_url, jwt_token
+
+        except BaseException as e:
+            logger.error("Failed to find node url and/or jwt token")
+            raise e
 
     def format_zip_config(self, zip_data, binary=False):
         zip_config = ZipFile(BytesIO(zip_data))
