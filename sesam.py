@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.9.0"
+sesam_version = "2.9.1"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -803,6 +803,8 @@ class SesamCmdClient:
         self.whitelisted_files = None
         self.whitelisted_pipes = None
         self.whitelisted_systems = None
+        self.node_url = None
+        self.jwt_token = None
 
         if args.whitelist_file is not None:
             try:
@@ -1063,36 +1065,15 @@ class SesamCmdClient:
         configuration = self.read_config_file(configfilename, is_required)
         return FormatStyle(**configuration.get("formatstyle", {}))
 
-    def get_node_and_jwt_token(self):
-        configfilename = self.args.sync_config_file
+    def get_node_and_jwt_token(self, args):
         try:
-            file_config = self.read_config_file(configfilename, is_required=False)
-
-            self.node_url = self._coalesce(
-                [args.node, os.environ.get("NODE"), file_config.get("node")]
-            )
-            self.jwt_token = self._coalesce(
-                [args.jwt, os.environ.get("JWT"), file_config.get("jwt")]
+            node_url, jwt_token = sesamclient.utils.get_node_and_jwt_token(
+                node_url=args.node, jwt_token=args.jwt, config_filename=args.sync_config_file
             )
 
-            if self.jwt_token and self.jwt_token.startswith('"') and self.jwt_token[-1] == '"':
-                self.jwt_token = self.jwt_token[1:-1]
-
-            if self.jwt_token.startswith("bearer "):
-                self.jwt_token = self.jwt_token.replace("bearer ", "")
-
-            if self.jwt_token.startswith("Bearer "):
-                self.jwt_token = self.jwt_token.replace("Bearer ", "")
-
-            self.node_url = self.node_url.replace('"', "")
-
-            if not self.node_url.startswith("http"):
-                self.node_url = f"https://{self.node_url}"
-
-            if not self.node_url[-4:] == "/api":
-                self.node_url = f"{self.node_url}/api"
-
-            return self.node_url, self.jwt_token
+            self.node_url = node_url
+            self.jwt_token = jwt_token
+            return node_url, jwt_token
 
         except BaseException as e:
             logger.error("Failed to find node url and/or jwt token")
@@ -2574,13 +2555,13 @@ class SesamCmdClient:
         last_additional_info = None
         try:
             self.logger.info("Running test: upload, run and verify..")
-            if self.args.unit_tests_folder:
-                self.run_local_unit_tests()
-
             self.upload()
 
             for i in range(self.args.runs):
                 last_additional_info = self.run()
+
+            if self.args.unit_tests_folder:
+                self.run_local_unit_tests()
 
             self.verify()
             self.logger.info("Test was successful!")
@@ -3597,7 +3578,7 @@ Commands:
     offline = command == "validate"
     if not offline:
         try:
-            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token()
+            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token(args)
         except BaseException as e:
             if (
                 args.verbose is True
