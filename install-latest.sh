@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if [ "$(id -u)" -ne 0 ]; then
-        echo "Please run as root"
-        exit
-fi
-
-
 case "$OSTYPE" in
 	"linux-gnu") os="linux";;
 	"darwin") os="osx";;
@@ -50,7 +44,12 @@ wget -q https://github.com/sesam-community/sesam-py/releases/download/$tag/$file
 tar -zxf $filename
 
 
-echo "[-] Cleanup and move executable to /usr/local/bin"
+echo "[-] Cleanup"
 rm $filename
-mv sesam /usr/local/bin/$output_file
+if [ "$(id -u)" -ne 0 ]; then
+	mv sesam $output_file
+else
+	mv sesam /usr/local/bin/$output_file
+fi
+
 echo "[!] Done! '$output_file' command is now usable."
