@@ -3598,7 +3598,8 @@ Commands:
                 if os.path.isfile('.jinja_vars'):
                     args.jinja_vars = sesam_cmd_client.parse_config_file(".jinja_vars")
                     if args.jinja_vars == {}:
-                        logger.warning("No variables found in .jinja_vars file. proceeding without it.")
+                        logger.warning("No variables found in .jinja_vars file. "
+                                       "Proceeding without it.")
                     else:
                         logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
             except BaseException:
