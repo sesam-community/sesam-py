@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-20.04, ubuntu-18.04, windows-latest]
+        os: [macos-latest, ubuntu-20.04, windows-latest]
         python: ["3.10"]
     steps:
       - name: Checkout code
@@ -55,16 +55,6 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./dist/sesam-linux-${{ github.event.release.tag_name }}.tar.gz
           asset_name: sesam-linux-${{ github.event.release.tag_name }}.tar.gz
-          asset_content_type: application/tar
-      - name: Upload Ubuntu 18.04 assets to release
-        if: ${{ matrix.os == 'ubuntu-18.04' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/sesam-ubuntu-18-04-${{ github.event.release.tag_name }}.tar.gz
-          asset_name: sesam-ubuntu-18-04-${{ github.event.release.tag_name }}.tar.gz
           asset_content_type: application/tar
       - name: Upload MacOS assets to release
         if: ${{ matrix.os == 'macos-latest' }}
