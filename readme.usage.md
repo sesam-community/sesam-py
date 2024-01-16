@@ -107,11 +107,11 @@ usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification] [-sync-c
              [-upload-delete-sink-datasets] [-profile <string>] [-scheduler-id <string>] [-scheduler-request-mode <string>] [-scheduler-zero-runs <int>]
              [-scheduler-max-runs <int>] [-scheduler-max-run-time <int>] [-scheduler-check-input-pipes] [-scheduler-dont-reset-pipes-or-delete-sink-datasets]
              [-restart-timeout <int>] [-runs <int>] [-logformat <string>] [-scheduler-poll-frequency <int>] [-sesamconfig-file <string>] [-diff]
-             [-add-test-entities] [-force-add] [-force] [-run-unit-tests <string>] [-pytest-args <string>] [-skip-auth] [--system-placeholder <string>]
-             [-d <string>] [-e <string>] [--client_id <string>] [--client_secret <string>] [--account_id <string>] [--ignore-refresh-token] [--api_key <string>]
+             [-add-test-entities] [-force-add] [-force] [-run-pytest <string>] [-pytest-args <string>] [-skip-auth] [--system-placeholder <string>] [-d <string>]
+             [-e <string>] [--client_id <string>] [--client_secret <string>] [--account_id <string>] [--ignore-refresh-token] [--api_key <string>]
              [--service_url <string>] [--service_jwt <string>] [--consumer_token <string>] [--employee_token <string>] [--base_url <string>] [--days <string>]
              [--use-client-secret]
-             [command]
+             [command ...]
 
 Commands:
   authenticate    Authenticates against the external service of the connector and updates secrets and environment variables (available only when working on a connector)
@@ -120,7 +120,7 @@ Commands:
   reset           Deletes the entire node database and restarts the node (this is a more thorough version than "wipe" - requires the target node to be a designated developer node, contact support@sesam.io for help)
   init            Add conditional sources with testing and production alternatives to all input pipes in the local config.
   validate        Validate local config for proper formatting and internal consistency
-  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present.
+  upload          Replace node config with local config. Also tries to upload testdata if 'testdata' folder present and updates secrets and environment variables when working on a connector (might ask for authentication).
   download        Replace local config with node config
   dump            Create a zip archive of the config and store it as 'sesam-config.zip'
   status          Compare node config with local config (requires external diff command)
@@ -129,9 +129,10 @@ Commands:
   convert         Convert embedded sources in input pipes to http_endpoints and extract data into files
   verify          Compare output against expected output
   test            Upload, run and verify output
-  stop            Stop any running schedulers (for example if the client was permaturely terminated or disconnected)
+  stop            Stop any running schedulers (for example if the client was prematurely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
   init_connector  Initialize a connector in the working directory with a sample manifest, template and system
+  run-pytest      Runs Python tests in the specified folder using the pytest framework. The folder must be placed on the same level as the pipes and systems.
 
 positional arguments:
   command               a valid command from the list above
@@ -209,9 +210,8 @@ optional arguments:
   -add-test-entities    use with the init command to add test entities to input pipes
   -force-add            use with the '-add-test-entities' option to overwrite test entities that exist locally
   -force                force the command to run (only for 'upload' and 'download' commands) for non-dev subscriptions
-  -run-unit-tests <string>
-                        name of folder containing Python tests that should be run when running the 'test' command. Uses the pytest framework. The folder should be
-                        placed on the same level as 'pipes', 'systems' etc.
+  -run-pytest <string>  specifies a folder containing Python tests that sesam-py should run. These tests will run after the command (e.g. upload, run) has
+                        finished. Uses the pytest framework. The folder should be placed on the same level as 'pipes', 'systems' etc.
   -pytest-args <string>
                         specify the options that sesam-py should use when running pytest. The arguments must be provided inside double quotes with each argument
                         separated by a space, e.g. -pytest-args="-vv -x"
