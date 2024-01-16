@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.9.2"
+sesam_version = "2.10.0"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -2560,9 +2560,6 @@ class SesamCmdClient:
             for i in range(self.args.runs):
                 last_additional_info = self.run()
 
-            if self.args.unit_tests_folder:
-                self.run_local_unit_tests()
-
             self.verify()
             self.logger.info("Test was successful!")
             if last_additional_info is not None:
@@ -2571,13 +2568,12 @@ class SesamCmdClient:
             self.logger.error("Test failed!")
             raise e
 
-    def run_local_unit_tests(self):
-        test_dir = self.args.unit_tests_folder
+    def run_pytest_tests(self, is_standalone_run=False):
+        test_dir = self.args.pytest_tests_folder
         test_files = glob(os.path.join(test_dir, "test_*.py"))
         if not test_files:
             self.logger.warning(
-                f"No test_*.py files were found in '{test_dir}', so no unit tests "
-                f"have been run."
+                f"No test_*.py files were found in '{test_dir}', so no tests have been run."
             )
             return
 
@@ -2589,12 +2585,19 @@ class SesamCmdClient:
             f"pytest with these options: {pytest_args}"
         )
 
+        if is_standalone_run:
+            self.logger.warning(
+                "Some tests require that the most recent versions of the pipes have "
+                "finished running in order to provide accurate results. Make sure that "
+                "you've done an 'upload' and 'run' recently before running these tests."
+            )
+
         result = pytest.main(pytest_args)
 
         if result.value == 0:
             self.logger.info("Ran unit tests successfully.")
         else:
-            raise RuntimeError("One or more unit tests failed, see above output.")
+            raise RuntimeError("One or more tests failed, see above output.")
 
     def run_internal_scheduler(self):
         start_time = time.monotonic()
@@ -2929,6 +2932,7 @@ Commands:
   stop            Stop any running schedulers (for example if the client was prematurely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
   init_connector  Initialize a connector in the working directory with a sample manifest, template and system
+  run-pytest      Runs Python tests in the specified folder using the pytest framework. The folder must be placed on the same level as the pipes and systems.
 """,  # noqa: E501
         formatter_class=RawDescriptionHelpFormatter,
     )
@@ -3314,7 +3318,7 @@ Commands:
     parser.add_argument(
         "command",
         metavar="command",
-        nargs="?",
+        nargs="*",
         help="a valid command from the list above",
     )
 
@@ -3328,13 +3332,13 @@ Commands:
     )
 
     parser.add_argument(
-        "-run-unit-tests",
-        dest="unit_tests_folder",
+        "-run-pytest",
+        dest="pytest_tests_folder",
         metavar="<string>",
         type=str,
-        help="name of folder containing Python tests that should be run when running the 'test' "
-        "command. Uses the pytest framework. The folder should be placed on the same level as "
-        "'pipes', 'systems' etc.",
+        help="specifies a folder containing Python tests that sesam-py should run. These tests "
+        "will run after the command (e.g. upload, run) has finished. Uses the pytest framework. "
+        "The folder should be placed on the same level as 'pipes', 'systems' etc.",
     )
 
     parser.add_argument(
@@ -3537,7 +3541,18 @@ Commands:
 
     logger.info("Using %s as base directory", BASE_DIR)
 
-    command = args.command and args.command.lower() or ""
+    command_args = []
+    if args.command:
+        command = args.command[0] and args.command[0].lower()
+        if len(args.command) > 1:
+            command_args = args.command[1:]
+            if command != "run-pytest":
+                logger.warning(
+                    f"Additional arguments were passed, but they will have no effect: "
+                    f"{','.join(command_args)}"
+                )
+    else:
+        command = ""
 
     if command not in [
         "authenticate",
@@ -3558,6 +3573,7 @@ Commands:
         "stop",
         "convert",
         "update-schemas",
+        "run-pytest",
     ]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -3734,9 +3750,24 @@ Commands:
                 sesam_cmd_client.convert()
             elif command == "dump":
                 sesam_cmd_client.dump()
+            elif command == "run-pytest":
+                if not command_args:
+                    logger.error(
+                        f"The name of the folder containing tests must be specified "
+                        f"when using the '{command}' command."
+                    )
+                    sys.exit(1)
+
+                sesam_cmd_client.args.pytest_tests_folder = command_args[0]
+                sesam_cmd_client.run_pytest_tests(is_standalone_run=True)
             else:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
+
+            # Check if we should run pytest after the main command has finished
+            if command != "run-pytest" and args.pytest_tests_folder:
+                is_standalone_pytest_run = command != "test"
+                sesam_cmd_client.run_pytest_tests(is_standalone_pytest_run)
         else:
             if command in allowed_commands_for_non_dev_subscriptions:
                 error_text = "To override this check use -force flag."
