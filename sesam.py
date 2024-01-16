@@ -3609,14 +3609,16 @@ Commands:
             sys.exit(1)
 
         if not args.is_connector:
+            args.jinja_vars = None
             try:
-                args.jinja_vars = sesam_cmd_client.parse_config_file(".jinja_vars")
-                if args.jinja_vars == {}:
-                    logger.warning("No variables found in .jinja_vars file. proceeding without it.")
-                else:
-                    logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
+                if os.path.isfile('.jinja_vars'):
+                    args.jinja_vars = sesam_cmd_client.parse_config_file(".jinja_vars")
+                    if args.jinja_vars == {}:
+                        logger.warning("No variables found in .jinja_vars file. "
+                                       "Proceeding without it.")
+                    else:
+                        logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
             except BaseException:
-                args.jinja_vars = None
                 if (
                     args.verbose is True
                     or args.extra_verbose is True
