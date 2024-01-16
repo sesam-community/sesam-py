@@ -2587,7 +2587,7 @@ class SesamCmdClient:
 
         if is_standalone_run:
             self.logger.warning(
-                "Some tests require that the most recent versions of the pipes have "
+                "Note that some tests require that the most recent versions of the pipes have "
                 "finished running in order to provide accurate results. Make sure that "
                 "you've done an 'upload' and 'run' recently before running these tests."
             )
@@ -2597,7 +2597,7 @@ class SesamCmdClient:
         if result.value == 0:
             self.logger.info("Ran unit tests successfully.")
         else:
-            raise RuntimeError("One or more tests failed, see above output.")
+            raise RuntimeError("One or more Python tests failed, see above output.")
 
     def run_internal_scheduler(self):
         start_time = time.monotonic()
