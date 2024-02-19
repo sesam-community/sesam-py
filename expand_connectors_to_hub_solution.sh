@@ -13,11 +13,11 @@ target_dir="${!#}"
 echo "Target directory: $target_dir"
 
 for ((i=1; i<$#; i++)); do
-    connector_dir="${!i}"
+    connector_dir=${!i}
     echo "Expanding connector #$i: $connector_dir"
     placeholder=$(echo "$connector_dir" | cut -d '-' -f 1)
-    cd "$connector_dir" || exit
-    python3 ../sesam.py expand --system-placeholder "$placeholder"
+    cd $connector_dir || exit
+    python3 ../sesam.py expand --system-placeholder $placeholder
     echo "Copying expanded config into $target_dir - transform pipes are ignored."
     rsync -av --exclude='*-transform.*' .expanded/pipes/ ../$target_dir/pipes
     cp -r .expanded/systems ../$target_dir
