@@ -3556,6 +3556,7 @@ Commands:
 
     if command not in [
         "authenticate",
+        "expand",
         "validate",
         "upload",
         "download",
@@ -3667,6 +3668,10 @@ Commands:
         ):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
+            elif command == "expand":
+                connectorpy.expand_connector(
+                    args.system_placeholder, args.expanded_dir, args.profile
+                )
             elif command == "validate":
                 connectorpy.expand_connector(
                     args.system_placeholder, args.expanded_dir, args.profile
