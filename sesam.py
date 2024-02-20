@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.10.0"
+sesam_version = "2.10.1"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -2932,6 +2932,7 @@ Commands:
   stop            Stop any running schedulers (for example if the client was prematurely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
   init_connector  Initialize a connector in the working directory with a sample manifest, template and system
+  expand          Expand a connector without running other operations (upload or validate).
   run-pytest      Runs Python tests in the specified folder using the pytest framework. The folder must be placed on the same level as the pipes and systems.
 """,  # noqa: E501
         formatter_class=RawDescriptionHelpFormatter,
@@ -3556,6 +3557,7 @@ Commands:
 
     if command not in [
         "authenticate",
+        "expand",
         "validate",
         "upload",
         "download",
@@ -3667,6 +3669,10 @@ Commands:
         ):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
+            elif command == "expand":
+                connectorpy.expand_connector(
+                    args.system_placeholder, args.expanded_dir, args.profile
+                )
             elif command == "validate":
                 connectorpy.expand_connector(
                     args.system_placeholder, args.expanded_dir, args.profile
