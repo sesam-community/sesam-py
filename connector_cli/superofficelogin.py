@@ -7,8 +7,6 @@ from Crypto.PublicKey import RSA
 from Crypto.Util import number
 from jwt import JWT, jwk_from_dict
 from OpenSSL import crypto
-from jwt import JWT, jwk_from_dict
-from OpenSSL import crypto
 from xml.dom import minidom
 
 
