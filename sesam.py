@@ -1168,7 +1168,10 @@ class SesamCmdClient:
                     ".authconfig or as arguments."
                 )
                 sys.exit(1)
-            oauth2login.login_via_oauth(self.sesam_node, self.args)
+            if connector_manifest["auth_variant"].lower() == "superoffice-ticket":
+                oauth2login.login_via_oauth(self.sesam_node, self.args, superoffice_ticket=True)
+            else:
+                oauth2login.login_via_oauth(self.sesam_node, self.args)
 
         elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "api_key":
             if os.path.exists(".authconfig"):
