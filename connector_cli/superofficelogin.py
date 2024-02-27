@@ -9,6 +9,8 @@ from jwt import JWT, jwk_from_dict
 from OpenSSL import crypto
 from xml.dom import minidom
 
+import sesam
+
 
 def get_long_int(nodelist):
     # Converts contents of element to long int
@@ -47,8 +49,8 @@ def get_base_url(environment, customer):
             return js['Api'].split(f'/{customer}')[0].split(customer)[0]
 
     else:
-        print(f"Unable to retrieve API URL for '{customer}'. Response "
-              f"returned {r.status_code}: {r.text}")
+        sesam.logger.error(f"Unable to retrieve API URL for '{customer}'. Response "
+                           f"returned {r.status_code}: {r.text}")
         return None
 
 
@@ -64,8 +66,8 @@ def get_and_verify_system_token(id_token, jwks_uri):
     if system_token_key in decoded_jwt:
         system_token = decoded_jwt[system_token_key]
     else:
-        print(f"Could not get a SuperOffice system token from received JWT. The provided "
-              f"client ID and secret might be for a non-system user context application.")
+        sesam.logger.error(f"Could not get a SuperOffice system token from received JWT. The provided "
+                           f"client ID and secret might be for a non-system user context application.")
         system_token = None
 
     return system_token
@@ -142,11 +144,12 @@ def get_so_ticket(data, secrets):
         r = requests.get(test_url, headers=headers)
         if r.status_code != 200:
             is_failed = True
-            print(f"Failed to get user information from SuperOffice: {r.text}")
+            sesam.logger.error(f"Failed to get user information from SuperOffice: {r.text}")
     else:
         ticket = None
         base_url = None
-        print(f"Error retrieving SuperOffice ticket: {str(r_json.get('ErrorMessage'))}")
+        account_id = None
+        sesam.logger.error(f"Error retrieving SuperOffice ticket: {str(r_json.get('ErrorMessage'))}")
 
     # return ticket, account_id, environment
     return ticket, account_id, base_url
