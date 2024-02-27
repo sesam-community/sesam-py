@@ -66,8 +66,9 @@ def get_and_verify_system_token(id_token, jwks_uri):
     if system_token_key in decoded_jwt:
         system_token = decoded_jwt[system_token_key]
     else:
-        sesam.logger.error(f"Could not get a SuperOffice system token from received JWT. The provided "
-                           f"client ID and secret might be for a non-system user context application.")
+        sesam.logger.error("Could not get a SuperOffice system token from received JWT. "
+                           "The provided client ID and secret might be for a non-system user "
+                           "context application.")
         system_token = None
 
     return system_token
@@ -78,7 +79,8 @@ def get_so_ticket(data, secrets):
     # 2. Signs the system token with the RSA private key (from application secrets)
     # 3. Get another JWT using the signed system token, decode it for the ticket
     # 4. This ticket is used for future API calls
-    # Heavily inspired by https://github.com/SuperOffice/devnet-python-system-user/blob/master/SystemUserToken.py
+    # Heavily inspired by
+    # https://github.com/SuperOffice/devnet-python-system-user/blob/master/SystemUserToken.py
     ticket = {}
     customer = data["access_token"].split(":")[1].split(".")[0]  # Cust41398
     rsa_private_key = os.environ.get('RSA_PRIVATE_KEY')
@@ -102,8 +104,7 @@ def get_so_ticket(data, secrets):
 
     key = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key)
     signature = crypto.sign(key, system_token, 'sha256')
-    signed_system_token = system_token + "." + \
-                          base64.b64encode(signature).decode('UTF-8')
+    signed_system_token = system_token + "." + base64.b64encode(signature).decode('UTF-8')
 
     ticket['signed_so_token'] = signed_system_token  # we might need this for refreshing later
 
@@ -118,7 +119,8 @@ def get_so_ticket(data, secrets):
         "Accept": "application/json;charset=UTF-8"
     }
 
-    r = requests.post(f'https://{environment}.superoffice.com/Login/api/PartnerSystemUser/Authenticate',
+    r = requests.post(f'https://{environment}.superoffice.com/Login/api/PartnerSystemUser'
+                      f'/Authenticate',
                       data=json.dumps(post_data),  # must be a string
                       headers=headers)
     r_json = r.json()
@@ -143,13 +145,13 @@ def get_so_ticket(data, secrets):
         }
         r = requests.get(test_url, headers=headers)
         if r.status_code != 200:
-            is_failed = True
             sesam.logger.error(f"Failed to get user information from SuperOffice: {r.text}")
     else:
         ticket = None
         base_url = None
         account_id = None
-        sesam.logger.error(f"Error retrieving SuperOffice ticket: {str(r_json.get('ErrorMessage'))}")
+        sesam.logger.error(f"Error retrieving SuperOffice ticket: "
+                           f"{str(r_json.get('ErrorMessage'))}")
 
     # return ticket, account_id, environment
     return ticket, account_id, base_url
