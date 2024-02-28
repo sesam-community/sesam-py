@@ -12,6 +12,7 @@ import requests
 from flask import Flask, g, redirect, request
 
 from connector_cli.connectorpy import expand_connector_config
+from connector_cli.superofficelogin import get_so_ticket
 
 redirect_uri = "http://localhost:5010/login_callback"
 
@@ -108,6 +109,14 @@ def login_callback():
     except Exception as e:
         is_failed = True
         sesam_node.logger.error("Failed to get secrets: %s" % e)
+
+    if not is_failed:
+        if require_so_ticket:
+            so_ticket, account_id, base_url = get_so_ticket(data, secrets)
+            secrets['so_ticket'] = so_ticket['so_ticket']
+    else:
+        sesam_node.logger.error("Failed to get so_ticket.")
+
     # put secrets
     try:
         systems = sesam_node.api_connection.get_systems()
@@ -159,6 +168,7 @@ def start_server(args):
     global system_id, client_id, client_secret, base_url, login_url
     global token_url, event, profile_file, manifest, service_url
     global service_jwt, account_id_override, ignore_refresh_token
+
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
     client_id = args.client_id
@@ -174,13 +184,13 @@ def start_server(args):
     ignore_refresh_token = args.ignore_refresh_token
     _, manifest = expand_connector_config(system_id)
     if (
-        system_id
-        and client_id
-        and client_secret
-        and service_url
-        and login_url
-        and token_url
-        and scopes
+            system_id
+            and client_id
+            and client_secret
+            and service_url
+            and login_url
+            and token_url
+            and scopes
     ):
         params = {
             "client_id": client_id,
@@ -208,9 +218,11 @@ def start_server(args):
         app.run(port=5010)
 
 
-def login_via_oauth(node, args):
-    global sesam_node
+def login_via_oauth(node, args, **kwargs):
+    global sesam_node, require_so_ticket
     sesam_node = node
+    require_so_ticket = kwargs.get("require_so_ticket", False)
+
     start_server_thread = threading.Thread(target=start_server, args=(args,))
     wait_on_server_shutdown_thread = threading.Thread(target=wait_on_server_shutdown)
 

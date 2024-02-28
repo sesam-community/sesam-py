@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.10.1"
+sesam_version = "2.10.2"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1168,7 +1168,10 @@ class SesamCmdClient:
                     ".authconfig or as arguments."
                 )
                 sys.exit(1)
-            oauth2login.login_via_oauth(self.sesam_node, self.args)
+            if connector_manifest.get("auth_variant","").lower() == "superoffice-ticket":
+                oauth2login.login_via_oauth(self.sesam_node, self.args, require_so_ticket=True)
+            else:
+                oauth2login.login_via_oauth(self.sesam_node, self.args)
 
         elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "api_key":
             if os.path.exists(".authconfig"):
