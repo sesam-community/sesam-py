@@ -63,6 +63,7 @@ def get_account_id_from_jwt(jwt_token):
 
 @app.route("/login_callback")
 def login_callback():
+    global base_url
     is_failed = False
     # get secrets
     secrets = {}
