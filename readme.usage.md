@@ -36,6 +36,11 @@ consumer_token=<client id for Tripletex authentication>
 employee_token=<client secret for Tripletex authentication>
 ```
 
+for API key authentication:
+```bash
+api_key=<api key>
+```
+
 * The secrets and environment variables will be updated in the node specified in the `.syncconfig` file.
 * It is recommended to clone a connector repo and add the `.authconfig` file to the working directory.
 * Optionally the secrets can also be passed as command line arguments specified below.
