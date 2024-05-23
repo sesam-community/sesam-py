@@ -7,7 +7,7 @@ import re
 import sys
 import time
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from base64 import b64decode
+from base64 import urlsafe_b64decode
 from configparser import ConfigParser
 from copy import deepcopy
 from decimal import Decimal
@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.10.2"
+sesam_version = "2.10.3"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -202,7 +202,7 @@ class SesamNode:
         # Pull data chunk from the jwt token
         _, payload, _ = self.jwt_token.split(".")
         # Add padding to base64 and decode it
-        jwt_data = json.loads(b64decode(payload + "=="))
+        jwt_data = json.loads(urlsafe_b64decode(payload + "=="))
 
         # Extract the sub ID from the data
         if jwt_data:
@@ -1168,7 +1168,7 @@ class SesamCmdClient:
                     ".authconfig or as arguments."
                 )
                 sys.exit(1)
-            if connector_manifest.get("auth_variant","").lower() == "superoffice-ticket":
+            if connector_manifest.get("auth_variant", "").lower() == "superoffice-ticket":
                 oauth2login.login_via_oauth(self.sesam_node, self.args, require_so_ticket=True)
             else:
                 oauth2login.login_via_oauth(self.sesam_node, self.args)
@@ -3616,11 +3616,12 @@ Commands:
         if not args.is_connector:
             args.jinja_vars = None
             try:
-                if os.path.isfile('.jinja_vars'):
+                if os.path.isfile(".jinja_vars"):
                     args.jinja_vars = sesam_cmd_client.parse_config_file(".jinja_vars")
                     if args.jinja_vars == {}:
-                        logger.warning("No variables found in .jinja_vars file. "
-                                       "Proceeding without it.")
+                        logger.warning(
+                            "No variables found in .jinja_vars file. " "Proceeding without it."
+                        )
                     else:
                         logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
             except BaseException:
@@ -3648,7 +3649,11 @@ Commands:
                 node_url, jwt_token, logger, verify_ssl=args.skip_tls_verification is False
             )
         except BaseException as e:
-            if args.verbose or args.extra_verbose:
+            if (
+                args.verbose is True
+                or args.extra_verbose is True
+                or args.extra_extra_verbose is True
+            ):
                 logger.exception(e)
             logger.error(
                 "failed to connect to the sesam node using the url and jwt token "
