@@ -2,7 +2,7 @@
 
 case "$OSTYPE" in
 	"linux-gnu") os="linux";;
-	"darwin") os="osx";;
+	darwin*) os="osx";;
 	*)
 		echo "OS isn't supported by this script"
 		exit;;
