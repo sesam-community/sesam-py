@@ -168,7 +168,7 @@ def login_callback():
 def start_server(args):
     global system_id, client_id, client_secret, base_url, login_url
     global token_url, event, profile_file, manifest, service_url
-    global service_jwt, account_id_override, ignore_refresh_token
+    global service_jwt, account_id_override, ignore_refresh_token, optional_scopes
 
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
@@ -181,6 +181,7 @@ def start_server(args):
     login_url = args.login_url
     token_url = args.token_url
     scopes = args.scopes
+    optional_scopes = args.optional_scopes
     use_client_secret = args.use_client_secret
     ignore_refresh_token = args.ignore_refresh_token
     _, manifest = expand_connector_config(system_id)
@@ -199,6 +200,8 @@ def start_server(args):
             "redirect_uri": redirect_uri,
             "response_type": "code",
         }
+        if optional_scopes:
+            params["optional_scopes"] = " ".join(optional_scopes)
 
         if use_client_secret:
             params["client_secret"] = client_secret

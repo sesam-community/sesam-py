@@ -1146,6 +1146,7 @@ class SesamCmdClient:
             self.args.login_url = connector_manifest["oauth2"]["login_url"]
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
+            self.args.optional_scopes = connector_manifest["oauth2"].get("optional_scopes", [])
             self.args.base_url = (
                 args.base_url
                 if args.base_url != parser.get_default("base_url")
