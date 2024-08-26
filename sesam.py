@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.10.4"
+sesam_version = "2.10.5"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1146,6 +1146,7 @@ class SesamCmdClient:
             self.args.login_url = connector_manifest["oauth2"]["login_url"]
             self.args.token_url = connector_manifest["oauth2"]["token_url"]
             self.args.scopes = connector_manifest["oauth2"]["scopes"]
+            self.args.optional_scopes = connector_manifest["oauth2"].get("optional_scopes", [])
             self.args.base_url = (
                 args.base_url
                 if args.base_url != parser.get_default("base_url")
