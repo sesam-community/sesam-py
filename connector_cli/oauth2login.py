@@ -20,6 +20,11 @@ event = threading.Event()
 app = Flask(__name__)
 
 
+# @app.after_request
+# def apply_coop_header(response):
+#     response.headers["Cross-Origin-Opener-Policy"] = "unsafe-none"
+#     return response
+
 def wait_on_server_shutdown():
     event.wait()
     cmd = "lsof -i tcp:5010"
@@ -62,9 +67,21 @@ def get_account_id_from_jwt(jwt_token):
     return account_id
 
 
+@app.route("/get_wix_token")
+def get_wix_token():
+    global service_url, system_id, login_url, token_url, params
+    token = request.args.get("token")
+    token_query_param = f"token={token}"
+    params["appId"] = params.get("client_id")
+    params["redirectUrl"] = params.get("redirect_uri")
+    params.pop("client_id")
+    params.pop("redirect_uri")
+    return redirect(login_url + urlencode(params) + "&" + token_query_param)
+
+
 @app.route("/login_callback")
 def login_callback():
-    global base_url
+    global base_url, manifest
     is_failed = False
     # get secrets
     secrets = {}
@@ -74,18 +91,28 @@ def login_callback():
             "code": request.args.get("code"),
             "client_id": client_id,
             "client_secret": client_secret,
-            "grant_type": "authorization_code",
-            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code"
         }
+        if manifest.get("system") == "Wix" and manifest.get("auth") == "oauth2":
+            headers = {
+                "Content-Type": "application/json",
+                "Content-Length": str(len(requests.models.RequestEncodingMixin._encode_params(the_data))),
+                "Host": base_url.split("//")[1],
+                "Accept": "*/*",
+            }
 
-        resp = requests.post(token_url, data=the_data)
+            resp = requests.post(token_url, headers=headers, json=the_data)
+        else:
+            resp = requests.post(token_url, data=the_data)
         data = resp.json()
+
         secrets = {
             "oauth_access_token": data["access_token"],
             "oauth_client_id": client_id,
             "oauth_client_secret": client_secret,
         }
-
+        print(data["access_token"])
+        print(data["refresh_token"])
         if not ignore_refresh_token:
             secrets["oauth_refresh_token"] = data["refresh_token"]
 
@@ -168,7 +195,7 @@ def login_callback():
 def start_server(args):
     global system_id, client_id, client_secret, base_url, login_url
     global token_url, event, profile_file, manifest, service_url
-    global service_jwt, account_id_override, ignore_refresh_token, optional_scopes
+    global service_jwt, account_id_override, ignore_refresh_token, optional_scopes, params
 
     profile_file = "%s-env.json" % args.profile
     system_id = args.system_placeholder
@@ -219,6 +246,8 @@ def start_server(args):
             "\n  Link: %s"
             "\n\n" % (service_url, system_id, login_url + urlencode(params))
         )
+        if manifest.get("system") == "Wix" and manifest.get("auth") == "oauth2":
+            sesam_node.logger.info(f"For Wix using Oauth2: {manifest.get('oauth2',{}).get('app_url')}")
         app.run(port=5010)
 
 
