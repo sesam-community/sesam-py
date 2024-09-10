@@ -24,7 +24,7 @@ def login_via_api_key(sesam_node, args):
                 }
                 response = requests.post(login_url, headers=header)
                 data = response.json()
-                secrets["jwt_access_token"]=data["AccessToken"]
+                secrets["jwt_access_token"] = data["AccessToken"]
                 secrets["jwt_refresh_token"] = data["RefreshToken"]
 
             for system in systems:
