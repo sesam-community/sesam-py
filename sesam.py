@@ -2377,7 +2377,7 @@ class SesamCmdClient:
                     sort_keys=True,
                 )
 
-    def init_connector(self):
+    def connector_init(self):
         if self.args.connector_dir == ".":
             if not os.getcwd().split("/")[-1].endswith("-connector"):
                 self.logger.error(
@@ -2395,8 +2395,8 @@ class SesamCmdClient:
                     "directory. Please make sure it follows the naming convention (<name>-connector)."
                 )
                 sys.exit(1)
-            connector_name = os.getcwd()
-            root_dir = self.args.connector_dir
+            connector_name = self.args.connector_dir
+            root_dir = os.getcwd()
         if not os.path.exists(Path(self.args.connector_dir, "manifest.json")):
             self.logger.info("manifest.json not found, initializing it...")
 
@@ -2967,7 +2967,7 @@ Commands:
   test            Upload, run and verify output
   stop            Stop any running schedulers (for example if the client was prematurely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
-  init_connector  Initialize a connector in the working directory with a sample manifest, template and system
+  connector_init  Initialize a connector in the working directory with a sample manifest, template and system
   expand          Expand a connector without running other operations (upload or validate).
   run-pytest      Runs Python tests in the specified folder using the pytest framework. The folder must be placed on the same level as the pipes and systems.
 """,  # noqa: E501
@@ -3607,7 +3607,8 @@ Commands:
         "download",
         "status",
         "init",
-        "init-connector",
+        "connector-init",
+        "add-datatype",
         "update",
         "verify",
         "test",
@@ -3765,8 +3766,8 @@ Commands:
                         )
             elif command == "init":
                 sesam_cmd_client.init()
-            elif command == "init-connector":
-                sesam_cmd_client.init_connector()
+            elif command == "connector-init":
+                sesam_cmd_client.connector_init()
             elif command == "update":
                 sesam_cmd_client.update()
             elif command == "verify":
