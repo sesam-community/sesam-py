@@ -4,6 +4,7 @@ import logging
 import logging.handlers
 import os
 import re
+import shutil
 import sys
 import time
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
@@ -2377,48 +2378,80 @@ class SesamCmdClient:
                 )
 
     def init_connector(self):
+        if self.args.connector_dir == ".":
+            if not os.getcwd().split("/")[-1].endswith("-connector"):
+                self.logger.error(
+                    "The current directory does not appear to be a valid "
+                    "directory. Please run this command from the root of the "
+                    "connector directory or make sure it follows the naming convention (<name>-connector)."
+                )
+                sys.exit(1)
+            connector_name = os.getcwd().split("/")[-1].split("-connector")[0]
+            root_dir = os.path.dirname(os.getcwd())
+        else:
+            if not self.args.connector_dir.endswith("-connector"):
+                self.logger.error(
+                    "The connector directory does not appear to be a valid "
+                    "directory. Please make sure it follows the naming convention (<name>-connector)."
+                )
+                sys.exit(1)
+            connector_name = os.getcwd()
+            root_dir = self.args.connector_dir
         if not os.path.exists(Path(self.args.connector_dir, "manifest.json")):
             self.logger.info("manifest.json not found, initializing it...")
+
+            templates_dir = os.path.join(self.args.connector_dir, "templates")
+            if not os.path.exists(templates_dir):
+                self.logger.info("templates directory not found, initializing it...")
+                os.makedirs(templates_dir)
+
+            manifest_obj = {
+                "auth": self.args.auth,
+                "datatypes": {},
+                "additional_parameters": {},
+                "system-template": "templates/system.json",
+            }
+            system_obj = {
+                "_id": "{{@ system @}}",
+                "operations": {},
+                "type": "system:rest",
+                "url_pattern": "",
+                "verify_ssl": True,
+            }
+            if self.args.auth == "oauth2":
+                manifest_obj["oauth2"] = {
+                    "login_url": "",
+                    "token_url": "",
+                    "scopes": [],
+                }
+                system_obj["oauth2"] = {
+                    "access_token": "$SECRET(oauth_access_token)",
+                    "client_id": "$SECRET(oauth_client_id)",
+                    "client_secret": "$SECRET(oauth_client_secret)",
+                    "refresh_token": "$SECRET(oauth_refresh_token)",
+                    "token_url": "{{@ token_url @}}"
+                }
+
+            if self.args.auth == "api_key":
+                manifest_obj["auth"] = "api_key"
+                system_obj["password"] = "$SECRET(api_key)"
+
+            if self.args.auth == "jwt":
+                manifest_obj["auth"] = "api_key"
+                manifest_obj["auth_variant"] = "jwt"
+                manifest_obj["jwt"] = {
+                    "jwt_header_key": "",
+                    "login_url": "",
+                    "refresh_url": "",
+                }
+                system_obj["jwt_access_token"] = "$SECRET(jwt_access_token)"
+
+            readme_obj = f"# A sesam connector for {connector_name}\n\n## Description\n\n## Configuration\n\n## Datatypes\n\n## Notes\n\n## Environment variables\n\n## Authentication\n {connector_name}-connector uses {self.args.auth} for authentication."
+
+            shutil.copyfile(Path(root_dir, "LICENSE"), Path(self.args.connector_dir, "LICENSE"))
             with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
                 json.dump(
-                    {
-                        "auth:": "",
-                        "datatypes": {
-                            "sample": {"template": "templates/sample.json"},
-                        },
-                        "additional_parameters": {},
-                        "system-template": "templates/system.json",
-                    },
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
-        else:
-            self.logger.info("manifest.json found, skipping initialization...")
-
-        templates_dir = os.path.join(self.args.connector_dir, "templates")
-        if not os.path.exists(templates_dir):
-            self.logger.info("templates directory not found, initializing it...")
-            os.makedirs(templates_dir)
-            with open(Path(self.args.connector_dir, "templates", "sample.json"), "w") as f:
-                json.dump(
-                    [
-                        {
-                            "_id": "{{@ system @}}-{{@ datatype @}}-collect",
-                            "namespaced_identifiers": False,
-                            "source": {},
-                            "transform": {},
-                            "type": "pipe",
-                        },
-                        {
-                            "_id": "{{@ system @}}-{{@ datatype @}}-share",
-                            "namespaced_identifiers": False,
-                            "sink": {},
-                            "source": {},
-                            "transform": {},
-                            "type": "pipe",
-                        },
-                    ],
+                    manifest_obj,
                     f,
                     indent=2,
                     sort_keys=True,
@@ -2426,19 +2459,18 @@ class SesamCmdClient:
 
             with open(Path(self.args.connector_dir, "templates", "system.json"), "w") as f:
                 json.dump(
-                    {
-                        "_id": "{{@ system @}}",
-                        "operations": {},
-                        "type": "system:rest",
-                        "url_pattern": "",
-                        "verify_ssl": True,
-                    },
+                    system_obj,
                     f,
                     indent=2,
                     sort_keys=True,
                 )
+
+            with open(Path(self.args.connector_dir, "README.md"), "w") as f:
+                f.write(readme_obj)
+
         else:
-            self.logger.info("templates directory found, skipping initialization...")
+            self.logger.info("manifest.json found, skipping initialization...")
+
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
@@ -3482,6 +3514,14 @@ Commands:
         "the client_secret parameter to the /authorize URL",
     )
 
+    parser.add_argument(
+        "--auth",
+        metavar="<string>",
+        type=str,
+        default="oauth2",
+        help="auth scheme (oauth2, api_key, jwt)",
+    )
+
     try:
         args = parser.parse_args()
         args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
@@ -3567,7 +3607,7 @@ Commands:
         "download",
         "status",
         "init",
-        "init_connector",
+        "init-connector",
         "update",
         "verify",
         "test",
@@ -3725,7 +3765,7 @@ Commands:
                         )
             elif command == "init":
                 sesam_cmd_client.init()
-            elif command == "init_connector":
+            elif command == "init-connector":
                 sesam_cmd_client.init_connector()
             elif command == "update":
                 sesam_cmd_client.update()
