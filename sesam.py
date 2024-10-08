@@ -527,16 +527,16 @@ class SesamNode:
         ]
 
     def run_internal_scheduler(
-        self,
-        zero_runs=None,
-        max_run_time=None,
-        max_runs=None,
-        delete_input_datasets=True,
-        reset_pipes_and_delete_sink_datasets=None,
-        check_input_pipes=False,
-        output_run_statistics=False,
-        scheduler_mode=None,
-        request_mode=None,
+            self,
+            zero_runs=None,
+            max_run_time=None,
+            max_runs=None,
+            delete_input_datasets=True,
+            reset_pipes_and_delete_sink_datasets=None,
+            check_input_pipes=False,
+            output_run_statistics=False,
+            scheduler_mode=None,
+            request_mode=None,
     ):
         internal_scheduler_url = "%s/pipes/run-all-pipes" % self.node_url
 
@@ -685,7 +685,7 @@ class SesamNode:
         return False
 
     def microservice_get_proxy_request(
-        self, microservice_id, path, params=None, result_as_json=True
+            self, microservice_id, path, params=None, result_as_json=True
     ):
         system = self.get_system(microservice_id)
         if system is None:
@@ -701,7 +701,7 @@ class SesamNode:
         return resp.text
 
     def microservice_post_proxy_request(
-        self, microservice_id, path, params=None, data=None, result_as_json=True
+            self, microservice_id, path, params=None, data=None, result_as_json=True
     ):
         return self.microservice_post_put_proxy_request(
             microservice_id,
@@ -713,7 +713,7 @@ class SesamNode:
         )
 
     def microservice_put_proxy_request(
-        self, microservice_id, path, params=None, data=None, result_as_json=True
+            self, microservice_id, path, params=None, data=None, result_as_json=True
     ):
         return self.microservice_post_put_proxy_request(
             microservice_id,
@@ -725,7 +725,7 @@ class SesamNode:
         )
 
     def microservice_post_put_proxy_request(
-        self, microservice_id, method, path, params=None, data=None, result_as_json=True
+            self, microservice_id, method, path, params=None, data=None, result_as_json=True
     ):
         system = self.get_system(microservice_id)
         if system is None:
@@ -1002,9 +1002,9 @@ class SesamCmdClient:
             remote_metadata = json.loads(str(remote_data, encoding="utf-8"))
 
             if (
-                "task_manager" in remote_metadata
-                and "disable_user_pipes" in remote_metadata["task_manager"]
-                and remote_metadata["task_manager"]["disable_user_pipes"] is True
+                    "task_manager" in remote_metadata
+                    and "disable_user_pipes" in remote_metadata["task_manager"]
+                    and remote_metadata["task_manager"]["disable_user_pipes"] is True
             ):
                 if "disable_user_pipes" in node_metadata.get("task_manager", {}):
                     # Restore the original, if present
@@ -1020,8 +1020,8 @@ class SesamCmdClient:
 
             if "global_defaults" in remote_metadata:
                 if (
-                    "enable_cpp_extensions" in remote_metadata["global_defaults"]
-                    and remote_metadata["global_defaults"]["enable_cpp_extensions"] is False
+                        "enable_cpp_extensions" in remote_metadata["global_defaults"]
+                        and remote_metadata["global_defaults"]["enable_cpp_extensions"] is False
                 ):
                     if "enable_cpp_extensions" in node_metadata.get("global_defaults", {}):
                         # Restore the original, if present
@@ -1036,8 +1036,8 @@ class SesamCmdClient:
                             remote_metadata.pop("global_defaults")
 
                 if (
-                    "eager_load_microservices" in remote_metadata["global_defaults"]
-                    and remote_metadata["global_defaults"]["eager_load_microservices"] is False
+                        "eager_load_microservices" in remote_metadata["global_defaults"]
+                        and remote_metadata["global_defaults"]["eager_load_microservices"] is False
                 ):
                     if "eager_load_microservices" in node_metadata.get("global_defaults", {}):
                         # Restore the original, if present
@@ -1116,7 +1116,7 @@ class SesamCmdClient:
         if os.path.isfile("manifest.json"):  # If manifest.json is in working directory
             self.args.connector_manifest = "manifest.json"
         elif os.path.exists(
-            os.path.join(args.connector_dir, "manifest.json")
+                os.path.join(args.connector_dir, "manifest.json")
         ):  # If manifest.json is in connector directory
             self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
         else:  # If manifest.json is not found
@@ -1127,8 +1127,8 @@ class SesamCmdClient:
             connector_manifest = json.load(f)
 
         if (
-            "auth_variant" in connector_manifest
-            and connector_manifest["auth_variant"].lower() == "tripletex"
+                "auth_variant" in connector_manifest
+                and connector_manifest["auth_variant"].lower() == "tripletex"
         ):
             if os.path.exists(".authconfig"):
                 self.set_authconfig_credentials("consumer_token", "employee_token")
@@ -1289,8 +1289,8 @@ class SesamCmdClient:
                                             found = True
                                 elif type(config.get("transform")) == dict:
                                     if (
-                                        config.get("transform").get("template")
-                                        == "transform-collect-rest"
+                                            config.get("transform").get("template")
+                                            == "transform-collect-rest"
                                     ):
                                         found = True
                                 if not found:
@@ -1327,7 +1327,7 @@ class SesamCmdClient:
                                             )
                                             is_valid = False
                                         elif share_dataset not in config.get(
-                                            "exclude_completeness"
+                                                "exclude_completeness"
                                         ):
                                             logger.error(
                                                 f"Config file '/pipes/{file}' is "
@@ -1340,12 +1340,12 @@ class SesamCmdClient:
                             if "share" in file:
                                 if type(config.get("transform")) == dict:
                                     if (
-                                        config.get("transform").get("template")
-                                        == "transform-share-rest"
+                                            config.get("transform").get("template")
+                                            == "transform-share-rest"
                                     ):
                                         if (
-                                            "batch_size" not in config.keys()
-                                            or config.get("batch_size") != 1
+                                                "batch_size" not in config.keys()
+                                                or config.get("batch_size") != 1
                                         ):
                                             logger.error(
                                                 f"Config file '{file}' is missing "
@@ -1356,8 +1356,8 @@ class SesamCmdClient:
                                     for transform in config.get("transform"):
                                         if transform.get("template") == "transform-share-rest":
                                             if (
-                                                "batch_size" not in config.keys()
-                                                or config.get("batch_size") != 1
+                                                    "batch_size" not in config.keys()
+                                                    or config.get("batch_size") != 1
                                             ):
                                                 logger.error(
                                                     f"Config file '{file}' is missing "
@@ -1578,8 +1578,8 @@ class SesamCmdClient:
                 # Don't delete non-whitelisted config files
                 # Normalize path
                 if (
-                    self.whitelisted_files
-                    and normalize_path(filename) not in self.whitelisted_files
+                        self.whitelisted_files
+                        and normalize_path(filename) not in self.whitelisted_files
                 ):
                     continue
 
@@ -1589,8 +1589,8 @@ class SesamCmdClient:
             for filename in glob("systems%s*.conf.json" % os.sep):
                 # Don't delete non-whitelisted config files
                 if (
-                    self.whitelisted_files
-                    and normalize_path(filename) not in self.whitelisted_files
+                        self.whitelisted_files
+                        and normalize_path(filename) not in self.whitelisted_files
                 ):
                     continue
 
@@ -1629,7 +1629,7 @@ class SesamCmdClient:
 
     def status(self):
         def log_and_get_diff_flag(
-            file_content1, file_content2, file_name1, file_name2, log_diff=True
+                file_content1, file_content2, file_name1, file_name2, log_diff=True
         ):
             diff_found = False
             if file_content1 != file_content2:
@@ -1671,14 +1671,14 @@ class SesamCmdClient:
             remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
 
             diff_found = (
-                log_and_get_diff_flag(
-                    local_file_data,
-                    remote_file_data,
-                    profile_file,
-                    profile_file,
-                    self.args.diff,
-                )
-                or diff_found
+                    log_and_get_diff_flag(
+                        local_file_data,
+                        remote_file_data,
+                        profile_file,
+                        profile_file,
+                        self.args.diff,
+                    )
+                    or diff_found
             )
         except FileNotFoundError:
             logger.error("Cannot locate profile file '%s'" % profile_file)
@@ -1699,14 +1699,14 @@ class SesamCmdClient:
                 )
 
                 diff_found = (
-                    log_and_get_diff_flag(
-                        local_file_data,
-                        remote_file_data,
-                        local_file,
-                        local_file,
-                        self.args.diff,
-                    )
-                    or diff_found
+                        log_and_get_diff_flag(
+                            local_file_data,
+                            remote_file_data,
+                            local_file,
+                            local_file,
+                            self.args.diff,
+                        )
+                        or diff_found
                 )
 
         if diff_found:
@@ -1977,8 +1977,8 @@ class SesamCmdClient:
                                 )
                             ]:
                                 if (
-                                    en.get("_deleted", False) is True
-                                    and en["_id"] not in expected_deletes
+                                        en.get("_deleted", False) is True
+                                        and en["_id"] not in expected_deletes
                                 ):
                                     continue
                                 current_entities.append(en)
@@ -2004,14 +2004,14 @@ class SesamCmdClient:
                                 os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file
                             )
                             msg = (
-                                "Pipe verify failed! Length mismatch for "
-                                "test spec '%s': "
-                                "expected %d got %d"
-                                % (
-                                    test_spec.spec_file,
-                                    len(expected_output),
-                                    len(fixed_current_output),
-                                )
+                                    "Pipe verify failed! Length mismatch for "
+                                    "test spec '%s': "
+                                    "expected %d got %d"
+                                    % (
+                                        test_spec.spec_file,
+                                        len(expected_output),
+                                        len(fixed_current_output),
+                                    )
                             )
                             self.logger.error(msg, {"file_path": file_path})
 
@@ -2471,6 +2471,151 @@ class SesamCmdClient:
         else:
             self.logger.info("manifest.json found, skipping initialization...")
 
+    def add_datatype(self):
+        if self.args.connector_dir == ".":
+            with open("manifest.json", "r") as f:
+                manifest_obj = json.load(f)
+                manifest_obj["datatypes"][self.args.datatype] = {
+                    "template": "templates/datatype.json"
+                }
+
+            all_pipe_template_obj = {
+                "_id": "{{@ system @}}-{{@ datatype @}}-all",
+                "add_namespaces": False,
+                "source": {
+                    "operation": "{{@ datatype @}}-list",
+                    "system": "{{@ system @}}",
+                    "type": "rest"
+                },
+                "type": "pipe"
+            }
+
+            collect_pipe_template_obj = {
+                "_id": "{{@ system @}}-{{@ datatype @}}-collect",
+                "namespaced_identifiers": False,
+                "source": {
+                    "dataset": "{{@ system @}}-{{@ datatype @}}-all",
+                    "type": "dataset"
+                },
+                "transform": [
+                    {
+                        "rules": {
+                            "default": [
+                                [
+                                    "copy",
+                                    "*"
+                                ],
+                                [
+                                    "add",
+                                    "$last-modified",
+                                    [
+                                        "datetime-parse",
+                                        "%Y-%m-%dT%H:%M:%S.%fZ",
+                                        "_S.lastUpdatedProperty"
+                                    ]
+                                ]
+                            ]
+                        },
+                        "type": "dtl"
+                    },
+                    {
+                        "properties": {
+                            "primary_key": "id"
+                        },
+                        "template": "transform-collect-rest",
+                        "type": "template"
+                    }
+                ],
+                "type": "pipe"
+            }
+
+            if self.args.share:
+                collect_pipe_template_obj["exclude_completeness"] = "{{@ system @}}-{{@ datatype @}}-share"
+                collect_pipe_template_obj["transform"][1]["properties"][
+                    "share_dataset"] = "{{@ system @}}-{{@ datatype @}}-share"
+                share_pipe_template_obj = {
+                    "_id": "{{@ system @}}-{{@ datatype @}}-share",
+                    "batch_size": 1,
+                    "namespaced_identifiers": False,
+                    "sink": {
+                        "deletion_tracking": False,
+                        "set_initial_offset": "onload"
+                    },
+                    "source": {
+                        "dataset": "{{@ system @}}-{{@ datatype @}}-transform",
+                        "type": "dataset"
+                    },
+                    "transform": {
+                        "properties": {
+                            "operation_delete": "{{@ datatype @}}-delete",
+                            "operation_insert": "{{@ datatype @}}-insert",
+                            "operation_lookup": "{{@ datatype @}}-lookup",
+                            "operation_update": "{{@ datatype @}}-update",
+                            "primary_key": "id",
+                            "rest_system": "{{@ system @}}",
+                            "share_dataset": "{{@ system @}}-{{@ datatype @}}-share"
+                        },
+                        "template": "transform-share-rest",
+                        "type": "template"
+                    },
+                    "type": "pipe"
+                }
+
+            operations_obj = {
+                f"{self.args.datatype}-list": {
+                    "id_expression": "{{ id }}",
+                    "method": "GET",
+                    "payload_property": "",
+                    "url": ""
+                },
+                f"{self.args.datatype}-delete": {
+                    "method": "DELETE",
+                    "url": ""
+                },
+                f"{self.args.datatype}-insert": {
+                    "method": "POST",
+                    "url": ""
+                },
+                f"{self.args.datatype}-lookup": {
+                    "method": "GET",
+                    "url": ""
+                },
+                f"{self.args.datatype}-update": {
+                    "method": "PUT",
+                    "url": ""
+                }
+            }
+            datatype_template_obj = [all_pipe_template_obj, collect_pipe_template_obj]
+            if self.args.share:
+                datatype_template_obj.append(share_pipe_template_obj)
+
+            with open("manifest.json", "w") as f:
+                json.dump(
+                    manifest_obj,
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
+
+            with open(f"templates/{self.args.datatype}.json", "w") as f:
+                json.dump(
+                    datatype_template_obj,
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
+
+            with open(f"templates/system.json", "r") as f:
+                system_obj = json.load(f)
+                system_obj["operations"].update(operations_obj)
+
+            with open(f"templates/system.json", "w") as f:
+                json.dump(
+                    system_obj,
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
@@ -2514,8 +2659,8 @@ class SesamCmdClient:
                             [
                                 self.filter_entity(e, test_spec)
                                 for e in self.sesam_node.get_pipe_entities(
-                                    pipe, stage=test_spec.stage
-                                )
+                                pipe, stage=test_spec.stage
+                            )
                             ]
                         )
 
@@ -2531,13 +2676,13 @@ class SesamCmdClient:
                         )
 
                         current_output = (
-                            json.dumps(
-                                current_output,
-                                indent="  ",
-                                sort_keys=True,
-                                ensure_ascii=self.args.unicode_encoding,
-                            )
-                            + "\n"
+                                json.dumps(
+                                    current_output,
+                                    indent="  ",
+                                    sort_keys=True,
+                                    ensure_ascii=self.args.unicode_encoding,
+                                )
+                                + "\n"
                         ).encode("utf-8")
 
                         if self.args.disable_json_html_escape is False:
@@ -2647,7 +2792,7 @@ class SesamCmdClient:
         scheduler_mode = self.args.scheduler_mode
         requests_mode = self.args.scheduler_request_mode
         reset_pipes_and_delete_sink_datasets = (
-            self.args.scheduler_dont_reset_pipes_or_delete_sink_datasets is not True
+                self.args.scheduler_dont_reset_pipes_or_delete_sink_datasets is not True
         )
 
         if scheduler_mode is not None and scheduler_mode not in ["active", "poll"]:
@@ -3072,7 +3217,7 @@ Commands:
         dest="custom_scheduler",
         required=False,
         help="by default a scheduler system will be added, enable this flag "
-        "if you have configured a custom scheduler as part of the config (DEPRECATED)",
+             "if you have configured a custom scheduler as part of the config (DEPRECATED)",
         action="store_true",
     )
 
@@ -3166,7 +3311,7 @@ Commands:
         required=False,
         action="store_true",
         help="turns off cpp extensions which saves dtl compile time "
-        "at the expense of possibly slower dtl exeution time",
+             "at the expense of possibly slower dtl exeution time",
     )
 
     parser.add_argument(
@@ -3175,7 +3320,7 @@ Commands:
         required=False,
         action="store_true",
         help="store the 'expected output' json files using unicode "
-        "encoding ('\\uXXXX') - the default is UTF-8",
+             "encoding ('\\uXXXX') - the default is UTF-8",
     )
 
     parser.add_argument(
@@ -3193,10 +3338,10 @@ Commands:
         default=False,
         action="store_true",
         help="If specified with the 'upload' command, the 'upload' command will delete all "
-        "existing sink datasets before uploading the new config. In some cases, this can be "
-        "quicker than doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. "
-        "The downside is that there is a larger risk of data and/or config from previous tests "
-        "influencing the new test-run.",
+             "existing sink datasets before uploading the new config. In some cases, this can be "
+             "quicker than doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. "
+             "The downside is that there is a larger risk of data and/or config from previous tests "
+             "influencing the new test-run.",
     )
 
     parser.add_argument(
@@ -3224,7 +3369,7 @@ Commands:
         metavar="<string>",
         default="sync",
         help="run the scheduler in 'sync' or 'async' mode, long running "
-        "tests should run in 'async' mode",
+             "tests should run in 'async' mode",
     )
 
     parser.add_argument(
@@ -3245,7 +3390,7 @@ Commands:
         type=int,
         required=False,
         help="maximum number of runs that scheduler can do "
-        "to before exiting (internal scheduler only)",
+             "to before exiting (internal scheduler only)",
     )
 
     parser.add_argument(
@@ -3256,7 +3401,7 @@ Commands:
         type=int,
         required=False,
         help="the maximum time the internal scheduler is allowed to use to finish "
-        "(in seconds, internal scheduler only)",
+             "(in seconds, internal scheduler only)",
     )
 
     parser.add_argument(
@@ -3284,8 +3429,8 @@ Commands:
         type=int,
         required=False,
         help="the maximum time to wait for the node to restart and become "
-        "available again (in seconds). The default is 15 minutes. "
-        "A value of 0 will skip the back-up-again verification.",
+             "available again (in seconds). The default is 15 minutes. "
+             "A value of 0 will skip the back-up-again verification.",
     )
 
     parser.add_argument(
@@ -3324,7 +3469,7 @@ Commands:
         metavar="<string>",
         type=str,
         help="sesamconfig file to use, the default is "
-        "'.sesamconfig.json' in the current directory",
+             "'.sesamconfig.json' in the current directory",
     )
 
     parser.add_argument(
@@ -3349,7 +3494,7 @@ Commands:
         required=False,
         action="store_true",
         help="use with the '-add-test-entities' option to "
-        "overwrite test entities that exist locally",
+             "overwrite test entities that exist locally",
     )
 
     parser.add_argument(
@@ -3365,7 +3510,7 @@ Commands:
         required=False,
         action="store_true",
         help="force the command to run (only for 'upload' and 'download' commands) "
-        "for non-dev subscriptions",
+             "for non-dev subscriptions",
     )
 
     parser.add_argument(
@@ -3374,8 +3519,8 @@ Commands:
         metavar="<string>",
         type=str,
         help="specifies a folder containing Python tests that sesam-py should run. These tests "
-        "will run after the command (e.g. upload, run) has finished. Uses the pytest framework. "
-        "The folder should be placed on the same level as 'pipes', 'systems' etc.",
+             "will run after the command (e.g. upload, run) has finished. Uses the pytest framework. "
+             "The folder should be placed on the same level as 'pipes', 'systems' etc.",
     )
 
     parser.add_argument(
@@ -3385,8 +3530,8 @@ Commands:
         default="-rP -v",
         type=str,
         help="specify the options that sesam-py should use when running pytest. "
-        "The arguments must be provided inside double quotes with each argument separated by a "
-        'space, e.g. -pytest-args="-vv -x"',
+             "The arguments must be provided inside double quotes with each argument separated by a "
+             'space, e.g. -pytest-args="-vv -x"',
     )
 
     parser.add_argument(
@@ -3450,7 +3595,7 @@ Commands:
         required=False,
         action="store_true",
         help="use with sesam upload/authenticate to ignore "
-        "refresh tokens for systems that don't have them",
+             "refresh tokens for systems that don't have them",
     )
 
     parser.add_argument(
@@ -3502,7 +3647,7 @@ Commands:
         type=int,
         default=10,
         help="number of days until the token should "
-        "expire(available only when working on connectors)",
+             "expire(available only when working on connectors)",
     )
 
     parser.add_argument(
@@ -3511,7 +3656,7 @@ Commands:
         required=False,
         action="store_true",
         help="use with sesam upload/authenticate to send add "
-        "the client_secret parameter to the /authorize URL",
+             "the client_secret parameter to the /authorize URL",
     )
 
     parser.add_argument(
@@ -3520,6 +3665,21 @@ Commands:
         type=str,
         default="oauth2",
         help="auth scheme (oauth2, api_key, jwt)",
+    )
+
+    parser.add_argument(
+        "--datatype",
+        metavar="<string>",
+        type=str,
+        help="datatype to add",
+    )
+
+    parser.add_argument(
+        "--share",
+        dest="share",
+        required=False,
+        action="store_true",
+        help="set this flag to enable sharing",
     )
 
     try:
@@ -3644,9 +3804,9 @@ Commands:
             node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token(args)
         except BaseException as e:
             if (
-                args.verbose is True
-                or args.extra_verbose is True
-                or args.extra_extra_verbose is True
+                    args.verbose is True
+                    or args.extra_verbose is True
+                    or args.extra_extra_verbose is True
             ):
                 logger.exception(e)
             logger.error(
@@ -3668,9 +3828,9 @@ Commands:
                         logger.info("Found variables in .jinja_vars file: %s", args.jinja_vars)
             except BaseException:
                 if (
-                    args.verbose is True
-                    or args.extra_verbose is True
-                    or args.extra_extra_verbose is True
+                        args.verbose is True
+                        or args.extra_verbose is True
+                        or args.extra_extra_verbose is True
                 ):
                     logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
 
@@ -3678,9 +3838,9 @@ Commands:
             sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
         except BaseException as e:
             if (
-                args.verbose is True
-                or args.extra_verbose is True
-                or args.extra_extra_verbose is True
+                    args.verbose is True
+                    or args.extra_verbose is True
+                    or args.extra_extra_verbose is True
             ):
                 logger.exception(e)
             logger.error("config file is mandatory when -sesamconfig-file argument is specified")
@@ -3692,9 +3852,9 @@ Commands:
             )
         except BaseException as e:
             if (
-                args.verbose is True
-                or args.extra_verbose is True
-                or args.extra_extra_verbose is True
+                    args.verbose is True
+                    or args.extra_verbose is True
+                    or args.extra_extra_verbose is True
             ):
                 logger.exception(e)
             logger.error(
@@ -3711,11 +3871,11 @@ Commands:
     allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
         if (
-            offline
-            or sesam_cmd_client.sesam_node.api_connection.get_api_info()
-            .get("status")
-            .get("developer_mode")
-            or (command in allowed_commands_for_non_dev_subscriptions and args.force)
+                offline
+                or sesam_cmd_client.sesam_node.api_connection.get_api_info()
+                .get("status")
+                .get("developer_mode")
+                or (command in allowed_commands_for_non_dev_subscriptions and args.force)
         ):
             if command == "authenticate":
                 sesam_cmd_client.authenticate()
@@ -3768,6 +3928,8 @@ Commands:
                 sesam_cmd_client.init()
             elif command == "connector-init":
                 sesam_cmd_client.connector_init()
+            elif command == "add-datatype":
+                sesam_cmd_client.add_datatype()
             elif command == "update":
                 sesam_cmd_client.update()
             elif command == "verify":
