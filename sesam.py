@@ -285,8 +285,8 @@ class SesamNode:
         now_ts = time.monotonic()
 
         if self.subscription_id is None or (
-            self._last_registered_action_ts is not None
-            and (now_ts - self._last_registered_action_ts) < 60
+                self._last_registered_action_ts is not None
+                and (now_ts - self._last_registered_action_ts) < 60
         ):
             return
 
@@ -489,7 +489,7 @@ class SesamNode:
             return "endpoint"
 
         if (source_config.get("dataset") or source_config.get("datasets")) and sink_config.get(
-            "dataset"
+                "dataset"
         ):
             return "internal"
 
@@ -2472,150 +2472,158 @@ class SesamCmdClient:
             self.logger.info("manifest.json found, skipping initialization...")
 
     def add_datatype(self):
-        if self.args.connector_dir == ".":
-            with open("manifest.json", "r") as f:
-                manifest_obj = json.load(f)
-                manifest_obj["datatypes"][self.args.datatype] = {
-                    "template": "templates/datatype.json"
-                }
-
-            all_pipe_template_obj = {
-                "_id": "{{@ system @}}-{{@ datatype @}}-all",
-                "add_namespaces": False,
-                "source": {
-                    "operation": "{{@ datatype @}}-list",
-                    "system": "{{@ system @}}",
-                    "type": "rest"
-                },
-                "type": "pipe"
+        with open(f"{self.args.connector_dir}/manifest.json", "r") as f:
+            manifest_obj = json.load(f)
+            manifest_obj["datatypes"][self.args.datatype] = {
+                "template": f"templates/{self.args.datatype}.json"
             }
 
-            collect_pipe_template_obj = {
-                "_id": "{{@ system @}}-{{@ datatype @}}-collect",
-                "namespaced_identifiers": False,
-                "source": {
-                    "dataset": "{{@ system @}}-{{@ datatype @}}-all",
-                    "type": "dataset"
-                },
-                "transform": [
-                    {
-                        "rules": {
-                            "default": [
+        all_pipe_template_obj = {
+            "_id": "{{@ system @}}-{{@ datatype @}}-all",
+            "add_namespaces": False,
+            "source": {
+                "operation": "{{@ datatype @}}-list",
+                "system": "{{@ system @}}",
+                "type": "rest"
+            },
+            "type": "pipe"
+        }
+
+        collect_pipe_template_obj = {
+            "_id": "{{@ system @}}-{{@ datatype @}}-collect",
+            "namespaced_identifiers": False,
+            "source": {
+                "dataset": "{{@ system @}}-{{@ datatype @}}-all",
+                "type": "dataset"
+            },
+            "transform": [
+                {
+                    "rules": {
+                        "default": [
+                            [
+                                "copy",
+                                "*"
+                            ],
+                            [
+                                "add",
+                                "$last-modified",
                                 [
-                                    "copy",
-                                    "*"
-                                ],
-                                [
-                                    "add",
-                                    "$last-modified",
-                                    [
-                                        "datetime-parse",
-                                        "%Y-%m-%dT%H:%M:%S.%fZ",
-                                        "_S.lastUpdatedProperty"
-                                    ]
+                                    "datetime-parse",
+                                    "<FORMATSTRING>",
+                                    "<VALUES>"
                                 ]
                             ]
-                        },
-                        "type": "dtl"
+                        ]
                     },
-                    {
-                        "properties": {
-                            "primary_key": "id"
-                        },
-                        "template": "transform-collect-rest",
-                        "type": "template"
-                    }
-                ],
+                    "type": "dtl"
+                },
+                {
+                    "properties": {
+                        "primary_key": "id",
+                        "operation_lookup_delete": "{{@ datatype @}}-lookup",
+                    },
+                    "template": "transform-collect-rest",
+                    "type": "template"
+                }
+            ],
+            "type": "pipe"
+        }
+
+        if self.args.share:
+            collect_pipe_template_obj["exclude_completeness"] = "{{@ system @}}-{{@ datatype @}}-share"
+            collect_pipe_template_obj["transform"][1]["properties"][
+                "share_dataset"] = "{{@ system @}}-{{@ datatype @}}-share"
+
+            share_pipe_template_obj = {
+                "_id": "{{@ system @}}-{{@ datatype @}}-share",
+                "batch_size": 1,
+                "namespaced_identifiers": False,
+                "sink": {
+                    "set_initial_offset": "onload"
+                },
+                "source": {
+                    "dataset": "{{@ system @}}-{{@ datatype @}}-transform",
+                    "type": "dataset"
+                },
+                "transform": {
+                    "properties": {
+                        "operation_delete": "{{@ datatype @}}-delete",
+                        "operation_insert": "{{@ datatype @}}-insert",
+                        "operation_lookup": "{{@ datatype @}}-lookup",
+                        "operation_update": "{{@ datatype @}}-update",
+                        "primary_key": "id",
+                        "rest_system": "{{@ system @}}",
+                        "share_dataset": "{{@ system @}}-{{@ datatype @}}-share"
+                    },
+                    "template": "transform-share-rest",
+                    "type": "template"
+                },
                 "type": "pipe"
             }
 
-            if self.args.share:
-                collect_pipe_template_obj["exclude_completeness"] = "{{@ system @}}-{{@ datatype @}}-share"
-                collect_pipe_template_obj["transform"][1]["properties"][
-                    "share_dataset"] = "{{@ system @}}-{{@ datatype @}}-share"
-                share_pipe_template_obj = {
-                    "_id": "{{@ system @}}-{{@ datatype @}}-share",
-                    "batch_size": 1,
-                    "namespaced_identifiers": False,
-                    "sink": {
-                        "deletion_tracking": False,
-                        "set_initial_offset": "onload"
-                    },
-                    "source": {
-                        "dataset": "{{@ system @}}-{{@ datatype @}}-transform",
-                        "type": "dataset"
-                    },
-                    "transform": {
-                        "properties": {
-                            "operation_delete": "{{@ datatype @}}-delete",
-                            "operation_insert": "{{@ datatype @}}-insert",
-                            "operation_lookup": "{{@ datatype @}}-lookup",
-                            "operation_update": "{{@ datatype @}}-update",
-                            "primary_key": "id",
-                            "rest_system": "{{@ system @}}",
-                            "share_dataset": "{{@ system @}}-{{@ datatype @}}-share"
-                        },
-                        "template": "transform-share-rest",
-                        "type": "template"
-                    },
-                    "type": "pipe"
-                }
-
-            operations_obj = {
-                f"{self.args.datatype}-list": {
-                    "id_expression": "{{ id }}",
-                    "method": "GET",
-                    "payload_property": "",
-                    "url": ""
-                },
-                f"{self.args.datatype}-delete": {
-                    "method": "DELETE",
-                    "url": ""
-                },
-                f"{self.args.datatype}-insert": {
-                    "method": "POST",
-                    "url": ""
-                },
-                f"{self.args.datatype}-lookup": {
-                    "method": "GET",
-                    "url": ""
-                },
-                f"{self.args.datatype}-update": {
-                    "method": "PUT",
-                    "url": ""
-                }
+        operations_obj = {
+            f"{self.args.datatype}-list": {
+                "id_expression": "{{ <primary-key> }}",
+                "method": "GET",
+                "next_page_link": "{%if (headers.<link-location> is defined)%}{{headers.<link-location>}}{%endif%}",
+                "next_page_termination_strategy": [
+                    "<strategy>"
+                ],
+                "page_size": "<INT>",
+                "payload_property": "",
+                "since_property_name": "",
+                "since_property_location": "",
+                "updated_expression": "",
+                "url": ""
+            },
+            f"{self.args.datatype}-delete": {
+                "method": "DELETE",
+                "url": ""
+            },
+            f"{self.args.datatype}-insert": {
+                "method": "POST",
+                "url": ""
+            },
+            f"{self.args.datatype}-lookup": {
+                "method": "GET",
+                "url": ""
+            },
+            f"{self.args.datatype}-update": {
+                "method": "PUT",
+                "url": ""
             }
-            datatype_template_obj = [all_pipe_template_obj, collect_pipe_template_obj]
-            if self.args.share:
-                datatype_template_obj.append(share_pipe_template_obj)
+        }
+        datatype_template_obj = [all_pipe_template_obj, collect_pipe_template_obj]
+        if self.args.share:
+            datatype_template_obj.append(share_pipe_template_obj)
 
-            with open("manifest.json", "w") as f:
-                json.dump(
-                    manifest_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
+        with open(f"{self.args.connector_dir}/manifest.json", "w") as f:
+            json.dump(
+                manifest_obj,
+                f,
+                indent=2,
+                sort_keys=True,
+            )
 
-            with open(f"templates/{self.args.datatype}.json", "w") as f:
-                json.dump(
-                    datatype_template_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
+        with open(f"{self.args.connector_dir}/templates/{self.args.datatype}.json", "w") as f:
+            json.dump(
+                datatype_template_obj,
+                f,
+                indent=2,
+                sort_keys=True,
+            )
 
-            with open(f"templates/system.json", "r") as f:
-                system_obj = json.load(f)
-                system_obj["operations"].update(operations_obj)
+        with open(f"{self.args.connector_dir}/templates/system.json", "r") as f:
+            system_obj = json.load(f)
+            system_obj["operations"].update(operations_obj)
 
-            with open(f"templates/system.json", "w") as f:
-                json.dump(
-                    system_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
+        with open(f"{self.args.connector_dir}/templates/system.json", "w") as f:
+            json.dump(
+                system_obj,
+                f,
+                indent=2,
+                sort_keys=True,
+            )
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
