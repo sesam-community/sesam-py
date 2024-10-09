@@ -1671,14 +1671,14 @@ class SesamCmdClient:
             remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
 
             diff_found = (
-                    log_and_get_diff_flag(
-                        local_file_data,
-                        remote_file_data,
-                        profile_file,
-                        profile_file,
-                        self.args.diff,
-                    )
-                    or diff_found
+                log_and_get_diff_flag(
+                    local_file_data,
+                    remote_file_data,
+                    profile_file,
+                    profile_file,
+                    self.args.diff,
+                )
+                or diff_found
             )
         except FileNotFoundError:
             logger.error("Cannot locate profile file '%s'" % profile_file)
@@ -1699,14 +1699,14 @@ class SesamCmdClient:
                 )
 
                 diff_found = (
-                        log_and_get_diff_flag(
-                            local_file_data,
-                            remote_file_data,
-                            local_file,
-                            local_file,
-                            self.args.diff,
-                        )
-                        or diff_found
+                    log_and_get_diff_flag(
+                        local_file_data,
+                        remote_file_data,
+                        local_file,
+                        local_file,
+                        self.args.diff,
+                    )
+                    or diff_found
                 )
 
         if diff_found:
@@ -2004,14 +2004,14 @@ class SesamCmdClient:
                                 os.path.relpath(BASE_DIR, GIT_ROOT), test_spec.file
                             )
                             msg = (
-                                    "Pipe verify failed! Length mismatch for "
-                                    "test spec '%s': "
-                                    "expected %d got %d"
-                                    % (
-                                        test_spec.spec_file,
-                                        len(expected_output),
-                                        len(fixed_current_output),
-                                    )
+                                "Pipe verify failed! Length mismatch for "
+                                "test spec '%s': "
+                                "expected %d got %d"
+                                % (
+                                    test_spec.spec_file,
+                                    len(expected_output),
+                                    len(fixed_current_output),
+                                )
                             )
                             self.logger.error(msg, {"file_path": file_path})
 
@@ -2383,7 +2383,8 @@ class SesamCmdClient:
                 self.logger.error(
                     "The current directory does not appear to be a valid "
                     "directory. Please run this command from the root of the "
-                    "connector directory or make sure it follows the naming convention (<name>-connector)."
+                    "connector directory or make sure it follows the naming convention "
+                    "(<name>-connector)."
                 )
                 sys.exit(1)
             connector_name = os.getcwd().split("/")[-1].split("-connector")[0]
@@ -2392,10 +2393,11 @@ class SesamCmdClient:
             if not self.args.connector_dir.endswith("-connector"):
                 self.logger.error(
                     "The connector directory does not appear to be a valid "
-                    "directory. Please make sure it follows the naming convention (<name>-connector)."
+                    "directory. Please make sure it follows the naming convention "
+                    "(<name>-connector)."
                 )
                 sys.exit(1)
-            connector_name = self.args.connector_dir
+            connector_name = self.args.connector_dir.split("-connector")[0]
             root_dir = os.getcwd()
         if not os.path.exists(Path(self.args.connector_dir, "manifest.json")):
             self.logger.info("manifest.json not found, initializing it...")
@@ -2446,7 +2448,9 @@ class SesamCmdClient:
                 }
                 system_obj["jwt_access_token"] = "$SECRET(jwt_access_token)"
 
-            readme_obj = f"# A sesam connector for {connector_name}\n\n## Description\n\n## Configuration\n\n## Datatypes\n\n## Notes\n\n## Environment variables\n\n## Authentication\n {connector_name}-connector uses {self.args.auth} for authentication."
+            readme_obj = (f"# A sesam connector for {connector_name}\n\n## Description\n\n"
+                          f"## Configuration\n\n## Datatypes\n\n## Notes\n\n## Environment "
+                          f"variables\n\n## Authentication")
 
             shutil.copyfile(Path(root_dir, "LICENSE"), Path(self.args.connector_dir, "LICENSE"))
             with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
@@ -2527,7 +2531,8 @@ class SesamCmdClient:
         }
 
         if self.args.share:
-            collect_pipe_template_obj["exclude_completeness"] = "{{@ system @}}-{{@ datatype @}}-share"
+            collect_pipe_template_obj["exclude_completeness"] = \
+                "{{@ system @}}-{{@ datatype @}}-share"
             collect_pipe_template_obj["transform"][1]["properties"][
                 "share_dataset"] = "{{@ system @}}-{{@ datatype @}}-share"
 
@@ -2581,7 +2586,8 @@ class SesamCmdClient:
             f"{datatype}-list": {
                 "id_expression": "{{ <primary-key> }}",
                 "method": "GET",
-                "next_page_link": "{%if (headers.<link-location> is defined)%}{{headers.<link-location>}}{%endif%}",
+                "next_page_link": "{%if (headers.<link-location> is "
+                                  "defined)%}{{headers.<link-location>}}{%endif%}",
                 "next_page_termination_strategy": [
                     "<strategy>"
                 ],
@@ -2686,8 +2692,8 @@ class SesamCmdClient:
                             [
                                 self.filter_entity(e, test_spec)
                                 for e in self.sesam_node.get_pipe_entities(
-                                pipe, stage=test_spec.stage
-                            )
+                                    pipe, stage=test_spec.stage
+                                )
                             ]
                         )
 
@@ -2703,13 +2709,13 @@ class SesamCmdClient:
                         )
 
                         current_output = (
-                                json.dumps(
-                                    current_output,
-                                    indent="  ",
-                                    sort_keys=True,
-                                    ensure_ascii=self.args.unicode_encoding,
-                                )
-                                + "\n"
+                            json.dumps(
+                                current_output,
+                                indent="  ",
+                                sort_keys=True,
+                                ensure_ascii=self.args.unicode_encoding,
+                            )
+                            + "\n"
                         ).encode("utf-8")
 
                         if self.args.disable_json_html_escape is False:
@@ -2819,7 +2825,7 @@ class SesamCmdClient:
         scheduler_mode = self.args.scheduler_mode
         requests_mode = self.args.scheduler_request_mode
         reset_pipes_and_delete_sink_datasets = (
-                self.args.scheduler_dont_reset_pipes_or_delete_sink_datasets is not True
+            self.args.scheduler_dont_reset_pipes_or_delete_sink_datasets is not True
         )
 
         if scheduler_mode is not None and scheduler_mode not in ["active", "poll"]:
@@ -3367,8 +3373,8 @@ Commands:
         help="If specified with the 'upload' command, the 'upload' command will delete all "
              "existing sink datasets before uploading the new config. In some cases, this can be "
              "quicker than doing a 'sesam wipe' or 'sesam reset' command when running ci-tests. "
-             "The downside is that there is a larger risk of data and/or config from previous tests "
-             "influencing the new test-run.",
+             "The downside is that there is a larger risk of data and/or config from previous "
+             "tests influencing the new test-run.",
     )
 
     parser.add_argument(
@@ -3546,8 +3552,8 @@ Commands:
         metavar="<string>",
         type=str,
         help="specifies a folder containing Python tests that sesam-py should run. These tests "
-             "will run after the command (e.g. upload, run) has finished. Uses the pytest framework. "
-             "The folder should be placed on the same level as 'pipes', 'systems' etc.",
+             "will run after the command (e.g. upload, run) has finished. Uses the pytest "
+             "framework. The folder should be placed on the same level as 'pipes', 'systems' etc.",
     )
 
     parser.add_argument(
@@ -3557,8 +3563,8 @@ Commands:
         default="-rP -v",
         type=str,
         help="specify the options that sesam-py should use when running pytest. "
-             "The arguments must be provided inside double quotes with each argument separated by a "
-             'space, e.g. -pytest-args="-vv -x"',
+             "The arguments must be provided inside double quotes with each argument separated by a"
+             ' space, e.g. -pytest-args="-vv -x"',
     )
 
     parser.add_argument(
