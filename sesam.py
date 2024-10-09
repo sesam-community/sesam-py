@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.10.6"
+sesam_version = "2.10.7"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -2471,12 +2471,9 @@ class SesamCmdClient:
         else:
             self.logger.info("manifest.json found, skipping initialization...")
 
-    def add_datatype(self):
-        with open(f"{self.args.connector_dir}/manifest.json", "r") as f:
-            manifest_obj = json.load(f)
-            manifest_obj["datatypes"][self.args.datatype] = {
-                "template": f"templates/{self.args.datatype}.json"
-            }
+    def get_datatype_template(self, datatype):
+        share_operations = {}
+        share_pipe_template_obj = {}
 
         all_pipe_template_obj = {
             "_id": "{{@ system @}}-{{@ datatype @}}-all",
@@ -2561,8 +2558,27 @@ class SesamCmdClient:
                 "type": "pipe"
             }
 
+            share_operations = {
+                f"{datatype}-delete": {
+                    "method": "DELETE",
+                    "url": ""
+                },
+                f"{datatype}-insert": {
+                    "method": "POST",
+                    "url": ""
+                },
+                f"{datatype}-lookup": {
+                    "method": "GET",
+                    "url": ""
+                },
+                f"{datatype}-update": {
+                    "method": "PUT",
+                    "url": ""
+                }
+            }
+
         operations_obj = {
-            f"{self.args.datatype}-list": {
+            f"{datatype}-list": {
                 "id_expression": "{{ <primary-key> }}",
                 "method": "GET",
                 "next_page_link": "{%if (headers.<link-location> is defined)%}{{headers.<link-location>}}{%endif%}",
@@ -2575,55 +2591,58 @@ class SesamCmdClient:
                 "since_property_location": "",
                 "updated_expression": "",
                 "url": ""
-            },
-            f"{self.args.datatype}-delete": {
-                "method": "DELETE",
-                "url": ""
-            },
-            f"{self.args.datatype}-insert": {
-                "method": "POST",
-                "url": ""
-            },
-            f"{self.args.datatype}-lookup": {
-                "method": "GET",
-                "url": ""
-            },
-            f"{self.args.datatype}-update": {
-                "method": "PUT",
-                "url": ""
             }
         }
+
         datatype_template_obj = [all_pipe_template_obj, collect_pipe_template_obj]
         if self.args.share:
             datatype_template_obj.append(share_pipe_template_obj)
+            operations_obj.update(share_operations)
 
-        with open(f"{self.args.connector_dir}/manifest.json", "w") as f:
-            json.dump(
-                manifest_obj,
-                f,
-                indent=2,
-                sort_keys=True,
-            )
+        return datatype_template_obj, operations_obj
 
-        with open(f"{self.args.connector_dir}/templates/{self.args.datatype}.json", "w") as f:
-            json.dump(
-                datatype_template_obj,
-                f,
-                indent=2,
-                sort_keys=True,
-            )
+    def add_datatype(self):
+        if len(self.args.command) <= 1:
+            self.logger.error("Please provide at least one datatype.")
+            sys.exit(1)
 
-        with open(f"{self.args.connector_dir}/templates/system.json", "r") as f:
-            system_obj = json.load(f)
-            system_obj["operations"].update(operations_obj)
+        command_args = self.args.command[1:]
+        for datatype in command_args:
+            datatype_template_obj, operations_obj = self.get_datatype_template(datatype)
 
-        with open(f"{self.args.connector_dir}/templates/system.json", "w") as f:
-            json.dump(
-                system_obj,
-                f,
-                indent=2,
-                sort_keys=True,
-            )
+            with open(f"{self.args.connector_dir}/manifest.json", "r") as f:
+                manifest_obj = json.load(f)
+                manifest_obj["datatypes"][datatype] = {
+                    "template": f"templates/{datatype}.json"
+                }
+
+            with open(f"{self.args.connector_dir}/manifest.json", "w") as f:
+                json.dump(
+                    manifest_obj,
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
+
+            with open(f"{self.args.connector_dir}/templates/{datatype}.json", "w") as f:
+                json.dump(
+                    datatype_template_obj,
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
+
+            with open(f"{self.args.connector_dir}/templates/system.json", "r") as f:
+                system_obj = json.load(f)
+                system_obj["operations"].update(operations_obj)
+
+            with open(f"{self.args.connector_dir}/templates/system.json", "w") as f:
+                json.dump(
+                    system_obj,
+                    f,
+                    indent=2,
+                    sort_keys=True,
+                )
 
     def update(self):
         self.logger.info("Updating expected output from current output...")
@@ -3680,6 +3699,7 @@ Commands:
         metavar="<string>",
         type=str,
         help="datatype to add",
+        nargs="?"
     )
 
     parser.add_argument(
