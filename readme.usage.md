@@ -136,7 +136,8 @@ Commands:
   test            Upload, run and verify output
   stop            Stop any running schedulers (for example if the client was prematurely terminated or disconnected)
   update-schemas  Generate schemas for all datatypes (only works in connector development context)
-  init_connector  Initialize a connector in the working directory with a sample manifest, template and system
+  connector-init  Initialize a connector in the working directory with a sample manifest, template and system
+  add-datatype    Add a new datatype to the local template config (only works in connector development context)
   expand          Expand a connector without running other operations (upload or validate).
   run-pytest      Runs Python tests in the specified folder using the pytest framework. The folder must be placed on the same level as the pipes and systems.
 
@@ -245,6 +246,7 @@ optional arguments:
   --base_url <string>   override to use prod env (available only when working on connectors)
   --days <string>       number of days until the token should expire(available only when working on connectors)
   --use-client-secret   use with sesam upload/authenticate to send add the client_secret parameter to the /authorize URL
+  --share               add share config to the connector template (available only when working on connectors)
 ```
 
 ### Preparing input pipes for testing
