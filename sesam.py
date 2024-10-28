@@ -1499,7 +1499,8 @@ class SesamCmdClient:
 
                     try:
                         with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
-                            entities_json = json.load(f, parse_float=Decimal if self.args.do_float_as_decimal else float)
+                            entities_json = json.load(f, parse_float=Decimal
+                                                      if self.args.do_float_as_decimal else float)
 
                         if entities_json is not None:
                             # deleting dataset before pushing data,
@@ -3697,7 +3698,8 @@ Commands:
         dest="do_float_as_decimal",
         required=False,
         action="store_true",
-        help="use with sesam upload/test to maintain full precision of decimals instead of converting them to floats"
+        help="use with sesam upload/test to maintain full precision "
+             "of decimals instead of converting them to floats",
     )
 
     parser.add_argument(
