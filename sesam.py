@@ -3697,7 +3697,7 @@ Commands:
         dest="do_float_as_decimal",
         required=False,
         action="store_true",
-        help="use with sesam upload/test to not parse arbitrary precision decimal numbers as float"
+        help="use with sesam upload/test to maintain full precision of decimals instead of converting them to floats"
     )
 
     parser.add_argument(

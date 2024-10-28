@@ -246,6 +246,7 @@ optional arguments:
   --base_url <string>   override to use prod env (available only when working on connectors)
   --days <string>       number of days until the token should expire(available only when working on connectors)
   --use-client-secret   use with sesam upload/authenticate to send add the client_secret parameter to the /authorize URL
+  --do-float-as-decimal use with sesam upload/test to maintain full precision of decimals instead of converting them to floats
   --share               add share config to the connector template (available only when working on connectors)
 ```
 
