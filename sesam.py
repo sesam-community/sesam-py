@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.10.7"
+sesam_version = "2.10.8"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1499,7 +1499,8 @@ class SesamCmdClient:
 
                     try:
                         with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
-                            entities_json = json.load(f)
+                            entities_json = json.load(f, parse_float=Decimal
+                                                      if self.args.do_float_as_decimal else float)
 
                         if entities_json is not None:
                             # deleting dataset before pushing data,
@@ -3690,6 +3691,15 @@ Commands:
         action="store_true",
         help="use with sesam upload/authenticate to send add "
              "the client_secret parameter to the /authorize URL",
+    )
+
+    parser.add_argument(
+        "--do-float-as-decimal",
+        dest="do_float_as_decimal",
+        required=False,
+        action="store_true",
+        help="use with sesam upload/test to maintain full precision "
+             "of decimals instead of converting them to floats",
     )
 
     parser.add_argument(
