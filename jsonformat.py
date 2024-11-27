@@ -97,6 +97,7 @@ def format_object(value, style=FormatStyle()):
         "_id",
         "type",
         "name",
+        "description",
         # pipes
         "source",
         "sink",
@@ -120,8 +121,8 @@ def format_object(value, style=FormatStyle()):
 
     def key_weight(key):
         if not style.sort_keys_by_convention or key not in SORT_ORDER:
-            # pad to make sure defined order get first
-            return "0" + key
+            # pad to make sure defined order get first"
+            return "0" if key[0] != "_" else "1" + key
         else:
             return chr(SORT_ORDER.index(key))
 
