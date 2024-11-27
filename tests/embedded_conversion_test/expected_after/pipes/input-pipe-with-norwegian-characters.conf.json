@@ -1,6 +1,7 @@
 {
   "_id": "input-pipe-norwegian",
   "type": "pipe",
+  "description": "øæå",
   "source": {
     "type": "conditional",
     "alternatives": {
@@ -13,6 +14,5 @@
       }
     },
     "condition": "test"
-  },
-  "description": "øæå"
+  }
 }
