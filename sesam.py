@@ -67,7 +67,7 @@ class TestSpec:
         else:
             self._spec["pipe"] = self.name
 
-        with open(filename, "r", encoding="utf-8-sig") as fp:
+        with open(filename, "r", encoding="utf-8") as fp:
             spec_dict = json.load(fp)
             if isinstance(spec_dict, dict):
                 self._spec.update(spec_dict)
@@ -163,7 +163,7 @@ class TestSpec:
         if not filename.startswith("expected" + os.sep):
             filename = os.path.join("expected", filename)
 
-        with open(filename, "r", encoding="utf-8-sig") as fp:
+        with open(filename, "r", encoding="utf-8") as fp:
             return json.load(fp)
 
     def update_expected_data(self, data):
@@ -1380,7 +1380,7 @@ class SesamCmdClient:
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
         try:
-            with open(profile_file, "r", encoding="utf-8-sig") as fp:
+            with open(profile_file, "r", encoding="utf-8") as fp:
                 json_data = json.load(fp)
         except FileNotFoundError as e:
             self.logger.error("Cannot locate profile file '%s'" % profile_file)
@@ -1551,7 +1551,7 @@ class SesamCmdClient:
         # Find env vars to download
         profile_file = "%s-env.json" % self.args.profile
         try:
-            with open(profile_file, "w", encoding="utf-8-sig") as fp:
+            with open(profile_file, "w", encoding="utf-8") as fp:
                 fp.write(format_object(self.sesam_node.get_env(), self.formatstyle))
         except BaseException as e:
             self.logger.error("Failed to save profile file  '%s'" % profile_file)
@@ -1668,7 +1668,7 @@ class SesamCmdClient:
         # compare profile_file content with the variables
         profile_file = "%s-env.json" % self.args.profile
         try:
-            with open(profile_file, "r", encoding="utf-8-sig") as local_env_file:
+            with open(profile_file, "r", encoding="utf-8") as local_env_file:
                 local_file_data = format_object(json.load(local_env_file), self.formatstyle)
             remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
 
