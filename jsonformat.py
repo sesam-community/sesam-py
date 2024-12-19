@@ -35,8 +35,7 @@ class FormatStyle(object):
             "new_line_before_dict_as_value": (
                 False,
                 "Newline before object-as-value",
-                "Add a newline before an object when that "
-                "object is a value of another object",
+                "Add a newline before an object when that object is a value of another object",
             ),
             "newline_before_dict_in_array": (
                 False,
@@ -76,9 +75,7 @@ class FormatStyle(object):
         attributes2print = []
         for attr in dir(self):
             if attr[0] != "_":
-                attributes2print.append(
-                    str("{k}={v}".format(k=attr, v=getattr(self, attr)))
-                )
+                attributes2print.append(str("{k}={v}".format(k=attr, v=getattr(self, attr))))
         return ",".join(attributes2print)
 
 
@@ -122,7 +119,7 @@ def format_object(value, style=FormatStyle()):
     def key_weight(key):
         if not style.sort_keys_by_convention or key not in SORT_ORDER:
             # pad to make sure defined order get first"
-            return "0" if key[0] != "_" else "1" + key
+            return "1" + key if len(key) > 0 and key[0] == "_" else "0"
         else:
             return chr(SORT_ORDER.index(key))
 
@@ -225,9 +222,7 @@ def format_object(value, style=FormatStyle()):
                         output = strip_trailing_whitespace(output)
                         output += new_line(-1)
                     elif (
-                        style.newline_before_dict_in_array
-                        and len(stack) > 1
-                        and stack[-2] is ARRAY
+                        style.newline_before_dict_in_array and len(stack) > 1 and stack[-2] is ARRAY
                     ):
                         output = strip_trailing_whitespace(output)
                         output += new_line(-1)
