@@ -1481,7 +1481,7 @@ class SesamCmdClient:
             raise e
 
         try:
-            self.sesam_node.put_config(zip_config, force=self.args.force_upload)
+            self.sesam_node.put_config(zip_config, force=self.args.force)
         except BaseException as e:
             self.logger.error("Failed to upload config to sesam")
             raise e
@@ -3697,14 +3697,6 @@ Commands:
         required=False,
         action="store_true",
         help="set this flag to enable sharing",
-    )
-
-    parser.add_argument(
-        "--force-upload",
-        dest="force_upload",
-        required=False,
-        action="store_true",
-        help="set this flag to enable force upload",
     )
 
     try:
