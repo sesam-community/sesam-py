@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import FormatStyle, format_object
 
-sesam_version = "2.10.10"
+sesam_version = "2.10.11"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1481,7 +1481,7 @@ class SesamCmdClient:
             raise e
 
         try:
-            self.sesam_node.put_config(zip_config, force=True)
+            self.sesam_node.put_config(zip_config, force=self.args.force_upload)
         except BaseException as e:
             self.logger.error("Failed to upload config to sesam")
             raise e
@@ -3697,6 +3697,14 @@ Commands:
         required=False,
         action="store_true",
         help="set this flag to enable sharing",
+    )
+
+    parser.add_argument(
+        "--force-upload",
+        dest="force_upload",
+        required=False,
+        action="store_true",
+        help="set this flag to enable force upload",
     )
 
     try:

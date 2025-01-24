@@ -248,6 +248,7 @@ optional arguments:
   --use-client-secret   use with sesam upload/authenticate to send add the client_secret parameter to the /authorize URL
   --do-float-as-decimal use with sesam upload/test to maintain full precision of decimals instead of converting them to floats
   --share               add share config to the connector template (available only when working on connectors)
+  --force-upload        force upload of the config even if the config is invalid
 ```
 
 ### Preparing input pipes for testing
