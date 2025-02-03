@@ -1,37 +1,23 @@
 # -*- coding: utf-8 -*-
-# This is an older version of jsonformat.py from the lake repository
-# The sorting order on dictionary keys only promotes _id to the front
+# Copied from Lake 03/03/2025 during IS-18106
 
+import json
 from collections import OrderedDict
 from collections.abc import Mapping
-
-# import json
-import simplejson as json
 
 
 class FormatStyle(object):
     def __init__(self, **kwargs):
         prop_defaults = {
-            "spaces_for_indent": (
-                2,
-                "Tab length",
-                "Number of spaces to use for indentation",
-            ),
+            "font_size": (12, "Font size", "Editor font size"),
+            "spaces_for_indent": (2, "Tab length", "Number of spaces to use for indentation"),
             "use_tab_for_indent": (
                 False,
                 "Indent with tabs",
                 "Use real tab characters for indentation",
             ),
-            "space_after_colon": (
-                True,
-                "Space after colon",
-                "Add an extra space after colons",
-            ),
-            "space_after_comma": (
-                True,
-                "Space after comma",
-                "Add an extra space after commas",
-            ),
+            "space_after_colon": (True, "Space after colon", "Add an extra space after colons"),
+            "space_after_comma": (True, "Space after comma", "Add an extra space after commas"),
             "new_line_before_dict_as_value": (
                 False,
                 "Newline before object-as-value",
@@ -45,8 +31,7 @@ class FormatStyle(object):
             "close_nested_array_on_new_line": (
                 True,
                 "Close nested array on new line",
-                "If an array has a child array, place the "
-                "parent's closing bracket on a new line",
+                "If an array has a child array, place the parent's closing bracket on a new line",
             ),
             "collapse_indent_for_dict_inside_array": (
                 True,
@@ -56,8 +41,7 @@ class FormatStyle(object):
             "elements_of_array_as_value_on_separate_lines": (
                 False,
                 "Array-as-value on separate lines",
-                "If an array is a value of an object, "
-                "split the array elements over multiple lines",
+                "If an array is a value of an object, split the array elements over multiple lines",
             ),
             "sort_keys_by_convention": (
                 True,
@@ -71,16 +55,43 @@ class FormatStyle(object):
             setattr(self, "_doc_" + prop, doc)
             setattr(self, "_label_" + prop, label)
 
-    def __str__(self):
-        attributes2print = []
-        for attr in dir(self):
-            if attr[0] != "_":
-                attributes2print.append(str("{k}={v}".format(k=attr, v=getattr(self, attr))))
-        return ",".join(attributes2print)
-
 
 def format_json(json_object, style=FormatStyle()):
-    return format_object(json.loads(json_object), style)
+    return format_object(json_object, style)
+
+
+def is_key_internal(key):
+    return key.startswith("_") and key != "_id"
+
+
+# compact json representation with no extra whitespace
+_SORT_ORDER = [
+    # general sorting
+    "_id",
+    "type",
+    "name",
+    "description",
+    # pipes
+    "source",
+    "sink",
+    "transform",
+    "pump",
+    "metadata",
+    # sinks, sources
+    "system",
+    # hops
+    "datasets",
+    "where",
+    "return",
+    "recurse",
+    "max_depth",
+    "exclude_root",
+    "track-dependencies",
+    "trace",
+    # dtl transform
+    "default",
+]
+SORT_ORDER_LOOKUP = OrderedDict([(index, key) for key, index in enumerate(_SORT_ORDER)])
 
 
 def format_object(value, style=FormatStyle()):
@@ -88,40 +99,20 @@ def format_object(value, style=FormatStyle()):
     ARRAY = 1
     STRING = 2
     ESCAPE = 3
-    # compact json representation with no extra whitespace
-    SORT_ORDER = [
-        # general sorting
-        "_id",
-        "type",
-        "name",
-        "description",
-        # pipes
-        "source",
-        "sink",
-        "transform",
-        "pump",
-        "metadata",
-        # sinks, sources
-        "system",
-        # hops
-        "datasets",
-        "where",
-        "return",
-        "recurse",
-        "max_depth",
-        "exclude_root",
-        "track-dependencies",
-        "trace",
-        # dtl transform
-        "default",
-    ]
 
     def key_weight(key):
-        if not style.sort_keys_by_convention or key not in SORT_ORDER:
-            # pad to make sure defined order get first"
-            return "1" + key if len(key) > 0 and key[0] == "_" else "0"
+        if not style.sort_keys_by_convention:
+            return key
         else:
-            return chr(SORT_ORDER.index(key))
+            if is_key_internal(key) or key in {"$audit", "$principals-from-user"}:
+                # ensure internal underscore keys and audit and principal information
+                # is at the end
+                return "1" + key
+            elif key not in SORT_ORDER_LOOKUP:
+                # pad to make sure defined order get first
+                return "0" + key
+            else:
+                return chr(SORT_ORDER_LOOKUP.get(key))
 
     def sort_dict(dict):
         for key in dict:
@@ -159,8 +150,8 @@ def format_object(value, style=FormatStyle()):
     for i, c in enumerate(minimal):
         beginning = i == 0
         if len(stack) > 0 and stack[-1] is ESCAPE:
-            # last character was escape symbol
-            # so we ignore the current char and jump out of escape mode
+            # last character was escape symbol so we ignore the
+            # current char and jump out of escape mode
             stack.pop()
         else:
             if c == "\\":
@@ -174,14 +165,14 @@ def format_object(value, style=FormatStyle()):
 
             # we do not parse the inside of a string
             if len(stack) == 0 or stack[-1] is not STRING:
-                # maintain stack and indentation so we
-                # know if we are inside a dict or an array
+                # maintain stack and indentation so we know
+                # if we are inside a dict or an array
                 if c == "{":
                     # we only indent dicts inside dicts
                     if (
                         not style.collapse_indent_for_dict_inside_array
                         or len(stack) == 0
-                        or stack[-1] == DICT
+                        or stack[-1] is DICT
                     ):
                         indent += 1
                     stack.append(DICT)
@@ -207,8 +198,7 @@ def format_object(value, style=FormatStyle()):
                         output = strip_trailing_whitespace(output)
                     else:
                         # we want the end of dicts inside arrays to be on the _same_
-                        # indent as the array opening to avoid double indenting of
-                        # the dict keys
+                        # indent as the array opening to avoid double indenting of the dict keys
                         if (
                             len(stack) > 0
                             and stack[-1] is ARRAY
@@ -257,7 +247,6 @@ def format_object(value, style=FormatStyle()):
                     output += new_line()
                 elif style.space_after_comma:
                     output += " "
-
         prev = c
     output += "\n"
     return output

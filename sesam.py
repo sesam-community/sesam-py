@@ -29,9 +29,9 @@ from requests import post
 from requests.exceptions import HTTPError, RequestException
 
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
-from jsonformat import FormatStyle, format_object
+from jsonformat import format_json
 
-sesam_version = "2.10.11"
+sesam_version = "2.11.0"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -800,7 +800,6 @@ class SesamCmdClient:
         self.args = args
         self.logger = logger
         self.sesam_node = None
-        self.formatstyle = FormatStyle()
         self.whitelisted_files = None
         self.whitelisted_pipes = None
         self.whitelisted_systems = None
@@ -1060,12 +1059,6 @@ class SesamCmdClient:
 
         return zip_data
 
-    def get_formatstyle_from_configfile(self):
-        configfilename = self.args.sesamconfig_file or ".sesamconfig.json"
-        is_required = self.args.sesamconfig_file is not None
-        configuration = self.read_config_file(configfilename, is_required)
-        return FormatStyle(**configuration.get("formatstyle", {}))
-
     def get_node_and_jwt_token(self, args):
         try:
             node_url, jwt_token = sesamclient.utils.get_node_and_jwt_token(
@@ -1086,9 +1079,7 @@ class SesamCmdClient:
         zout = ZipFile(buffer, mode="w")
 
         for item in zip_config.infolist():
-            formatted_item = format_object(
-                json.load(zip_config.open(item.filename)), self.formatstyle
-            )
+            formatted_item = format_json(json.load(zip_config.open(item.filename)))
             zout.writestr(item, formatted_item)
 
         zout.close()
@@ -1552,7 +1543,7 @@ class SesamCmdClient:
         profile_file = "%s-env.json" % self.args.profile
         try:
             with open(profile_file, "w", encoding="utf-8-sig") as fp:
-                fp.write(format_object(self.sesam_node.get_env(), self.formatstyle))
+                fp.write(format_json(self.sesam_node.get_env()))
         except BaseException as e:
             self.logger.error("Failed to save profile file  '%s'" % profile_file)
             raise e
@@ -1669,8 +1660,8 @@ class SesamCmdClient:
         profile_file = "%s-env.json" % self.args.profile
         try:
             with open(profile_file, "r", encoding="utf-8-sig") as local_env_file:
-                local_file_data = format_object(json.load(local_env_file), self.formatstyle)
-            remote_file_data = format_object(self.sesam_node.get_env(), self.formatstyle)
+                local_file_data = format_json(json.load(local_env_file))
+            remote_file_data = format_json(self.sesam_node.get_env())
 
             diff_found = (
                 log_and_get_diff_flag(
@@ -1696,9 +1687,7 @@ class SesamCmdClient:
                 diff_found = True
             else:
                 local_file_data = str(local_config.read(local_file), encoding="utf-8")
-                remote_file_data = format_object(
-                    json.load(remote_config.open(local_file)), self.formatstyle
-                )
+                remote_file_data = format_json(json.load(remote_config.open(local_file)))
 
                 diff_found = (
                     log_and_get_diff_flag(
@@ -2353,7 +2342,7 @@ class SesamCmdClient:
 
                 if new_cfg is not None:
                     with open(cfg_path, "w", encoding="utf-8") as pipe_file:
-                        pipe_file.write(format_object(new_cfg, self.formatstyle))
+                        pipe_file.write(format_json(new_cfg))
 
         if added_sources > 0:
             self.logger.info("Successfully added test sources to %i pipes." % added_sources)
@@ -3040,11 +3029,11 @@ class SesamCmdClient:
         def save_testdata_file(pipe_id, entities):
             os.makedirs("testdata", exist_ok=True)
             with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8") as testdata_file:
-                testdata_file.write(format_object(entities, self.formatstyle))
+                testdata_file.write(format_json(entities))
 
         def save_modified_pipe(pipe_json, path):
             with open(path, "w", encoding="utf-8") as pipe_file:
-                pipe_file.write(format_object(pipe_json, self.formatstyle))
+                pipe_file.write(format_json(pipe_json))
 
         self.logger.info("Starting converting conditional embedded sources")
 
@@ -3067,6 +3056,40 @@ class SesamCmdClient:
                 save_testdata_file(pipe["_id"], entities)
 
         self.logger.info("Successfully converted pipes and created testdata folder")
+
+    def format(self, option):
+        def _format_file(file):
+            with open(file, "r") as f:
+                formatted = format_json(json.loads(f.read()))
+            with open(file, "w") as f:
+                f.writelines(formatted)
+
+        options = {
+            "all": {
+                "glob": [
+                    "pipes/*.conf.json",
+                    "testdata/*.json",
+                    "systems/*.conf.json",
+                ]
+            },
+            "pipes": {"glob": ["pipes/*.conf.json"]},
+            "testdata": {"glob": ["testdata/*.json"]},
+            "systems": {"glob": ["systems/*.conf.json"]},
+        }
+
+        if option not in options:
+            self.logger.info(
+                f"[!] {option} is not a valid type to format... Try pipes, systems, or testdata. "
+                "You can also use p, s, and t. Supplying no option will format all of them."
+            )
+            return
+
+        for path in options[option]["glob"]:
+            self.logger.info(f"[+] Formatting {option} files. Search query is {path}")
+            for file in glob(path):
+                if self.args.extra_extra_verbose:
+                    self.logger.info(f"[+] Formatting {file}")
+                _format_file(file)
 
 
 class AzureFormatter(logging.Formatter):
@@ -3126,6 +3149,7 @@ Commands:
   connector_init  Initialize a connector in the working directory with a sample manifest, template and system
   expand          Expand a connector without running other operations (upload or validate).
   run-pytest      Runs Python tests in the specified folder using the pytest framework. The folder must be placed on the same level as the pipes and systems.
+  format          Formats pipes, systems, and testdata in the same way that the portal does, just offline now instead.
 """,  # noqa: E501
         formatter_class=RawDescriptionHelpFormatter,
     )
@@ -3768,11 +3792,7 @@ Commands:
         command = args.command[0] and args.command[0].lower()
         if len(args.command) > 1:
             command_args = args.command[1:]
-            if command != "run-pytest":
-                logger.warning(
-                    f"Additional arguments were passed, but they will have no effect: "
-                    f"{','.join(command_args)}"
-                )
+
     else:
         command = ""
 
@@ -3798,6 +3818,7 @@ Commands:
         "convert",
         "update-schemas",
         "run-pytest",
+        "format",
     ]:
         if command:
             logger.error("Unknown command: '%s'", command)
@@ -3815,7 +3836,7 @@ Commands:
 
         sys.exit(1)
 
-    offline = command == "validate"
+    offline = command in ["validate", "format"]
     if not offline:
         try:
             node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token(args)
@@ -3850,18 +3871,6 @@ Commands:
                     or args.extra_extra_verbose is True
                 ):
                     logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
-
-        try:
-            sesam_cmd_client.formatstyle = sesam_cmd_client.get_formatstyle_from_configfile()
-        except BaseException as e:
-            if (
-                args.verbose is True
-                or args.extra_verbose is True
-                or args.extra_extra_verbose is True
-            ):
-                logger.exception(e)
-            logger.error("config file is mandatory when -sesamconfig-file argument is specified")
-            sys.exit(1)
 
         try:
             sesam_cmd_client.sesam_node = SesamNode(
@@ -3997,6 +4006,10 @@ Commands:
 
                 sesam_cmd_client.args.pytest_tests_folder = command_args[0]
                 sesam_cmd_client.run_pytest_tests(is_standalone_run=True)
+            elif command == "format":
+                if not command_args:
+                    command_args = ["all"]
+                sesam_cmd_client.format(command_args[0])
             else:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
