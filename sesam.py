@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.0"
+sesam_version = "2.11.1"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3077,15 +3077,20 @@ class SesamCmdClient:
             "systems": {"glob": ["systems/*.conf.json"]},
         }
 
-        if option not in options:
+        if option not in options and not option.endswith(".json"):
             self.logger.info(
                 f"[!] {option} is not a valid type to format... Try pipes, systems, or testdata. "
                 "You can also use p, s, and t. Supplying no option will format all of them."
             )
             return
 
+        if option.endswith(".json"):
+            self.logger.info(f"[+] Formatting {option}.")
+            _format_file(option)
+            return
+
         for path in options[option]["glob"]:
-            self.logger.info(f"[+] Formatting {option} files. Search query is {path}")
+            self.logger.info(f"[+] Formatting {path.split('/')[0]} files. Search query is {path}")
             for file in glob(path):
                 if self.args.extra_extra_verbose:
                     self.logger.info(f"[+] Formatting {file}")
