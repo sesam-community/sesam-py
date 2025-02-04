@@ -3079,8 +3079,8 @@ class SesamCmdClient:
 
         if option not in options and not option.endswith(".json"):
             self.logger.info(
-                f"[!] {option} is not a valid type to format... Try pipes, systems, or testdata. "
-                "You can also use p, s, and t. Supplying no option will format all of them."
+                f"[!] {option} is not a valid type to format..."
+                "Try pipes, systems, or testdata. Alternatively you can pass in a json file"
             )
             return
 
