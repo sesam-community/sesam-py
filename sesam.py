@@ -1475,7 +1475,21 @@ class SesamCmdClient:
             self.sesam_node.put_config(zip_config, force=self.args.force)
         except BaseException as e:
             self.logger.error("Failed to upload config to sesam")
-            raise e
+            if hasattr(e, "parsed_response"):
+                for validation_error in e.parsed_response.get("validation_errors"):
+                    validation_id = validation_error["posted-config"]["_id"]
+                    full_config_errors = validation_error["config-errors"]
+                    critical_config_errors = [error for error in full_config_errors if error["level"]=="error"]
+                    if args.verbose and critical_config_errors:
+                        self.logger.error(
+                            f"Validation error for config '{validation_id}': {critical_config_errors}"
+                        )
+                    elif args.extra_verbose and full_config_errors:
+                        self.logger.error(
+                            f"Validation error for config '{validation_id}': {full_config_errors}"
+                        )
+                    else:
+                        raise e
 
         self.sesam_node.wait_for_all_pipes_to_deploy()
 
