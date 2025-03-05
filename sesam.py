@@ -1479,10 +1479,13 @@ class SesamCmdClient:
                 for validation_error in e.parsed_response.get("validation_errors"):
                     validation_id = validation_error["posted-config"]["_id"]
                     full_config_errors = validation_error["config-errors"]
-                    critical_config_errors = [error for error in full_config_errors if error["level"]=="error"]
+                    critical_config_errors = [
+                        error for error in full_config_errors if error["level"] == "error"
+                    ]
                     if args.verbose and critical_config_errors:
                         self.logger.error(
-                            f"Validation error for config '{validation_id}': {critical_config_errors}"
+                            f"Validation error for "
+                            f"config '{validation_id}': {critical_config_errors}"
                         )
                     elif args.extra_verbose and full_config_errors:
                         self.logger.error(
