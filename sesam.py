@@ -44,6 +44,32 @@ def normalize_path(filename):
     return filename.replace("\\", "/")
 
 
+class UploadException(Exception):
+    def __init__(self, errors):
+        self.errors = errors
+
+    def __str__(self):
+        return self.get_validation_report()
+
+    def get_validation_report(self):
+        output = "******************Validation Errors*****************\n"
+        for validation_error in self.errors:
+            validation_id = validation_error.get("posted-config", {}).get("_id")
+            full_config_errors = validation_error.get("config-errors")
+            critical_config_errors = [
+                error for error in full_config_errors if error["level"] == "error"
+            ]
+            if args.verbose and critical_config_errors:
+                output += f"{validation_id}:\n{pformat(critical_config_errors)}\n" + "-" * 50 + "\n"
+            elif args.extra_verbose and full_config_errors:
+                output += f"{validation_id}:\n{pformat(full_config_errors)}\n" + "-" * 50 + "\n"
+            elif args.extra_extra_verbose and validation_error:
+                output += f"{validation_id}:\n{pformat(validation_error)}\n" + "-" * 50 + "\n"
+
+        output += "**************End of Validation Errors**************"
+        return output
+
+
 class SesamParser(ArgumentParser):
     def error(self, message):
         sys.stderr.write("error: %s\n\n" % message)
@@ -1476,23 +1502,9 @@ class SesamCmdClient:
         except BaseException as e:
             self.logger.error("Failed to upload config to sesam")
             if hasattr(e, "parsed_response"):
-                for validation_error in e.parsed_response.get("validation_errors"):
-                    validation_id = validation_error["posted-config"]["_id"]
-                    full_config_errors = validation_error["config-errors"]
-                    critical_config_errors = [
-                        error for error in full_config_errors if error["level"] == "error"
-                    ]
-                    if args.verbose and critical_config_errors:
-                        self.logger.error(
-                            f"Validation error for "
-                            f"config '{validation_id}': {critical_config_errors}"
-                        )
-                    elif args.extra_verbose and full_config_errors:
-                        self.logger.error(
-                            f"Validation error for config '{validation_id}': {full_config_errors}"
-                        )
-                    else:
-                        raise e
+                raise UploadException(e.parsed_response.get("validation_errors"))
+            else:
+                raise e
 
         self.sesam_node.wait_for_all_pipes_to_deploy()
 
@@ -4051,6 +4063,8 @@ Commands:
                 f"please contact support@sesam.io if this is unexpected. {error_text}"
             )
             sys.exit(1)
+    except UploadException as e:
+        logger.error(e)
     except BaseException as e:
         logger.error("Sesam client failed!")
         if args.extra_verbose is True or args.extra_extra_verbose is True:
