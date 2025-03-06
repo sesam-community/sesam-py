@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.1"
+sesam_version = "2.11.2"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1502,7 +1502,7 @@ class SesamCmdClient:
         except BaseException as e:
             self.logger.error("Failed to upload config to sesam")
             if hasattr(e, "parsed_response"):
-                raise UploadException(e.parsed_response.get("validation_errors"))
+                raise UploadException(e.parsed_response.get("validation_errors", []))
             else:
                 raise e
 
