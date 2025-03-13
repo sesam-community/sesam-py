@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.2"
+sesam_version = "2.11.3"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3096,30 +3096,33 @@ class SesamCmdClient:
         options = {
             "all": {
                 "glob": [
-                    "pipes/*.conf.json",
+                    "pipes/*.json",
                     "testdata/*.json",
-                    "systems/*.conf.json",
+                    "systems/*.json",
+                    "expected/*[!.test].json",
                 ]
             },
-            "pipes": {"glob": ["pipes/*.conf.json"]},
+            "pipes": {"glob": ["pipes/*.json"]},
             "testdata": {"glob": ["testdata/*.json"]},
-            "systems": {"glob": ["systems/*.conf.json"]},
+            "systems": {"glob": ["systems/*.json"]},
+            "expected": {"glob": ["expected/*[!.test].json"]},
         }
 
         if option not in options and not option.endswith(".json"):
             self.logger.info(
-                f"[!] {option} is not a valid type to format..."
-                "Try pipes, systems, or testdata. Alternatively you can pass in a json file"
+                f"[!] {option} is not a valid type to format... "
+                "Try pipes, systems, testdata, or expected. "
+                "Alternatively you can pass in a json file"
             )
             return
 
         if option.endswith(".json"):
-            self.logger.info(f"[+] Formatting {option}.")
+            self.logger.info(f"[*] Formatting {option}.")
             _format_file(option)
             return
 
         for path in options[option]["glob"]:
-            self.logger.info(f"[+] Formatting {path.split('/')[0]} files. Search query is {path}")
+            self.logger.info(f"[*] Formatting {path.split('/')[0]} files. Search query is {path}")
             for file in glob(path):
                 if self.args.extra_extra_verbose:
                     self.logger.info(f"[+] Formatting {file}")
@@ -3183,7 +3186,7 @@ Commands:
   connector_init  Initialize a connector in the working directory with a sample manifest, template and system
   expand          Expand a connector without running other operations (upload or validate).
   run-pytest      Runs Python tests in the specified folder using the pytest framework. The folder must be placed on the same level as the pipes and systems.
-  format          Formats pipes, systems, and testdata in the same way that the portal does, just offline now instead.
+  format          Formats pipes, systems, testdata, and expected files in the same way that the portal does, just offline now instead.
 """,  # noqa: E501
         formatter_class=RawDescriptionHelpFormatter,
     )
