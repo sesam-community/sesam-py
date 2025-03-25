@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.3"
+sesam_version = "2.11.4"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3087,9 +3087,26 @@ class SesamCmdClient:
         self.logger.info("Successfully converted pipes and created testdata folder")
 
     def format(self, option):
-        def _format_file(file):
+        def _format_file(file, folder):
             with open(file, "r") as f:
-                formatted = format_json(json.loads(f.read()))
+                if folder == "expected":
+                    expected_in = json.loads(f.read())
+                    formatted = (
+                        json.dumps(
+                            expected_in,
+                            indent="  ",
+                            sort_keys=True,
+                            ensure_ascii=self.args.unicode_encoding,
+                        )
+                        + "\n"
+                    )
+
+                    if self.args.disable_json_html_escape is False:
+                        formatted = formatted.replace("<", "\\u003c")
+                        formatted = formatted.replace(">", "\\u003e")
+                        formatted = formatted.replace("&", "\\u0026")
+                else:
+                    formatted = format_json(json.loads(f.read()))
             with open(file, "w") as f:
                 f.writelines(formatted)
 
@@ -3105,7 +3122,7 @@ class SesamCmdClient:
             "pipes": {"glob": ["pipes/*.json"]},
             "testdata": {"glob": ["testdata/*.json"]},
             "systems": {"glob": ["systems/*.json"]},
-            "expected": {"glob": ["expected/*[!.test].json"]},
+            "expected": {"glob": ["expected/*.json"]},
         }
 
         if option not in options and not option.endswith(".json"):
@@ -3117,16 +3134,28 @@ class SesamCmdClient:
             return
 
         if option.endswith(".json"):
+            file_folder = option.split("/")[0]
+            if file_folder.endswith(".json"):
+                self.logger.warning(
+                    "[!] Unknown directory for file, formatting as normal. "
+                    "If this file is expected data, please make sure it has "
+                    "the directory in the path."
+                )
+
             self.logger.info(f"[*] Formatting {option}.")
-            _format_file(option)
+            _format_file(option, file_folder)
             return
 
         for path in options[option]["glob"]:
-            self.logger.info(f"[*] Formatting {path.split('/')[0]} files. Search query is {path}")
+            folder = path.split("/")[0]
+            self.logger.info(f"[*] Formatting {folder} files. Search query is {path}")
             for file in glob(path):
+                if folder == "expected" and ".test.json" in file:
+                    continue
+
                 if self.args.extra_extra_verbose:
                     self.logger.info(f"[+] Formatting {file}")
-                _format_file(file)
+                _format_file(file, folder)
 
 
 class AzureFormatter(logging.Formatter):
@@ -3400,7 +3429,9 @@ Commands:
         dest="disable_json_html_escape",
         required=False,
         action="store_true",
-        help="turn off escaping of '<', '>' and '&' characters " "in 'expected output' json files",
+        help="turn off escaping of '<', '>' and '&' characters "
+        "in 'expected output' json files"
+        " including 'sesam format expected'",
     )
 
     parser.add_argument(
