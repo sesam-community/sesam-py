@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.4"
+sesam_version = "2.11.5"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3134,7 +3134,12 @@ class SesamCmdClient:
             return
 
         if option.endswith(".json"):
-            file_folder = option.split("/")[0]
+            dirs = option.split("/")
+            for dir in dirs:
+                if dir in options.keys():
+                    file_folder = dir
+                    break
+
             if file_folder.endswith(".json"):
                 self.logger.warning(
                     "[!] Unknown directory for file, formatting as normal. "
