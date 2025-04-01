@@ -114,7 +114,7 @@ def login_callback():
     if not is_failed:
         if require_so_ticket:
             so_ticket, account_id, base_url = get_so_ticket(data, secrets)
-            secrets['so_ticket'] = so_ticket['so_ticket']
+            secrets["so_ticket"] = so_ticket["so_ticket"]
     else:
         sesam_node.logger.error("Failed to get so_ticket.")
 
@@ -167,7 +167,7 @@ def login_callback():
 
 def start_server(args):
     global system_id, client_id, client_secret, base_url, login_url
-    global token_url, event, profile_file, manifest, service_url
+    global token_url, profile_file, manifest, service_url
     global service_jwt, account_id_override, ignore_refresh_token, optional_scopes
 
     profile_file = "%s-env.json" % args.profile
@@ -186,13 +186,13 @@ def start_server(args):
     ignore_refresh_token = args.ignore_refresh_token
     _, manifest = expand_connector_config(system_id)
     if (
-            system_id
-            and client_id
-            and client_secret
-            and service_url
-            and login_url
-            and token_url
-            and scopes
+        system_id
+        and client_id
+        and client_secret
+        and service_url
+        and login_url
+        and token_url
+        and scopes
     ):
         params = {
             "client_id": client_id,
