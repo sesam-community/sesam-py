@@ -22,9 +22,8 @@ jobs:
           pip install pytest pytest-md pytest-emoji
           pip install -r requirements.txt
 
-      - name: Move to test dir
-        run: cd testing/test_commands
-
       - uses: pavelzw/pytest-action@v2
         with:
           report-title: 'PyTest Results'
+          custom-pytest: pytest tests/test_commands
+
