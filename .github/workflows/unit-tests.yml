@@ -3,25 +3,28 @@ name: Unit Tests
 on: 
   pull_request:
     branches: master
-    paths:
-      - tests/test_commands
 
 jobs:
-  build:
+  run-unit-tests:
     name: Run tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.10"
+
       - name: Install dependencies
-        run: pip install pytest pytest-md pytest-emoji
-        run: pip install -r requirements.txt
+        run: |
+          pip install pytest pytest-md pytest-emoji
+          pip install -r requirements.txt
+
+      - name: Move to test dir
+        run: cd testing/test_commands
+
       - uses: pavelzw/pytest-action@v2
         with:
-          verbose: true
-          emoji: true
-          job-summary: true
-          click-to-expand: true
           report-title: 'PyTest Results'
