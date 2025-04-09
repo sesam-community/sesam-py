@@ -26,4 +26,6 @@ jobs:
         with:
           report-title: 'PyTest Results'
           custom-pytest: pytest tests/test_commands
+          click-to-expand: false
+          
 
