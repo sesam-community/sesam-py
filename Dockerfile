@@ -1,4 +1,7 @@
 FROM python:3.10-slim
-WORKDIR /code
+WORKDIR /sesam-py
 COPY . .
+RUN apt-get update
+RUN apt-get install -y binutils
 RUN pip install -r requirements.txt
+RUN pytest tests/test_commands
