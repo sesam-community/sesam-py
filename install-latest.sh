@@ -34,6 +34,7 @@ if [ -z "$output_file" ]; then
 	output_file="sesam-latest"
 fi
 
+
 echo "[+] Downloading latest executable"
 tag_url=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/sesam-community/sesam-py/releases/latest)
 tag=$(basename $tag_url)

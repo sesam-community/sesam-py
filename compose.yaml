@@ -4,3 +4,6 @@ services:
     stdin_open: true
     tty: true
     build: .
+
+    volumes:
+      - .:/code
