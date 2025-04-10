@@ -1,0 +1,6 @@
+services:
+  dev:
+    container_name: sesampy
+    stdin_open: true
+    tty: true
+    build: .
