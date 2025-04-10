@@ -1,4 +1,4 @@
-name: Unit Tests
+name: PyTest
 
 on: 
   pull_request:
@@ -27,5 +27,3 @@ jobs:
           report-title: 'PyTest Results'
           custom-pytest: pytest tests/test_commands
           click-to-expand: false
-          
-
