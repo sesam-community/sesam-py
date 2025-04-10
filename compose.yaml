@@ -4,6 +4,7 @@ services:
     stdin_open: true
     tty: true
     build: .
+    command: ./install.sh
 
     volumes:
-      - .:/code
+      - .:/sesam-py
