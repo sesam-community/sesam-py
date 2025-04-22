@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.6"
+sesam_version = "2.11.7"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -3116,7 +3116,7 @@ class SesamCmdClient:
                     "pipes/*.json",
                     "testdata/*.json",
                     "systems/*.json",
-                    "expected/*[!.test].json",
+                    "expected/*.json",
                 ]
             },
             "pipes": {"glob": ["pipes/*.json"]},

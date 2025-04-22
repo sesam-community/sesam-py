@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-20.04, windows-latest]
+        os: [macos-latest, ubuntu-22.04, windows-latest]
         python: ["3.10"]
     steps:
       - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
           asset_name: sesam-windows-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
       - name: Upload Linux assets to release
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
