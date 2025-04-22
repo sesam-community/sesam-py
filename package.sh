@@ -4,7 +4,7 @@ echo "Packaging..."
 
 pushd dist
 
-if [ "$OS" == "ubuntu-20.04" ] ; then
+if [ "$OS" == "ubuntu-22.04" ] ; then
     export SESAM_ARTIFACT_NAME=sesam-linux-${TAG}.tar.gz
     tar -zcf ${SESAM_ARTIFACT_NAME} sesam
 fi
