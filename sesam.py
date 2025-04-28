@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError, RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.7"
+sesam_version = "2.11.6"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -2753,9 +2753,10 @@ class SesamCmdClient:
         try:
             self.logger.info("Trying to stop a previously running scheduler..")
 
-            self.sesam_node.stop_internal_scheduler()
+            out = self.sesam_node.stop_internal_scheduler()
 
             self.logger.info("Any previously running scheduler has been stopped")
+            return out
         except BaseException as e:
             self.logger.error("Failed to stop running schedulers!")
             if throw_error:

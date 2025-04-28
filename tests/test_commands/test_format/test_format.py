@@ -15,3 +15,8 @@ def test_all():
     cmdClient = SesamCmdClient(args, logger)
 
     cmdClient.format("all")
+
+    cmdClient.format("pipes")
+    cmdClient.format("expected")
+    cmdClient.format("systems")
+    cmdClient.format("testdata")

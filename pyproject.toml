@@ -9,6 +9,11 @@ include = '\.py$'
 line_length = 100
 profile = "black"
 
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+
 [flake8]
 # Match black line length
 max-line-length = 100
