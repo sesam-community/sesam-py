@@ -14,7 +14,7 @@ class TestFileCollection:
     # Kinda hacky, but best I could come up with rn
     gathered_files = list()
 
-    def capture_files(self, file, folder):
+    def capture_files(self, file, folder, disable_json_html_escape):
         self.gathered_files.append(file)
 
     @mock.patch("sesam._format_file")

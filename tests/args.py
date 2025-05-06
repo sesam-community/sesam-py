@@ -3,6 +3,7 @@ class Args:
         # Needed to run anything
         self.whitelist_file = None
         self.extra_extra_verbose = True
+        self.disable_json_html_escape = False
 
         # Needed to call anything SesamNode related
         self.node_url = "http://localhost/api"
