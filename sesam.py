@@ -3088,29 +3088,6 @@ class SesamCmdClient:
         self.logger.info("Successfully converted pipes and created testdata folder")
 
     def format(self, option):
-        def _format_file(file, folder):
-            with open(file, "r") as f:
-                if folder == "expected":
-                    expected_in = json.loads(f.read())
-                    formatted = (
-                        json.dumps(
-                            expected_in,
-                            indent="  ",
-                            sort_keys=True,
-                            ensure_ascii=self.args.unicode_encoding,
-                        )
-                        + "\n"
-                    )
-
-                    if self.args.disable_json_html_escape is False:
-                        formatted = formatted.replace("<", "\\u003c")
-                        formatted = formatted.replace(">", "\\u003e")
-                        formatted = formatted.replace("&", "\\u0026")
-                else:
-                    formatted = format_json(json.loads(f.read()))
-            with open(file, "w") as f:
-                f.writelines(formatted)
-
         options = {
             "all": {
                 "glob": [
@@ -3166,6 +3143,31 @@ class SesamCmdClient:
                 if self.args.extra_extra_verbose:
                     self.logger.info(f"[+] Formatting {file}")
                 _format_file(file, folder)
+
+
+def _format_file(file, folder, disable_json_html_escape=False):
+    # Helper function for the format function
+    with open(file, "r") as f:
+        if folder == "expected":
+            expected_in = json.loads(f.read())
+            formatted = (
+                json.dumps(
+                    expected_in,
+                    indent="  ",
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
+
+            if disable_json_html_escape is False:
+                formatted = formatted.replace("<", "\\u003c")
+                formatted = formatted.replace(">", "\\u003e")
+                formatted = formatted.replace("&", "\\u0026")
+        else:
+            formatted = format_json(json.loads(f.read()))
+    with open(file, "w") as f:
+        f.writelines(formatted)
 
 
 class AzureFormatter(logging.Formatter):
