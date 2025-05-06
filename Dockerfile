@@ -4,4 +4,4 @@ COPY . .
 RUN apt-get update
 RUN apt-get install -y binutils
 RUN pip install -r requirements.txt
-RUN pytest tests/test_commands
+RUN pytest tests/
