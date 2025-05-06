@@ -5,6 +5,8 @@ from tests.args import Args
 
 logger = logging.getLogger("sesam")
 
+expected_output = {"test": "Some test config", "is_testing": "true"}
+
 
 def test_parse_json_config():
     args = Args()
@@ -14,8 +16,7 @@ def test_parse_json_config():
     )
 
     assert isinstance(parsed_config, dict)
-    assert parsed_config.get("test", "") == "Some test config"
-    assert parsed_config.get("is_testing", "") == "true"
+    assert parsed_config == expected_output
 
 
 def test_parse_syncconfig():
@@ -27,5 +28,4 @@ def test_parse_syncconfig():
     )
 
     assert isinstance(parsed_config, dict)
-    assert parsed_config.get("test", "") == "Some test config"
-    assert parsed_config.get("is_testing", "") == "true"
+    assert parsed_config == expected_output
