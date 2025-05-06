@@ -3130,7 +3130,7 @@ class SesamCmdClient:
                 )
 
             self.logger.info(f"[*] Formatting {option}.")
-            _format_file(option, file_folder)
+            _format_file(option, file_folder, self.args.disable_json_html_escape)
             return
 
         for path in options[option]["glob"]:
@@ -3142,7 +3142,7 @@ class SesamCmdClient:
 
                 if self.args.extra_extra_verbose:
                     self.logger.info(f"[+] Formatting {file}")
-                _format_file(file, folder)
+                _format_file(file, folder, self.args.disable_json_html_escape)
 
 
 def _format_file(file, folder, disable_json_html_escape=False):
