@@ -915,11 +915,6 @@ class SesamCmdClient:
             )
             raise e
 
-    def _coalesce(self, items):
-        for item in items:
-            if item is not None:
-                return item
-
     def zip_dir(self, zipfile, dir):
         for root, dirs, files in os.walk(dir):
             for file in files:
