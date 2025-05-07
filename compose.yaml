@@ -1,0 +1,10 @@
+services:
+  dev:
+    container_name: sesampy
+    stdin_open: true
+    tty: true
+    build: .
+    command: ./install.sh
+
+    volumes:
+      - .:/sesam-py

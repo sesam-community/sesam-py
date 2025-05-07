@@ -1,3 +1,6 @@
+[project]
+name = "sesam-py"
+
 [tool.black]
 line-length = 100
 include = '\.py$'
@@ -5,6 +8,11 @@ include = '\.py$'
 [tool.isort]
 line_length = 100
 profile = "black"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
 
 [flake8]
 # Match black line length
