@@ -1,16 +1,12 @@
-import logging
-
 import sesam
 from tests.args import Args
-
-logger = logging.getLogger("sesam")
 
 expected_output = {"test": "Some test config", "is_testing": "true"}
 
 
 def test_parse_json_config():
     args = Args()
-    cmdClient = sesam.SesamCmdClient(args, logger)
+    cmdClient = sesam.SesamCmdClient(args, args.logger)
     parsed_config = cmdClient.parse_config_file(
         "./tests/test_funcs/test_parse_config_file/config.json"
     )
@@ -22,7 +18,7 @@ def test_parse_json_config():
 def test_parse_syncconfig():
     args = Args()
 
-    cmdClient = sesam.SesamCmdClient(args, logger)
+    cmdClient = sesam.SesamCmdClient(args, args.logger)
     parsed_config = cmdClient.parse_config_file(
         "./tests/test_funcs/test_parse_config_file/.syncconfig"
     )

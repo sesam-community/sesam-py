@@ -1,13 +1,10 @@
 import json
-import logging
 import os
 from unittest import mock
 
 from jsonformat import format_json
 from sesam import SesamCmdClient
 from tests.args import Args
-
-logger = logging.getLogger("sesam")
 
 
 class TestFileCollection:
@@ -24,7 +21,7 @@ class TestFileCollection:
         mock_format.side_effect = self.capture_files
 
         args = Args()
-        cmdClient = SesamCmdClient(args, logger)
+        cmdClient = SesamCmdClient(args, args.logger)
 
         cmdClient.format("all")
 
@@ -39,7 +36,7 @@ class TestFileCollection:
         mock_format.side_effect = self.capture_files
 
         args = Args()
-        cmdClient = SesamCmdClient(args, logger)
+        cmdClient = SesamCmdClient(args, args.logger)
 
         cmdClient.format("pipes")
 
@@ -54,7 +51,7 @@ class TestFileCollection:
         mock_format.side_effect = self.capture_files
 
         args = Args()
-        cmdClient = SesamCmdClient(args, logger)
+        cmdClient = SesamCmdClient(args, args.logger)
 
         cmdClient.format("expected")
 
