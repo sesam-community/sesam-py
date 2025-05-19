@@ -1393,7 +1393,13 @@ class SesamCmdClient:
             logger.error("Failed to validate. Config files are not expanded.")
             sys.exit(1)
 
-    def upload(self):
+    def upload(self, files=None):
+        # Workaround for passing files as arguments
+        if files:
+            for file in files:
+                pipe = file.split("/")[-1].replace(".conf", "").replace(".json", "")
+                self.whitelisted_pipes.append(pipe)
+
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
         try:
@@ -3125,37 +3131,38 @@ class SesamCmdClient:
             "expected": {"glob": ["expected/*.json"]},
         }
 
-        if option not in options and not option.endswith(".json"):
+        if option[0] not in options and not option[0].endswith(".json"):
             self.logger.info(
-                f"[!] {option} is not a valid type to format... "
+                f"[!] {option[0]} is not a valid type to format... "
                 "Try pipes, systems, testdata, or expected. "
                 "Alternatively you can pass in a json file"
             )
             return
 
-        if option.endswith(".json"):
-            dirs = option.split("/")
-            file_folder = ""
-            for dir in dirs:
-                if dir in options.keys():
-                    file_folder = dir
-                    break
+        if option[0].endswith(".json"):
+            for file in option:
+                dirs = file.split("/")
+                file_folder = ""
+                for dir in dirs:
+                    if dir in options.keys():
+                        file_folder = dir
+                        break
 
-            if not file_folder:
-                file_folder = dirs[-1]
+                if not file_folder:
+                    file_folder = dirs[-1]
 
-            if file_folder.endswith(".json"):
-                self.logger.warning(
-                    "[!] Unknown directory for file, formatting as normal. "
-                    "If this file is expected data, please make sure it has "
-                    "the directory in the path."
-                )
+                if file_folder.endswith(".json"):
+                    self.logger.warning(
+                        "[!] Unknown directory for file, formatting as normal. "
+                        "If this file is expected data, please make sure it has "
+                        "the directory in the path."
+                    )
 
-            self.logger.info(f"[*] Formatting {option}.")
-            _format_file(option, file_folder)
+                self.logger.info(f"[*] Formatting {file}.")
+                _format_file(file, file_folder)
             return
 
-        for path in options[option]["glob"]:
+        for path in options[option[0]]["glob"]:
             folder = path.split("/")[0]
             self.logger.info(f"[*] Formatting {folder} files. Search query is {path}")
             for file in glob(path):
@@ -3993,7 +4000,7 @@ Commands:
                 sesam_cmd_client.validate()
             elif command == "upload":
                 if not args.is_connector:
-                    sesam_cmd_client.upload()
+                    sesam_cmd_client.upload(command_args)
                 else:
                     os.chdir(args.connector_dir)
                     connectorpy.expand_connector(
@@ -4001,7 +4008,7 @@ Commands:
                     )
                     sesam_cmd_client.validate()
                     os.chdir(args.expanded_dir)
-                    sesam_cmd_client.upload()
+                    sesam_cmd_client.upload(command_args)
                     os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(
                         os.path.join(os.pardir, os.pardir)
                     )
@@ -4086,7 +4093,7 @@ Commands:
             elif command == "format":
                 if not command_args:
                     command_args = ["all"]
-                sesam_cmd_client.format(command_args[0])
+                sesam_cmd_client.format(command_args)
             else:
                 logger.error("Unknown command: %s" % command)
                 sys.exit(1)
