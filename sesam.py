@@ -1396,9 +1396,10 @@ class SesamCmdClient:
     def upload(self, files=None):
         # Workaround for passing files as arguments
         if files:
-            for file in files:
-                pipe = file.split("/")[-1].replace(".conf", "").replace(".json", "")
-                self.whitelisted_pipes.append(pipe)
+            json_files = (file for file in files if file.endswith(".json"))
+            for file in json_files:
+                pipe_id = file.split("/")[-1].replace(".conf", "").replace(".json", "")
+                self.whitelisted_pipes.append(pipe_id)
 
         # Find env vars to upload
         profile_file = "%s-env.json" % self.args.profile
