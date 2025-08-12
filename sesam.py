@@ -3,6 +3,7 @@ import json
 import logging
 import logging.handlers
 import os
+import queue
 import re
 import shutil
 import sys
@@ -26,12 +27,12 @@ import pytest
 import sesamclient
 from lxml import etree
 from requests import post
-from requests.exceptions import HTTPError, RequestException
+from requests.exceptions import RequestException
 
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.7"
+sesam_version = "2.11.8"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -831,6 +832,7 @@ class SesamCmdClient:
         self.whitelisted_systems = None
         self.node_url = None
         self.jwt_token = None
+        self.testdata_queue = None
 
         if args.whitelist_file is not None:
             try:
@@ -1511,45 +1513,46 @@ class SesamCmdClient:
         self.logger.info("Config uploaded successfully")
 
         if os.path.isdir("testdata"):
-            for root, dirs, files in os.walk("testdata"):
+            self.testdata_queue = queue.Queue()
+            for root, _, files in os.walk("testdata"):
                 for filename in files:
                     pipe_id = filename.replace(".json", "")
                     if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
                         continue
 
-                    try:
-                        with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
-                            entities_json = json.load(
-                                f, parse_float=Decimal if self.args.do_float_as_decimal else float
-                            )
+                    self.testdata_queue.put((root, filename, pipe_id))
+                    Thread(target=self.testdata_worker, daemon=True).start()
 
-                        if entities_json is not None:
-                            # deleting dataset before pushing data,
-                            # since http_endpoint receiver will not delete
-                            # existing test data.
-                            try:
-                                self.sesam_node.delete_dataset(pipe_id)
-                            except HTTPError as http_e:
-                                self.logger.log(
-                                    LOGLEVEL_TRACE,
-                                    f"Failed to delete dataset {pipe_id}. "
-                                    "It probably doesn't exist, "
-                                    f"which is fine. Error: {http_e}",
-                                )
-                            self.sesam_node.enable_pipe(pipe_id)
-                            self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
-                            self.sesam_node.disable_pipe(pipe_id)
-
-                    except BaseException as e:
-                        self.logger.error(
-                            f"Failed to post payload to pipe {pipe_id}. "
-                            f"{e}. Response from server was: {e.response.text}"
-                        )
-                        raise e
-
-            self.logger.info("Test data uploaded successfully")
+            self.testdata_queue.join()
+            self.logger.info(
+                "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
+            )
+            time.sleep(5)
         else:
             self.logger.info("No test data found to upload")
+
+    def testdata_worker(self):
+        root, filename, pipe_id = self.testdata_queue.get()
+        self.upload_testdata(root, filename, pipe_id)
+        self.testdata_queue.task_done()
+
+    def upload_testdata(self, root, filename, pipe_id):
+        try:
+            with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+                entities_json = json.load(
+                    f, parse_float=Decimal if self.args.do_float_as_decimal else float
+                )
+
+            if entities_json is not None:
+                self.logger.info(f"Uploading entities for {pipe_id}")
+                self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+        except BaseException as e:
+            self.logger.error(
+                f"Failed to post payload to pipe {pipe_id}. "
+                f"{e}. Response from server was: {e.response.text}"
+            )
+            raise e
+        return
 
     def dump(self):
         try:
