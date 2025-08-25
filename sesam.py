@@ -1524,10 +1524,7 @@ class SesamCmdClient:
                     Thread(target=self.testdata_worker, daemon=True).start()
 
             self.testdata_queue.join()
-            self.logger.info(
-                "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
-            )
-            time.sleep(5)
+            self.logger.info("Test data uploaded successfully.")
         else:
             self.logger.info("No test data found to upload")
 
@@ -2769,6 +2766,7 @@ class SesamCmdClient:
         try:
             self.logger.info("Running test: upload, run and verify..")
             self.upload()
+            time.sleep(3)
 
             for i in range(self.args.runs):
                 last_additional_info = self.run()
