@@ -507,7 +507,7 @@ e.g. Given that profile `profiles/prod-env.json` file exists, one can
 ### Using whitelist
 The optional argument `-whitelist-file` can effectively be used when running the following commands:
 ```
-upload, verify, test
+upload, verify, test, update
 ```
 The parameter used with this argument should be the path to a whitelist file which will be used as a list of which pipes & systems to upload, as well which node-metadata file to use - or only verify certain pipes.
 
