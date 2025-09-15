@@ -32,7 +32,7 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.8"
+sesam_version = "2.11.9"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1513,21 +1513,29 @@ class SesamCmdClient:
         self.logger.info("Config uploaded successfully")
 
         if os.path.isdir("testdata"):
-            self.testdata_queue = queue.Queue()
-            for root, _, files in os.walk("testdata"):
-                for filename in files:
-                    pipe_id = filename.replace(".json", "")
-                    if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
-                        continue
+            if not self.args.single_thread_upload:
+                self.testdata_queue = queue.Queue()
+                for root, _, files in os.walk("testdata"):
+                    for filename in files:
+                        pipe_id = filename.replace(".json", "")
+                        if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
+                            continue
 
-                    self.testdata_queue.put((root, filename, pipe_id))
-                    Thread(target=self.testdata_worker, daemon=True).start()
+                        self.testdata_queue.put((root, filename, pipe_id))
+                        Thread(target=self.testdata_worker, daemon=True).start()
 
-            self.testdata_queue.join()
-            self.logger.info(
-                "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
-            )
-            time.sleep(5)
+                self.testdata_queue.join()
+                self.logger.info(
+                    "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
+                )
+            else:
+                for root, _, files in os.walk("testdata"):
+                    for filename in files:
+                        pipe_id = filename.replace(".json", "")
+                        if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
+                            continue
+
+                        self.upload_testdata(root, filename, pipe_id)
         else:
             self.logger.info("No test data found to upload")
 
@@ -2769,6 +2777,7 @@ class SesamCmdClient:
         try:
             self.logger.info("Running test: upload, run and verify..")
             self.upload()
+            time.sleep(3)
 
             for i in range(self.args.runs):
                 last_additional_info = self.run()
@@ -3801,6 +3810,14 @@ Commands:
         required=False,
         action="store_true",
         help="set this flag to enable sharing",
+    )
+
+    parser.add_argument(
+        "-single-thread-upload",
+        dest="single_thread_upload",
+        required=False,
+        action="store_true",
+        help="Makes the testdata section of the upload command use a single thread",
     )
 
     try:
