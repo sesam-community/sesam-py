@@ -1,0 +1,31 @@
+[
+  {
+    "Country": "NO",
+    "EmailAddress": "TorjusSand@einrot.com",
+    "Gender": "male",
+    "GivenName": "Torjus",
+    "MiddleInitial": "M",
+    "Number": "1",
+    "SSN": "23072451376",
+    "StreetAddress": "Helmers vei 242",
+    "Surname": "Sand",
+    "Title": "Mr.",
+    "Username": "Unjudosely",
+    "ZipCode": "5031",
+    "_id": "23072451376"
+  },
+  {
+    "Country": "NO",
+    "EmailAddress": "LarsEvjen@rhyta.com",
+    "Gender": "male",
+    "GivenName": "Lars",
+    "Number": "2",
+    "SSN": "09046987892",
+    "StreetAddress": "Frognerveien 60",
+    "Surname": "Evjen",
+    "Title": "Mr.",
+    "Username": "Wimen1979",
+    "ZipCode": "3121",
+    "_id": "09046987892"
+  }
+]
