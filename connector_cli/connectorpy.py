@@ -210,7 +210,7 @@ def collapse_connector(connector_dir=".", system_placeholder="xxxxxx", expanded_
 
     # write the datatype templates
     env_parameters = set()
-    p = re.compile("\$ENV\(\w+\)")
+    p = re.compile(r"\$ENV\(\w+\)")
 
     for template_name, components in templates.items():
         components = sorted(components, key=lambda x: x["_id"])
