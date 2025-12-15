@@ -32,7 +32,7 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.9"
+sesam_version = "2.11.10"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -207,7 +207,7 @@ class TestSpec:
     def is_path_blacklisted(self, path):
         blacklist = self.blacklist
         if blacklist and isinstance(blacklist, list):
-            prop_path = ".".join(path).replace("\.", ".")
+            prop_path = ".".join(path).replace(r"\.", ".")
 
             for pattern in blacklist:
                 if fnmatch(prop_path, pattern.replace("[].", ".*.")):
@@ -275,6 +275,7 @@ class SesamNode:
                     try:
                         pipe.wait_for_pipe_to_be_deployed(timeout=0)
                         logger.debug(f"Pipe '{pipe.id}' was deployed...")
+                        deploying.pop(0)
                         # We only wait for one pipe, since getting all the pipes
                         # with get_pipes() is much faster
                         # that waiting for each individual pipe.
@@ -2777,7 +2778,7 @@ class SesamCmdClient:
         try:
             self.logger.info("Running test: upload, run and verify..")
             self.upload()
-            time.sleep(3)
+            self.sesam_node.wait_for_all_pipes_to_deploy()
 
             for i in range(self.args.runs):
                 last_additional_info = self.run()
