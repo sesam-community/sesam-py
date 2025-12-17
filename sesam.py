@@ -32,7 +32,7 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.10"
+sesam_version = "2.11.11"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -261,38 +261,29 @@ class SesamNode:
 
     def wait_for_all_pipes_to_deploy(self, timeout=30 * 60):
         starttime = time.time()
-        while True:
-            deploying = []
-            for pipe in [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]:
-                if pipe.runtime["state"] == "Deploying":
-                    deploying.append(pipe)
+        deploying = []
+        for pipe in [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]:
+            if pipe.runtime["state"] == "Deploying":
+                deploying.append(pipe)
 
-            if deploying:
-                # As an optimization we wait for one pipe to be deployed before
-                # we call get_pipes() again.
-                pipe = deploying[0]
-                while True:
-                    try:
-                        pipe.wait_for_pipe_to_be_deployed(timeout=0)
-                        logger.debug(f"Pipe '{pipe.id}' was deployed...")
-                        deploying.pop(0)
-                        # We only wait for one pipe, since getting all the pipes
-                        # with get_pipes() is much faster
-                        # that waiting for each individual pipe.
-                        # Once one pipe has been deployed, usually all the other
-                        # pipes will also be deployed.
-                        break
-                    except BaseException:
-                        logger.debug(f"Pipe '{pipe.id}' is still deploying...")
-                        elapsedtime = time.time() - starttime
-                        if elapsedtime > timeout:
-                            raise RuntimeError(
-                                "Waiting for pipes to deploy timed " f"out after {timeout} seconds!"
-                            )
-
-                    time.sleep(5)
-
+        while deploying:
+            # As an optimization we wait for one pipe to be deployed before
+            # we call get_pipes() again.
+            pipe = deploying[0]
             elapsedtime = time.time() - starttime
+
+            try:
+                pipe.wait_for_pipe_to_be_deployed(timeout=0)
+                logger.debug(f"Pipe '{pipe.id}' was deployed...")
+                deploying.pop(0)
+
+            except BaseException:
+                logger.debug(f"Pipe '{pipe.id}' is still deploying...")
+                if elapsedtime > timeout:
+                    raise RuntimeError(
+                        "Waiting for pipes to deploy timed " f"out after {timeout} seconds!"
+                    )
+
             if deploying and elapsedtime > timeout:
                 raise RuntimeError(
                     "Waiting for pipes to deploy timed out after %s seconds!" % timeout
@@ -4129,6 +4120,7 @@ Commands:
             sys.exit(1)
     except UploadException as e:
         logger.error(e)
+        sys.exit(1)
     except BaseException as e:
         logger.error("Sesam client failed!")
         if args.extra_verbose is True or args.extra_extra_verbose is True:
