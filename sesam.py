@@ -259,12 +259,19 @@ class SesamNode:
             verify_ssl=verify_ssl,
         )
 
-    def wait_for_all_pipes_to_deploy(self, timeout=30 * 60):
-        starttime = time.time()
+    def _get_deploying(self):
         deploying = []
         for pipe in [p for p in self.api_connection.get_pipes() if self.is_user_pipe(p)]:
             if pipe.runtime["state"] == "Deploying":
                 deploying.append(pipe)
+
+        return deploying
+
+    def wait_for_all_pipes_to_deploy(self, timeout=30 * 60):
+        starttime = time.time()
+        deploying = self._get_deploying()
+
+        logger.info(f"Deploying {len(deploying)} pipes...")
 
         while deploying:
             # As an optimization we wait for one pipe to be deployed before
@@ -275,7 +282,7 @@ class SesamNode:
             try:
                 pipe.wait_for_pipe_to_be_deployed(timeout=0)
                 logger.debug(f"Pipe '{pipe.id}' was deployed...")
-                deploying.pop(0)
+                deploying = self._get_deploying()
 
             except BaseException:
                 logger.debug(f"Pipe '{pipe.id}' is still deploying...")
@@ -284,17 +291,11 @@ class SesamNode:
                         "Waiting for pipes to deploy timed " f"out after {timeout} seconds!"
                     )
 
-            if deploying and elapsedtime > timeout:
-                raise RuntimeError(
-                    "Waiting for pipes to deploy timed out after %s seconds!" % timeout
-                )
-
-            if not deploying:
-                self.logger.debug("All pipes were deployed in %s seconds" % elapsedtime)
-                break
-
-            logger.info(f"Waiting for {len(deploying)} pipes to finish deploying...")
             time.sleep(5)
+
+        if not deploying:
+            elapsedtime = time.time() - starttime
+            self.logger.debug("All pipes were deployed in %s seconds" % elapsedtime)
 
     def register_user_interaction(self):
         # IS-15613: attempt to register a user interaction with the portal.
