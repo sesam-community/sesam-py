@@ -25,6 +25,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 import pytest
 import sesamclient
+import urllib3
 from lxml import etree
 from requests import post
 from requests.exceptions import RequestException
@@ -243,8 +244,6 @@ class SesamNode:
         self.logger.debug("Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt)
 
         if verify_ssl is False:
-            import urllib3
-
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         # Register a user-interaction even if the subsequent connection fails
@@ -1547,6 +1546,11 @@ class SesamCmdClient:
             if entities_json is not None:
                 self.logger.info(f"Uploading entities for {pipe_id}")
                 self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+        # If we rate limit, wait a bit and try again...
+        except urllib3.exceptions.MaxRetryError as ret_e:
+            self.logger.error("Max retries hit:", ret_e)
+            time.sleep(5)
+            self.upload_testdata(root, filename, pipe_id)
         except BaseException as e:
             self.logger.error(
                 f"Failed to post payload to pipe {pipe_id}. "
