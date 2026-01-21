@@ -28,4 +28,8 @@ $ dist/sesam -version
 sesam version x.y.z
 ```
 
+Or you can create the binary by running `docker compose up -d`, this will run all of the unit tests and build the binary.
+The binary build will take a little extra time after the docker command finished as it runs the build at the end once the docker container is ready.
+Just check the dist folder and wait for the sesam binary to appear.
+
 ### [Back to main page](./README.md)
