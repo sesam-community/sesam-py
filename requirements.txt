@@ -10,5 +10,5 @@ PyJWT==2.10.1
 pytest==8.4.1
 jwt~=1.3.1
 pyOpenSSL==25.1.0
-cryptography==45.0.6
+cryptography==46.0.5
 pycryptodome==3.23.0
