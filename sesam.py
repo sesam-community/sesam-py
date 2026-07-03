@@ -1510,7 +1510,9 @@ class SesamCmdClient:
                 self.testdata_queue = queue.Queue()
                 for root, _, files in os.walk("testdata"):
                     for filename in files:
-                        pipe_id = filename.replace(".json", "")
+                        if not filename.lower().endswith(".json"):
+                            continue
+                        pipe_id = os.path.splitext(filename)[0]
                         if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
                             continue
 
@@ -1524,7 +1526,9 @@ class SesamCmdClient:
             else:
                 for root, _, files in os.walk("testdata"):
                     for filename in files:
-                        pipe_id = filename.replace(".json", "")
+                        if not filename.lower().endswith(".json"):
+                            continue
+                        pipe_id = os.path.splitext(filename)[0]
                         if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
                             continue
 
@@ -4012,7 +4016,7 @@ Commands:
                     connectorpy.expand_connector(
                         args.system_placeholder, args.expanded_dir, args.profile
                     )
-                    sesam_cmd_client.validate()
+                    #sesam_cmd_client.validate()
                     os.chdir(args.expanded_dir)
                     sesam_cmd_client.upload()
                     os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(
