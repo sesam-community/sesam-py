@@ -4016,7 +4016,7 @@ Commands:
                     connectorpy.expand_connector(
                         args.system_placeholder, args.expanded_dir, args.profile
                     )
-                    #sesam_cmd_client.validate()
+                    sesam_cmd_client.validate()
                     os.chdir(args.expanded_dir)
                     sesam_cmd_client.upload()
                     os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(
