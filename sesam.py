@@ -32,7 +32,7 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.11"
+sesam_version = "2.11.12"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -1510,7 +1510,9 @@ class SesamCmdClient:
                 self.testdata_queue = queue.Queue()
                 for root, _, files in os.walk("testdata"):
                     for filename in files:
-                        pipe_id = filename.replace(".json", "")
+                        if not filename.lower().endswith(".json"):
+                            continue
+                        pipe_id = os.path.splitext(filename)[0]
                         if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
                             continue
 
@@ -1524,7 +1526,9 @@ class SesamCmdClient:
             else:
                 for root, _, files in os.walk("testdata"):
                     for filename in files:
-                        pipe_id = filename.replace(".json", "")
+                        if not filename.lower().endswith(".json"):
+                            continue
+                        pipe_id = os.path.splitext(filename)[0]
                         if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
                             continue
 
