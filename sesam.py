@@ -9,7 +9,7 @@ import sys
 import time
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from base64 import urlsafe_b64decode
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from configparser import ConfigParser
 from copy import deepcopy
 from decimal import Decimal
@@ -69,6 +69,17 @@ class UploadException(Exception):
 
         output += "**************End of Validation Errors**************"
         return output
+
+
+class TestDataUploadException(Exception):
+    def __init__(self, failures):
+        self.failures = failures
+
+    def __str__(self):
+        output = [f"Testdata upload failed for {len(self.failures)} file(s):"]
+        for failure in self.failures:
+            output.append(f"- {failure['path']} ({failure['pipe_id']}): {failure['error']}")
+        return "\n".join(output)
 
 
 class SesamParser(ArgumentParser):
@@ -1514,13 +1525,31 @@ class SesamCmdClient:
                 if max_workers < 1:
                     max_workers = 1
 
+                failures = []
                 with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                    futures = [
-                        executor.submit(self.upload_testdata, root, filename, pipe_id)
+                    future_to_job = {
+                        executor.submit(self.upload_testdata, root, filename, pipe_id): (
+                            root,
+                            filename,
+                            pipe_id,
+                        )
                         for root, filename, pipe_id in testdata_jobs
-                    ]
-                    for future in futures:
-                        future.result()
+                    }
+                    for future in as_completed(future_to_job):
+                        root, filename, pipe_id = future_to_job[future]
+                        try:
+                            future.result()
+                        except BaseException as e:
+                            failures.append(
+                                {
+                                    "path": os.path.join(root, filename),
+                                    "pipe_id": pipe_id,
+                                    "error": str(e),
+                                }
+                            )
+
+                if failures:
+                    raise TestDataUploadException(failures)
 
                 self.logger.info(
                     "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
@@ -1553,9 +1582,11 @@ class SesamCmdClient:
                 self.logger.info(f"Uploading entities for {pipe_id}")
                 self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
         except BaseException as e:
+            response = getattr(e, "response", None)
+            response_text = response.text if response and hasattr(response, "text") else "n/a"
             self.logger.error(
                 f"Failed to post payload to pipe {pipe_id}. "
-                f"{e}. Response from server was: {e.response.text}"
+                f"{e}. Response from server was: {response_text}"
             )
             raise e
         return
@@ -4145,6 +4176,9 @@ Commands:
             )
             sys.exit(1)
     except UploadException as e:
+        logger.error(e)
+        sys.exit(1)
+    except TestDataUploadException as e:
         logger.error(e)
         sys.exit(1)
     except BaseException as e:
