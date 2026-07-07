@@ -3,13 +3,13 @@ import json
 import logging
 import logging.handlers
 import os
-import queue
 import re
 import shutil
 import sys
 import time
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from base64 import urlsafe_b64decode
+from concurrent.futures import ThreadPoolExecutor
 from configparser import ConfigParser
 from copy import deepcopy
 from decimal import Decimal
@@ -816,6 +816,8 @@ class SesamNode:
 class SesamCmdClient:
     """Commands wrapped in a class to make it easier to write unit tests"""
 
+    DEFAULT_TESTDATA_UPLOAD_WORKERS = 8
+
     def __init__(self, args, logger):
         self.args = args
         self.logger = logger
@@ -825,7 +827,6 @@ class SesamCmdClient:
         self.whitelisted_systems = None
         self.node_url = None
         self.jwt_token = None
-        self.testdata_queue = None
 
         if args.whitelist_file is not None:
             try:
@@ -1506,40 +1507,40 @@ class SesamCmdClient:
         self.logger.info("Config uploaded successfully")
 
         if os.path.isdir("testdata"):
+            testdata_jobs = list(self.get_testdata_jobs())
+
             if not self.args.single_thread_upload:
-                self.testdata_queue = queue.Queue()
-                for root, _, files in os.walk("testdata"):
-                    for filename in files:
-                        if not filename.lower().endswith(".json"):
-                            continue
-                        pipe_id = os.path.splitext(filename)[0]
-                        if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
-                            continue
+                max_workers = min(self.DEFAULT_TESTDATA_UPLOAD_WORKERS, len(testdata_jobs))
+                if max_workers < 1:
+                    max_workers = 1
 
-                        self.testdata_queue.put((root, filename, pipe_id))
-                        Thread(target=self.testdata_worker, daemon=True).start()
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    futures = [
+                        executor.submit(self.upload_testdata, root, filename, pipe_id)
+                        for root, filename, pipe_id in testdata_jobs
+                    ]
+                    for future in futures:
+                        future.result()
 
-                self.testdata_queue.join()
                 self.logger.info(
                     "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
                 )
             else:
-                for root, _, files in os.walk("testdata"):
-                    for filename in files:
-                        if not filename.lower().endswith(".json"):
-                            continue
-                        pipe_id = os.path.splitext(filename)[0]
-                        if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
-                            continue
-
-                        self.upload_testdata(root, filename, pipe_id)
+                for root, filename, pipe_id in testdata_jobs:
+                    self.upload_testdata(root, filename, pipe_id)
         else:
             self.logger.info("No test data found to upload")
 
-    def testdata_worker(self):
-        root, filename, pipe_id = self.testdata_queue.get()
-        self.upload_testdata(root, filename, pipe_id)
-        self.testdata_queue.task_done()
+    def get_testdata_jobs(self):
+        for root, _, files in os.walk("testdata"):
+            for filename in files:
+                if not filename.lower().endswith(".json"):
+                    continue
+                pipe_id = os.path.splitext(filename)[0]
+                if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
+                    continue
+
+                yield root, filename, pipe_id
 
     def upload_testdata(self, root, filename, pipe_id):
         try:
