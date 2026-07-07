@@ -829,6 +829,7 @@ class SesamCmdClient:
     """Commands wrapped in a class to make it easier to write unit tests"""
 
     DEFAULT_TESTDATA_UPLOAD_WORKERS = 8
+    TESTDATA_UPLOAD_PROGRESS_LOG_INTERVAL = 25
     TESTDATA_UPLOAD_MAX_RETRIES = 3
     TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS = 1.0
     TESTDATA_UPLOAD_RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
@@ -1523,9 +1524,17 @@ class SesamCmdClient:
 
         if os.path.isdir("testdata"):
             testdata_jobs = list(self.get_testdata_jobs())
+            total_jobs = len(testdata_jobs)
+            if total_jobs == 0:
+                self.logger.info("No test data found to upload")
+                return
+
+            uploaded = 0
+            failed = 0
+            started_at = time.monotonic()
 
             if not self.args.single_thread_upload:
-                max_workers = min(self.args.upload_workers, len(testdata_jobs))
+                max_workers = min(self.args.upload_workers, total_jobs)
                 if max_workers < 1:
                     max_workers = 1
 
@@ -1543,7 +1552,9 @@ class SesamCmdClient:
                         root, filename, pipe_id = future_to_job[future]
                         try:
                             future.result()
+                            uploaded += 1
                         except BaseException as e:
+                            failed += 1
                             failures.append(
                                 {
                                     "path": os.path.join(root, filename),
@@ -1551,7 +1562,10 @@ class SesamCmdClient:
                                     "error": str(e),
                                 }
                             )
+                        finally:
+                            self.log_testdata_upload_progress(uploaded, failed, total_jobs)
 
+                self.log_testdata_upload_summary(uploaded, failed, total_jobs, started_at)
                 if failures:
                     raise TestDataUploadException(failures)
 
@@ -1559,8 +1573,18 @@ class SesamCmdClient:
                     "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
                 )
             else:
-                for root, filename, pipe_id in testdata_jobs:
-                    self.upload_testdata(root, filename, pipe_id)
+                try:
+                    for root, filename, pipe_id in testdata_jobs:
+                        try:
+                            self.upload_testdata(root, filename, pipe_id)
+                            uploaded += 1
+                        except BaseException:
+                            failed += 1
+                            raise
+                        finally:
+                            self.log_testdata_upload_progress(uploaded, failed, total_jobs)
+                finally:
+                    self.log_testdata_upload_summary(uploaded, failed, total_jobs, started_at)
         else:
             self.logger.info("No test data found to upload")
 
@@ -1629,6 +1653,26 @@ class SesamCmdClient:
             return status_code >= 500
 
         return isinstance(error, RequestException)
+
+    def log_testdata_upload_progress(self, uploaded, failed, total):
+        processed = uploaded + failed
+        if (
+            processed % self.TESTDATA_UPLOAD_PROGRESS_LOG_INTERVAL != 0
+            and processed != total
+        ):
+            return
+
+        self.logger.info(
+            f"Test data upload progress: processed={processed}/{total}, "
+            f"uploaded={uploaded}, failed={failed}, remaining={total - processed}"
+        )
+
+    def log_testdata_upload_summary(self, uploaded, failed, total, started_at):
+        elapsed_time = time.monotonic() - started_at
+        self.logger.info(
+            f"Test data upload summary: total={total}, uploaded={uploaded}, "
+            f"failed={failed}, elapsed_time={elapsed_time:.1f}s"
+        )
 
     def dump(self):
         try:
