@@ -3,6 +3,7 @@ import json
 import logging
 import logging.handlers
 import os
+import random
 import re
 import shutil
 import sys
@@ -828,6 +829,9 @@ class SesamCmdClient:
     """Commands wrapped in a class to make it easier to write unit tests"""
 
     DEFAULT_TESTDATA_UPLOAD_WORKERS = 8
+    TESTDATA_UPLOAD_MAX_RETRIES = 3
+    TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS = 1.0
+    TESTDATA_UPLOAD_RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
 
     def __init__(self, args, logger):
         self.args = args
@@ -1572,15 +1576,33 @@ class SesamCmdClient:
                 yield root, filename, pipe_id
 
     def upload_testdata(self, root, filename, pipe_id):
+        file_path = os.path.join(root, filename)
         try:
-            with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 entities_json = json.load(
                     f, parse_float=Decimal if self.args.do_float_as_decimal else float
                 )
 
-            if entities_json is not None:
-                self.logger.info(f"Uploading entities for {pipe_id}")
-                self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+            if entities_json is None:
+                return
+
+            self.logger.info(f"Uploading entities for {pipe_id}")
+
+            max_attempts = self.TESTDATA_UPLOAD_MAX_RETRIES + 1
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+                    return
+                except BaseException as e:
+                    if attempt == max_attempts or not self.is_retryable_testdata_upload_error(e):
+                        raise e
+
+                    retry_delay = self.get_testdata_upload_retry_delay(attempt)
+                    self.logger.warning(
+                        f"Transient failure while uploading entities for {pipe_id} "
+                        f"(attempt {attempt}/{max_attempts}, retrying in {retry_delay:.1f}s): {e}"
+                    )
+                    time.sleep(retry_delay)
         except BaseException as e:
             response = getattr(e, "response", None)
             response_text = response.text if response and hasattr(response, "text") else "n/a"
@@ -1590,6 +1612,23 @@ class SesamCmdClient:
             )
             raise e
         return
+
+    def get_testdata_upload_retry_delay(self, attempt):
+        exponential_delay = self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS * (2 ** (attempt - 1))
+        jitter = random.uniform(0, self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS)
+        return exponential_delay + jitter
+
+    def is_retryable_testdata_upload_error(self, error):
+        response = getattr(error, "response", None)
+        if response is not None:
+            status_code = response.status_code
+            if status_code in self.TESTDATA_UPLOAD_RETRYABLE_STATUS_CODES:
+                return True
+            if 400 <= status_code < 500:
+                return False
+            return status_code >= 500
+
+        return isinstance(error, RequestException)
 
     def dump(self):
         try:
