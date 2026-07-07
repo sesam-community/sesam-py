@@ -20,7 +20,7 @@ from glob import glob
 from io import BytesIO, StringIO
 from pathlib import Path
 from pprint import pformat
-from threading import Thread
+from threading import Lock, Thread
 from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -833,6 +833,7 @@ class SesamCmdClient:
     TESTDATA_UPLOAD_MAX_RETRIES = 3
     TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS = 1.0
     TESTDATA_UPLOAD_RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+    DEFAULT_TESTDATA_UPLOAD_RATE = 0.0
 
     def __init__(self, args, logger):
         self.args = args
@@ -843,6 +844,8 @@ class SesamCmdClient:
         self.whitelisted_systems = None
         self.node_url = None
         self.jwt_token = None
+        self._testdata_upload_rate_lock = Lock()
+        self._testdata_next_upload_slot = 0.0
 
         if args.whitelist_file is not None:
             try:
@@ -1615,6 +1618,7 @@ class SesamCmdClient:
             max_attempts = self.TESTDATA_UPLOAD_MAX_RETRIES + 1
             for attempt in range(1, max_attempts + 1):
                 try:
+                    self.wait_for_testdata_upload_slot()
                     self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
                     return
                 except BaseException as e:
@@ -1641,6 +1645,22 @@ class SesamCmdClient:
         exponential_delay = self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS * (2 ** (attempt - 1))
         jitter = random.uniform(0, self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS)
         return exponential_delay + jitter
+
+    def wait_for_testdata_upload_slot(self):
+        if self.args.upload_rate <= 0:
+            return
+
+        min_interval = 1.0 / self.args.upload_rate
+        while True:
+            with self._testdata_upload_rate_lock:
+                now = time.monotonic()
+                if now >= self._testdata_next_upload_slot:
+                    self._testdata_next_upload_slot = now + min_interval
+                    return
+
+                delay = self._testdata_next_upload_slot - now
+
+            time.sleep(delay)
 
     def is_retryable_testdata_upload_error(self, error):
         response = getattr(error, "response", None)
@@ -3942,6 +3962,16 @@ Commands:
         help="maximum number of concurrent workers for testdata upload (default: 8)",
     )
 
+    parser.add_argument(
+        "--upload-rate",
+        dest="upload_rate",
+        required=False,
+        type=float,
+        metavar="<float>",
+        default=SesamCmdClient.DEFAULT_TESTDATA_UPLOAD_RATE,
+        help="max testdata upload request rate (requests/sec). 0 means unlimited",
+    )
+
     try:
         args = parser.parse_args()
         args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
@@ -3956,6 +3986,8 @@ Commands:
 
     if args.upload_workers < 1:
         parser.error("--upload-workers must be an integer >= 1")
+    if args.upload_rate < 0:
+        parser.error("--upload-rate must be a number >= 0")
 
     if args.logformat == "log":
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
