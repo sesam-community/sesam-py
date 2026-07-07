@@ -1510,7 +1510,7 @@ class SesamCmdClient:
             testdata_jobs = list(self.get_testdata_jobs())
 
             if not self.args.single_thread_upload:
-                max_workers = min(self.DEFAULT_TESTDATA_UPLOAD_WORKERS, len(testdata_jobs))
+                max_workers = min(self.args.upload_workers, len(testdata_jobs))
                 if max_workers < 1:
                     max_workers = 1
 
@@ -3818,6 +3818,16 @@ Commands:
         help="Makes the testdata section of the upload command use a single thread",
     )
 
+    parser.add_argument(
+        "--upload-workers",
+        dest="upload_workers",
+        required=False,
+        type=int,
+        metavar="<int>",
+        default=SesamCmdClient.DEFAULT_TESTDATA_UPLOAD_WORKERS,
+        help="maximum number of concurrent workers for testdata upload (default: 8)",
+    )
+
     try:
         args = parser.parse_args()
         args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
@@ -3829,6 +3839,9 @@ Commands:
     if args.version:
         print("sesam version %s" % sesam_version)
         sys.exit(0)
+
+    if args.upload_workers < 1:
+        parser.error("--upload-workers must be an integer >= 1")
 
     if args.logformat == "log":
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -3890,6 +3903,13 @@ Commands:
 
     else:
         command = ""
+
+    if (
+        args.single_thread_upload
+        and args.upload_workers != SesamCmdClient.DEFAULT_TESTDATA_UPLOAD_WORKERS
+        and command in ["upload", "test"]
+    ):
+        logger.warning("--upload-workers is ignored when -single-thread-upload is set")
 
     if command not in [
         "authenticate",
