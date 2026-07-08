@@ -33,7 +33,7 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.12"
+sesam_version = "2.11.13"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
