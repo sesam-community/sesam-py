@@ -129,6 +129,7 @@ usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification]
              [--consumer_token <string>] [--employee_token <string>]
              [--base_url <string>] [--days <string>] [--use-client-secret]
              [--do-float-as-decimal] [--auth <string>] [--datatype [<string>]] [--share]
+             [-single-thread-upload] [--upload-workers <int>] [--upload-rate <float>]
              [command ...]
 
 Commands:
@@ -301,6 +302,12 @@ optional arguments:
   --datatype [<string>]
                         datatype to add
   --share               set this flag to enable sharing
+  -single-thread-upload
+                       Makes the testdata section of the upload command use a single thread
+  --upload-workers <int>
+                       maximum number of concurrent workers for testdata upload (default: 8)
+  --upload-rate <float>
+                       max testdata upload request rate (requests/sec). 0 means unlimited
 ```
 
 ### Preparing input pipes for testing

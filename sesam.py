@@ -3,13 +3,14 @@ import json
 import logging
 import logging.handlers
 import os
-import queue
+import random
 import re
 import shutil
 import sys
 import time
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from base64 import urlsafe_b64decode
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from configparser import ConfigParser
 from copy import deepcopy
 from decimal import Decimal
@@ -19,7 +20,7 @@ from glob import glob
 from io import BytesIO, StringIO
 from pathlib import Path
 from pprint import pformat
-from threading import Thread
+from threading import Lock, Thread
 from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -32,7 +33,7 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.12"
+sesam_version = "2.11.13"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -69,6 +70,17 @@ class UploadException(Exception):
 
         output += "**************End of Validation Errors**************"
         return output
+
+
+class TestDataUploadException(Exception):
+    def __init__(self, failures):
+        self.failures = failures
+
+    def __str__(self):
+        output = [f"Testdata upload failed for {len(self.failures)} file(s):"]
+        for failure in self.failures:
+            output.append(f"- {failure['path']} ({failure['pipe_id']}): {failure['error']}")
+        return "\n".join(output)
 
 
 class SesamParser(ArgumentParser):
@@ -816,6 +828,13 @@ class SesamNode:
 class SesamCmdClient:
     """Commands wrapped in a class to make it easier to write unit tests"""
 
+    DEFAULT_TESTDATA_UPLOAD_WORKERS = 8
+    TESTDATA_UPLOAD_PROGRESS_LOG_INTERVAL = 25
+    TESTDATA_UPLOAD_MAX_RETRIES = 3
+    TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS = 1.0
+    TESTDATA_UPLOAD_RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+    DEFAULT_TESTDATA_UPLOAD_RATE = 0.0
+
     def __init__(self, args, logger):
         self.args = args
         self.logger = logger
@@ -825,7 +844,8 @@ class SesamCmdClient:
         self.whitelisted_systems = None
         self.node_url = None
         self.jwt_token = None
-        self.testdata_queue = None
+        self._testdata_upload_rate_lock = Lock()
+        self._testdata_next_upload_slot = 0.0
 
         if args.whitelist_file is not None:
             try:
@@ -1506,58 +1526,173 @@ class SesamCmdClient:
         self.logger.info("Config uploaded successfully")
 
         if os.path.isdir("testdata"):
+            testdata_jobs = list(self.get_testdata_jobs())
+            total_jobs = len(testdata_jobs)
+            if total_jobs == 0:
+                self.logger.info("No test data found to upload")
+                return
+
+            uploaded = 0
+            failed = 0
+            started_at = time.monotonic()
+
             if not self.args.single_thread_upload:
-                self.testdata_queue = queue.Queue()
-                for root, _, files in os.walk("testdata"):
-                    for filename in files:
-                        if not filename.lower().endswith(".json"):
-                            continue
-                        pipe_id = os.path.splitext(filename)[0]
-                        if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
-                            continue
+                max_workers = min(self.args.upload_workers, total_jobs)
+                if max_workers < 1:
+                    max_workers = 1
 
-                        self.testdata_queue.put((root, filename, pipe_id))
-                        Thread(target=self.testdata_worker, daemon=True).start()
+                failures = []
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    future_to_job = {
+                        executor.submit(self.upload_testdata, root, filename, pipe_id): (
+                            root,
+                            filename,
+                            pipe_id,
+                        )
+                        for root, filename, pipe_id in testdata_jobs
+                    }
+                    for future in as_completed(future_to_job):
+                        root, filename, pipe_id = future_to_job[future]
+                        try:
+                            future.result()
+                            uploaded += 1
+                        except BaseException as e:
+                            failed += 1
+                            failures.append(
+                                {
+                                    "path": os.path.join(root, filename),
+                                    "pipe_id": pipe_id,
+                                    "error": str(e),
+                                }
+                            )
+                        finally:
+                            self.log_testdata_upload_progress(uploaded, failed, total_jobs)
 
-                self.testdata_queue.join()
+                self.log_testdata_upload_summary(uploaded, failed, total_jobs, started_at)
+                if failures:
+                    raise TestDataUploadException(failures)
+
                 self.logger.info(
                     "Test data uploaded successfully. Waiting 5 seconds before proceeding..."
                 )
             else:
-                for root, _, files in os.walk("testdata"):
-                    for filename in files:
-                        if not filename.lower().endswith(".json"):
-                            continue
-                        pipe_id = os.path.splitext(filename)[0]
-                        if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
-                            continue
-
-                        self.upload_testdata(root, filename, pipe_id)
+                try:
+                    for root, filename, pipe_id in testdata_jobs:
+                        try:
+                            self.upload_testdata(root, filename, pipe_id)
+                            uploaded += 1
+                        except BaseException:
+                            failed += 1
+                            raise
+                        finally:
+                            self.log_testdata_upload_progress(uploaded, failed, total_jobs)
+                finally:
+                    self.log_testdata_upload_summary(uploaded, failed, total_jobs, started_at)
         else:
             self.logger.info("No test data found to upload")
 
-    def testdata_worker(self):
-        root, filename, pipe_id = self.testdata_queue.get()
-        self.upload_testdata(root, filename, pipe_id)
-        self.testdata_queue.task_done()
+    def get_testdata_jobs(self):
+        for root, _, files in os.walk("testdata"):
+            for filename in files:
+                if not filename.lower().endswith(".json"):
+                    continue
+                pipe_id = os.path.splitext(filename)[0]
+                if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
+                    continue
+
+                yield root, filename, pipe_id
 
     def upload_testdata(self, root, filename, pipe_id):
+        file_path = os.path.join(root, filename)
         try:
-            with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 entities_json = json.load(
                     f, parse_float=Decimal if self.args.do_float_as_decimal else float
                 )
 
-            if entities_json is not None:
-                self.logger.info(f"Uploading entities for {pipe_id}")
-                self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+            if entities_json is None:
+                return
+
+            self.logger.info(f"Uploading entities for {pipe_id}")
+
+            max_attempts = self.TESTDATA_UPLOAD_MAX_RETRIES + 1
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    self.wait_for_testdata_upload_slot()
+                    self.sesam_node.pipe_receiver_post_request(pipe_id, json=entities_json)
+                    return
+                except BaseException as e:
+                    if attempt == max_attempts or not self.is_retryable_testdata_upload_error(e):
+                        raise e
+
+                    retry_delay = self.get_testdata_upload_retry_delay(attempt)
+                    self.logger.warning(
+                        f"Transient failure while uploading entities for {pipe_id} "
+                        f"(attempt {attempt}/{max_attempts}, retrying in {retry_delay:.1f}s): {e}"
+                    )
+                    time.sleep(retry_delay)
         except BaseException as e:
+            response = getattr(e, "response", None)
+            response_text = response.text if response and hasattr(response, "text") else "n/a"
             self.logger.error(
                 f"Failed to post payload to pipe {pipe_id}. "
-                f"{e}. Response from server was: {e.response.text}"
+                f"{e}. Response from server was: {response_text}"
             )
             raise e
         return
+
+    def get_testdata_upload_retry_delay(self, attempt):
+        exponential_delay = self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS * (2 ** (attempt - 1))
+        jitter = random.uniform(0, self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS)
+        return exponential_delay + jitter
+
+    def wait_for_testdata_upload_slot(self):
+        if self.args.upload_rate <= 0:
+            return
+
+        min_interval = 1.0 / self.args.upload_rate
+        while True:
+            with self._testdata_upload_rate_lock:
+                now = time.monotonic()
+                if now >= self._testdata_next_upload_slot:
+                    self._testdata_next_upload_slot = now + min_interval
+                    return
+
+                delay = self._testdata_next_upload_slot - now
+
+            time.sleep(delay)
+
+    def is_retryable_testdata_upload_error(self, error):
+        response = getattr(error, "response", None)
+        if response is not None:
+            status_code = response.status_code
+            if status_code in self.TESTDATA_UPLOAD_RETRYABLE_STATUS_CODES:
+                return True
+            if 400 <= status_code < 500:
+                return False
+            return status_code >= 500
+
+        return isinstance(error, RequestException)
+
+    def log_testdata_upload_progress(self, uploaded, failed, total):
+        processed = uploaded + failed
+        if (
+            processed % self.TESTDATA_UPLOAD_PROGRESS_LOG_INTERVAL != 0
+            and processed != total
+        ):
+            return
+
+        self.logger.info(
+            f"Test data upload progress: processed={processed}/{total}, "
+            f"uploaded={uploaded}, failed={failed}, remaining={total - processed}"
+        )
+
+    def log_testdata_upload_summary(self, uploaded, failed, total, started_at):
+        elapsed_time = time.monotonic() - started_at
+        self.logger.info(
+            f"Test data upload summary: total={total}, uploaded={uploaded}, "
+            f"failed={failed}, elapsed_time={elapsed_time:.1f}s"
+        )
 
     def dump(self):
         try:
@@ -3817,6 +3952,26 @@ Commands:
         help="Makes the testdata section of the upload command use a single thread",
     )
 
+    parser.add_argument(
+        "--upload-workers",
+        dest="upload_workers",
+        required=False,
+        type=int,
+        metavar="<int>",
+        default=SesamCmdClient.DEFAULT_TESTDATA_UPLOAD_WORKERS,
+        help="maximum number of concurrent workers for testdata upload (default: 8)",
+    )
+
+    parser.add_argument(
+        "--upload-rate",
+        dest="upload_rate",
+        required=False,
+        type=float,
+        metavar="<float>",
+        default=SesamCmdClient.DEFAULT_TESTDATA_UPLOAD_RATE,
+        help="max testdata upload request rate (requests/sec). 0 means unlimited",
+    )
+
     try:
         args = parser.parse_args()
         args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
@@ -3828,6 +3983,11 @@ Commands:
     if args.version:
         print("sesam version %s" % sesam_version)
         sys.exit(0)
+
+    if args.upload_workers < 1:
+        parser.error("--upload-workers must be an integer >= 1")
+    if args.upload_rate < 0:
+        parser.error("--upload-rate must be a number >= 0")
 
     if args.logformat == "log":
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -3889,6 +4049,13 @@ Commands:
 
     else:
         command = ""
+
+    if (
+        args.single_thread_upload
+        and args.upload_workers != SesamCmdClient.DEFAULT_TESTDATA_UPLOAD_WORKERS
+        and command in ["upload", "test"]
+    ):
+        logger.warning("--upload-workers is ignored when -single-thread-upload is set")
 
     if command not in [
         "authenticate",
@@ -4124,6 +4291,9 @@ Commands:
             )
             sys.exit(1)
     except UploadException as e:
+        logger.error(e)
+        sys.exit(1)
+    except TestDataUploadException as e:
         logger.error(e)
         sys.exit(1)
     except BaseException as e:
