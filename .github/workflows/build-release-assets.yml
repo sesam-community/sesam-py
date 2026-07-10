@@ -13,9 +13,9 @@ jobs:
         python: ["3.10"]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - name: Echo information
@@ -36,33 +36,17 @@ jobs:
           OS: ${{ matrix.os }}
           TAG: ${{ github.event.release.tag_name }}
         run: bash package.sh
-      - name: Upload Windows assets to release
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-release-asset@v1
+      - name: Upload release asset
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/sesam-windows-${{ github.event.release.tag_name }}.zip
-          asset_name: sesam-windows-${{ github.event.release.tag_name }}.zip
-          asset_content_type: application/zip
-      - name: Upload Linux assets to release
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/sesam-linux-${{ github.event.release.tag_name }}.tar.gz
-          asset_name: sesam-linux-${{ github.event.release.tag_name }}.tar.gz
-          asset_content_type: application/tar
-      - name: Upload MacOS assets to release
-        if: ${{ matrix.os == 'macos-latest' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/sesam-macos-${{ github.event.release.tag_name }}.tar.gz
-          asset_name: sesam-osx-${{ github.event.release.tag_name }}.tar.gz
-          asset_content_type: application/tar
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            gh release upload "$TAG" "dist/sesam-windows-${TAG}.zip" --clobber
+          elif [ "${{ matrix.os }}" = "ubuntu-22.04" ]; then
+            gh release upload "$TAG" "dist/sesam-linux-${TAG}.tar.gz" --clobber
+          else
+            cp "dist/sesam-macos-${TAG}.tar.gz" "dist/sesam-osx-${TAG}.tar.gz"
+            gh release upload "$TAG" "dist/sesam-osx-${TAG}.tar.gz" --clobber
+          fi
