@@ -5,7 +5,3 @@ include = '\.py$'
 [tool.isort]
 line_length = 100
 profile = "black"
-
-[flake8]
-# Match black line length
-max-line-length = 100
