@@ -31,6 +31,12 @@ from requests.exceptions import RequestException
 
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
+from sesam_cli.cli import (
+    ALLOWED_NON_DEV_SUBSCRIPTION_COMMANDS,
+    VALID_COMMANDS,
+    execute_command,
+)
+from sesam_cli.commands.convert import execute_convert
 from sesam_cli.test_specs import TestSpec, normalize_path
 
 sesam_version = "2.11.13"
@@ -3030,62 +3036,7 @@ class SesamCmdClient:
         self.logger.info("Successfully restarted target node!")
 
     def convert(self):
-        def get_pipe_id(path):
-            basename = os.path.basename(path)
-            return basename.replace(".conf.json", "")
-
-        def has_conditional_embedded_source(pipe_config, env):
-            source_config = pipe_config.get("source", {})
-            source_type = source_config.get("type", "")
-            if source_type == "conditional":
-                alternatives = source_config.get("alternatives")
-                current_profile_alternative = alternatives.get(env, {})
-                if current_profile_alternative.get("type", "") == "embedded":
-                    return True
-            return False
-
-        def convert_pipe_config(pipe_config):
-            entities = None
-            modified_pipe_config = None
-            if has_conditional_embedded_source(pipe_config, self.args.profile):
-                alternatives = pipe["source"]["alternatives"]
-                entities = alternatives[self.args.profile]["entities"]
-                # rewrite the case which corresponds to env profile
-                alternatives[self.args.profile] = {"type": "http_endpoint"}
-                modified_pipe_config = pipe_config
-
-            return modified_pipe_config, entities
-
-        def save_testdata_file(pipe_id, entities):
-            os.makedirs("testdata", exist_ok=True)
-            with open(f"testdata{os.sep}{pipe_id}.json", "w", encoding="utf-8") as testdata_file:
-                testdata_file.write(format_json(entities))
-
-        def save_modified_pipe(pipe_json, path):
-            with open(path, "w", encoding="utf-8") as pipe_file:
-                pipe_file.write(format_json(pipe_json))
-
-        self.logger.info("Starting converting conditional embedded sources")
-
-        if self.args.dump:
-            self.logger.info("Dumping config for backup")
-            self.dump()
-
-        for filepath in glob("pipes%s*.conf.json" % os.sep):
-            # Not actually used anywhere?
-            # pipe_id_from_basename = get_pipe_id(filepath)
-
-            with open(filepath, "r", encoding="utf-8") as pipe_file:
-                pipe = json.load(pipe_file)
-                pipe_to_rewrite, entities = convert_pipe_config(pipe)
-
-            if pipe_to_rewrite is not None:
-                save_modified_pipe(pipe_to_rewrite, filepath)
-
-            if entities is not None:
-                save_testdata_file(pipe["_id"], entities)
-
-        self.logger.info("Successfully converted pipes and created testdata folder")
+        execute_convert(args=self.args, logger=self.logger, dump_callback=self.dump)
 
     def format(self, option):
         def _format_file(file, folder):
@@ -3914,30 +3865,7 @@ Commands:
     ):
         logger.warning("--upload-workers is ignored when -single-thread-upload is set")
 
-    if command not in [
-        "authenticate",
-        "expand",
-        "validate",
-        "upload",
-        "download",
-        "status",
-        "init",
-        "connector-init",
-        "add-datatype",
-        "update",
-        "verify",
-        "test",
-        "run",
-        "wipe",
-        "restart",
-        "reset",
-        "dump",
-        "stop",
-        "convert",
-        "update-schemas",
-        "run-pytest",
-        "format",
-    ]:
+    if command not in VALID_COMMANDS:
         if command:
             logger.error("Unknown command: '%s'", command)
         else:
@@ -4012,132 +3940,17 @@ Commands:
             sys.exit(1)
 
     start_time = time.monotonic()
-    allowed_commands_for_non_dev_subscriptions = ["upload", "download"]
     try:
         if (
             offline
             or sesam_cmd_client.sesam_node.api_connection.get_api_info()
             .get("status")
             .get("developer_mode")
-            or (command in allowed_commands_for_non_dev_subscriptions and args.force)
+            or (command in ALLOWED_NON_DEV_SUBSCRIPTION_COMMANDS and args.force)
         ):
-            if command == "authenticate":
-                sesam_cmd_client.authenticate()
-            elif command == "expand":
-                connectorpy.expand_connector(
-                    args.system_placeholder, args.expanded_dir, args.profile
-                )
-            elif command == "validate":
-                connectorpy.expand_connector(
-                    args.system_placeholder, args.expanded_dir, args.profile
-                )
-                sesam_cmd_client.validate()
-            elif command == "upload":
-                if not args.is_connector:
-                    sesam_cmd_client.upload()
-                else:
-                    os.chdir(args.connector_dir)
-                    connectorpy.expand_connector(
-                        args.system_placeholder, args.expanded_dir, args.profile
-                    )
-                    sesam_cmd_client.validate()
-                    os.chdir(args.expanded_dir)
-                    sesam_cmd_client.upload()
-                    os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(
-                        os.path.join(os.pardir, os.pardir)
-                    )
-                    if not args.skip_auth:
-                        sesam_cmd_client.authenticate()
-            elif command == "download":
-                sesam_cmd_client.download()
-            elif command == "update-schemas":
-                os.chdir(args.connector_dir)
-                connectorpy.update_schemas(sesam_cmd_client.sesam_node)
-            elif command == "status":
-                if not args.is_connector:
-                    sesam_cmd_client.status()
-                else:
-                    if os.path.exists(os.path.join(args.connector_dir, args.expanded_dir)):
-                        os.chdir(os.path.join(args.connector_dir, args.expanded_dir))
-                        sesam_cmd_client.status()
-                        os.chdir(os.pardir) if args.connector_dir == "." else os.chdir(
-                            os.path.join(os.pardir, os.pardir)
-                        )
-                    else:
-                        logger.error(
-                            "expanded directory not found. Please upload the "
-                            "configs first or check the input args."
-                        )
-            elif command == "init":
-                sesam_cmd_client.init()
-            elif command == "connector-init":
-                sesam_cmd_client.connector_init()
-            elif command == "add-datatype":
-                sesam_cmd_client.add_datatype()
-            elif command == "update":
-                sesam_cmd_client.update()
-            elif command == "verify":
-                sesam_cmd_client.verify()
-            elif command == "test":
-                sesam_cmd_client.test()
-            elif command == "stop":
-                sesam_cmd_client.stop()
-            elif command == "run":
-                if args.enable_user_pipes is True:
-                    logger.warning(
-                        "Note that the -enable-user-pipes flag has no effect on the "
-                        "actual sesam instance outside the 'upload' or 'test' commands"
-                    )
-
-                if args.disable_cpp_extensions is True:
-                    logger.warning(
-                        "Note that the -disable-cpp-extensions flag has no effect on "
-                        "the actual node configuration outside the 'upload' or "
-                        "'test' commands"
-                    )
-
-                if args.enable_eager_ms is True:
-                    logger.warning(
-                        "Note that the -enable-eager-ms flag has no effect on the "
-                        "actual node configuration outside the 'upload' or 'test' "
-                        "commands"
-                    )
-
-                sesam_cmd_client.run()
-            elif command == "wipe":
-                sesam_cmd_client.wipe()
-            elif command == "restart":
-                sesam_cmd_client.restart()
-            elif command == "reset":
-                sesam_cmd_client.reset()
-            elif command == "convert":
-                sesam_cmd_client.convert()
-            elif command == "dump":
-                sesam_cmd_client.dump()
-            elif command == "run-pytest":
-                if not command_args:
-                    logger.error(
-                        f"The name of the folder containing tests must be specified "
-                        f"when using the '{command}' command."
-                    )
-                    sys.exit(1)
-
-                sesam_cmd_client.args.pytest_tests_folder = command_args[0]
-                sesam_cmd_client.run_pytest_tests(is_standalone_run=True)
-            elif command == "format":
-                if not command_args:
-                    command_args = ["all"]
-                sesam_cmd_client.format(command_args[0])
-            else:
-                logger.error("Unknown command: %s" % command)
-                sys.exit(1)
-
-            # Check if we should run pytest after the main command has finished
-            if command != "run-pytest" and args.pytest_tests_folder:
-                is_standalone_pytest_run = command != "test"
-                sesam_cmd_client.run_pytest_tests(is_standalone_pytest_run)
+            execute_command(command, command_args, args, sesam_cmd_client, logger)
         else:
-            if command in allowed_commands_for_non_dev_subscriptions:
+            if command in ALLOWED_NON_DEV_SUBSCRIPTION_COMMANDS:
                 error_text = "To override this check use -force flag."
             else:
                 error_text = ""
