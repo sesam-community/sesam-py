@@ -18,7 +18,7 @@ from glob import glob
 from io import BytesIO, StringIO
 from pathlib import Path
 from pprint import pformat
-from threading import Lock, Thread
+from threading import Lock
 from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -36,8 +36,10 @@ from sesam_cli.cli import (
     execute_command,
 )
 from sesam_cli.commands.convert import execute_convert
+from sesam_cli.commands.scheduler import execute_run_internal_scheduler
 from sesam_cli.commands.upload import execute_upload
 from sesam_cli.commands.verify import execute_verify
+from sesam_cli.commands.validate import execute_validate
 from sesam_cli.test_specs import TestSpec, normalize_path
 
 sesam_version = "2.11.13"
@@ -1118,159 +1120,7 @@ class SesamCmdClient:
         return True
 
     def validate(self):
-        logger.info("Validating config files")
-        # set the current directory when sesam validate is called from root.
-        if self.args.command == "validate" and self.args.connector_dir != ".":
-            os.chdir(self.args.connector_dir)
-
-        is_valid = self.check_template_sink()
-
-        if os.path.exists(".expanded"):
-            for root, _, files in os.walk(".expanded"):
-                if root.endswith("/.expanded"):
-                    for file in files:
-                        if file.endswith(".json"):
-                            try:
-                                with open(os.path.join(root, file), "r") as f:
-                                    config = json.load(f)
-                            except BaseException:
-                                logger.error("Config file '%s' is not valid json" % file)
-                                is_valid = False
-                elif root.endswith("/systems"):
-                    for file in files:
-                        if file.endswith(".json"):
-                            try:
-                                with open(os.path.join(root, file), "r") as f:
-                                    config = json.load(f)
-                            except BaseException:
-                                logger.error("Config file '/systems/%s' is not valid json" % file)
-                                is_valid = False
-                elif root.endswith("/pipes"):
-
-                    def extract_datatype(file):
-                        return file.split("-")[1]
-
-                    # preprocess all files to know which collect pipes has a corresponding share
-                    shared_datatypes = set()
-                    for file in files:
-                        if file.endswith(".json"):
-                            if "share" in file:
-                                shared_datatypes.add(extract_datatype(file))
-
-                    for file in files:
-                        if file.endswith(".json"):
-                            datatype = extract_datatype(file)
-                            try:
-                                with open(os.path.join(root, file), "r") as f:
-                                    config = json.load(f)
-                            except BaseException:
-                                logger.error("Config file '/pipes/%s' is not valid json" % file)
-                                is_valid = False
-                            # TODO: change the validation for detecting warnings before
-                            # expanding the config files. This could lead to unexpected
-                            # behaviour.
-                            if "WARNING" in config.get("description", ""):
-                                logger.error(
-                                    f"Config file '/pipes/{file}' has a WARNING "
-                                    "in the description."
-                                )
-                                is_valid = False
-
-                            if "collect" in file and datatype in shared_datatypes:
-                                found = False
-                                # TODO: handle if we have a chained transform
-                                if type(config.get("transform")) == list:
-                                    for transform in config.get("transform"):
-                                        if transform.get("template") == "transform-collect-rest":
-                                            found = True
-                                elif type(config.get("transform")) == dict:
-                                    if (
-                                        config.get("transform").get("template")
-                                        == "transform-collect-rest"
-                                    ):
-                                        found = True
-                                if not found:
-                                    logger.error(
-                                        f"Config file '/pipes/{file}' has a corresponding share "
-                                        "pipe but is missing the 'transform-collect-rest' transform"
-                                    )
-                                    is_valid = False
-
-                            if "collect" in file and type(config.get("transform")) == list:
-                                for transform in config.get("transform"):
-                                    share_dataset = transform.get("properties", {}).get(
-                                        "share_dataset", {}
-                                    )
-                                    if transform.get("template") == "transform-collect-rest":
-                                        if "exclude_completeness" not in config.keys():
-                                            logger.error(
-                                                f"Config file '/pipes/{file}' is "
-                                                "missing 'exclude_completeness' "
-                                                "property"
-                                            )
-                                            is_valid = False
-                                        elif not transform.get("properties"):
-                                            logger.error(
-                                                f"Config file '/pipes/{file}' is "
-                                                "missing 'properties' property"
-                                            )
-                                            is_valid = False
-                                        elif not share_dataset:
-                                            logger.error(
-                                                f"Config file '/pipes/{file}' is "
-                                                "missing 'share_dataset' property in "
-                                                "'properties'"
-                                            )
-                                            is_valid = False
-                                        elif share_dataset not in config.get(
-                                            "exclude_completeness"
-                                        ):
-                                            logger.error(
-                                                f"Config file '/pipes/{file}' is "
-                                                "missing "
-                                                f"'{share_dataset}' in "
-                                                "'exclude_completeness'"
-                                            )
-                                            is_valid = False
-
-                            if "share" in file:
-                                if type(config.get("transform")) == dict:
-                                    if (
-                                        config.get("transform").get("template")
-                                        == "transform-share-rest"
-                                    ):
-                                        if (
-                                            "batch_size" not in config.keys()
-                                            or config.get("batch_size") != 1
-                                        ):
-                                            logger.error(
-                                                f"Config file '{file}' is missing "
-                                                "'batch_size' property with value: 1"
-                                            )
-                                            is_valid = False
-                                elif type(config.get("transform")) == list:
-                                    for transform in config.get("transform"):
-                                        if transform.get("template") == "transform-share-rest":
-                                            if (
-                                                "batch_size" not in config.keys()
-                                                or config.get("batch_size") != 1
-                                            ):
-                                                logger.error(
-                                                    f"Config file '{file}' is missing "
-                                                    "'batch_size' property with "
-                                                    "value: 1"
-                                                )
-                                                is_valid = False
-            if is_valid:
-                logger.warning("All config files are valid")
-            else:
-                logger.error(
-                    "One or more config files are not valid. " "Check the log for more information"
-                )
-                sys.exit(1)
-        else:
-            logger.error("Failed to validate. Config files are not expanded.")
-            sys.exit(1)
+        execute_validate(self)
 
     def upload(self):
         execute_upload(self, UploadException, TestDataUploadException)
@@ -2340,142 +2190,7 @@ class SesamCmdClient:
             raise RuntimeError("One or more Python tests failed, see above output.")
 
     def run_internal_scheduler(self):
-        start_time = time.monotonic()
-
-        zero_runs = self.args.scheduler_zero_runs
-        max_runs = self.args.scheduler_max_runs
-        max_run_time = self.args.scheduler_max_run_time
-        delete_input_datasets = not os.path.isdir("testdata")
-        check_input_pipes = self.args.scheduler_check_input_pipes
-        output_run_statistics = self.args.output_run_statistics
-        scheduler_mode = self.args.scheduler_mode
-        requests_mode = self.args.scheduler_request_mode
-        reset_pipes_and_delete_sink_datasets = (
-            self.args.scheduler_dont_reset_pipes_or_delete_sink_datasets is not True
-        )
-
-        if scheduler_mode is not None and scheduler_mode not in ["active", "poll"]:
-            raise RuntimeError("'scheduler_mode' can only be set to 'active' or 'poll'")
-
-        if requests_mode is not None and requests_mode not in ["sync", "async"]:
-            raise RuntimeError("'request_mode' can only be set to 'sync' or 'async'")
-
-        class SchedulerRunner(Thread):
-            def __init__(self, sesam_node):
-                super().__init__()
-                self.sesam_node = sesam_node
-                self.status = None
-                self.token = None
-                self.additional_info = None
-                self.result = {}
-
-            def run(self):
-                try:
-                    self.result = self.sesam_node.run_internal_scheduler(
-                        max_run_time=max_run_time,
-                        max_runs=max_runs,
-                        zero_runs=zero_runs,
-                        delete_input_datasets=delete_input_datasets,
-                        check_input_pipes=check_input_pipes,
-                        output_run_statistics=output_run_statistics,
-                        scheduler_mode=scheduler_mode,
-                        request_mode=requests_mode,
-                        reset_pipes_and_delete_sink_datasets=reset_pipes_and_delete_sink_datasets,
-                    )
-
-                    if requests_mode == "sync":
-                        if self.result["status"] == "success":
-                            self.status = "finished"
-                        else:
-                            self.status = "failed"
-                    else:
-                        # In async mode we loop until status changes
-                        # (or status request fails)
-                        if "token" not in self.result:
-                            raise AssertionError(
-                                "Response from scheduler with 'async' "
-                                "request_mode didn't contain a token!"
-                            )
-
-                        self.token = self.result["token"]
-                        while True:
-                            # IS-15613: long-running CI tests are also user interactions
-                            self.sesam_node.register_user_interaction()
-
-                            status = self.sesam_node.get_internal_scheduler_status(self.token)
-
-                            if status["status"] == "success":
-                                self.status = "finished"
-                                break
-                            elif status["status"] == "failed":
-                                self.status = "failed"
-                                break
-                            elif status["status"] == "not-running":
-                                self.status = "failed"
-                                self.result = "Scheduler is not running"
-                                break
-
-                            time.sleep(10)
-
-                except BaseException as e:
-                    self.status = "failed"
-                    self.result = e
-
-        scheduler_runner = SchedulerRunner(self.sesam_node)
-        scheduler_runner.start()
-
-        time.sleep(1)
-
-        since = None
-
-        def print_internal_scheduler_log(since_val, token=None):
-            log_lines = self.sesam_node.get_internal_scheduler_log(since=since_val, token=token)
-            for log_line in log_lines:
-                if isinstance(log_line, dict):
-                    s = "%s - %s - %s" % (
-                        log_line["timestamp"],
-                        log_line["loglevel"],
-                        log_line["logdata"],
-                    )
-                    logger.info(s)
-                else:
-                    logger.debug(f"Log line was not a dict! Was {type(log_line)} ('{log_line}')")
-                    return None
-
-            if len(log_lines) > 0:
-                return log_lines[-1]["timestamp"]
-
-            return since_val
-
-        while True:
-            if self.args.print_scheduler_log is True:
-                since = print_internal_scheduler_log(since, token=scheduler_runner.token)
-
-            if scheduler_runner.status is not None:
-                break
-
-            time.sleep(1)
-
-        if scheduler_runner.status == "failed":
-            self.logger.error("Failed to run pipes to completion")
-            if self.args.print_scheduler_log is True:
-                print_internal_scheduler_log(since, token=scheduler_runner.token)
-            raise RuntimeError(scheduler_runner.result)
-
-        if self.args.print_scheduler_log is True:
-            print_internal_scheduler_log(since, token=scheduler_runner.token)
-
-        self.logger.info(
-            "Successfully ran all pipes to completion in %s seconds"
-            % int(time.monotonic() - start_time)
-        )
-
-        additional_info = scheduler_runner.result.get("additional_info")
-        if additional_info is not None:
-            self.logger.info(additional_info)
-            return additional_info
-
-        return None
+        return execute_run_internal_scheduler(self)
 
     def run(self):
         try:
