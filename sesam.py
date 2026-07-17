@@ -5,7 +5,6 @@ import logging.handlers
 import os
 import random
 import re
-import shutil
 import sys
 import time
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
@@ -16,10 +15,8 @@ from decimal import Decimal
 from difflib import unified_diff
 from glob import glob
 from io import BytesIO, StringIO
-from pathlib import Path
 from pprint import pformat
 from threading import Lock
-from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import pytest
@@ -28,7 +25,6 @@ from lxml import etree
 from requests import post
 from requests.exceptions import RequestException
 
-from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 from sesam_cli.cli import (
     ALLOWED_NON_DEV_SUBSCRIPTION_COMMANDS,
@@ -36,11 +32,23 @@ from sesam_cli.cli import (
     execute_command,
 )
 from sesam_cli.commands.convert import execute_convert
+from sesam_cli.commands.config_sync import execute_download, execute_status
+from sesam_cli.commands.format_cmd import execute_format
+from sesam_cli.commands.init_connector import (
+    execute_add_datatype,
+    execute_connector_init,
+    execute_init,
+    get_datatype_template as command_get_datatype_template,
+)
+from sesam_cli.commands.authenticate import execute_authenticate
 from sesam_cli.commands.scheduler import execute_run_internal_scheduler
 from sesam_cli.commands.upload import execute_upload
+from sesam_cli.commands.update import execute_update
 from sesam_cli.commands.verify import execute_verify
 from sesam_cli.commands.validate import execute_validate
-from sesam_cli.test_specs import TestSpec, normalize_path
+from sesam_cli.test_spec_loader import load_test_specs as load_test_specs_impl
+from sesam_cli.test_specs import normalize_path
+from sesam_cli.zip_cleanup import remove_task_manager_settings as remove_task_manager_settings_impl
 
 sesam_version = "2.11.13"
 
@@ -898,73 +906,7 @@ class SesamCmdClient:
         return buffer.read()
 
     def remove_task_manager_settings(self, zip_data):
-        node_metadata = {}
-        if os.path.isfile("node-metadata.conf.json"):
-            with open("node-metadata.conf.json", "r") as infile:
-                node_metadata = json.load(infile)
-
-        remote_data = self.get_zipfile_data_by_filename(zip_data, "node-metadata.conf.json")
-        if remote_data:
-            remote_metadata = json.loads(str(remote_data, encoding="utf-8"))
-
-            if (
-                "task_manager" in remote_metadata
-                and "disable_user_pipes" in remote_metadata["task_manager"]
-                and remote_metadata["task_manager"]["disable_user_pipes"] is True
-            ):
-                if "disable_user_pipes" in node_metadata.get("task_manager", {}):
-                    # Restore the original, if present
-                    remote_metadata["task_manager"]["disable_user_pipes"] = node_metadata[
-                        "task_manager"
-                    ]["disable_user_pipes"]
-                else:
-                    # Not present originally, so just remove it from remote
-                    remote_metadata["task_manager"].pop("disable_user_pipes")
-                    # Remove the entire task_manager section if its empty
-                    if len(remote_metadata["task_manager"]) == 0:
-                        remote_metadata.pop("task_manager")
-
-            if "global_defaults" in remote_metadata:
-                if (
-                    "enable_cpp_extensions" in remote_metadata["global_defaults"]
-                    and remote_metadata["global_defaults"]["enable_cpp_extensions"] is False
-                ):
-                    if "enable_cpp_extensions" in node_metadata.get("global_defaults", {}):
-                        # Restore the original, if present
-                        remote_metadata["global_defaults"]["enable_cpp_extensions"] = node_metadata[
-                            "global_defaults"
-                        ]["enable_cpp_extensions"]
-                    else:
-                        # Not present originally, so just remove it from remote
-                        remote_metadata["global_defaults"].pop("enable_cpp_extensions")
-                        # Remove the entire global_defaults section if its empty
-                        if len(remote_metadata["global_defaults"]) == 0:
-                            remote_metadata.pop("global_defaults")
-
-                if (
-                    "eager_load_microservices" in remote_metadata["global_defaults"]
-                    and remote_metadata["global_defaults"]["eager_load_microservices"] is False
-                ):
-                    if "eager_load_microservices" in node_metadata.get("global_defaults", {}):
-                        # Restore the original, if present
-                        remote_metadata["global_defaults"][
-                            "eager_load_microservices"
-                        ] = node_metadata["global_defaults"]["eager_load_microservices"]
-                    else:
-                        # Not present originally, so just remove it from remote
-                        remote_metadata["global_defaults"].pop("eager_load_microservices")
-                        # Remove the entire global_defaults section if its empty
-                        if len(remote_metadata["global_defaults"]) == 0:
-                            remote_metadata.pop("global_defaults")
-
-            # Replace the file and return the new zipfile
-            return self.replace_file_in_zipfile(
-                zip_data,
-                "node-metadata.conf.json",
-                json.dumps(remote_metadata, indent=2, ensure_ascii=False).encode("utf-8"),
-            )
-
-        return zip_data
+        return remove_task_manager_settings_impl(self, zip_data)
 
     def get_node_and_jwt_token(self, args):
         try:
@@ -1008,78 +950,7 @@ class SesamCmdClient:
             logger.warning("Could not find %s in .authconfig file. Checking the arguments." % arg)
 
     def authenticate(self):
-        os.chdir(self.args.connector_dir)
-        self.args.service_url = self.node_url
-        self.args.service_jwt = self.jwt_token
-        if os.path.isfile("manifest.json"):  # If manifest.json is in working directory
-            self.args.connector_manifest = "manifest.json"
-        elif os.path.exists(
-            os.path.join(args.connector_dir, "manifest.json")
-        ):  # If manifest.json is in connector directory
-            self.args.connector_manifest = os.path.join(args.connector_dir, "manifest.json")
-        else:  # If manifest.json is not found
-            logger.error("Could not find manifest.json in connector directory")
-            sys.exit(1)
-
-        with open(args.connector_manifest, "r") as f:
-            connector_manifest = json.load(f)
-
-        if (
-            "auth_variant" in connector_manifest
-            and connector_manifest["auth_variant"].lower() == "tripletex"
-        ):
-            if os.path.exists(".authconfig"):
-                self.set_authconfig_credentials("consumer_token", "employee_token")
-            else:
-                self.args.consumer_token = args.consumer_token
-                self.args.employee_token = args.employee_token
-            if self.args.consumer_token is None or self.args.employee_token is None:
-                logger.error(
-                    "Missing consumer_token and/or employee_token. Please provide them "
-                    "in .authconfig or as arguments."
-                )
-                sys.exit(1)
-            self.args.base_url = args.base_url
-            tripletexlogin.login_via_tripletex(self.sesam_node, self.args)
-        elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "oauth2":
-            self.args.login_url = connector_manifest["oauth2"]["login_url"]
-            self.args.token_url = connector_manifest["oauth2"]["token_url"]
-            self.args.scopes = connector_manifest["oauth2"]["scopes"]
-            self.args.optional_scopes = connector_manifest["oauth2"].get("optional_scopes", [])
-            self.args.base_url = (
-                args.base_url
-                if args.base_url != parser.get_default("base_url")
-                else (
-                    f"{urlparse(self.args.token_url).scheme}://"
-                    f"{urlparse(self.args.token_url).netloc}"
-                )
-            )
-            if os.path.exists(".authconfig"):
-                self.set_authconfig_credentials("client_id", "client_secret")
-                self.set_authconfig_credentials("account_id")
-            else:
-                self.args.client_id = args.client_id
-                self.args.client_secret = args.client_secret
-                self.args.account_id = args.account_id
-
-            if self.args.client_id is None or self.args.client_secret is None:
-                logger.error(
-                    "Missing client_id and/or client_secret. Please provide them in "
-                    ".authconfig or as arguments."
-                )
-                sys.exit(1)
-            if connector_manifest.get("auth_variant", "").lower() == "superoffice-ticket":
-                oauth2login.login_via_oauth(self.sesam_node, self.args, require_so_ticket=True)
-            else:
-                oauth2login.login_via_oauth(self.sesam_node, self.args)
-
-        elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "api_key":
-            if os.path.exists(".authconfig"):
-                self.set_authconfig_credentials("api_key")
-                api_key_login.login_via_api_key(self.sesam_node, self.args)
-
-        else:
-            pass
+        execute_authenticate(self, parser=parser, cli_args=args)
 
     def check_template_sink(self):
         """
@@ -1236,180 +1107,10 @@ class SesamCmdClient:
             raise e
 
     def download(self):
-        if self.args.is_connector:
-            if not os.path.isdir(os.path.join(self.args.connector_dir, self.args.expanded_dir)):
-                logger.warning(
-                    "Expanded directory '%s' does not exist. creating the directory."
-                    % self.args.expanded_dir
-                )
-                os.makedirs(os.path.join(self.args.connector_dir, self.args.expanded_dir))
-            os.chdir(os.path.join(self.args.connector_dir, self.args.expanded_dir))
-
-        # Find env vars to download
-        profile_file = "%s-env.json" % self.args.profile
-        try:
-            with open(profile_file, "w", encoding="utf-8-sig") as fp:
-                fp.write(format_json(self.sesam_node.get_env()))
-        except BaseException as e:
-            self.logger.error("Failed to save profile file  '%s'" % profile_file)
-            raise e
-
-        if self.args.dump:
-            if os.path.isfile("sesam-config.zip"):
-                os.remove("sesam-config.zip")
-
-            zip_data = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(zip_data)
-
-            # normalize formatting
-            formatted_zip_data = self.format_zip_config(zip_data, binary=True)
-            with open("sesam-config.zip", "wb") as fp:
-                fp.write(formatted_zip_data)
-
-            self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
-        else:
-            zip_data = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(zip_data)
-
-        try:
-            # Remove all previous pipes and systems
-            for filename in glob("pipes%s*.conf.json" % os.sep):
-                # Don't delete non-whitelisted config files
-                # Normalize path
-                if (
-                    self.whitelisted_files
-                    and normalize_path(filename) not in self.whitelisted_files
-                ):
-                    continue
-
-                self.logger.debug("Deleting pipe config file '%s'" % filename)
-                os.remove(filename)
-
-            for filename in glob("systems%s*.conf.json" % os.sep):
-                # Don't delete non-whitelisted config files
-                if (
-                    self.whitelisted_files
-                    and normalize_path(filename) not in self.whitelisted_files
-                ):
-                    continue
-
-                self.logger.debug("Deleting system config file '%s'" % filename)
-                os.remove(filename)
-
-            # normalize formatting
-            zip_data = self.format_zip_config(zip_data)
-            zip_config = ZipFile(BytesIO(zip_data))
-            zip_config.extractall()
-            if not self.args.is_connector:
-                if self.args.jinja_vars:
-                    if os.path.exists("pipes") and os.path.exists("systems"):
-                        self.replace_template_variables("pipes")
-                        self.replace_template_variables("systems")
-                    else:
-                        self.logger.warning("No pipes or systems found in downloaded config")
-                else:
-                    self.logger.info(
-                        "No jinja variables found. Not replacing any variables in " "config files"
-                    )
-        except BaseException as e:
-            self.logger.error("Failed to unzip config file from Sesam to current directory")
-            raise e
-
-        zip_config.close()
-        self.logger.info("Replaced local config successfully")
-
-        curr_dir = os.getcwd()
-        if self.args.is_connector:
-            if curr_dir.endswith(self.args.expanded_dir):
-                os.chdir(os.pardir)
-                connectorpy.collapse_connector(
-                    ".", self.args.system_placeholder, self.args.expanded_dir
-                )
+        execute_download(self)
 
     def status(self):
-        def log_and_get_diff_flag(
-            file_content1, file_content2, file_name1, file_name2, log_diff=True
-        ):
-            diff_found = False
-            if file_content1 != file_content2:
-                self.logger.info("File '%s' differs from Sesam!" % file_name1)
-
-                diff = self.get_diff_string(file_content1, file_content2, file_name1, file_name2)
-                if log_diff:
-                    self.logger.info("Diff:\n%s" % diff)
-
-                diff_found = True
-            return diff_found
-
-        logger.error("Comparing local and node config...")
-
-        local_config = ZipFile(BytesIO(self.get_zip_config()))
-        if self.args.dump:
-            zip_data = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(zip_data)
-
-            with open("sesam-config.zip", "wb") as fp:
-                fp.write(zip_data)
-
-            self.logger.info("Dumped downloaded config to 'sesam-config.zip'")
-        else:
-            remote_config = self.sesam_node.get_config(binary=True)
-            zip_data = self.remove_task_manager_settings(remote_config)
-
-        remote_config = ZipFile(BytesIO(zip_data))
-
-        remote_files = sorted(remote_config.namelist())
-        local_files = sorted(local_config.namelist())
-
-        diff_found = False
-        # compare profile_file content with the variables
-        profile_file = "%s-env.json" % self.args.profile
-        try:
-            with open(profile_file, "r", encoding="utf-8-sig") as local_env_file:
-                local_file_data = format_json(json.load(local_env_file))
-            remote_file_data = format_json(self.sesam_node.get_env())
-
-            diff_found = (
-                log_and_get_diff_flag(
-                    local_file_data,
-                    remote_file_data,
-                    profile_file,
-                    profile_file,
-                    self.args.diff,
-                )
-                or diff_found
-            )
-        except FileNotFoundError:
-            logger.error("Cannot locate profile file '%s'" % profile_file)
-
-        for remote_file in remote_files:
-            if remote_file not in local_files:
-                self.logger.info("Sesam file '%s' was not found locally" % remote_file)
-                diff_found = True
-
-        for local_file in local_files:
-            if local_file not in remote_files:
-                self.logger.info("Local file '%s' was not found in Sesam" % local_file)
-                diff_found = True
-            else:
-                local_file_data = str(local_config.read(local_file), encoding="utf-8")
-                remote_file_data = format_json(json.load(remote_config.open(local_file)))
-
-                diff_found = (
-                    log_and_get_diff_flag(
-                        local_file_data,
-                        remote_file_data,
-                        local_file,
-                        local_file,
-                        self.args.diff,
-                    )
-                    or diff_found
-                )
-
-        if diff_found:
-            logger.info("Sesam config is NOT in sync with local config!")
-        else:
-            logger.info("Sesam config is up-to-date with local config!")
+        execute_status(self)
 
     def filter_entity(self, entity, test_spec):
         """Remove most underscore keys and filter potential blacklisted keys"""
@@ -1439,110 +1140,7 @@ class SesamCmdClient:
         return filter_item([], entity)
 
     def load_test_specs(self, existing_output_pipes, update=False):
-        test_specs = {}
-        failed = False
-
-        # Load test specifications
-        for filename in glob("expected%s*.test.json" % os.sep):
-            self.logger.debug("Processing spec file '%s'" % filename)
-
-            test_spec = TestSpec(filename)
-
-            pipe_id = test_spec.pipe
-            self.logger.log(LOGLEVEL_TRACE, "Pipe id for spec '%s' is '%s" % (filename, pipe_id))
-
-            if self.whitelisted_pipes and pipe_id not in self.whitelisted_pipes:
-                logger.warning(
-                    f"Skipping test spec for non-whitelisted pipe '{pipe_id} - "
-                    "add it to the whitelist if "
-                    f"this is not correct!'"
-                )
-                continue
-
-            if pipe_id not in existing_output_pipes:
-                if update is False:
-                    logger.error(
-                        "Test spec '%s' references a non-exisiting output "
-                        "pipe '%s' - please remove '%s'"
-                        % (test_spec.spec_file, pipe_id, test_spec.spec_file)
-                    )
-                    failed = True
-                else:
-                    if test_spec.ignore is False:
-                        # Remove the test spec file
-                        if os.path.isfile("%s" % test_spec.spec_file):
-                            logger.warning(
-                                "Test spec '%s' references a non-exisiting output "
-                                "pipe '%s' - removing '%s'.."
-                                % (test_spec.spec_file, pipe_id, test_spec.spec_file)
-                            )
-                            os.remove(test_spec.spec_file)
-                            continue
-                    else:
-                        logger.warning(
-                            "Test spec '%s' references a non-exisiting output "
-                            "pipe '%s' but is marked as 'ignore' - consider "
-                            "removing '%s'.." % (test_spec.spec_file, pipe_id, test_spec.spec_file)
-                        )
-
-            if test_spec.ignore is False and not os.path.isfile("%s" % test_spec.file):
-                logger.warning(
-                    "Test spec '%s' references non-exisiting 'expected' output "
-                    "file '%s'" % (test_spec.spec_file, test_spec.file)
-                )
-                if update is True:
-                    logger.info("Creating empty 'expected' output file '%s'..." % test_spec.file)
-                    with open(test_spec.file, "w") as fp:
-                        fp.write("[]\n")
-                else:
-                    failed = True
-
-            # If spec says 'ignore' then the corresponding output file should not exist
-            if failed is False and test_spec.ignore is True:
-                output_filename = test_spec.file
-
-                if os.path.isfile(output_filename):
-                    if update:
-                        self.logger.debug("Removing existing output file '%s'" % output_filename)
-                        os.remove(output_filename)
-                    else:
-                        self.logger.warning(
-                            "pipe '%s' is ignored, but output file '%s' still exists"
-                            % (pipe_id, filename)
-                        )
-
-            if pipe_id not in test_specs:
-                test_specs[pipe_id] = []
-
-            test_specs[pipe_id].append(test_spec)
-
-        if failed:
-            logger.error("Test specs verify failed, correct errors and retry")
-            raise RuntimeError("Test specs verify failed, correct errors and retry")
-
-        if update:
-            for pipe in existing_output_pipes.values():
-                if self.whitelisted_pipes and pipe.id not in self.whitelisted_pipes:
-                    logger.warning(
-                        f"Not updating non-whitelisted pipe '{pipe.id} - add "
-                        "it to the whitelist if "
-                        f"this is not correct!'"
-                    )
-                    continue
-
-                self.logger.debug("Updating pipe '%s" % pipe.id)
-
-                if pipe.id not in test_specs:
-                    self.logger.warning(
-                        "Found no spec for pipe %s - creating empty spec file" % pipe.id
-                    )
-
-                    filename = os.path.join("expected", "%s.test.json" % pipe.id)
-                    with open(filename, "w") as fp:
-                        fp.write("{\n}")
-                    test_specs[pipe.id] = [TestSpec(filename)]
-
-        return test_specs
+        return load_test_specs_impl(self, existing_output_pipes, update=update)
 
     def get_diff_string(self, a, b, a_filename, b_filename):
         a_lines = StringIO(a).readlines()
@@ -1687,446 +1285,19 @@ class SesamCmdClient:
         return pipe
 
     def init(self):
-        self.logger.info("Adding conditional sources to input pipes...")
-
-        files = glob("pipes%s*.conf.json" % os.sep)
-
-        # Conditional sources should not be added to
-        # dataset-type sources or embedded sources
-        excluded_types = [
-            "dataset",
-            "merge",
-            "merge_datasets",
-            "union_datasets",
-            "diff_datasets",
-            "embedded",
-        ]
-        added_sources = 0
-        added_entities = 0
-        modified_sources = 0
-
-        for cfg_path in files:
-            new_cfg = None
-            with open(cfg_path) as f:
-                p = json.load(f)
-                source_type = p["source"]["type"]
-
-                # Check if pipe already has a conditional source,
-                # then add test alternative if needed If add-test-entities is True
-                # input entities from prod are added as test entities
-                if source_type == "conditional":
-                    if "test" not in p["source"]["alternatives"]:
-                        new_cfg = self.add_test_alternative(p)
-                        added_sources += 1
-
-                    if self.args.add_test_entities:
-                        current_entities = p["source"]["alternatives"]["test"]["entities"]
-
-                        # If there are no entities in the test alternative,
-                        # or if existing test entities should be
-                        # overwritten, then add test entities from a
-                        # Sesam node (such as prod)
-                        if len(current_entities) == 0 or self.args.force_add:
-                            new_cfg, num_added = self.test_entities_to_pipe(p)
-                            added_entities += num_added
-                            if num_added > 0:
-                                modified_sources += 1
-                        else:
-                            self.logger.info(
-                                f"Pipe {p['_id']} already has test entities. "
-                                "Re-run with '-force-add' "
-                                f"if you want to overwrite these entities."
-                            )
-
-                elif source_type not in excluded_types:
-                    new_cfg = self.add_conditional_source(p)
-                    if self.args.add_test_entities:
-                        new_cfg, num_added = self.test_entities_to_pipe(p)
-                        added_entities += num_added
-                        if num_added > 0:
-                            modified_sources += 1
-
-                    added_sources += 1
-
-                if new_cfg is not None:
-                    with open(cfg_path, "w", encoding="utf-8") as pipe_file:
-                        pipe_file.write(format_json(new_cfg))
-
-        if added_sources > 0:
-            self.logger.info("Successfully added test sources to %i pipes." % added_sources)
-        else:
-            self.logger.info(
-                "All input pipes already have conditional sources "
-                "with test alternatives. No test sources were added."
-            )
-        if modified_sources > 0:
-            self.logger.info(
-                "Successfully added a total of %i test entities to %i pipes."
-                % (added_entities, modified_sources)
-            )
-        elif modified_sources + added_entities == 0:
-            self.logger.info("No pipe configurations were modified.")
-
-        if not self.args.is_connector and self.args.connector_dir != ".":
-            with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
-                json.dump(
-                    {"datatypes": {}, "additional_parameters": {}},
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
+        execute_init(self)
 
     def connector_init(self):
-        if self.args.connector_dir == ".":
-            if not os.getcwd().split("/")[-1].endswith("-connector"):
-                self.logger.error(
-                    "The current directory does not appear to be a valid "
-                    "directory. Please run this command from the root of the "
-                    "connector directory or make sure it follows the naming convention "
-                    "(<name>-connector)."
-                )
-                sys.exit(1)
-            connector_name = os.getcwd().split("/")[-1].split("-connector")[0]
-            root_dir = os.path.dirname(os.getcwd())
-        else:
-            if not self.args.connector_dir.endswith("-connector"):
-                self.logger.error(
-                    "The connector directory does not appear to be a valid "
-                    "directory. Please make sure it follows the naming convention "
-                    "(<name>-connector)."
-                )
-                sys.exit(1)
-            connector_name = self.args.connector_dir.split("-connector")[0]
-            root_dir = os.getcwd()
-        if not os.path.exists(Path(self.args.connector_dir, "manifest.json")):
-            self.logger.info("manifest.json not found, initializing it...")
-
-            templates_dir = os.path.join(self.args.connector_dir, "templates")
-            if not os.path.exists(templates_dir):
-                self.logger.info("templates directory not found, initializing it...")
-                os.makedirs(templates_dir)
-
-            manifest_obj = {
-                "auth": self.args.auth,
-                "datatypes": {},
-                "additional_parameters": {},
-                "system-template": "templates/system.json",
-            }
-            system_obj = {
-                "_id": "{{@ system @}}",
-                "operations": {},
-                "type": "system:rest",
-                "url_pattern": "",
-                "verify_ssl": True,
-            }
-            if self.args.auth == "oauth2":
-                manifest_obj["oauth2"] = {
-                    "login_url": "",
-                    "token_url": "",
-                    "scopes": [],
-                }
-                system_obj["oauth2"] = {
-                    "access_token": "$SECRET(oauth_access_token)",
-                    "client_id": "$SECRET(oauth_client_id)",
-                    "client_secret": "$SECRET(oauth_client_secret)",
-                    "refresh_token": "$SECRET(oauth_refresh_token)",
-                    "token_url": "{{@ token_url @}}",
-                }
-
-            if self.args.auth == "api_key":
-                manifest_obj["auth"] = "api_key"
-                system_obj["password"] = "$SECRET(api_key)"
-
-            if self.args.auth == "jwt":
-                manifest_obj["auth"] = "api_key"
-                manifest_obj["auth_variant"] = "jwt"
-                manifest_obj["jwt"] = {
-                    "jwt_header_key": "",
-                    "login_url": "",
-                    "refresh_url": "",
-                }
-                system_obj["jwt_access_token"] = "$SECRET(jwt_access_token)"
-
-            readme_obj = (
-                f"# A sesam connector for {connector_name}\n\n## Description\n\n"
-                f"## Configuration\n\n## Datatypes\n\n## Notes\n\n## Environment "
-                f"variables\n\n## Authentication"
-            )
-
-            shutil.copyfile(Path(root_dir, "LICENSE"), Path(self.args.connector_dir, "LICENSE"))
-            with open(Path(self.args.connector_dir, "manifest.json"), "w") as f:
-                json.dump(
-                    manifest_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
-
-            with open(Path(self.args.connector_dir, "templates", "system.json"), "w") as f:
-                json.dump(
-                    system_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
-
-            with open(Path(self.args.connector_dir, "README.md"), "w") as f:
-                f.write(readme_obj)
-
-        else:
-            self.logger.info("manifest.json found, skipping initialization...")
+        execute_connector_init(self)
 
     def get_datatype_template(self, datatype):
-        share_operations = {}
-        share_pipe_template_obj = {}
-
-        all_pipe_template_obj = {
-            "_id": "{{@ system @}}-{{@ datatype @}}-all",
-            "add_namespaces": False,
-            "source": {
-                "operation": "{{@ datatype @}}-list",
-                "system": "{{@ system @}}",
-                "type": "rest",
-            },
-            "type": "pipe",
-        }
-
-        collect_pipe_template_obj = {
-            "_id": "{{@ system @}}-{{@ datatype @}}-collect",
-            "namespaced_identifiers": False,
-            "source": {"dataset": "{{@ system @}}-{{@ datatype @}}-all", "type": "dataset"},
-            "transform": [
-                {
-                    "rules": {
-                        "default": [
-                            ["copy", "*"],
-                            [
-                                "add",
-                                "$last-modified",
-                                ["datetime-parse", "<FORMATSTRING>", "<VALUES>"],
-                            ],
-                        ]
-                    },
-                    "type": "dtl",
-                },
-                {
-                    "properties": {
-                        "primary_key": "id",
-                        "operation_lookup_delete": "{{@ datatype @}}-lookup",
-                    },
-                    "template": "transform-collect-rest",
-                    "type": "template",
-                },
-            ],
-            "type": "pipe",
-        }
-
-        if self.args.share:
-            collect_pipe_template_obj[
-                "exclude_completeness"
-            ] = "{{@ system @}}-{{@ datatype @}}-share"
-            collect_pipe_template_obj["transform"][1]["properties"][
-                "share_dataset"
-            ] = "{{@ system @}}-{{@ datatype @}}-share"
-
-            share_pipe_template_obj = {
-                "_id": "{{@ system @}}-{{@ datatype @}}-share",
-                "batch_size": 1,
-                "namespaced_identifiers": False,
-                "sink": {"set_initial_offset": "onload"},
-                "source": {
-                    "dataset": "{{@ system @}}-{{@ datatype @}}-transform",
-                    "type": "dataset",
-                },
-                "transform": {
-                    "properties": {
-                        "operation_delete": "{{@ datatype @}}-delete",
-                        "operation_insert": "{{@ datatype @}}-insert",
-                        "operation_lookup": "{{@ datatype @}}-lookup",
-                        "operation_update": "{{@ datatype @}}-update",
-                        "primary_key": "id",
-                        "rest_system": "{{@ system @}}",
-                        "share_dataset": "{{@ system @}}-{{@ datatype @}}-share",
-                    },
-                    "template": "transform-share-rest",
-                    "type": "template",
-                },
-                "type": "pipe",
-            }
-
-            share_operations = {
-                f"{datatype}-delete": {"method": "DELETE", "url": ""},
-                f"{datatype}-insert": {"method": "POST", "url": ""},
-                f"{datatype}-lookup": {"method": "GET", "url": ""},
-                f"{datatype}-update": {"method": "PUT", "url": ""},
-            }
-
-        operations_obj = {
-            f"{datatype}-list": {
-                "id_expression": "{{ <primary-key> }}",
-                "method": "GET",
-                "next_page_link": "{%if (headers.<link-location> is "
-                "defined)%}{{headers.<link-location>}}{%endif%}",
-                "next_page_termination_strategy": ["<strategy>"],
-                "page_size": "<INT>",
-                "payload_property": "",
-                "since_property_name": "",
-                "since_property_location": "",
-                "updated_expression": "",
-                "url": "",
-            }
-        }
-
-        datatype_template_obj = [all_pipe_template_obj, collect_pipe_template_obj]
-        if self.args.share:
-            datatype_template_obj.append(share_pipe_template_obj)
-            operations_obj.update(share_operations)
-
-        return datatype_template_obj, operations_obj
+        return command_get_datatype_template(self.args, datatype)
 
     def add_datatype(self):
-        if len(self.args.command) <= 1:
-            self.logger.error("Please provide at least one datatype.")
-            sys.exit(1)
-
-        command_args = self.args.command[1:]
-        for datatype in command_args:
-            datatype_template_obj, operations_obj = self.get_datatype_template(datatype)
-
-            with open(f"{self.args.connector_dir}/manifest.json", "r") as f:
-                manifest_obj = json.load(f)
-                manifest_obj["datatypes"][datatype] = {"template": f"templates/{datatype}.json"}
-
-            with open(f"{self.args.connector_dir}/manifest.json", "w") as f:
-                json.dump(
-                    manifest_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
-
-            with open(f"{self.args.connector_dir}/templates/{datatype}.json", "w") as f:
-                json.dump(
-                    datatype_template_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
-
-            with open(f"{self.args.connector_dir}/templates/system.json", "r") as f:
-                system_obj = json.load(f)
-                system_obj["operations"].update(operations_obj)
-
-            with open(f"{self.args.connector_dir}/templates/system.json", "w") as f:
-                json.dump(
-                    system_obj,
-                    f,
-                    indent=2,
-                    sort_keys=True,
-                )
+        execute_add_datatype(self)
 
     def update(self):
-        self.logger.info("Updating expected output from current output...")
-        output_pipes = {}
-
-        for p in self.sesam_node.get_output_pipes() + self.sesam_node.get_endpoint_pipes():
-            output_pipes[p.id] = p
-
-        test_specs = self.load_test_specs(output_pipes, update=True)
-
-        if not test_specs:
-            raise AssertionError("Found no tests (*.test.json) to update")
-
-        i = 0
-        for pipe in output_pipes.values():
-            if pipe.id in test_specs:
-                if self.whitelisted_pipes and pipe.id not in self.whitelisted_pipes:
-                    self.logger.warning(
-                        f"Skipping updating expected output for pipe '{pipe.id}' "
-                        "- add it to the whitelist if this is not correct!"
-                    )
-                    continue
-
-                self.logger.debug("Updating pipe '%s'.." % pipe.id)
-
-                # Process all tests specs for this pipe
-                for test_spec in test_specs[pipe.id]:
-                    if test_spec.ignore is True:
-                        self.logger.debug(
-                            "Skipping test spec '%s' because it was marked as 'ignore'"
-                            % test_spec.name
-                        )
-                        continue
-
-                    self.logger.debug(
-                        "Updating spec '%s' for pipe '%s'.." % (test_spec.name, pipe.id)
-                    )
-                    if test_spec.endpoint == "json" or test_spec.endpoint == "excel":
-                        # Get current entities from pipe in json form
-                        current_output = self._fix_decimal_to_ints(
-                            [
-                                self.filter_entity(e, test_spec)
-                                for e in self.sesam_node.get_pipe_entities(
-                                    pipe, stage=test_spec.stage
-                                )
-                            ]
-                        )
-
-                        if test_spec.ignore_deletes:
-                            # Filter away any deletes from the current output
-                            current_output = [
-                                en for en in current_output if en.get("_deleted", False) is False
-                            ]
-
-                        current_output = sorted(
-                            current_output,
-                            key=test_spec.get_entity_sorter_func(self.args.unicode_encoding),
-                        )
-
-                        current_output = (
-                            json.dumps(
-                                current_output,
-                                indent="  ",
-                                sort_keys=True,
-                                ensure_ascii=self.args.unicode_encoding,
-                            )
-                            + "\n"
-                        ).encode("utf-8")
-
-                        if self.args.disable_json_html_escape is False:
-                            current_output = current_output.replace(b"<", b"\\u003c")
-                            current_output = current_output.replace(b">", b"\\u003e")
-                            current_output = current_output.replace(b"&", b"\\u0026")
-
-                    elif test_spec.endpoint == "xml":
-                        # Special case: download and format xml document as a string
-                        xml_data = self.sesam_node.get_published_data(
-                            pipe, "xml", params=test_spec.parameters, binary=True
-                        )
-                        xml_doc_root = etree.fromstring(xml_data)
-
-                        xml_declaration, standalone = self.find_xml_header_settings(xml_data)
-
-                        current_output = etree.tostring(
-                            xml_doc_root,
-                            encoding="utf-8",
-                            xml_declaration=xml_declaration,
-                            standalone=standalone,
-                            pretty_print=True,
-                        )
-                    else:
-                        # Download contents as-is as a string
-                        current_output = self.sesam_node.get_published_data(
-                            pipe,
-                            test_spec.endpoint,
-                            params=test_spec.parameters,
-                            binary=True,
-                        )
-
-                    test_spec.update_expected_data(current_output)
-                    i += 1
-
-        self.logger.info("%s tests updated!" % i)
+        execute_update(self)
 
     def stop(self, throw_error=True):
         try:
@@ -2277,84 +1448,7 @@ class SesamCmdClient:
         execute_convert(args=self.args, logger=self.logger, dump_callback=self.dump)
 
     def format(self, option):
-        def _format_file(file, folder):
-            with open(file, "r") as f:
-                if folder == "expected":
-                    expected_in = json.loads(f.read())
-                    formatted = (
-                        json.dumps(
-                            expected_in,
-                            indent="  ",
-                            sort_keys=True,
-                            ensure_ascii=self.args.unicode_encoding,
-                        )
-                        + "\n"
-                    )
-
-                    if self.args.disable_json_html_escape is False:
-                        formatted = formatted.replace("<", "\\u003c")
-                        formatted = formatted.replace(">", "\\u003e")
-                        formatted = formatted.replace("&", "\\u0026")
-                else:
-                    formatted = format_json(json.loads(f.read()))
-            with open(file, "w") as f:
-                f.writelines(formatted)
-
-        options = {
-            "all": {
-                "glob": [
-                    "pipes/*.json",
-                    "testdata/*.json",
-                    "systems/*.json",
-                    "expected/*.json",
-                ]
-            },
-            "pipes": {"glob": ["pipes/*.json"]},
-            "testdata": {"glob": ["testdata/*.json"]},
-            "systems": {"glob": ["systems/*.json"]},
-            "expected": {"glob": ["expected/*.json"]},
-        }
-
-        if option not in options and not option.endswith(".json"):
-            self.logger.info(
-                f"[!] {option} is not a valid type to format... "
-                "Try pipes, systems, testdata, or expected. "
-                "Alternatively you can pass in a json file"
-            )
-            return
-
-        if option.endswith(".json"):
-            dirs = option.split("/")
-            file_folder = ""
-            for dir in dirs:
-                if dir in options.keys():
-                    file_folder = dir
-                    break
-
-            if not file_folder:
-                file_folder = dirs[-1]
-
-            if file_folder.endswith(".json"):
-                self.logger.warning(
-                    "[!] Unknown directory for file, formatting as normal. "
-                    "If this file is expected data, please make sure it has "
-                    "the directory in the path."
-                )
-
-            self.logger.info(f"[*] Formatting {option}.")
-            _format_file(option, file_folder)
-            return
-
-        for path in options[option]["glob"]:
-            folder = path.split("/")[0]
-            self.logger.info(f"[*] Formatting {folder} files. Search query is {path}")
-            for file in glob(path):
-                if folder == "expected" and ".test.json" in file:
-                    continue
-
-                if self.args.extra_extra_verbose:
-                    self.logger.info(f"[+] Formatting {file}")
-                _format_file(file, folder)
+        execute_format(self, option)
 
 
 class AzureFormatter(logging.Formatter):
