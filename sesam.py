@@ -38,10 +38,12 @@ from sesam_cli.commands.init_connector import (
     execute_add_datatype,
     execute_connector_init,
     execute_init,
-    get_datatype_template as command_get_datatype_template,
 )
 from sesam_cli.commands.authenticate import execute_authenticate
-from sesam_cli.commands.scheduler import execute_run_internal_scheduler
+from sesam_cli.connectors.datatype_templates import (
+    get_datatype_template as command_get_datatype_template,
+)
+from sesam_cli.runtime.scheduler import execute_run_internal_scheduler
 from sesam_cli.commands.upload import execute_upload
 from sesam_cli.commands.update import execute_update
 from sesam_cli.commands.verify import execute_verify
