@@ -65,6 +65,7 @@ Use these as acceptance criteria for refactoring work:
   - `sesam_cli/commands/*.py` (upload/download/validate/verify/test/etc.)
   - `sesam_cli/node.py` (SesamNode/SesamCmdClient core)
   - `sesam_cli/io.py` / `sesam_cli/logging.py` helpers
+- Supplementary step: enforce module boundaries so `sesam_cli/commands/` contains only true CLI command handlers, while non-command helpers are moved to dedicated namespaces (e.g. `sesam_cli/specs`, `sesam_cli/config`/`zip`, `sesam_cli/formatting`, `sesam_cli/connectors`).
 - Refactor largest functions first (`verify`, `upload`, `validate`, scheduler logic) into smaller pure functions.
 - Introduce typed data models (`dataclasses`) for command config/state.
 
