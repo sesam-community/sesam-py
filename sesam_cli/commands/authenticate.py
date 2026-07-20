@@ -75,4 +75,6 @@ def execute_authenticate(client, parser, cli_args):
     elif "auth" in connector_manifest and connector_manifest["auth"].lower() == "api_key":
         if os.path.exists(".authconfig"):
             client.set_authconfig_credentials("api_key")
-            api_key_login.login_via_api_key(client.sesam_node, client.args)
+        else:
+            client.args.api_key = cli_args.api_key
+        api_key_login.login_via_api_key(client.sesam_node, client.args)
