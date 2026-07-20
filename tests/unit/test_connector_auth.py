@@ -174,3 +174,67 @@ def test_oauth_process_callback_http_error(monkeypatch):
 
     with pytest.raises(RuntimeError):
         oauth2login.process_login_callback(state, "auth-code")
+
+
+def test_oauth_process_callback_superoffice_ticket_happy_path(monkeypatch):
+    node = _DummyNode()
+    state = _oauth_state(node)
+    state.require_so_ticket = True
+    captured = {}
+
+    monkeypatch.setattr(
+        oauth2login,
+        "request_json",
+        lambda *_args, **_kwargs: {
+            "access_token": "a-token",
+            "refresh_token": "r-token",
+            "tenant": "account-1",
+        },
+    )
+    monkeypatch.setattr(
+        oauth2login,
+        "get_so_ticket",
+        lambda *_args, **_kwargs: ({"so_ticket": "so-1"}, "so-account", "https://so.base"),
+    )
+    monkeypatch.setattr(
+        oauth2login,
+        "put_secrets_for_all_systems",
+        lambda _node, secrets: captured.setdefault("secrets", secrets),
+    )
+    monkeypatch.setattr(
+        oauth2login,
+        "update_env",
+        lambda _node, profile, updates: captured.setdefault("env", (profile, updates)),
+    )
+
+    success, message = oauth2login.process_login_callback(state, "auth-code")
+
+    assert success is True
+    assert message == oauth2login.SUCCESS_MESSAGE
+    assert captured["secrets"]["so_ticket"] == "so-1"
+    assert captured["env"][1]["account_id"] == "so-account"
+    assert captured["env"][1]["base_url"] == "https://so.base"
+
+
+def test_oauth_process_callback_superoffice_ticket_missing_ticket(monkeypatch):
+    node = _DummyNode()
+    state = _oauth_state(node)
+    state.require_so_ticket = True
+
+    monkeypatch.setattr(
+        oauth2login,
+        "request_json",
+        lambda *_args, **_kwargs: {
+            "access_token": "a-token",
+            "refresh_token": "r-token",
+            "tenant": "account-1",
+        },
+    )
+    monkeypatch.setattr(
+        oauth2login,
+        "get_so_ticket",
+        lambda *_args, **_kwargs: (None, None, None),
+    )
+
+    with pytest.raises(RuntimeError):
+        oauth2login.process_login_callback(state, "auth-code")
