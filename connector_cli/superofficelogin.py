@@ -1,4 +1,3 @@
-import requests
 import os
 import json
 import base64
@@ -10,6 +9,7 @@ from OpenSSL import crypto
 from xml.dom import minidom
 
 import sesam
+from connector_cli.auth_io import request_json
 
 
 def get_long_int(nodelist):
@@ -37,38 +37,46 @@ def get_rsa_as_pem_content(private_key_xml):
 
 
 def get_base_url(environment, customer):
-    r = requests.get(f"https://{environment}.superoffice.com/api/state/{customer}")
-    if r.status_code == 200:
-        js = r.json()
-
-        # We need the base_url on the form https://{env}.superoffice.com:{xyz}
-        if 'v1' in js:
-            return js['v1'].split(f'/{customer}')[0].split(customer)[0]
-
-        elif 'Api' in js:
-            return js['Api'].split(f'/{customer}')[0].split(customer)[0]
-
-    else:
-        sesam.logger.error(f"Unable to retrieve API URL for '{customer}'. Response "
-                           f"returned {r.status_code}: {r.text}")
+    url = f"https://{environment}.superoffice.com/api/state/{customer}"
+    try:
+        payload = request_json("GET", url)
+    except RuntimeError as exc:
+        sesam.logger.error("Unable to retrieve API URL for '%s'. %s", customer, exc)
         return None
+
+    # We need the base_url on the form https://{env}.superoffice.com:{xyz}
+    if "v1" in payload:
+        return payload["v1"].split(f"/{customer}")[0].split(customer)[0]
+    if "Api" in payload:
+        return payload["Api"].split(f"/{customer}")[0].split(customer)[0]
+    sesam.logger.error("Unable to retrieve API URL for '%s'. Missing v1/Api in response.", customer)
+    return None
 
 
 def get_and_verify_system_token(id_token, jwks_uri):
     # Get system user token included inside 'id_token' and verify it with provided JWK
+    if not id_token:
+        sesam.logger.error("Missing id_token in oauth response.")
+        return None
+
     id_jwt = JWT()
-    jwks = requests.get(jwks_uri).json()['keys']
+    jwks = request_json("GET", jwks_uri).get("keys")
+    if not jwks:
+        sesam.logger.error("JWK response did not contain any keys.")
+        return None
     key = jwk_from_dict(jwks[0])
 
     decoded_jwt = id_jwt.decode(id_token, key)
 
-    system_token_key = 'http://schemes.superoffice.net/identity/system_token'
+    system_token_key = "http://schemes.superoffice.net/identity/system_token"
     if system_token_key in decoded_jwt:
         system_token = decoded_jwt[system_token_key]
     else:
-        sesam.logger.error("Could not get a SuperOffice system token from received JWT. "
-                           "The provided client ID and secret might be for a non-system user "
-                           "context application.")
+        sesam.logger.error(
+            "Could not get a SuperOffice system token from received JWT. "
+            "The provided client ID and secret might be for a non-system user "
+            "context application."
+        )
         system_token = None
 
     return system_token
@@ -82,76 +90,83 @@ def get_so_ticket(data, secrets):
     # Heavily inspired by
     # https://github.com/SuperOffice/devnet-python-system-user/blob/master/SystemUserToken.py
     ticket = {}
+    account_id = None
+    base_url = None
     customer = data["access_token"].split(":")[1].split(".")[0]  # Cust41398
-    rsa_private_key = os.environ.get('RSA_PRIVATE_KEY')
-    id_token = data['id_token']
+    rsa_private_key = os.environ.get("RSA_PRIVATE_KEY")
+    id_token = data["id_token"]
+    if not rsa_private_key:
+        sesam.logger.error("RSA_PRIVATE_KEY is missing; cannot generate SuperOffice system ticket.")
+        return None, None, None
     # TODO: jwks_uri is not always the same, it should be retrieved from some source (manifest?)
-    with open("manifest.json", "r") as f:
-        manifest = json.load(f)
-    jwks_uri = manifest.get("oauth2").get("jwks_uri")
-    application_token = secrets['oauth_client_secret']
+    with open("manifest.json", "r", encoding="utf-8") as file_handle:
+        manifest = json.load(file_handle)
+    jwks_uri = manifest.get("oauth2", {}).get("jwks_uri")
+    if not jwks_uri:
+        sesam.logger.error("Missing oauth2.jwks_uri in manifest.json.")
+        return None, None, None
+    application_token = secrets["oauth_client_secret"]
     system_user_token = get_and_verify_system_token(id_token, jwks_uri)
     if not system_user_token:
-        # return empty ticket object, the missing 'so_ticket' is handled in /login_callback
-        return ticket
+        return None, None, None
 
-    environment = jwks_uri.split('.')[0].split('//')[-1]
+    environment = jwks_uri.split(".")[0].split("//")[-1]
 
     private_key = get_rsa_as_pem_content(rsa_private_key)
 
     time_formatted = datetime.datetime.utcnow().strftime("%Y%m%d%H%M")
-    system_token = system_user_token + '.' + time_formatted
+    system_token = system_user_token + "." + time_formatted
 
     key = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key)
-    signature = crypto.sign(key, system_token, 'sha256')
-    signed_system_token = system_token + "." + base64.b64encode(signature).decode('UTF-8')
+    signature = crypto.sign(key, system_token, "sha256")
+    signed_system_token = system_token + "." + base64.b64encode(signature).decode("UTF-8")
 
-    ticket['signed_so_token'] = signed_system_token  # we might need this for refreshing later
+    ticket["signed_so_token"] = signed_system_token  # we might need this for refreshing later
 
     post_data = {
         "SignedSystemToken": signed_system_token,
         "ApplicationToken": application_token,
         "ContextIdentifier": customer,
-        "ReturnTokenType": "JWT"
+        "ReturnTokenType": "JWT",
     }
     headers = {
-        'Content-Type': 'application/json;charset=UTF-8',
-        "Accept": "application/json;charset=UTF-8"
+        "Content-Type": "application/json;charset=UTF-8",
+        "Accept": "application/json;charset=UTF-8",
     }
 
-    r = requests.post(f'https://{environment}.superoffice.com/Login/api/PartnerSystemUser'
-                      f'/Authenticate',
-                      data=json.dumps(post_data),  # must be a string
-                      headers=headers)
-    r_json = r.json()
-    if r_json.get('IsSuccessful'):
+    r_json = request_json(
+        "POST",
+        f"https://{environment}.superoffice.com/Login/api/PartnerSystemUser/Authenticate",
+        data=json.dumps(post_data),  # must be a string
+        headers=headers,
+    )
+    if r_json.get("IsSuccessful"):
         ticket_jwt = JWT()
-        jwt_token = r_json['Token']
-        jwks_response = requests.get(jwks_uri)
-        jwks = json.loads(jwks_response.text)
-        verifying_key = jwk_from_dict(jwks['keys'][0])
+        jwt_token = r_json["Token"]
+        jwks = request_json("GET", jwks_uri)
+        verifying_key = jwk_from_dict(jwks["keys"][0])
         message_received = ticket_jwt.decode(jwt_token, verifying_key)
-        so_ticket = str(message_received['http://schemes.superoffice.net/identity/ticket'])
-        account_id = str(message_received['http://schemes.superoffice.net/identity/ctx'])
-        ticket['timestamp'] = datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z"
-        ticket['so_ticket'] = so_ticket
+        so_ticket = str(message_received["http://schemes.superoffice.net/identity/ticket"])
+        account_id = str(message_received["http://schemes.superoffice.net/identity/ctx"])
+        ticket["timestamp"] = datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z"
+        ticket["so_ticket"] = so_ticket
 
         base_url = get_base_url(environment, account_id)
-        test_url = f'{base_url}/v1/User/currentPrincipal'
+        if not base_url:
+            return None, None, None
+        test_url = f"{base_url}/v1/User/currentPrincipal"
         headers = {
-            'Authorization': f"SOTicket {ticket['so_ticket']}",
+            "Authorization": f"SOTicket {ticket['so_ticket']}",
             "SO-AppToken": secrets["oauth_client_secret"],
-            "Accept": "application/json;charset=UTF-8"
+            "Accept": "application/json;charset=UTF-8",
         }
-        r = requests.get(test_url, headers=headers)
-        if r.status_code != 200:
-            sesam.logger.error(f"Failed to get user information from SuperOffice: {r.text}")
+        request_json("GET", test_url, headers=headers)
     else:
-        ticket = None
-        base_url = None
-        account_id = None
-        sesam.logger.error(f"Error retrieving SuperOffice ticket: "
-                           f"{str(r_json.get('ErrorMessage'))}")
+        sesam.logger.error(
+            "Error retrieving SuperOffice ticket: %s",
+            str(r_json.get("ErrorMessage")),
+        )
+        return None, None, None
 
     # return ticket, account_id, environment
     return ticket, account_id, base_url
