@@ -1,7 +1,6 @@
 import hashlib
-import json
-import os
 
+from connector_cli.auth_io import put_secrets_for_system, update_env
 from connector_cli.connectorpy import expand_connector_config
 
 # bespoke login flow for Tripletex
@@ -15,68 +14,33 @@ def login_via_tripletex(sesam_node, args):
     profile = args.profile
     _, manifest = expand_connector_config(system_id)
 
-    if system_id and consumer_token and employee_token and base_url:
-        is_failed = False
-        # get secrets
-        secrets = {}
-        token_url = base_url + "/v2/token/session/:create"
-        try:
-            secrets = {
-                "consumer_token": consumer_token,
-                "employee_token": employee_token
-            }
+    if not (system_id and consumer_token and employee_token and base_url):
+        sesam_node.logger.error("Missing arguments, please provide all required arguments")
+        return
 
-            if manifest.get("requires_service_api_access"):
-                secrets["service_jwt"] = args.service_jwt
-            if manifest.get("use_webhook_secret"):
-                to_hash = args.service_url + "/" + system_id
-                secrets["webhook_secret"] = hashlib.sha256(
-                    to_hash.encode("utf-8-sig")
-                ).hexdigest()[:12]
-        except Exception as e:
-            is_failed = True
-            sesam_node.logger.error("Failed to get secrets: %s" % e)
-        # put secrets
-        try:
-            system = sesam_node.get_system(system_id)
-            system.put_secrets(secrets)
-        except Exception as e:
-            is_failed = True
-            sesam_node.logger.error("Failed to put secrets: %s" % e)
-        # get env
-        env = {}
-        try:
-            profile_file = "%s-env.json" % profile
-            env = sesam_node.get_env()
-            if manifest.get("requires_service_api_access"):
-                env["service_url"] = args.service_url
-            if os.path.isfile(profile_file):
-                with open(profile_file, "r", encoding="utf-8-sig") as f:
-                    for key, value in json.load(f).items():
-                        env[key] = value
-            env["base_url"] = base_url
-            env["token_url"] = token_url
-        except Exception as e:
-            is_failed = True
-            sesam_node.logger.error("Failed to get env: %s" % e)
-        # put env
-        try:
-            sesam_node.put_env(dict(env.items()))
-        except Exception as e:
-            is_failed = True
-            sesam_node.logger.error("Failed to put env: %s" % e)
+    token_url = base_url + "/v2/token/session/:create"
+    secrets = {"consumer_token": consumer_token, "employee_token": employee_token}
+    if manifest.get("requires_service_api_access"):
+        secrets["service_jwt"] = args.service_jwt
+    if manifest.get("use_webhook_secret"):
+        to_hash = args.service_url + "/" + system_id
+        secrets["webhook_secret"] = hashlib.sha256(to_hash.encode("utf-8-sig")).hexdigest()[:12]
 
-        if not is_failed:
-            sesam_node.logger.info(
-                "All secrets and environment variables have been updated successfully, "
-                "now go and do your development!"
-            )
-        else:
-            sesam_node.logger.error(
-                "Failed to update all secrets and environment variables. see the log "
-                "for details."
-            )
-    else:
+    env_updates = {"base_url": base_url, "token_url": token_url}
+    if manifest.get("requires_service_api_access"):
+        env_updates["service_url"] = args.service_url
+
+    try:
+        put_secrets_for_system(sesam_node, system_id, secrets)
+        update_env(sesam_node, profile, env_updates)
+    except (RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
+        sesam_node.logger.error("Failed to update Tripletex auth config: %s", exc)
         sesam_node.logger.error(
-            "Missing arguments, please provide all required arguments"
+            "Failed to update all secrets and environment variables. see the log for details."
         )
+        return
+
+    sesam_node.logger.info(
+        "All secrets and environment variables have been updated successfully, "
+        "now go and do your development!"
+    )
