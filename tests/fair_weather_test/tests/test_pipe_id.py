@@ -2,7 +2,10 @@ import json
 import glob
 import os
 
+import pytest
 
+
+@pytest.mark.integration
 def test_pipe_id():
     pipe_files_path = os.path.join(os.path.dirname(__file__), "..", "pipes", "*.conf.json")
     for pipe_path in glob.glob(pipe_files_path):

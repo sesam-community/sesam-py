@@ -5,3 +5,8 @@ include = '\.py$'
 [tool.isort]
 line_length = 100
 profile = "black"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests requiring integration-style execution",
+]
