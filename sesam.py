@@ -44,6 +44,7 @@ from sesam_cli.connectors.datatype_templates import (
     get_datatype_template as command_get_datatype_template,
 )
 from sesam_cli.runtime.scheduler import execute_run_internal_scheduler
+from sesam_cli.runtime.performance import CommandProfiler
 from sesam_cli.commands.upload import execute_upload
 from sesam_cli.commands.update import execute_update
 from sesam_cli.commands.verify import execute_verify
@@ -1179,20 +1180,26 @@ class SesamCmdClient:
 
         return result
 
-    def _fix_decimal_to_ints(self, value):
+    def _fix_decimal_to_ints(self, value, no_large_int_bugs=None):
+        if no_large_int_bugs is None:
+            if hasattr(self, "args") and hasattr(self.args, "no_large_int_bugs"):
+                no_large_int_bugs = self.args.no_large_int_bugs
+            else:
+                no_large_int_bugs = getattr(globals().get("args"), "no_large_int_bugs", False)
+
         if isinstance(value, dict):
             for key, dict_value in value.items():
-                value[key] = self._fix_decimal_to_ints(dict_value)
+                value[key] = self._fix_decimal_to_ints(dict_value, no_large_int_bugs)
         elif isinstance(value, list):
             for ix, list_item in enumerate(value):
-                value[ix] = self._fix_decimal_to_ints(list_item)
+                value[ix] = self._fix_decimal_to_ints(list_item, no_large_int_bugs)
         else:
             if isinstance(value, (Decimal, float)):
                 v = str(value)
 
                 if v and v.endswith(".0"):
-                    return self._fix_decimal_to_ints(int(value))
-            elif not args.no_large_int_bugs and isinstance(value, int):
+                    return self._fix_decimal_to_ints(int(value), no_large_int_bugs)
+            elif not no_large_int_bugs and isinstance(value, int):
                 v = str(value)
                 if v and len(v) > len("9007199254740991"):
                     # Simulate go client bug :P
@@ -2114,6 +2121,23 @@ Commands:
         help="max testdata upload request rate (requests/sec). 0 means unlimited",
     )
 
+    parser.add_argument(
+        "--profile-output",
+        dest="profile_output",
+        required=False,
+        action="store_true",
+        help="output structured timing profile for the executed command",
+    )
+
+    parser.add_argument(
+        "--profile-output-file",
+        dest="profile_output_file",
+        required=False,
+        metavar="<string>",
+        type=str,
+        help="write structured timing profile JSON to the given file path",
+    )
+
     try:
         args = parser.parse_args()
         args.is_connector = os.path.isfile(os.path.join(args.connector_dir, "manifest.json"))
@@ -2208,8 +2232,12 @@ Commands:
         parser.print_usage()
         sys.exit(1)
 
+    profiler = CommandProfiler(command)
+
     try:
-        sesam_cmd_client = SesamCmdClient(args, logger)
+        with profiler.phase("initialize_client"):
+            sesam_cmd_client = SesamCmdClient(args, logger)
+            sesam_cmd_client.command_profiler = profiler
     except BaseException as e:
         if args.verbose or args.extra_verbose:
             logger.exception(e)
@@ -2219,7 +2247,8 @@ Commands:
     offline = command in ["validate", "format"]
     if not offline:
         try:
-            node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token(args)
+            with profiler.phase("resolve_node_credentials"):
+                node_url, jwt_token = sesam_cmd_client.get_node_and_jwt_token(args)
         except BaseException as e:
             if (
                 args.verbose is True
@@ -2253,9 +2282,10 @@ Commands:
                     logger.error("Failed to parse .jinja_vars file. Proceeding without it.")
 
         try:
-            sesam_cmd_client.sesam_node = SesamNode(
-                node_url, jwt_token, logger, verify_ssl=args.skip_tls_verification is False
-            )
+            with profiler.phase("connect_node"):
+                sesam_cmd_client.sesam_node = SesamNode(
+                    node_url, jwt_token, logger, verify_ssl=args.skip_tls_verification is False
+                )
         except BaseException as e:
             if (
                 args.verbose is True
@@ -2275,14 +2305,18 @@ Commands:
 
     start_time = time.monotonic()
     try:
-        if (
-            offline
-            or sesam_cmd_client.sesam_node.api_connection.get_api_info()
-            .get("status")
-            .get("developer_mode")
-            or (command in ALLOWED_NON_DEV_SUBSCRIPTION_COMMANDS and args.force)
-        ):
-            execute_command(command, command_args, args, sesam_cmd_client, logger)
+        with profiler.phase("check_subscription_mode"):
+            is_allowed_in_environment = (
+                offline
+                or sesam_cmd_client.sesam_node.api_connection.get_api_info()
+                .get("status")
+                .get("developer_mode")
+                or (command in ALLOWED_NON_DEV_SUBSCRIPTION_COMMANDS and args.force)
+            )
+
+        if is_allowed_in_environment:
+            with profiler.phase("execute_command"):
+                execute_command(command, command_args, args, sesam_cmd_client, logger)
         else:
             if command in ALLOWED_NON_DEV_SUBSCRIPTION_COMMANDS:
                 error_text = "To override this check use -force flag."
@@ -2309,3 +2343,14 @@ Commands:
     finally:
         run_time = time.monotonic() - start_time
         logger.info("Total run time was %d seconds" % run_time)
+        profile_payload = profiler.emit(
+            logger,
+            to_log=args.profile_output,
+            output_file=args.profile_output_file,
+        )
+        execute_phase = next(
+            (phase for phase in profile_payload["phases"] if phase["phase"] == "execute_command"),
+            None,
+        )
+        if execute_phase:
+            logger.info("Command '%s' elapsed %.3fs", command, execute_phase["elapsed_seconds"])
