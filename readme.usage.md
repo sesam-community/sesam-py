@@ -130,6 +130,7 @@ usage: sesam [-h] [-version] [-v] [-vv] [-vvv] [-skip-tls-verification]
              [--base_url <string>] [--days <string>] [--use-client-secret]
              [--do-float-as-decimal] [--auth <string>] [--datatype [<string>]] [--share]
              [-single-thread-upload] [--upload-workers <int>] [--upload-rate <float>]
+             [--profile-output] [--profile-output-file <string>]
              [command ...]
 
 Commands:
@@ -308,6 +309,9 @@ optional arguments:
                        maximum number of concurrent workers for testdata upload (default: 8)
   --upload-rate <float>
                        max testdata upload request rate (requests/sec). 0 means unlimited
+  --profile-output     output structured timing profile for the executed command
+  --profile-output-file <string>
+                       write structured timing profile JSON to the given file path
 ```
 
 ### Preparing input pipes for testing
