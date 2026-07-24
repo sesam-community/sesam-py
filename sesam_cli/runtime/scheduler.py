@@ -2,6 +2,8 @@ import os
 import time
 from threading import Thread
 
+from sesam_cli.runtime.performance import profile_phase
+
 
 def execute_run_internal_scheduler(client):
     start_time = time.monotonic()
@@ -85,8 +87,9 @@ def execute_run_internal_scheduler(client):
                 self.status = "failed"
                 self.result = e
 
-    scheduler_runner = SchedulerRunner(client.sesam_node)
-    scheduler_runner.start()
+    with profile_phase(client, "scheduler.start"):
+        scheduler_runner = SchedulerRunner(client.sesam_node)
+        scheduler_runner.start()
 
     time.sleep(1)
 
@@ -111,14 +114,15 @@ def execute_run_internal_scheduler(client):
 
         return since_val
 
-    while True:
-        if client.args.print_scheduler_log is True:
-            since = print_internal_scheduler_log(since, token=scheduler_runner.token)
+    with profile_phase(client, "scheduler.wait"):
+        while True:
+            if client.args.print_scheduler_log is True:
+                since = print_internal_scheduler_log(since, token=scheduler_runner.token)
 
-        if scheduler_runner.status is not None:
-            break
+            if scheduler_runner.status is not None:
+                break
 
-        time.sleep(1)
+            time.sleep(1)
 
     if scheduler_runner.status == "failed":
         client.logger.error("Failed to run pipes to completion")
