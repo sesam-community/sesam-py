@@ -75,7 +75,11 @@ def test_log_testdata_upload_progress_logs_on_interval_and_completion():
 def test_fix_decimal_to_ints_converts_integral_floats(monkeypatch):
     client = SimpleNamespace()
     monkeypatch.setattr(sesam, "args", SimpleNamespace(no_large_int_bugs=True), raising=False)
-    client._fix_decimal_to_ints = lambda value: SesamCmdClient._fix_decimal_to_ints(client, value)
+    client._fix_decimal_to_ints = (
+        lambda value, no_large_int_bugs=None: SesamCmdClient._fix_decimal_to_ints(
+            client, value, no_large_int_bugs
+        )
+    )
 
     result = SesamCmdClient._fix_decimal_to_ints(
         client,
