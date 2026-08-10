@@ -24,4 +24,10 @@ And voila, you're good to go. Your python files will be formatted and checked wh
 If there is an issue with your file you will be notified about it and can't push that file until it's fixed.
 
 
+## Running the docker image:
+The docker setup for this project runs a volume which makes the files both in the container and on your machine the same. So you can make the changes locally and test them in the container that already has the dependencies installed.
+
+Simply start the container with `docker compose up -d` and once it is done you can connect to the shell by using `docker exec -it sesampy /bin/bash`.
+
+
 ### [Back to main page](./README.md)
