@@ -33,7 +33,7 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.13"
+sesam_version = "2.11.14"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
@@ -830,8 +830,12 @@ class SesamCmdClient:
 
     DEFAULT_TESTDATA_UPLOAD_WORKERS = 8
     TESTDATA_UPLOAD_PROGRESS_LOG_INTERVAL = 25
-    TESTDATA_UPLOAD_MAX_RETRIES = 3
-    TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS = 1.0
+    # Newly deployed pipes may respond with 5xx for a while before their receiver is
+    # ready, so back off generously (~5 minutes in total, plus jitter).
+    TESTDATA_UPLOAD_RETRY_DELAYS_SECONDS = (5, 5, 5, 30, 30, 30, 60, 60, 60)
+    TESTDATA_UPLOAD_MAX_RETRIES = len(TESTDATA_UPLOAD_RETRY_DELAYS_SECONDS)
+    TESTDATA_UPLOAD_RETRY_MAX_JITTER_SECONDS = 1.0
+    TESTDATA_UPLOAD_ERROR_RESPONSE_MAX_CHARS = 2000
     TESTDATA_UPLOAD_RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
     DEFAULT_TESTDATA_UPLOAD_RATE = 0.0
 
@@ -1632,19 +1636,30 @@ class SesamCmdClient:
                     )
                     time.sleep(retry_delay)
         except BaseException as e:
-            response = getattr(e, "response", None)
-            response_text = response.text if response and hasattr(response, "text") else "n/a"
             self.logger.error(
                 f"Failed to post payload to pipe {pipe_id}. "
-                f"{e}. Response from server was: {response_text}"
+                f"{e}. Response from server was: {self.get_error_response_text(e)}"
             )
             raise e
         return
 
+    def get_error_response_text(self, error):
+        # Note: requests.Response is falsy for 4xx/5xx, so compare against None explicitly
+        response = getattr(error, "response", None)
+        response_text = getattr(response, "text", None) if response is not None else None
+        if not response_text:
+            return "n/a"
+
+        max_chars = self.TESTDATA_UPLOAD_ERROR_RESPONSE_MAX_CHARS
+        if len(response_text) > max_chars:
+            return f"{response_text[:max_chars]}... (truncated, {len(response_text)} chars)"
+        return response_text
+
     def get_testdata_upload_retry_delay(self, attempt):
-        exponential_delay = self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS * (2 ** (attempt - 1))
-        jitter = random.uniform(0, self.TESTDATA_UPLOAD_RETRY_BASE_DELAY_SECONDS)
-        return exponential_delay + jitter
+        delays = self.TESTDATA_UPLOAD_RETRY_DELAYS_SECONDS
+        delay = delays[min(attempt, len(delays)) - 1]
+        jitter = random.uniform(0, self.TESTDATA_UPLOAD_RETRY_MAX_JITTER_SECONDS)
+        return delay + jitter
 
     def wait_for_testdata_upload_slot(self):
         if self.args.upload_rate <= 0:
