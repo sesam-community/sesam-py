@@ -33,12 +33,48 @@ from requests.exceptions import RequestException
 from connector_cli import api_key_login, connectorpy, oauth2login, tripletexlogin
 from jsonformat import format_json
 
-sesam_version = "2.11.14"
+sesam_version = "2.11.15"
 
 logger = logging.getLogger("sesam")
 LOGLEVEL_TRACE = 2
 BASE_DIR = os.getcwd()
 GIT_ROOT = None
+
+SECRET_MASK = "*********"
+JWT_PATTERN = re.compile(r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*")
+# Header values in http.client debug output are terminated by a literal "\r\n" (repr of bytes)
+AUTHORIZATION_HEADER_PATTERN = re.compile(
+    r"(?i)(\bauthorization:\s*(?:[A-Za-z]+\s+)?)([^\s'\"\\]+)"
+)
+
+
+def mask_token(token):
+    if not token:
+        return token
+    if JWT_PATTERN.fullmatch(token) and len(token) > 40:
+        return f"{token[:10]}{SECRET_MASK}{token[-10:]}"
+    return SECRET_MASK
+
+
+def mask_secrets(text):
+    """Mask JWTs and Authorization header values so debug output is safe to share"""
+    if not isinstance(text, str):
+        text = str(text)
+    text = AUTHORIZATION_HEADER_PATTERN.sub(lambda m: m.group(1) + mask_token(m.group(2)), text)
+    return JWT_PATTERN.sub(lambda m: mask_token(m.group(0)), text)
+
+
+class SecretMaskingFormatter(logging.Formatter):
+    def __init__(self, formatter):
+        super().__init__()
+        self.formatter = formatter
+
+    def format(self, record):
+        return mask_secrets(self.formatter.format(record))
+
+
+def masked_http_debug_print(*args, **kwargs):
+    print(*(mask_secrets(arg) for arg in args), **kwargs)
 
 
 def normalize_path(filename):
@@ -251,8 +287,9 @@ class SesamNode:
             if len(subscriptions) > 0:
                 self.subscription_id = subscriptions[0]
 
-        safe_jwt = "{}*********{}".format(jwt_token[:10], jwt_token[-10:])
-        self.logger.debug("Connecting to Sesam using url '%s' and JWT '%s'", node_url, safe_jwt)
+        self.logger.debug(
+            "Connecting to Sesam using url '%s' and JWT '%s'", node_url, mask_token(jwt_token)
+        )
 
         if verify_ssl is False:
             import urllib3
@@ -4032,7 +4069,7 @@ Commands:
     # Log to stdout
     logging.addLevelName(LOGLEVEL_TRACE, "TRACE")
     stdout_handler = logging.StreamHandler()
-    stdout_handler.setFormatter(formatter)
+    stdout_handler.setFormatter(SecretMaskingFormatter(formatter))
     logger.addHandler(stdout_handler)
 
     if args.verbose:
@@ -4040,10 +4077,17 @@ Commands:
     elif args.extra_verbose:
         logger.setLevel(LOGLEVEL_TRACE)
     elif args.extra_extra_verbose:
-        from http.client import HTTPConnection
+        import http.client
 
-        HTTPConnection.debuglevel = 1
+        # http.client writes its debug output with print(), bypassing logging, so shadow
+        # print in that module to keep Authorization headers and JWTs out of the output
+        http.client.print = masked_http_debug_print
+        http.client.HTTPConnection.debuglevel = 1
         logging.basicConfig()
+        for root_handler in logging.getLogger().handlers:
+            root_handler.setFormatter(
+                SecretMaskingFormatter(root_handler.formatter or logging.Formatter())
+            )
         logging.getLogger().setLevel(logging.DEBUG)
         requests_log = logging.getLogger("requests.packages.urllib3")
         requests_log.setLevel(logging.DEBUG)
@@ -4161,7 +4205,7 @@ Commands:
                 logger.exception(e)
             logger.error(
                 "failed to connect to the sesam node using the url and jwt token "
-                f"we were given:\n{node_url}\n{jwt_token}"
+                f"we were given:\n{node_url}\n{mask_token(jwt_token)}"
             )
             logger.error(
                 "please verify the url and token is correct, and that there isn't "
