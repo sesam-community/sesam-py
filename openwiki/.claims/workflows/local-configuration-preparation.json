@@ -1,0 +1,668 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ba9264f1f533434b117ef45fe1a56f215636711467d4353ad7eb16fc64898841",
+  "claims": [
+    {
+      "id": "claim_1bca892fe1c7471ab5ff5891c5311525",
+      "statement": "init, convert and format are directly dispatched local file-rewriting handlers that operate on working-directory paths without connector expansion or a preceding change into the connector's expanded directory.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2453-L2517",
+          "version": "repo-lines-v1:sha256:1b0071b4e2a0aa3d6ee3dfe637a9f5bb89a62eb2c40f840fe2f52964db643a79:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkYTA2NjI3NTQ1MTg1NzBkMThjODdlZTZjMGYwMGU4OWYxODUwNzIzMThiYTY2YjhkMmMzODE1ZDg5MDZiOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYTczMmEyYTViYTJjNTEwZmQ1ZDY2OTQxZjRmM2Q0NzdhOGNkZGQxN2U4ZTcyNTVlN2JkOTkzNDUxYmFmZTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjNmU2ZjcyNGVkMWQ4Zjg2OWUyNDUyMzE2ZmU4NjQ1YWFiNzE2MjZkZmU1Y2ZkYTUxY2ZkYWVlZGM3ODg3NGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiOTlmNDljNDg3MzQ2MzFmNzM1ZWZiMzM3OTE1Y2VhNDI5MTY4MjE3ZDY0NDBlZGVkZTFkZDc2NzUzZmIzNTEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3175-L3311",
+          "version": "repo-lines-v1:sha256:13826166a813525390ce30b8278a8b60e217571579b92c492b3599b824e677b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyY2ViMDJhYmRhODYwYzUzYTczYWRlMjVmMDI5ZGQyMmRjNjhmNjIzNmFiMDI4ZjdlZjljNzgwZDkxZDE3NDM5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ZDM0MTMwZjI2NTAwNGQ2YWE5YzRhZmQ5MzQxOGM0NDE1NDIzZWQ1N2RmNTQ4M2IwMmJlMzQ1ZmVhYThlNWI0IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwZjg1NTI5Y2IxZGYzMjMzMmIxNThiM2NjNjVjODg0MjU0OWFhZGVmODIxYzQ2YWU1ZDM1NTk0ODgwMWU3MTA5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJiNGQwNTk5MTJjOWFkZTMyZjY3ZDE1ZmJmOTFhZmU4MTc4M2Q0ODZhZDNlMmViMDc1NjJmM2YyMGI5ZDNhNTgwIn0"
+        },
+        {
+          "resource": "repo://sesam.py#L4214-L4273",
+          "version": "repo-lines-v1:sha256:dd7d8957210e969f61c40d8388bf74c54e7291056e605a147755d0fee2831dcc:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmNDkxNWY3MjJlZTkwYzg0YTQ2NDEyNDdiZWVjN2VlMDEzN2U1ZWU4NTI5Mzk1N2VkYjQ1NWE4NjA3NWQ5ZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllMzY0YmJmMmUyODM1MjhkNGJlYTA1NWYwYmU3M2M0MTgzNjA5ZDljMzlhMWFmYjg1YzM3Y2E0ZGMxMzkwZTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyNDMzYTNiYmQ1YTk2MWE2YjQ2MzA2ZWVmNzE3NGY2ZGU5MGFkNThlZDVmZDZhYzk4MjdhYzNiNGZhMzIzMTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiMzY2OWMwZjQ0YTFmZGNiYmNiOGQ5NzhlMTIzMThjMmM5MWY1ZGQ1ZjVjYTRlNjg4MTJkOWYzZjQxNzg0MmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cdd05083cec04701882015c9f7ffafa7",
+      "statement": "Only validate and format are classified offline; init, convert and dump resolve credentials, construct SesamNode and pass the developer-mode gate before their handlers, and -force does not bypass that gate for them.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L4100-L4166",
+          "version": "repo-lines-v1:sha256:ac13ef739b80080aaeba1a304bc9262957a75ff98fda909125bd8bd3a37a5095:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzNWFjM2Y3NGIyMjQzYTFkNDVhMDIyZDVlNWRjNzQ0ZmZlMDBiNDMzMmZiNjExYjc0YWNmZDcwNWQ2ZTEzMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNzcwMDY5NGYxZTY3NTlhYjVmOWU1MWYzMDdlYzYxY2FjNmU4OTkzNzM4NTlkYTQwNzM4MjY1YTE4Mzg4MTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhNmVmZjM3ODk1ZDk1YTJiODU0NWM0ZmU5MTE5NGVjN2ZlOTFiYmEwMmMzZTYyMzYwYTVhN2FkYTNjNDI0OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMGI0NDE0ZTc2MTM3NWJlNTk5NmU4MmEzMTQxMGNmZWE3Zjk5OTFmY2E5YjQ1ZmZlYWVlYjYxOWM5YTZkNTAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4282-L4292",
+          "version": "repo-lines-v1:sha256:efee221c0ec58e6a957bd644974e5d43f700b94ee545780ad5a8ec9102dd4715:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5N2I0N2JiODFjZTkzY2JhNjdhZmMwODY5OGE4MGNmYTA5M2E4NjY3ZTljOWY5NjUzMzc4MThkNjU3OGQxODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZTdjYmQxNjhkMWE2ODMxOWMyOGUzN2E0NzYwNmIyY2FiZjE5OTc1ZTljODJjYjMwMjRiNTlkMGY1NTA4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiNTg3OWQyZTBiYTA1YzNiYjY5MjIwMTMxYTUwOTVlNDY4Yjk4NmNhOTRiZDc3NjcxOTdlNThjNDc5OGViYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhNjE1OWE2ZDM3YWRhNTk2ZDE2NDQwNGZiMzdlMTVkNGExYzJmMWVlMjAxOWE5NjI3NDdhZjJhNTdlMjQxYmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_393f1109158e4b04b0d58dd5aa52656c",
+      "statement": "SesamNode construction attempts a portal analytics POST before creating the authenticated API connection when the JWT supplies a subscription identifier, so local preparation commands using online bootstrap can emit analytics even if the subsequent connection fails.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L234-L272",
+          "version": "repo-lines-v1:sha256:0a893884a8545e5c7b39f8feddb9635450f8287b2dd91eb248bdccb47278e650:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3NTNjNDcxMTU1Zjc1NGZhNWY5ZDBiMTgxZGM5NTRlYWM4Y2Q2OTJjZDlkM2YxNTNhYWIxN2EyOWQ5ZDNmYTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjMzU3YjMxYjMxNzliNzNjMGM3YmU2MjA4ODczZGYzYzMxOWU4MWY2ODcyOTM2MmY2MWQ1OGE3ODJmYmM2NjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxMzdmMThmOTM5NGFiZmYwYjU5OGNjOGJhMjA2OWRkODM1MTFiOGY1YjFiMTEyZGUxZjhjZWJmYjEyOGNjODEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L312-L337",
+          "version": "repo-lines-v1:sha256:ac54018bbda2038ef24906ff1a89d512994d7d599507bb3e9950d2853d18d35c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0MWE0ZDgxMTQzMWEzMWU1YWY0MjE4MGI3NTBlZTQ2MjBlNDFlMzVjMmU3Y2M1OGUwYjFiZWQyMjI0NzQ4ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5YzdhZmI3YjM2NGI2MmRlYjE1OTRmMGJmMzNiYjkxNTA4YWJkN2E3MjdiNDFhYWMxZTZlZGQ3ODkxZTgwN2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiYzNlOWRhMTVlMzFiNWNlZjA4MzMzOGEwOGM2Mjk3YzQ1MjQ2YTZlMTdkNWYyYzA2OTEyNDFjZjY0ZjU5NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1ZmVhYTQ0ZWQzMDk1OTVkOTg4ZjgzY2VlNDkyY2EzNGFjYmUyNmJhNTEwYjc1ZTM1MGE1NWY3NWQ0NGM1OTgifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4136-L4155",
+          "version": "repo-lines-v1:sha256:8930fed4bec2ae3019f0a6af399b230b9043bf7683a9abf70731f94a773ebc94:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1NjljYjA5MjgwZWUwNzgxOTQ1ZTQ4ZDQwNDFiZDJkZmFhZTY5MWFkMmVhYmY1ZDNjYmEwODQ2YzcyMTZjYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZTdjYmQxNjhkMWE2ODMxOWMyOGUzN2E0NzYwNmIyY2FiZjE5OTc1ZTljODJjYjMwMjRiNTlkMGY1NTA4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyYjc5NzJiYWM1Y2ViZWJiMTZmNGE4M2I2YThhNzMyYmQxN2E3YWMzODMyZDI5YTc0MWU2N2I1ZjVlZDg1OTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0NWI1NmQ4NmE3ZTQ0ODU1ODMyMzNlODk3ODVlZmRiMjEzZjgwNWQyZDgyNmE5NTgxZWI5ZGExNTQ4NmM2NzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9c3794f7beec435b8ccc7226e98088f7",
+      "statement": "init, convert and format do not apply whitelist filtering to their file selection, unlike dump's archive selection.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2456-L2517",
+          "version": "repo-lines-v1:sha256:2d9cde7276d7e7237c33f3b9c25b586a4d26553d3372144e4db10e744a7a74dc:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5YzAwNDkxMmUyMTA5ZWFmMzQzMWQ2MDJhNTVkODI3Mjk0MmQwZmQ1Y2FlYjVmMDI1MmFlZDU3NzFkZGE2MWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYTczMmEyYTViYTJjNTEwZmQ1ZDY2OTQxZjRmM2Q0NzdhOGNkZGQxN2U4ZTcyNTVlN2JkOTkzNDUxYmFmZTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNhMTRkZDFmMjAwNmEzY2M3NmMxNjU5OTE4YmRhNDgzYzEwM2QzNjU4NGEzZmFlMWZlYjBmNjMyMTkwOTU1ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiOTlmNDljNDg3MzQ2MzFmNzM1ZWZiMzM3OTE1Y2VhNDI5MTY4MjE3ZDY0NDBlZGVkZTFkZDc2NzUzZmIzNTEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3217-L3229",
+          "version": "repo-lines-v1:sha256:174d1b672c95703a883e4137343d8c1e826c95a395874d2b1decc2f29507aaf5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1NmZlNTBlN2Q1ZWI3YjBhOWQwYzc5Y2ViMmZiMmM5MjgzNTVhNTVhNDE1Y2U3ZmE4MWM4ZDA1MjhkNzcyN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNDc5NTBjNmUzNDMyZTNmYmQ2NmRiMDI1YjQwNDQ3YjQzOGQ0ZDZkMDY3NDUwNmIyOWU5NGFhMGI3YjcxZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2OTBiY2E5NDQyZTg1ZmVmYmQ5YzY1OTYxN2JjYWVjYWQ3ODAzMTUzM2U5MWY4NmU0MDBkNzNkNTI3NzU0NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3257-L3311",
+          "version": "repo-lines-v1:sha256:585ee0220ec1d74efb2ee01ddec4470d130183e4f09f97df770873f3f02d8dee:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzNzgwN2I4N2FhMjc4OWZlNzcyY2Q1ZjAyZjg3NzU3NmExZTFhNjQyNGU3YzU4NzY5ZWU0MDhjYTNiM2E2NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMzQxMzBmMjY1MDA0ZDZhYTljNGFmZDkzNDE4YzQ0MTU0MjNlZDU3ZGY1NDgzYjAyYmUzNDVmZWFhOGU1YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0Mzc3M2EwNjY5YzU3NmUyNzRjMTc4MTFlZWViNDQ0M2IwMDhjZGUyNTg5OTkzOTQ3N2U2OTdhNWQ1ZDM5NWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0ZDA1OTkxMmM5YWRlMzJmNjdkMTVmYmY5MWFmZTgxNzgzZDQ4NmFkM2UyZWIwNzU2MmYzZjIwYjlkM2E1ODAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L938-L1005",
+          "version": "repo-lines-v1:sha256:952a99a3dd16223343259450fed98b854baa88b864cb9538d99275de4d3c0394:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2M2U0MzRmZTI4NzQ2Mjk5YTE5NjRjNzcxMTc2MmIzMDU0M2NhZDMwNzIxNDMzMmNlMWVlNDViZTI2ZTVmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYmY3YjYzMDQ4MTdmYmJiYjllMjQzMDBiYTY0Njg4ODcwYzYxYTYxYzk2OGRlYzYxYTFkYjA5ZjQ2M2FmMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwMzNiYTkyN2NjYzY4YmI0ZmIwOTdmODRjMTg5Y2Q2NzI0NzJhNDg3NWE0OTY4ODhjNTE3Y2EwYTlkOGI2MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZmZlZmMwNTA5OWRlMjY2ZDE2NjJlYWZkYTdkMDc1MWUzMzE3ODM0NjhhYzg0ZTlmZDAwZjBkOWNhYmRiYjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f330366ed50b47499575bd98382ff97c",
+      "statement": "dump replaces sesam-config.zip with a local archive of recursively selected pipe/system .conf.json files and optional node metadata, applying archive whitelist rules and regular-configuration Jinja substitution; convert's -dump calls this before conversion, but it does not back up testdata, expected output or profile environment files.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1697-L1702",
+          "version": "repo-lines-v1:sha256:8de27f1c856c9595b068e37009bcf7ec9c78113028ee0733aede58b28a40b164:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQ1Y2Y5MjYzY2NmZTNhOWEwOTc5MDFhMzE1MGVmMDhlMmFiZDI5NjlmNTQ3NzIzY2M5ZWI4Y2Y2ZTMyOTcxOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDQ4ZmZjYmU5M2NmMjY1NjM4NWZlYmNmNTBmOTJkNTFmNDY1Y2QxMWRmZTc0NjUxNTc4MjczZWJlNDA1ZDE2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWMwNDA1OTE0MGFmOGZjYzc4ODM4ZGMyM2MzZGZmMTAyZDUzY2Q1NTQyYTkzYmEwNTE2NzRiZWJlNWVjMDU1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2ZiNjczOGJiOWU1MTI5MGI4NDIwNzU3MGQ4ZDEzMjJiNTk1ODQ2NjU2NzdlODczMjUxNDlmYTUwY2FiYTliZiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3213-L3215",
+          "version": "repo-lines-v1:sha256:dd6646a4851653101059551f8399a39ed401e4f739ec5a68b01fa91ad0baa68c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTM4Njk0NmU3YzYxYTkwMTBiNDZhMWQ0OTBkYmUyZTU0ZTAwYTU4ZTQyYmFlMGMwMWI1Y2NhMmI0OWFkOTRiOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmI1MTI2MDU5NTU5ZTcxNWU2ODI3Yjg3Mjc4MWJmZjIxYWNhYmVhOTk3ODUyMzViNDlmYmQ4ZjI5YWVkZGRmYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWIyZGFlYjhlMmVlZmRjN2U3OTY1MWI4MmI2ZDFjNjhlNjcxZDZkOTUwNTE0ZjFkZjU1ZjFmNzFjZDM2NjcwNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzE5YTg5YzY3OTEzMmNhZDJkNWY2NDE0NDQ5ZDcyZTFkMzgzZTM3N2FkZTJjZDViYWMwZTlkMGMwZDc5MGE3NSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L938-L1005",
+          "version": "repo-lines-v1:sha256:952a99a3dd16223343259450fed98b854baa88b864cb9538d99275de4d3c0394:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2M2U0MzRmZTI4NzQ2Mjk5YTE5NjRjNzcxMTc2MmIzMDU0M2NhZDMwNzIxNDMzMmNlMWVlNDViZTI2ZTVmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYmY3YjYzMDQ4MTdmYmJiYjllMjQzMDBiYTY0Njg4ODcwYzYxYTYxYzk2OGRlYzYxYTFkYjA5ZjQ2M2FmMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwMzNiYTkyN2NjYzY4YmI0ZmIwOTdmODRjMTg5Y2Q2NzI0NzJhNDg3NWE0OTY4ODhjNTE3Y2EwYTlkOGI2MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZmZlZmMwNTA5OWRlMjY2ZDE2NjJlYWZkYTdkMDc1MWUzMzE3ODM0NjhhYzg0ZTlmZDAwZjBkOWNhYmRiYjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4a158eb040bb4fcc8a64cfd60654b8d1",
+      "statement": "init scans immediate pipes/*.conf.json, excludes dataset, merge, merge_datasets, union_datasets, diff_datasets and embedded top-level sources, and wraps other non-conditional sources with fixed prod/original and test/empty-embedded alternatives selected by $ENV(node-env), independently of -profile.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2438-L2451",
+          "version": "repo-lines-v1:sha256:f61b14514767c7756fd8fe495e66604747c65e715e06eb8a655214aeb49f1f63:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyMDUzMDJkYzE1NTUxYzQyN2UyZjc0ZTNlNGZkMDkxYjFjMDY1N2M4ZGE4Y2QxOTdlOTY0OTJmNzdmMWM5MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyM2ViMGI0ZmYwMTUzNmVlODMxZTRlMjkzYTJhNTZmMzc5NDk2MjJmMjg5MWNlOGI4ZjMwMDc3OGRjYjcxOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjNmU2ZjcyNGVkMWQ4Zjg2OWUyNDUyMzE2ZmU4NjQ1YWFiNzE2MjZkZmU1Y2ZkYTUxY2ZkYWVlZGM3ODg3NGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYzI4MTQ0NTRkMGJiM2Y4ODBmZmY3NTJmN2ViYWQxNTZhNjgzNTdmYWExZWI0ODY0Njc0MTY3OWQ5MjQ3NjYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2453-L2467",
+          "version": "repo-lines-v1:sha256:7eb22d2435a5d2bcee6318b1603b038249f77228dd624dbb285628c7eb26bc5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkYTA2NjI3NTQ1MTg1NzBkMThjODdlZTZjMGYwMGU4OWYxODUwNzIzMThiYTY2YjhkMmMzODE1ZDg5MDZiOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhYWU4YTBjYTc2Zjk4ZjdiN2RjNzk4NDk1MWQ2M2U1N2RiM2M2NDU1NzljYTUxYmFkNmE1MzlkNjE0ZWRiYmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjNmU2ZjcyNGVkMWQ4Zjg2OWUyNDUyMzE2ZmU4NjQ1YWFiNzE2MjZkZmU1Y2ZkYTUxY2ZkYWVlZGM3ODg3NGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxOGE5ZjkyZWFmYjgyYTFhNjBmMWQyZDI4ZmYyZTc5ODE1NWRhNTdjOTUxZGU4Mzk5ZThjYTMwZGQ5NjE3MzUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2505-L2513",
+          "version": "repo-lines-v1:sha256:cf4f4ea9566a6d0cf8b3999dc7abefbc52d913989f697e01813b733b3c579e3f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2JlMWRmNjI4NDY3N2U4ZGQzOWFhNzBhN2MyOTExZTI5YTczZTUxNGE5NTJhYzNkNDVlNDc3Yjg5N2Q1ZTg1ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWEwNjIyZmI0YjFiYjA3NzA5MWMyMzBiNjA2MmFjMDkxZjI1ZDI1ZTYxYzUzMTIwNWIwNzhiN2VjMDE2NTk5OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmExMWJlYTZmNmYzMmRjMTExZTA4Y2NhMTY4ZWYxY2M1M2NlNmM0NDZiNjUwOTBiNWNiMzc3MGI0ZmUzZTVkNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDYzZGY5ZWVjNzQ3YWI3ZGM4MDE2MWUwYjdjYmY0MTdkNDc4ZGY0NzcyNGRmZTgwMjFiNDM3ZjdlYTdhZTNjMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_331cd34282d54905b51ed9daada7d874",
+      "statement": "For existing conditional sources, init adds an empty embedded test alternative only when test is missing and otherwise preserves the existing test source unless explicit sampling changes its entities.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2432-L2436",
+          "version": "repo-lines-v1:sha256:894d06a789e963d1aea3da9d30a60bf43d14ce12dc98dd2929760cff152335dc:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzBmMzJiOTQ4MDcxNzQzN2M2MTRmM2IwYjc5YjRjZDhiNmQ4YzBiOTgxYzExN2NkZjIxMjg4MTM5MDNmMDk2NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjIzZWIwYjRmZjAxNTM2ZWU4MzFlNGUyOTNhMmE1NmYzNzk0OTYyMmYyODkxY2U4YjhmMzAwNzc4ZGNiNzE4ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTFlODAwZjYwNTJkNTk2Zjc0ZWNkYWY0MzU5YWYwZDZkMzc3YWY1ZDZhYzEzZDg1YjI0YzlkMGFiNGI2YmI5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODQ2ZWM4YWNmZmViOTczYThiZDI3ZjBlNmM2ZmM4NWI4MmFjNmE5OThhOWNlM2Y4OGI1ZmY1YjE5N2ZlOTY4NCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L2481-L2503",
+          "version": "repo-lines-v1:sha256:252f601d2cebc2fdc259b249f931ac36285f479847d87c525b32bdf5e0a18406:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwNWE5ZmE0ZWJhMWY0ZTIzYWUzYWNkOWNiY2EyNmJkYzQ4N2FkODgwMzQyYmY3NmYwMzlmOGQyMzJlMjc3MjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzNGM1NDNhZDI3YzMzODFhNTAzMjMxOTk2Y2Y2MjIyNjVkMWQzOTMzMzUxMGEyZGEzZjFjZDBjMTBhZTdmMDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhM2Q1ZDM5OWM3ZmY5ZGVlNWJmOTc0YzJjODljOWJmM2Y0N2E4YTgwNzBkNTY2NWFlMTk5MjdlNDFhZmNmZDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkZmMxOGI3YmU0MGZmOTc0Nzk4MGMxYTBkYTkwZTM2MjBjMDFkNTA5MWEwZDJjN2RhY2Y4NTFhOWE0NDAzZTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_95d9bfd6e4964daeaabd4f7b5b5dc197",
+      "statement": "init's live sampling is opt-in through -add-test-entities; existing nonempty test entities are protected unless -force-add is also set, and -force-add alone does not initiate sampling.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2486-L2511",
+          "version": "repo-lines-v1:sha256:7a846b022e3c7235609857477d760af0839f17702d7df80d87f932c08ed40736:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkODNkYmQzY2M3YzdlYjVmNmU1NjliZWEyZTAxN2ZiZDhmODMzNTBmOTZlZDg1MTgzOGRiODJiZDgzMWQzNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmYjIyYWFhOGEzZTdlNWNjMGJmMzJmYjYwMjNjM2IwN2E1NzhmNmM5MzhmZGI3ZTAyYTVhZjMzNTBhYjNmNTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzYzk1MDI4ZjBmZjVhZTA5MmMyZjg1M2RhNmIwZDI5MjY2N2E2MDdkNTFmZWQzMmQxODM0YzRlMDlmZmJhMTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0MDI2NjYyMmIzZmRjNWFiNDcyZDliYzlmMTUwYWQzOWVkYjk2ZGE4NjI2MWE3NDY1ZTNhODk5ZWU1ZGQxNTMifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3739-L3754",
+          "version": "repo-lines-v1:sha256:f3176c07f99be9790cd4e7417ca9bc3057e91cb0e5423c844d8a321610ea3f8d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmMDY3OTE2ZWMzMTFjMzU1ODMwNDlkMjNmOWIzMWYzMjk2ZTI0MTEyYWI3ZmM2ZTE5OGU1NjJjZDhiZTRkMTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxOGI5N2U1N2JlNDNhYWYyY2FmYWU4ZDFmNmM1MjQwMzIyOGQzMTAyMDJkMjBjZTA1NTA2NTlkY2IyOGY2YTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_585d11f700e2490b9f51b82917771793",
+      "statement": "test_entities_to_pipe looks up the live pipe using the local JSON _id, samples its effective sink.dataset or fallback pipe ID with a limit of 10 and history/deleted/transit-decoding disabled, and stores those live entities inside source.alternatives.test.entities.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2396-L2430",
+          "version": "repo-lines-v1:sha256:ff7c4b1f4c0298dd2f7b7d41bfec5fdcb6678ee3e855a7ad44d4725edbe25787:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxNWYwNGE5ZmVjMjk4MzljMzIxMTI3ZDUzMzZhOWY2ZjllM2QwZjE1NjUxODVlMzkwNjA1MDY0NjQ2ODZkYjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjYTJhMjY2ZGM2NzgzNWY5NmYwYzUxMDhmNWU0NTQ3YTkwMjNiZWQxMTA5NGZjMDgzODNiNzgxZTFlMDdhYTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcwZjAwNGFiYzZkZTk4NTQ1NDVkZTgwMGZhY2Q0MmI3YTFhMTVjMTgxYmVmNDY1N2YwZjg1MDg5YWNhOTA4NDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3MmY3OGE0MWUyODZkNDVhYmRlZTUwMTA5ZWNhYmZhOGYwZjk1OGNmOWJjZDFmN2YxNTRmNGNkOTBjMDhmMjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1025d61aa12d4f138fbee2c1954fedb9",
+      "statement": "A missing remote pipe makes init sampling warn and return without adding entities, whereas a dataset-fetch exception warns and assigns an empty entities list; a forced refresh can therefore clear existing local entities even though the helper logs that test entities will not be updated.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2400-L2430",
+          "version": "repo-lines-v1:sha256:71a1e059bdb49735d59157d50d77eabc65e33836e380c15997b2f351da90b4f3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5ZjljNzhmNTA1MzU0MzVhYjIwZTBkOGM4N2RlZTRmNWNjYzg0M2FhODE3ZTRiYTAzMDlkNDM3YzYyMmZiMWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjYTJhMjY2ZGM2NzgzNWY5NmYwYzUxMDhmNWU0NTQ3YTkwMjNiZWQxMTA5NGZjMDgzODNiNzgxZTFlMDdhYTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUyYWZjMDdiMGEzMTZiNGFmYTVhYzVkYzNmOGQ4Nzc0NTJmMjIxN2JiZjNlNjZlYTVjMTZhYjQ2YTc1MGRjZWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3MmY3OGE0MWUyODZkNDVhYmRlZTUwMTA5ZWNhYmZhOGYwZjk1OGNmOWJjZDFmN2YxNTRmNGNkOTBjMDhmMjQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2486-L2517",
+          "version": "repo-lines-v1:sha256:e8bb5cd5a77ec86aecb580f8af7114ad4f6d9ee8d03008e8a86ad667b3f5f482:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkODNkYmQzY2M3YzdlYjVmNmU1NjliZWEyZTAxN2ZiZDhmODMzNTBmOTZlZDg1MTgzOGRiODJiZDgzMWQzNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYTczMmEyYTViYTJjNTEwZmQ1ZDY2OTQxZjRmM2Q0NzdhOGNkZGQxN2U4ZTcyNTVlN2JkOTkzNDUxYmFmZTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzYzk1MDI4ZjBmZjVhZTA5MmMyZjg1M2RhNmIwZDI5MjY2N2E2MDdkNTFmZWQzMmQxODM0YzRlMDlmZmJhMTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiOTlmNDljNDg3MzQ2MzFmNzM1ZWZiMzM3OTE1Y2VhNDI5MTY4MjE3ZDY0NDBlZGVkZTFkZDc2NzUzZmIzNTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_962e8f3c220648908e96c45ec014e7ab",
+      "statement": "init assumes source.type and compatible conditional alternatives; sampling an existing test alternative directly accesses its entities array, so a converted http_endpoint test branch without entities is not supported by init -add-test-entities.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2472-L2494",
+          "version": "repo-lines-v1:sha256:00cc487a0a3e9bf088e4a3f7a7ac9879c85c06718a6e7b31bcbd09d3db7bac5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkNjQwZDg2ZTRhODBhZjRjZDQ1NWQwM2M3NGU4OTI0ODg5MmVmYjg2ZmZkZGU1MDQ4OGMxZTkyOTE1YTVjYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjNmFkYzA2M2JmOWU5MWRmNWM0NDYwNTY1ZDNmMjQxNTgxZWIzMDY2ZDgwYWFhNzc2NTBlMzJiMjkyMjJlOGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMzA0NzJmNTU1NmY1MWJkM2Y4MWE0YWNmNjIwMzQ3NmM3ZTY3ZDFmZjY1OWM1ZGMxZGI1MjYzZjRmMjVhYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjZTllYzllOTc4YzY5NzUzMWI2Zjk0ZmI0NGYyNDVjY2YzMWY4N2M4OWU4YTJmNTg0MDZkYzQ5NTQ2MDUxZDgifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3193-L3198",
+          "version": "repo-lines-v1:sha256:8fa3856b7240b27a7d52824f4e934bb9395397e3996db94f2eeaa38921344de3:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2M2ZGRlN2ZjYTY1OWQyMGFiN2E2MDBmNDlmYmQzNWEyYzEzZTIyM2Y1ZWU3YWIyNTk5M2Q5NmViYWU0NzZhOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjlhZjNjOTJkY2EyOWM4NDFiN2EwMjZkZjEwYzE1YmYxZDA2NTA0ZTU2YWM0Mjc0NzAzMTc3NzVkZDU2NzA0NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGRmMzliOTRkNDZmODJhNjNiNDJiZjFhNTMxNzI5Nzg5YmIyY2YzZmRkOThjZWI2MGExZDIwMjBmZjc2NDJmNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjQ3NWY5YWJkYmE3OTZhNjM4Y2FlZDJmODc1ZjNlYjY3Mzk1YzJjNThjNDM5YzI0MmI5Y2Y1YjIyMDY4ZmNjYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fff9defa91541a1a7173bf5e1232b4c",
+      "statement": "init rewrites a pipe only when new_cfg is produced, using format_json with explicit UTF-8 output; it also writes an empty datatypes/additional_parameters manifest when not recognized as a connector and connector_dir is not '.'.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2472-L2517",
+          "version": "repo-lines-v1:sha256:efd57cc0890effbe111761b0cc4ef429d3822fb9d50a34b20998f5b3a094faa9:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkNjQwZDg2ZTRhODBhZjRjZDQ1NWQwM2M3NGU4OTI0ODg5MmVmYjg2ZmZkZGU1MDQ4OGMxZTkyOTE1YTVjYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYTczMmEyYTViYTJjNTEwZmQ1ZDY2OTQxZjRmM2Q0NzdhOGNkZGQxN2U4ZTcyNTVlN2JkOTkzNDUxYmFmZTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMzA0NzJmNTU1NmY1MWJkM2Y4MWE0YWNmNjIwMzQ3NmM3ZTY3ZDFmZjY1OWM1ZGMxZGI1MjYzZjRmMjVhYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiOTlmNDljNDg3MzQ2MzFmNzM1ZWZiMzM3OTE1Y2VhNDI5MTY4MjE3ZDY0NDBlZGVkZTFkZDc2NzUzZmIzNTEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2534-L2541",
+          "version": "repo-lines-v1:sha256:0f0a30255598fccd66562fe9068c5f40e9b28737c4dcb60709da48585945c099:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTE4NTI1YjhiZjQwYWYzOGIxMDNkMzEyNzk2ZDhkYzI4YmU3MzcyZGE0NThjMWUzMzE4MmIxMDYzZjQyYjYzNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTEwMzQ4MWM1N2QwZjBkYzBmNzZjZDJjYzhiMzYwNGM0ZTgyOTZkYTQxMjJhZGQxOWU4MTc0NWRjN2UzMzFhNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjMyZDJmNjg1Njk0ODVlNGI3ODcyYjM4ZWU1OTNhYWJiM2U2OWJiNjI5NTBjNmFiYWY1ZTRhYzdlZTA4YzA1ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGUzN2JkMDM5ODY4NjQzY2E5YTNhNTE2MzBhYTgxZTFmZTZmMDM0NDQ1NjEwNDRkZTA4NDdiMDI5OGI1NmVjYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_096982f9fb86475198931141955753d2",
+      "statement": "convert defaults to profile test and matches only a top-level conditional source whose alternative keyed by args.profile has type embedded; it neither evaluates condition nor reads profile environment data, and leaves other source variants or nonselected alternatives untouched.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3180-L3200",
+          "version": "repo-lines-v1:sha256:7feab2ce22239cc8ce2d4e6122292daa9703ba7819886a80bde1a208d271e151:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwNjU3MjQyMTFmOGNmNDlkNGNlZDA1MzUwM2ZiM2ZiMjQ1NjM5MDU3MWYyZjJjNTA4YTVhNDE1OTAxMTQwNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwNDNiYWFiNDY1OTQ5MGUwOTExNzI3NGFkMWZmMzhmNDhiZGViZjMyYWU0M2YwMDQ4ZGIxMjljZTNiNzYxMjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5ZmQzZGZiNTljYWE2ZmJiNmY1YTU3YmY4MTljNTc1Y2YwY2YzYTY1ZmViMjhhYmIwMjRjOWY2NjIyMjFmM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhNjAxZTBhZDIyMjZjNzQ2YWZkMzc1NGU0YjdlOWE5MTNjNzYwNWZmMThkMGU1OWUxZWQ4ZjlmZjg2ZThkZjcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3217-L3229",
+          "version": "repo-lines-v1:sha256:174d1b672c95703a883e4137343d8c1e826c95a395874d2b1decc2f29507aaf5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1NmZlNTBlN2Q1ZWI3YjBhOWQwYzc5Y2ViMmZiMmM5MjgzNTVhNTVhNDE1Y2U3ZmE4MWM4ZDA1MjhkNzcyN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNDc5NTBjNmUzNDMyZTNmYmQ2NmRiMDI1YjQwNDQ3YjQzOGQ0ZDZkMDY3NDUwNmIyOWU5NGFhMGI3YjcxZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2OTBiY2E5NDQyZTg1ZmVmYmQ5YzY1OTYxN2JjYWVjYWQ3ODAzMTUzM2U5MWY4NmU0MDBkNzNkNTI3NzU0NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3603-L3610",
+          "version": "repo-lines-v1:sha256:e17664f991ad1185d4ea80fb0a3751e683ef6670281a794a2c6c576c01d5cb3d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDI5ZWVjZTg4NjQ4NGM5OTI0NzViMzA1ODIxMDMzYzZhMDkxYjU3ODc4MGRlNjEwZjlmOTU5ZWE5NDEyNjMxMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTVhZGU4Zjg0ODk4ZDdjMjg3YmUwNjllMTI4MzE2N2RlOGIzNGMzYTg2ZWQxN2RjYzYzY2ExZjhkODJmODAxYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b560e906d7374a1d9ea55f0018413812",
+      "statement": "For a matching source, convert extracts entities and replaces the entire selected embedded alternative with {'type': 'http_endpoint'}, preserving other alternatives and condition but not extra settings from the replaced branch.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3190-L3200",
+          "version": "repo-lines-v1:sha256:9feb7059b580f9aaf06ee242e03f930bbd5ded16dd8056a2ff87f30e91606bed:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ODIyZDc3N2NmZTQyN2QyOTEwMzU1ODFmYjQwNmViOGJmOWRlYTU5ODM4YmQwYTk5ZWMzNTE4N2ZmODkzOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwNDNiYWFiNDY1OTQ5MGUwOTExNzI3NGFkMWZmMzhmNDhiZGViZjMyYWU0M2YwMDQ4ZGIxMjljZTNiNzYxMjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5YTRjMTJmZDU2ZDIyM2UyOWQ0YjNjYTNhZDQ1ZWUyZTgyNWNhNmRjYjkzNmVkOTEwM2M3NDJjNWNmZDA3YTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhNjAxZTBhZDIyMjZjNzQ2YWZkMzc1NGU0YjdlOWE5MTNjNzYwNWZmMThkMGU1OWUxZWQ4ZjlmZjg2ZThkZjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_96ec94ba40f44d19ab201f5e57cd29d3",
+      "statement": "convert rewrites the original configuration filename and creates testdata/<JSON _id>.json using format_json with explicit UTF-8, creating testdata on demand; the filename-derived ID helper is unused.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3175-L3178",
+          "version": "repo-lines-v1:sha256:de2df13de50c306f1c9f1898c02ad0ae231fc68a8a00f923bca02f3faefbdb63:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmNlYjAyYWJkYTg2MGM1M2E3M2FkZTI1ZjAyOWRkMjJkYzY4ZjYyMzZhYjAyOGY3ZWY5Yzc4MGQ5MWQxNzQzOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzUzN2JiM2Y2ZTRjMDA1NmE4ZWQ4MTNkZWFiODEwYzc2MmFlNDM0YWE2YTZhZDAyNzNiY2M3NGNkNzUyOTk3ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGY4NTUyOWNiMWRmMzIzMzJiMTU4YjNjYzY1Yzg4NDI1NDlhYWRlZjgyMWM0NmFlNWQzNTU5NDg4MDFlNzEwOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDAyZDE1NDU1ZTQ1MzRlMGEwZTJhYTc2NDE4Y2JmZGM4YjNkYzdlYjQzM2JmNTdkNDY1NTJjYmFhM2IyMDBmMyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3202-L3229",
+          "version": "repo-lines-v1:sha256:2c8ec2ddac4e8ea543d282d33867e0cb0a168aa794a13bcfaab5f48393db47e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjZmY1OTRjYjBiZjJjY2I4OTA4ZWRlN2Y1MDlhNzNlMzE5YjVlMWE3OTZhZDZhNzdhMzU1Mzk5NGJhYTBkZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNDc5NTBjNmUzNDMyZTNmYmQ2NmRiMDI1YjQwNDQ3YjQzOGQ0ZDZkMDY3NDUwNmIyOWU5NGFhMGI3YjcxZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0NzVmOWFiZGJhNzk2YTYzOGNhZWQyZjg3NWYzZWI2NzM5NWMyYzU4YzQzOWMyNDJiOWNmNWIyMjA2OGZjY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_049840f4612042a486d6f79059101d1e",
+      "statement": "convert overwrites matching pipe and testdata files without prompts, merges or force checks; a subsequent conversion normally skips the now-http_endpoint branch and does not remove stale testdata, while another profile can target a different branch.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3180-L3229",
+          "version": "repo-lines-v1:sha256:0ce3990a4c57df22a5d836a360d94af7f2d141a44addf4351cc212a6eabf07f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwNjU3MjQyMTFmOGNmNDlkNGNlZDA1MzUwM2ZiM2ZiMjQ1NjM5MDU3MWYyZjJjNTA4YTVhNDE1OTAxMTQwNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNDc5NTBjNmUzNDMyZTNmYmQ2NmRiMDI1YjQwNDQ3YjQzOGQ0ZDZkMDY3NDUwNmIyOWU5NGFhMGI3YjcxZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5ZmQzZGZiNTljYWE2ZmJiNmY1YTU3YmY4MTljNTc1Y2YwY2YzYTY1ZmViMjhhYmIwMjRjOWY2NjIyMjFmM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_73c29fa6aeb84a3ebc118108663e10ad",
+      "statement": "convert saves the modified pipe before its extracted data without transactional rollback, so a later data-write failure can leave an incomplete pair; empty entity arrays are written, but extracted None suppresses the data-file write.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3190-L3229",
+          "version": "repo-lines-v1:sha256:fe66f1943985718e4556a1282c81bbbb671b39770930e9ccd5226296139cb863:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ODIyZDc3N2NmZTQyN2QyOTEwMzU1ODFmYjQwNmViOGJmOWRlYTU5ODM4YmQwYTk5ZWMzNTE4N2ZmODkzOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNDc5NTBjNmUzNDMyZTNmYmQ2NmRiMDI1YjQwNDQ3YjQzOGQ0ZDZkMDY3NDUwNmIyOWU5NGFhMGI3YjcxZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5YTRjMTJmZDU2ZDIyM2UyOWQ0YjNjYTNhZDQ1ZWUyZTgyNWNhNmRjYjkzNmVkOTEwM2M3NDJjNWNmZDA3YTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_143e083e3ea14c8a8709b8216283771a",
+      "statement": "convert interpolates JSON _id directly into its testdata path without normalization or collision checks, so matching duplicate IDs target the same output; malformed alternatives, missing entities, JSON errors or I/O errors can abort after earlier in-place rewrites.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3180-L3229",
+          "version": "repo-lines-v1:sha256:0ce3990a4c57df22a5d836a360d94af7f2d141a44addf4351cc212a6eabf07f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwNjU3MjQyMTFmOGNmNDlkNGNlZDA1MzUwM2ZiM2ZiMjQ1NjM5MDU3MWYyZjJjNTA4YTVhNDE1OTAxMTQwNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNDc5NTBjNmUzNDMyZTNmYmQ2NmRiMDI1YjQwNDQ3YjQzOGQ0ZDZkMDY3NDUwNmIyOWU5NGFhMGI3YjcxZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5ZmQzZGZiNTljYWE2ZmJiNmY1YTU3YmY4MTljNTc1Y2YwY2YzYTY1ZmViMjhhYmIwMjRjOWY2NjIyMjFmM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4299-L4304",
+          "version": "repo-lines-v1:sha256:92a87992fdaf0455c969defddda828799c82f116965bab82df595478c2d7f691:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUwYjRiNDcyZWM1ZmFmMTFkNGNlOGYxZDhiYTkyMDEzY2RmZDAxZDM5OTA4YzJiMDUyMGNhYWJkYTQ5YThjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZhMjA4NThhZjY0MjQ3YWE0N2YzMWQxZTAwNDRmNzEwNzU2YmQyNzRjZjUyZjA4OTdmODE1NTdjNTUyNWJmNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTQxZTNmMWM5MTUzNzZiNmVhNjI5Yjg5NDg3N2M4YjFkMTczY2NkMmViMzhhZTljNWY1YTI4NzRhYjgxMWQ3YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDdkZTFhMDMwZDlkNDBlZjZhOWIxYzg3MDRjZWE1MzNhNDk4NjcwYjQwNTNiYjdmZmJlZmMxNDgzMDk0MWIwMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_10484bce54054a3ab609b67e3d84d84a",
+      "statement": "The input-pipe-1 and input-pipe-2 conversion fixtures expect test embedded entities to become corresponding testdata files while prod remains a dataset source and literal condition 'test' remains unchanged.",
+      "evidence": [
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/input-pipe-1.conf.json#L1-L30",
+          "version": "repo-lines-v1:sha256:3920119bd6dde2a1e9a5e473563a9a3533842070e6e7d44aec3745130164e4dc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/input-pipe-2.conf.json#L1-L30",
+          "version": "repo-lines-v1:sha256:869a68160231e2168ca8f52a22aff89dd2c5ee9dbb837ed6a70dce7985efaa01:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/input-pipe-1.conf.json#L1-L17",
+          "version": "repo-lines-v1:sha256:65c09b8f0d3f6676ea8192e35be5c2049ca66ab4816b5ead9ab6cf07768199bc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/input-pipe-2.conf.json#L1-L17",
+          "version": "repo-lines-v1:sha256:f5679b751be69f06da07eb4f49297139980c9058a3d70defb248236170fd7c6a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/testdata/input-pipe-1.json#L1-L13",
+          "version": "repo-lines-v1:sha256:3254a06710e922340c1d3e7649a83febb42b176c3e0868c26e56e6edf29707f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0YjM5ODJhNzAyM2NhM2M4YmY5YmY3YTg5OGMyMTQ4MmNhM2VhYjc2ZWE2NWUyOWUxYmYzNmUyNmRjMWVmOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlMzQ4YTczNTYxMWE4NDQxOTRjNTE1N2U0NDRkMDI2ZTBlNzA3YjU5YjI1YTUyM2QzZGQ0YjA0YjdhYTdkNmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/testdata/input-pipe-2.json#L1-L13",
+          "version": "repo-lines-v1:sha256:8aab61abc9b2799aa28b256b52abae96ce2c55f7b50eb847881b224e97aaf58c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0YjM5ODJhNzAyM2NhM2M4YmY5YmY3YTg5OGMyMTQ4MmNhM2VhYjc2ZWE2NWUyOWUxYmYzNmUyNmRjMWVmOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlMzQ4YTczNTYxMWE4NDQxOTRjNTE1N2U0NDRkMDI2ZTBlNzA3YjU5YjI1YTUyM2QzZGQ0YjA0YjdhYTdkNmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2a7c85b1a9944f529cd822ffa749dd7e",
+      "statement": "The case-sensitive conversion fixture keeps configuration filename input-pipe-3.conf.json but uses JSON _id Input-Pipe-3 for testdata/Input-Pipe-3.json, preserving the case of entity IDs such as This, Pipe and PipeId.",
+      "evidence": [
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/input-pipe-3.conf.json#L1-L33",
+          "version": "repo-lines-v1:sha256:f14108c7ab9ae97139709d46293c1a93af6b378abd3a0e2c041387bce7a75149:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/input-pipe-3.conf.json#L1-L17",
+          "version": "repo-lines-v1:sha256:5913ba155b29333498baf7d53b48d65f74e62fa34b6b0583257bb51411fea8f4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/testdata/Input-Pipe-3.json#L1-L16",
+          "version": "repo-lines-v1:sha256:f6b1b84e62c7d64d9e7de92c034579b4a8c9c868128242315ac8487451f41d83:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0YjM5ODJhNzAyM2NhM2M4YmY5YmY3YTg5OGMyMTQ4MmNhM2VhYjc2ZWE2NWUyOWUxYmYzNmUyNmRjMWVmOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlMzQ4YTczNTYxMWE4NDQxOTRjNTE1N2U0NDRkMDI2ZTBlNzA3YjU5YjI1YTUyM2QzZGQ0YjA0YjdhYTdkNmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_345e2cff939347379f82e19efeb1d6d4",
+      "statement": "The Norwegian conversion fixture expects testdata/input-pipe-norwegian.json from the JSON _id rather than input-pipe-with-norwegian-characters.conf.json's basename, and preserves literal øæå in both the pipe description and extracted entity names.",
+      "evidence": [
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/input-pipe-with-norwegian-characters.conf.json#L1-L25",
+          "version": "repo-lines-v1:sha256:9cb551becf111fd7778ec368014334d9b3196f2bf8a080281d97ef156fac7c3e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/input-pipe-with-norwegian-characters.conf.json#L1-L18",
+          "version": "repo-lines-v1:sha256:d22cffab1d8eac14d480815fa6d98930babe5cb97bdb86ffd018d7adeb527773:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/testdata/input-pipe-norwegian.json#L1-L7",
+          "version": "repo-lines-v1:sha256:d8433841995fe4774db7f019a03c68419378dfff8180542afbed0927ffcdd579:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjRiMzk4MmE3MDIzY2EzYzhiZjliZjdhODk4YzIxNDgyY2EzZWFiNzZlYTY1ZTI5ZTFiZjM2ZTI2ZGMxZWY5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2UzNDhhNzM1NjExYTg0NDE5NGM1MTU3ZTQ0NGQwMjZlMGU3MDdiNTliMjVhNTIzZDNkZDRiMDRiN2FhN2Q2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f66f248a667b463fbbb103497a61ea45",
+      "statement": "The conversion before/after fixtures leave a plain http_endpoint source, a conditional test http_endpoint source and the dataset-source output pipe unchanged.",
+      "evidence": [
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/input-pipe-to-be-also-left-alone.conf.json#L1-L17",
+          "version": "repo-lines-v1:sha256:81368c2d4fae9a1d454f9baca0a3b10d50a2d348a26f808ab9657f5c906b80c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxMGIzNmFhNzRhNTliY2Y0YTg4MTg1ODM3ZjY1OGFmYWYzNjQ2ZWZmMmJiMTZjMzkyOGQwZTkzMzVlOTQ1ZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/input-pipe-to-be-left-alone.conf.json#L1-L7",
+          "version": "repo-lines-v1:sha256:8371253f8ff51a201d979cf55255bd6d01838eb83ed76fc71c1274585e026038:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEwYjM2YWE3NGE1OWJjZjRhODgxODU4MzdmNjU4YWZhZjM2NDZlZmYyYmIxNmMzOTI4ZDBlOTMzNWU5NDVkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/output-pipe.conf.json#L1-L11",
+          "version": "repo-lines-v1:sha256:c134c73caa8ef51c4c809377a54efc34ac57d1a9723486ebf8a6ce2f7f6acfa9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/input-pipe-to-be-also-left-alone.conf.json#L1-L17",
+          "version": "repo-lines-v1:sha256:81368c2d4fae9a1d454f9baca0a3b10d50a2d348a26f808ab9657f5c906b80c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxMGIzNmFhNzRhNTliY2Y0YTg4MTg1ODM3ZjY1OGFmYWYzNjQ2ZWZmMmJiMTZjMzkyOGQwZTkzMzVlOTQ1ZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/input-pipe-to-be-left-alone.conf.json#L1-L7",
+          "version": "repo-lines-v1:sha256:8371253f8ff51a201d979cf55255bd6d01838eb83ed76fc71c1274585e026038:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEwYjM2YWE3NGE1OWJjZjRhODgxODU4MzdmNjU4YWZhZjM2NDZlZmYyYmIxNmMzOTI4ZDBlOTMzNWU5NDVkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/output-pipe.conf.json#L1-L11",
+          "version": "repo-lines-v1:sha256:c134c73caa8ef51c4c809377a54efc34ac57d1a9723486ebf8a6ce2f7f6acfa9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1f56e444b25d43e4938092ea5f6b5b0f",
+      "statement": "format uses the first positional option or defaults to all; all formats immediate pipes, testdata, systems and expected *.json files in that order, folder modes use nonrecursive *.json globs, and grouped expected formatting skips paths containing .test.json whereas an explicit .json file is not skipped.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3257-L3311",
+          "version": "repo-lines-v1:sha256:585ee0220ec1d74efb2ee01ddec4470d130183e4f09f97df770873f3f02d8dee:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzNzgwN2I4N2FhMjc4OWZlNzcyY2Q1ZjAyZjg3NzU3NmExZTFhNjQyNGU3YzU4NzY5ZWU0MDhjYTNiM2E2NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMzQxMzBmMjY1MDA0ZDZhYTljNGFmZDkzNDE4YzQ0MTU0MjNlZDU3ZGY1NDgzYjAyYmUzNDVmZWFhOGU1YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0Mzc3M2EwNjY5YzU3NmUyNzRjMTc4MTFlZWViNDQ0M2IwMDhjZGUyNTg5OTkzOTQ3N2U2OTdhNWQ1ZDM5NWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0ZDA1OTkxMmM5YWRlMzJmNjdkMTVmYmY5MWFmZTgxNzgzZDQ4NmFkM2UyZWIwNzU2MmYzZjIwYjlkM2E1ODAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4270-L4273",
+          "version": "repo-lines-v1:sha256:bc572d43f9123dd0c1133d179461c41f6666999d2fcc755c63d3e46fdfcc3dce:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTBhZWQzNzYyZmNhZTcyMGZhY2YzMzEyZjMyYzYzN2Y0ZDk3MzYwOGYwMTNiYmYzNjcwNDIwZDEwOGUxYWY5OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWUzNjRiYmYyZTI4MzUyOGQ0YmVhMDU1ZjBiZTczYzQxODM2MDlkOWMzOWExYWZiODVjMzdjYTRkYzEzOTBlNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzUzMmRkZjI2NDZjNDQ3N2QwYjBlMjZjMDQ4MzI1N2RiZWQxMjQwM2NkOTJlMTZlNmI0MDdmMjIyMDU1MDY5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWIzNjY5YzBmNDRhMWZkY2JiY2I4ZDk3OGUxMjMxOGMyYzkxZjVkZDVmNWNhNGU2ODgxMmQ5ZjNmNDE3ODQyZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5efa60e7661b40839d4e56b4307fa729",
+      "statement": "An unknown format option not ending in .json logs and returns rather than failing, but explicit-file read, JSON parse or write failures propagate to the normal CLI failure path.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3233-L3255",
+          "version": "repo-lines-v1:sha256:c1cdf58ebfb3d497a52d93142cef23986fd228fac436615b888496ac47f79e09:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYjA3YzA5Y2E2NTRhY2QzNWQ0OTg5YjczMTExZWJlNTEyYzEzMDJiN2VlMDRmZDY0MTk3ZDJhNGRiMDM4MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0NDNiNjlmNmIxOWY3NjgyOTU2OTkwMTI1MjNiYTYwNjk1OGYwZmM1MGU4OGI5M2EyYjdiMzIwMjllOTEwOGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg0YjFmNTJjNGNlZGExNzlkODZlOTU0Y2JmMWQzYjRkZWU1ZDA2NjU0MmUxM2JiNTBkZjcyZjIyNDE5YjdjMGUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3272-L3300",
+          "version": "repo-lines-v1:sha256:b421e727bc29e477e3fcfd2cf01e5ea7bba5a903727c9473251d454283590628:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNzEwMjkzY2U4MDIxMjFhZmRkNDFiZmJiZDkwMGIzNjQ2Y2UwNGFhNDQxNTk3MGVlMjIwYmFiODAzOTRmYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlN2JjZDM2ZWY1M2I0NDUyM2U2NWU5OGQxOTQ0OTkzZTBmZjE3NDZmNTUzNmMxYTUxMTc0NmYzZTAxZTc1NmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1MjA3YjQ1MGRlNmQ4OWMzNjRkZGU5YzFhOGUyMjNjNzA1YWY0NTk3YTQ1MjNlZGQ1Nzk3MTliMjA0MmU5ZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5YjJjNjYxMDFmMmI1OTRiYTk5ZTdlN2MyNzMxZWUwNTVhNWNlMmMzZWQ4NmY0NDUzMzFjOWYwN2M2NjljYzAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4299-L4304",
+          "version": "repo-lines-v1:sha256:92a87992fdaf0455c969defddda828799c82f116965bab82df595478c2d7f691:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUwYjRiNDcyZWM1ZmFmMTFkNGNlOGYxZDhiYTkyMDEzY2RmZDAxZDM5OTA4YzJiMDUyMGNhYWJkYTQ5YThjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZhMjA4NThhZjY0MjQ3YWE0N2YzMWQxZTAwNDRmNzEwNzU2YmQyNzRjZjUyZjA4OTdmODE1NTdjNTUyNWJmNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTQxZTNmMWM5MTUzNzZiNmVhNjI5Yjg5NDg3N2M4YjFkMTczY2NkMmViMzhhZTljNWY1YTI4NzRhYjgxMWQ3YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDdkZTFhMDMwZDlkNDBlZjZhOWIxYzg3MDRjZWE1MzNhNDk4NjcwYjQwNTNiYjdmZmJlZmMxNDgzMDk0MWIwMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7d984c3914334c4b95a8599a12d3f566",
+      "statement": "Explicit-file formatting selects policy by splitting the supplied path on '/' and taking its first component matching an option key; only expected selects the expected-data serializer, and paths without a recognized component warn and use normal formatting, without case or OS-path normalization.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3233-L3253",
+          "version": "repo-lines-v1:sha256:819703154e393ad172d5e2e19fd67de21f1069e50e1617fb185174b7ab119f16:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYjA3YzA5Y2E2NTRhY2QzNWQ0OTg5YjczMTExZWJlNTEyYzEzMDJiN2VlMDRmZDY0MTk3ZDJhNGRiMDM4MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNWUzZmNlZTI0YzU2ZDkyZjYwZGFkYmEwYTVmNjYyOGQwMzUzZTYyNmQxZGNiMTA1YjI0NjRmMjYxZTdkNWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0Mzc3M2EwNjY5YzU3NmUyNzRjMTc4MTFlZWViNDQ0M2IwMDhjZGUyNTg5OTkzOTQ3N2U2OTdhNWQ1ZDM5NWYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3257-L3300",
+          "version": "repo-lines-v1:sha256:fbff4dc9961b0af925e4db5bb8ec7b89217614028d1c1cab21bd19ff477f6cec:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzNzgwN2I4N2FhMjc4OWZlNzcyY2Q1ZjAyZjg3NzU3NmExZTFhNjQyNGU3YzU4NzY5ZWU0MDhjYTNiM2E2NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlN2JjZDM2ZWY1M2I0NDUyM2U2NWU5OGQxOTQ0OTkzZTBmZjE3NDZmNTUzNmMxYTUxMTc0NmYzZTAxZTc1NmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0Mzc3M2EwNjY5YzU3NmUyNzRjMTc4MTFlZWViNDQ0M2IwMDhjZGUyNTg5OTkzOTQ3N2U2OTdhNWQ1ZDM5NWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5YjJjNjYxMDFmMmI1OTRiYTk5ZTdlN2MyNzMxZWUwNTVhNWNlMmMzZWQ4NmY0NDUzMzFjOWYwN2M2NjljYzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fea453fd79544db6a363c1e36b8b7805",
+      "statement": "Expected-classified format files use standard json.dumps with two-space indentation, alphabetical keys and a final newline; Unicode remains literal unless -unicode-encoding is set, and <, > and & are escaped as \\u003c, \\u003e and \\u0026 unless -disable-json-html-escape is set.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3233-L3251",
+          "version": "repo-lines-v1:sha256:5921d6927cf7fdc13c51b63669c589a2b9f420d6dce2adad4e5d951ab9f5562f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYjA3YzA5Y2E2NTRhY2QzNWQ0OTg5YjczMTExZWJlNTEyYzEzMDJiN2VlMDRmZDY0MTk3ZDJhNGRiMDM4MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzMjI5YjJiMThmODhjZjI0ZjQ0MzhhMWUyNGFhMjM0ZDk0NGRmZTI2Y2FjYTc1NjlmYzc0YjgzYTBmMGQwYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1OTQwOTdhYzBhNGZjOGNiMDYwYTcyMDkzMDE0OWFhZTE3MTgzYzFiNTQ5NjdhNmY5ODliNDBjNTFjZmRjYzIifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3571-L3588",
+          "version": "repo-lines-v1:sha256:32edcfceaccb0b78d870e3a5e28b0a677b5a89518e004d172a75a8f4937bfd28:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyN2ZjZDg1NzBkNjI0OTg1NzExMjM4ZWE4MmM4ZDc3MmJkNGNkYmMzOGU5NjQ1NDQ3MWZhYzg1Y2RiZGYwM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlZmJjMjIyODJlODkzZjg2MWY0OTRmNzhiNjc4ZjRiMjk0ZGVjZjVmNTg2MjNmNTQxNjJlMTg2YThmNjdjMWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf9f8ae364fb451c8d51ae0db063fffc",
+      "statement": "Normal format files use local format_json with conventional ordering, ensure_ascii=False and a trailing newline without expected-data HTML escape replacements; format uses text-mode opens with no explicit encoding, unlike init and convert's explicit UTF-8 writes.",
+      "evidence": [
+        {
+          "resource": "repo://jsonformat.py#L103-L132",
+          "version": "repo-lines-v1:sha256:89db0358d7f68468e16815940a7a850ca51f4677b6aa1084ea0cb06c2dd7b712:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiMmY3Mzc1NTE5MzgzMjVmZmZiNGViNzZhNTdjZTZjZGY2NzkxYTQwNmE5YzIzZmUwZmYwZmZiMWRmODg4NjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0OWMyODdlMGZjMjIzZmRiMmU5MWI3ZmE0NjY1ZTg3YWQ1ZTM5NDYxYzI3NWFiZDRmNDVhOGMxZjliZWU0M2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0YWY2YjI1MzBhMWFiZTQxODNjYzNmMTQ4YzM5MjI2OTAxMGNkYzUwYjRlNjE0ZjRlODBjMzc3MTRkNTc1ZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4NjZmYzlmOGUzYjE4ZjZhY2JlNWY5NDhjYTJlMjA4ZmQ0MjFkYzdkNmMwMzkwYTBjZGQwNWE0NjZmMzdkYmIifQ"
+        },
+        {
+          "resource": "repo://jsonformat.py#L229-L252",
+          "version": "repo-lines-v1:sha256:ff65ac69678be7c82f47e24725c3443110c06baeebe89cd29d35b3689f2de5f3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5MzQ3NGVkY2IzZmU4YWVlYWY0NWY4N2Y4ZWM1ZDBiMWJmMjdkZmE1Mzk5NmYzNzZlYTgxNWRmYjIzY2VkODQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNDNiNDM5YmYwYTQ5MTFkYjVlYWFjNzcwNTBjMDYwMGIyMDgwNDAwNGM0OGNjNzJmZDIwNDZhMzJiZTgyMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlNDc1NjdlZmQ0NjhmYTUxNTFhN2QwOWE0MjlkNjBkNmY4MmFkNGU1NjU2Nzg4ODQ3MzhiOWE5OGQwYjYxNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2515-L2517",
+          "version": "repo-lines-v1:sha256:55a945bef3e571b0adc37ab0823dde9ba5cd4721399c48bf3f1d73b2d361a5c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjg1YTZmODRlNjI4MzI3YzM5OTU0ZGRmYjUyZTYyYzc1YzE2ZThkOTAyNjMzNGNiZTZkOTMwYjdkNDU3MzNlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBhNzMyYTJhNWJhMmM1MTBmZDVkNjY5NDFmNGYzZDQ3N2E4Y2RkZDE3ZThlNzI1NWU3YmQ5OTM0NTFiYWZlNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjQwMjY2NjIyYjNmZGM1YWI0NzJkOWJjOWYxNTBhZDM5ZWRiOTZkYTg2MjYxYTc0NjVlM2E4OTllZTVkZDE1MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGI5OWY0OWM0ODczNDYzMWY3MzVlZmIzMzc5MTVjZWE0MjkxNjgyMTdkNjQ0MGVkZWRlMWRkNzY3NTNmYjM1MSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3202-L3209",
+          "version": "repo-lines-v1:sha256:cf45a6c0e338bf75efa509e074c99e8b00de9082b7141365d18f7d409ace3ece:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmNmZjU5NGNiMGJmMmNjYjg5MDhlZGU3ZjUwOWE3M2UzMTliNWUxYTc5NmFkNmE3N2EzNTUzOTk0YmFhMGRlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWMwMjlkYmVkY2M3YmU3ZTM4ODg5OWNlZDllODcwZjc2YzVjMTI0YTljMjRkZGJkYzNhOWFjNjFkZGU3NmRjYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjQ3NWY5YWJkYmE3OTZhNjM4Y2FlZDJmODc1ZjNlYjY3Mzk1YzJjNThjNDM5YzI0MmI5Y2Y1YjIyMDY4ZmNjYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWIyZGFlYjhlMmVlZmRjN2U3OTY1MWI4MmI2ZDFjNjhlNjcxZDZkOTUwNTE0ZjFkZjU1ZjFmNzFjZDM2NjcwNSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3233-L3255",
+          "version": "repo-lines-v1:sha256:c1cdf58ebfb3d497a52d93142cef23986fd228fac436615b888496ac47f79e09:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYjA3YzA5Y2E2NTRhY2QzNWQ0OTg5YjczMTExZWJlNTEyYzEzMDJiN2VlMDRmZDY0MTk3ZDJhNGRiMDM4MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0NDNiNjlmNmIxOWY3NjgyOTU2OTkwMTI1MjNiYTYwNjk1OGYwZmM1MGU4OGI5M2EyYjdiMzIwMjllOTEwOGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg0YjFmNTJjNGNlZGExNzlkODZlOTU0Y2JmMWQzYjRkZWU1ZDA2NjU0MmUxM2JiNTBkZjcyZjIyNDE5YjdjMGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d4efb3da4e6d457c8e3f33c3f454b05d",
+      "statement": "The CLI imports its formatter from the locally owned jsonformat.py, whose header records a copy from Lake on 03/03/2025 during IS-18106; portal-equivalence is CLI help wording rather than a compatibility guarantee established by these local fixtures.",
+      "evidence": [
+        {
+          "resource": "repo://jsonformat.py#L1-L2",
+          "version": "repo-lines-v1:sha256:a6c18196e34c90a7c8c2bdcbf06c3ce5eab4d384db557a322222307d6dc720d5:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGIwODRhOWYzNzgxMjRiMmIxYTUxNTYzYmYzYzIyNDQ0ZWI3ZmYzMzY5MjAxN2RhMjhiMjEzNmFlNTY5ODdlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjM5MjQzYTkzNjM2M2U5NDZlZWViZDA2MGFlNjJmZmM2ZDU0NTM3M2RkMmE1MmJjY2JhNWYxNTQ2ZjZkMDY0OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDI2Y2FlOTAwNjI3OTJlYTU4NTk1ZjZmYzkzYzVjMWNiODg3NDFjZmZlZTE0NDkyNGZlOGRhM2FlZmJkMGMxNyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L33-L34",
+          "version": "repo-lines-v1:sha256:e0ff47d189625e94a5187ba00c1db71c0fa67ae06c990385444f7ef54be03ec5:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDY0Yjg4MDFjMzQ0MjQyOGRhOWM4NTk2OGNmY2ViZmZlYWJmNjNjMTE0ZjA4MDliY2I2NDcxOTg3YTVmM2I4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2IxNDhkZTQ0MzNjYWQ1YWY5ZDcwMTYwMzU3YmRkYTIxNzRmOWQwMTUwY2Q1YWEzYTkzMDc4YTM4M2EwY2EwYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmMwMTFhNGQzMWQzZmM3ZTBhYWU4YzYzZWVhMWYwZmFiZWEyZjZjMmE1YjdiYjliNTEyMWVjMGNmNzJhZWY5YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTRmMDliMTY0NWExZTRmM2EyN2QwMjUzZGQ3NTMxMjcyZjM3N2RkNWI3MGQ4NTJlODg3YTA4NTE2YjY0OWRlNiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3371-L3372",
+          "version": "repo-lines-v1:sha256:6559a5b68f0faaddb5a6ee7fd79d347ecd65fd1a0261acb27e8de52242b5253c:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTJiMjhkYTYwN2E5NTM5ZjE5ZDBmZmU0YzQ3OGQzZThlNzljYWRiNjk1ODBmZDVmMDFmYjIwNmQzZGYxZmJkMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjE4OGEyZjhjYmU4NmMzN2QxOTEyMjRjZjI1ZGMxMGYzZGVkZmI3NzQwNTQzYzhlOWZmMzU0MGVjYzM2MjA1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWE2MmY1OWE3YTg0ODE2MjgyOTgyMDM5MDM1MWNkNWE3MjY2M2U0MjQ3ZWNkYjI2ZjlkMmZjMzUyNTVhMjQwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmVmM2E3YWFlOTI1MmEzMWJiOGRiMzY0ZTZlMzc0YWJhOTc3YmQ4NTlhY2JhYTg5MGNmMTIxNjNiYWZiZGJkYiJ9"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L50-L58",
+          "version": "repo-lines-v1:sha256:df9ced981f4a9dc3dc3f801546eb4fc6e802833cf69615d8cc3b52a6244441a4:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWRiZjEwODUwM2I1NWZjZGM4ZjY1ODdhODQ0ZmYwNjBlMjY0NWMxYWY2NjhlYmJhODU3ZjRmZjZlYzcxNTE3YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzc2OWQyMzdjZDQyMGI5ZDM4Yjk4MWEwYTRmNjc3MDE5MGE0YTgzZGNhMWZlNTZjNGY1YmExZTJjYmMwZWY3NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTUyOGNmMThiNGNmYTU4MzMyZDY2MGE3NmIzNjI2YTQ3M2IzODgxOWUxZmNmMTg1ZDdkZGYzYTFmYjc4Y2Q2ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzVhMTFkYTQ0YzgwMjQ4NmJjNmY2NTY0MGFhNDhhNzMwZjBmNjg0YzVjMDdhNDJiYTNjZDE3MzVlYjNmYjA3MCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_eaaadf70d05147689de467ef3921a9b1",
+      "statement": "FormatStyle supplies defaults for omitted known keyword properties, and format_json/format_object default to FormatStyle instances: two-space non-tab indentation, colon/comma spaces, no newline-before-object options, nested-array closing newline and collapsed array-object indentation enabled, separate array-value lines disabled and conventional sorting enabled; font_size is stored but not used by the output formatter.",
+      "evidence": [
+        {
+          "resource": "repo://jsonformat.py#L9-L60",
+          "version": "repo-lines-v1:sha256:3a93c31dae8efa1d4a7b962cb07ea2088d467380f92badff182d2c1f2074ff34:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNzdhMTEzMDQ3YWVhN2Y3ZmFmOTc0MTZmMzhjMmVmOGUyMmM1N2FkYTJlNjI0MDMxMGZjYWY2NjNhMzIyZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2NjllNWEwNTA0M2E3MDliNzNiZTlhNWQ3ZGU1OWQzMTZkODgzMWE5NzNlZmJlNzZmOWI0M2MyM2MyOTYyYmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlN2E0MWQwYjlkMjY4YWRjODE5MTE0Nzg5MjEyZjM1NjYxZTE5NWRlODk1NTA1NjBhNWI1NjEyZGNjYjc5MzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjMDY4NjA3NzYxYzkxMWNmMjg2NjlkYTQxYjljM2MzNjkzZjgxYzQxMjg0NjQ5YmRhMGIxZmRkNjhkNTY1YjIifQ"
+        },
+        {
+          "resource": "repo://jsonformat.py#L97-L252",
+          "version": "repo-lines-v1:sha256:1543c42ca28bb7269e10ca615660f72461da0e0d3b89ea1e1ac9593feeeb3b7a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTU2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlYzQ0ODBhMDAzOWE4ZDhmZjQ3ODgwN2Q3ZjUzY2UyN2FmNDkxYjAwOWQwZTNkOWI2ODI4MDk4MTBjNTE1MzBhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJhMTQzYjQzOWJmMGE0OTExZGI1ZWFhYzc3MDUwYzA2MDBiMjA4MDQwMDRjNDhjYzcyZmQyMDQ2YTMyYmU4MjE3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkNjUzZjA1Yjg4MzFmMTBlYWFlNTdmNDQxZTUzYmViMmNiMzM4MzllMDFlY2ZkM2FhZGU4ZjM2MDNkZDdhMWJlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_290d3daf38de4a0f89e215b0a7af3636",
+      "statement": "jsonformat recursively sorts mappings and mappings inside lists while preserving list element order; conventional keys lead according to _SORT_ORDER, other ordinary keys follow alphabetically, and internal underscore keys except _id plus $audit and $principals-from-user sort last; disabling conventional sorting makes key order alphabetical.",
+      "evidence": [
+        {
+          "resource": "repo://jsonformat.py#L63-L132",
+          "version": "repo-lines-v1:sha256:9d09de1c7dd616f367479d4430c3c102cd8c4c5cbda0b98b3913011da39ec07a:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkZjRjOGEyYjNjOGZiMjY2ZTgzNzU0NWZmYTBlMmNiZGIzZDE2ZjQ0N2UyNTI1YjNjMTYxNjAwMTE2NmMzZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0OWMyODdlMGZjMjIzZmRiMmU5MWI3ZmE0NjY1ZTg3YWQ1ZTM5NDYxYzI3NWFiZDRmNDVhOGMxZjliZWU0M2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNWEzMDllMGNhZWYzNGI5ODAxMGM4M2ZiYzliY2I4OWYxYmFkMmEyZDE0NzQ2MTI0ZWUwZjNmYzI5ZWZiZTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4NjZmYzlmOGUzYjE4ZjZhY2JlNWY5NDhjYTJlMjA4ZmQ0MjFkYzdkNmMwMzkwYTBjZGQwNWE0NjZmMzdkYmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_73d03c46281646ef9298d48d59423141",
+      "statement": "After compact Unicode-preserving JSON serialization, jsonformat's dictionary/array/string/escape state machine avoids treating quoted content as structural punctuation, collapses empty objects, avoids extra object indentation inside arrays by default, starts child arrays on new lines and applies the nested closing-array newline rule.",
+      "evidence": [
+        {
+          "resource": "repo://jsonformat.py#L130-L252",
+          "version": "repo-lines-v1:sha256:4d96d66447ded1d083c86c67a88dcc7e205651aac267d4f679887e7cdd3fb77a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjNzZhNjVkNDgyYjA1ZmVjNmI3NzdiNWE2OGEyZGQxOTQzMzYyMDcyZTY0Y2VmZDAyNWNlMmI5YjQzZDE3ZmY0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJhMTQzYjQzOWJmMGE0OTExZGI1ZWFhYzc3MDUwYzA2MDBiMjA4MDQwMDRjNDhjYzcyZmQyMDQ2YTMyYmU4MjE3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmNjM5N2MwOTRiZTgxYmJjMzk2YzcxNjJjMjY3ZTZkZTE2ODcyZTE1MWI0YTBkZDAxYmRhYTY0YjI1ODZjZTBkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_eb014484857044af8dac068a22235a6d",
+      "statement": "FormatStyle is available as a Python customization argument, but the inspected CLI passes no style to its rewriting calls and does not consume args.sesamconfig_file despite parsing -sesamconfig-file and README claims of .sesamconfig.json formatstyle customization; the fair-weather style fixture's separate-array-lines true does not change the current default.",
+      "evidence": [
+        {
+          "resource": "repo://jsonformat.py#L9-L60",
+          "version": "repo-lines-v1:sha256:3a93c31dae8efa1d4a7b962cb07ea2088d467380f92badff182d2c1f2074ff34:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNzdhMTEzMDQ3YWVhN2Y3ZmFmOTc0MTZmMzhjMmVmOGUyMmM1N2FkYTJlNjI0MDMxMGZjYWY2NjNhMzIyZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2NjllNWEwNTA0M2E3MDliNzNiZTlhNWQ3ZGU1OWQzMTZkODgzMWE5NzNlZmJlNzZmOWI0M2MyM2MyOTYyYmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlN2E0MWQwYjlkMjY4YWRjODE5MTE0Nzg5MjEyZjM1NjYxZTE5NWRlODk1NTA1NjBhNWI1NjEyZGNjYjc5MzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjMDY4NjA3NzYxYzkxMWNmMjg2NjlkYTQxYjljM2MzNjkzZjgxYzQxMjg0NjQ5YmRhMGIxZmRkNjhkNTY1YjIifQ"
+        },
+        {
+          "resource": "repo://readme.usage.md#L52-L81",
+          "version": "repo-lines-v1:sha256:c321e2f7cab84294f3d820fb8578a6d243a65aebbd0b132cd7b95cadb802dba9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiYjQyYmNkNjdhZWMyYjMyMDYyODBhODAzMjc0NDA0Y2M1ZWEyOWRiYTQzZmE1YmYxODBlY2Y3ODEyNmQ4MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI4NDc3NGE1ZDU4NTZmZjUzMDg2M2U0OTUxODRlYTNhNjI4Mjc5ZTFlNjFhOTE2ZmUxYzE1ZWY4Zjc2NjY5MDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmY2M5ZmU0ZGVhOThiZGJmODI2NjFmOTg5MDQ5ZWM1ZGZkMDZlMzcwYWYzMWE5ZWJlZGJjZTUzYmRkODQzMDkifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2515-L2517",
+          "version": "repo-lines-v1:sha256:55a945bef3e571b0adc37ab0823dde9ba5cd4721399c48bf3f1d73b2d361a5c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjg1YTZmODRlNjI4MzI3YzM5OTU0ZGRmYjUyZTYyYzc1YzE2ZThkOTAyNjMzNGNiZTZkOTMwYjdkNDU3MzNlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBhNzMyYTJhNWJhMmM1MTBmZDVkNjY5NDFmNGYzZDQ3N2E4Y2RkZDE3ZThlNzI1NWU3YmQ5OTM0NTFiYWZlNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjQwMjY2NjIyYjNmZGM1YWI0NzJkOWJjOWYxNTBhZDM5ZWRiOTZkYTg2MjYxYTc0NjVlM2E4OTllZTVkZDE1MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGI5OWY0OWM0ODczNDYzMWY3MzVlZmIzMzc5MTVjZWE0MjkxNjgyMTdkNjQ0MGVkZWRlMWRkNzY3NTNmYjM1MSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3202-L3253",
+          "version": "repo-lines-v1:sha256:aa04ce2d562604dabf3712ba6f8236b0c8b74612b07836883d9df70be2f70921:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjZmY1OTRjYjBiZjJjY2I4OTA4ZWRlN2Y1MDlhNzNlMzE5YjVlMWE3OTZhZDZhNzdhMzU1Mzk5NGJhYTBkZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNWUzZmNlZTI0YzU2ZDkyZjYwZGFkYmEwYTVmNjYyOGQwMzUzZTYyNmQxZGNiMTA1YjI0NjRmMjYxZTdkNWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0NzVmOWFiZGJhNzk2YTYzOGNhZWQyZjg3NWYzZWI2NzM5NWMyYzU4YzQzOWMyNDJiOWNmNWIyMjA2OGZjY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0Mzc3M2EwNjY5YzU3NmUyNzRjMTc4MTFlZWViNDQ0M2IwMDhjZGUyNTg5OTkzOTQ3N2U2OTdhNWQ1ZDM5NWYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3722-L3729",
+          "version": "repo-lines-v1:sha256:b5ef505f630b29a865dcd3fae505117f83093514aafb35f78815e3696dbca36c:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTUwODQ1ODlhYmUwNmM2MGUwODg0OTIzMjU0MWMwMmMxOTFhNjQ3MGNjNTFhNDQwMDY4ZTA3NDVjZmQ3OWM3NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDRiYzA2MmIwNzVkYzk0YWYwMmYwZWE5M2M5NjQyZWQwZTYzMzIwZjFlMTU5Y2RmMDU4ZTczZWNlNTM2NzhlNSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3975-L4307",
+          "version": "repo-lines-v1:sha256:ef0d88d72703780a9ecae19c81c47ffd8a1123d1327998ab744a264e3df87eaa:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhZGE1YzY2ZTE3YjE0NTM5NzgzNGI4Yzg1NGRjNDE5M2UyMTI1MTgwYTg5OTZhMTRjMzE4ODMzMjZiMmVmYmNmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3ODJjZjBiOGIxMmYxNmQ3OWE0M2ViZmRiMjVhN2Q5NGU3NTg2ZmVlN2I1YjQzMTQ3OWEyNzA3M2I1MDQ0OGNiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmNzNlODczNTQ2OGE5MWJlMTgxZjNlNWVmMTFhNWRkZGVlNGVkMjIxZjQ5MmU4ZTU4ZDBhODA2NDYyY2JhNzBmIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/.mysesamconfig.json#L1-L14",
+          "version": "repo-lines-v1:sha256:92424a3f1c6eac2a5f5b3d583df0e80fbdc78134b498a05b7f3f6d1bd728dd64:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_214b0b6dd74e4d4bad91bc59761ab177",
+      "statement": "format changes parsed JSON's representation without uploading, executing or verifying it, and does not reorder entity arrays or perform update/verify normalization; its expected serializer shares update's indentation/key/escaping policy but is not baseline generation or semantic verification.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L199-L206",
+          "version": "repo-lines-v1:sha256:dbcc905741d53859dde6231a9d8c50185db7020d6e43c4efe846ca86b8e6a3d5:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNkMDBjZjI3MDk2NGQ0NGExM2RmYWM4NzUyYjA5ZmNjNDM1YjBmMTliMzE2YWJjZjgxYTdhYTY0YmIxMjJkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjlkNGIwZTBjZWFkYWZhOGE5ZWUwNDhmZTRhYmI1MmUzMzVmZTA2ZGY4NmFkMWVmNDQyM2FmZTAzMDg3NzlmMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzQ1MWUzNTAzMDZkY2IxZWIxNWQ4MzM0NDU0YjRjZGFlYTU1MThjYWU5ODc5NjRiODU2NjkxMmJlZGUxNjIxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGVlMDI3YmFhYThlMTRiMDc3NTNlMTg5ZTMwNTI4MjNlMzhjNDliNjc0NmY0ZWI4OGYxMjA2ODIxZTA2ZmE4NCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L2117-L2124",
+          "version": "repo-lines-v1:sha256:71b8acf45b4dced90c8101a28cf396fff64cba7091ae0e96e93f08a3f61220e4:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWJjOTgzMjM5NjMxNzlkMjc1NDQzYjYwZjZmYWI3OGEyODA2YTFiZTA1MmVkZDFjN2JmOTQ3ZGRkYTM1ZjE1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWFkNmM4ZWFhODUzZGZiNzA3MjA1MWE1ZjU5NjI5YmI3NmYwMmQxMzMwNDJmNjQxNDM0M2ZhMDE5YWI4ZTZkOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTZlMzFhZGQ1MDNmOTQ2YTkwOWNlNDZjZTdjMjE5N2M1YjIzZTRlYTk2YzcxNGIxZTA1MDc3ZjI3ZDIxZjk1OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGZlMzU0NzQxMjJhNDg0NTE0MzJmNjFlZDRlZDNiZGU1OGU1ZjE5OWFkZGI0MjY5NzRkOTdiY2Y4MDE4N2Q4OCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L2148-L2163",
+          "version": "repo-lines-v1:sha256:c29098ae4540956cd54c60913a691ffbbfb3df49264ec08d9d0b6dd467bfc6fe:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjNTEwMjE4OWZlYmEwNTc1ZTgyZjU0ZDM4Mjk3ZjhlMmQ2ZGY5OGEyYmRjYzFjZDhlY2UzMzc3ODU0NTY4NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZDZjOGVhYTg1M2RmYjcwNzIwNTFhNWY1OTYyOWJiNzZmMDJkMTMzMDQyZjY0MTQzNDNmYTAxOWFiOGU2ZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMxODdjNGI1NzUyODVlZDU0MTUwZDQ1ODFiMzljNWRhNmJhZTUwNjVkNGIwZDEyYWM1NjQ1YzZkNzg0OTA2MWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhZDM4NDQ4MmZiZGUzZDE2NzM4YzA2N2UxZDcyMDQxODdlY2MzNjBhZWMzYTBmMGE1MjhmMDhmZTFhZWVhMTYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2845-L2863",
+          "version": "repo-lines-v1:sha256:38b4de81cca2d0d100aac0d207230221fb493427820bb28baf2a42c45743544f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhMDUzMjcyOGFhZTdjYmFhNDY2NGZlNjk1ZDU3NzQxYjc5NmRhMTI0ZWQ2ZjA1ZGIwZGI1MjNmMzdhODI5NGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjZGU5ZDRlZTU2ZTcxNTUzMDg3MWE2ODE5ZGY4NWFiODU3ZDIxMTQyMmRjM2U1MjNkZmVjNmU5MTA0YTliZTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmZTc3ODJjNGQzOTcwYzZkMDQzMzczM2EyMmExOTgzYWQ3ZTRiNTBiNGFlMjk5ZTE4ZjcxOWQ2OTUwYjJkYWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIxM2U0OTY2YWYzYmZmODQyYzJjZDJiNGExNDhmZjE3YTRkMTVkNTljMjRjOTAxM2U1ZmRiNDViNmQwYjNjNjUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3233-L3311",
+          "version": "repo-lines-v1:sha256:497e1c9fd2034942e4bbf4a0ea883300a1bd50abf1d328f7066f4123e99e0fd5:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYjA3YzA5Y2E2NTRhY2QzNWQ0OTg5YjczMTExZWJlNTEyYzEzMDJiN2VlMDRmZDY0MTk3ZDJhNGRiMDM4MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMzQxMzBmMjY1MDA0ZDZhYTljNGFmZDkzNDE4YzQ0MTU0MjNlZDU3ZGY1NDgzYjAyYmUzNDVmZWFhOGU1YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0ZDA1OTkxMmM5YWRlMzJmNjdkMTVmYmY5MWFmZTgxNzgzZDQ4NmFkM2UyZWIwNzU2MmYzZjIwYjlkM2E1ODAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c32474bcb4504033882a8714e68d704b",
+      "statement": "The conversion scenario starts from a fresh copy of before, wipes a remote node, converts, runs test's upload/deployment-wait/run/verify lifecycle and resets the node; upload uses testdata filenames as pipe IDs and posts parsed entities after deployment, while the explicit expected spec covers output-pipe reading input-pipe-1 rather than separately asserting output for every converted fixture.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1524-L1533",
+          "version": "repo-lines-v1:sha256:55e464c2e8b0738bf7795f7905d76c9d8722a9235f951ea15903275649ac69e1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiNGEyZjgzZDUyZjM5NzEyMWFhNWE2OTY2MmE2ZTg4YWY3NjI2ZmE1YTA0ODE4NjNjMGQyMjgxMTBhNjA0MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyYWI1NmFjMGE4NjliZjgwOWVlZTFiZGRjZTM4OGFmMDc3YzlmYjM2NzI1MjFkYzdmYzk1ZTIwOWExMTc3Y2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyOWEwOGVmOWU0ZjY3MTkzZTVhZDUwYThlN2QyYjE1ZmIyNjI5YmIxZDMzMjdmYzkzMmMzOThmNWIyM2Q4NTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ2ZTRhODNmZGVkYjY1MjQxNDhlYmNkYTM2MjAwN2FjZDI3OGU5Y2FiOGJiNzkyZWM1YjhhNmJmYzkwNzhkNjgifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1594-L1623",
+          "version": "repo-lines-v1:sha256:fb9909fe2df03e264c4a0c7dae43b6227773e58e51f23325c9485732e37f7a8b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiNzcyNzhkNTY4ZjQ0YmI4MjA1YzAwMzA3MjgwYjc2NDIzZDIyYTkzN2JlY2FjNDE2NGVjODc5ZjE2NWQwMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1NDJkZDJlOTg0YjkwNzU5MDYzOGEyZjQ2MmE0YzlmZTFiYzNkMDk0ZDBiMDEwZDZlYTMwZDc5NDMxYTAwN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViNjJhYWViMzNhYmE1MDdlMTg0N2UwNTEwMjI4NTM5MjBiOTFiYjE1NWQ5MzhjY2NiNmUyMzg3MjlkMmIwNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmZjAwY2Y1OGJkZGMwYmQ4NDg1ZDBiZTkwZmE5MjRiNDE2MmFjZmFjOTRmODdmODliYzc3NGUyMDI5NTJmYWYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2907-L2923",
+          "version": "repo-lines-v1:sha256:9d1e8685f487e8c5eb0b2237a7e7c9abf077e5aaaffc921b0131865527882dfd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzM2ZlNWM4ZDU5Zjc2MTliNWNhMjBiZTk4MDJmODhlNWE5ZTgwZTkyOWNlMzJjOGRmOTVkZTA1NDQ3ODg1YWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNzBjYTI1OWRjZWQyODIxZjNlYTNiMzczN2E4Yjg4MTRiNTY2YjIwNmY5ZTZiNWM5ZTI0NmUzZmEwNDI2ZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5YWJhNmYwM2MxYjMyOTlkMDdiMzQ3YjE4ZjViYTM1N2U0YmZjM2U1M2VhNTg3YjU0NGFkNWVjOGJiMzliZjIifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/expected/output-pipe.test.json#L1-L3",
+          "version": "repo-lines-v1:sha256:6dd13dfc3942d67fd98bdbc8f54411ac68d42635845dcb3bb9576e451fa43348:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/output-pipe.conf.json#L1-L11",
+          "version": "repo-lines-v1:sha256:c134c73caa8ef51c4c809377a54efc34ac57d1a9723486ebf8a6ce2f7f6acfa9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L31-L46",
+          "version": "repo-lines-v1:sha256:1803fd71f56b5cab4da92a8cce6c2555d3c4b505091e8464f256c9fb58634efe:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMmFhOWE5ZTgyZjAwN2RkOTY1OTFiYWI2NTJlNTQ3NjRkNDQ3MTY5Nzg3ZWYwYTNkMGYxZDRlOTJmZjRjZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmMzdhZDJiZDM2ZWY0ZjhhMWQ5ZGI3OTcxYjA5ZWMwMjhiNDc2NzU2YWM3OGQwZWYxYzI3NTU0Yjc3MDM4MDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwNDI4NDYyODNjODI4MGRmZDExNDNmZDcxZWEyNzZkMjgwZGQ5YThkYTU4OGQ1NjFmMjdiNDZjMWVkZDUyNzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1MjhjZjE4YjRjZmE1ODMzMmQ2NjBhNzZiMzYyNmE0NzNiMzg4MTllMWZjZjE4NWQ3ZGRmM2ExZmI3OGNkNmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_db462a5d334046cc987bd22406f8b8b3",
+      "statement": "The conversion scenario's final diff -r against expected_after checks file-tree and byte-level representation expectations, including case and layout, separately from JSON semantic verification; authored extracted testdata uses the local collapsed array-object layout while expected output uses standard expanded indentation.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L199-L206",
+          "version": "repo-lines-v1:sha256:dbcc905741d53859dde6231a9d8c50185db7020d6e43c4efe846ca86b8e6a3d5:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNkMDBjZjI3MDk2NGQ0NGExM2RmYWM4NzUyYjA5ZmNjNDM1YjBmMTliMzE2YWJjZjgxYTdhYTY0YmIxMjJkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjlkNGIwZTBjZWFkYWZhOGE5ZWUwNDhmZTRhYmI1MmUzMzVmZTA2ZGY4NmFkMWVmNDQyM2FmZTAzMDg3NzlmMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzQ1MWUzNTAzMDZkY2IxZWIxNWQ4MzM0NDU0YjRjZGFlYTU1MThjYWU5ODc5NjRiODU2NjkxMmJlZGUxNjIxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGVlMDI3YmFhYThlMTRiMDc3NTNlMTg5ZTMwNTI4MjNlMzhjNDliNjc0NmY0ZWI4OGYxMjA2ODIxZTA2ZmE4NCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L2117-L2163",
+          "version": "repo-lines-v1:sha256:a319714954727853603deb851f34956aecbacb61e1dc620f3ff35d2382f65183:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViYzk4MzIzOTYzMTc5ZDI3NTQ0M2I2MGY2ZmFiNzhhMjgwNmExYmUwNTJlZGQxYzdiZjk0N2RkZGEzNWYxNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZDZjOGVhYTg1M2RmYjcwNzIwNTFhNWY1OTYyOWJiNzZmMDJkMTMzMDQyZjY0MTQzNDNmYTAxOWFiOGU2ZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk2ZTMxYWRkNTAzZjk0NmE5MDljZTQ2Y2U3YzIxOTdjNWIyM2U0ZWE5NmM3MTRiMWUwNTA3N2YyN2QyMWY5NTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhZDM4NDQ4MmZiZGUzZDE2NzM4YzA2N2UxZDcyMDQxODdlY2MzNjBhZWMzYTBmMGE1MjhmMDhmZTFhZWVhMTYifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/expected/output-pipe.json#L1-L18",
+          "version": "repo-lines-v1:sha256:07be4c682febbc268d019469bbed5781ebc764bb4d7d09c4c9cadb19c82beb74:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZDJiMTkzNDkzMTY5MTY2OWNjMzVhODc2MTk1MTgwMTUzMzYyMTNkZGEwYTYwZmUxYjA5ZjliOGUzZTk5M2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmYWUwZDQyNDhmNzE0MmY3YjE3ZjgyNmNkN2E1MTkyODBlMzEyNTc3NjkwZTk1NzgzMGQyM2RjZjM1YTNmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/testdata/input-pipe-1.json#L1-L13",
+          "version": "repo-lines-v1:sha256:3254a06710e922340c1d3e7649a83febb42b176c3e0868c26e56e6edf29707f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0YjM5ODJhNzAyM2NhM2M4YmY5YmY3YTg5OGMyMTQ4MmNhM2VhYjc2ZWE2NWUyOWUxYmYzNmUyNmRjMWVmOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlMzQ4YTczNTYxMWE4NDQxOTRjNTE1N2U0NDRkMDI2ZTBlNzA3YjU5YjI1YTUyM2QzZGQ0YjA0YjdhYTdkNmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L48-L58",
+          "version": "repo-lines-v1:sha256:5e7fa7de112c8af00c49d9840232dd0c168f8f6b879610e67da16052edbf0d46:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YzI4ZTBiYjAwNmQ5MDAxMjc1MTE0N2Q2ODFkMjFmMjZjNTg4MTc4NDhhMzkxY2QxM2Y0MzU3MmNiNmEzMGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3NjlkMjM3Y2Q0MjBiOWQzOGI5ODFhMGE0ZjY3NzAxOTBhNGE4M2RjYTFmZTU2YzRmNWJhMWUyY2JjMGVmNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4OTI5Y2ZmMmRjYTdmZjZmNzllYmQ2NWYxYWE0ZmQxZTg0ZmExZmQ0ZmUxMzNmY2JmMTRmZTA4ZTQ3NmUyNGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1YTExZGE0NGM4MDI0ODZiYzZmNjU2NDBhYTQ4YTczMGYwZjY4NGM1YzA3YTQyYmEzY2QxNzM1ZWIzZmIwNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e41a1e256134405ea467c5f602ff16c7",
+      "statement": "The conversion and fair-weather scenarios are not focused init or format tests; fair-weather exercises test, update, status and download and passes .mysesamconfig.json only to download, so it does not establish CLI style customization behavior.",
+      "evidence": [
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L31-L58",
+          "version": "repo-lines-v1:sha256:2d72a772ba362c191ddcb8dabafab6a768d697acce57b470bc2c516defed749c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMmFhOWE5ZTgyZjAwN2RkOTY1OTFiYWI2NTJlNTQ3NjRkNDQ3MTY5Nzg3ZWYwYTNkMGYxZDRlOTJmZjRjZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3NjlkMjM3Y2Q0MjBiOWQzOGI5ODFhMGE0ZjY3NzAxOTBhNGE4M2RjYTFmZTU2YzRmNWJhMWUyY2JjMGVmNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwNDI4NDYyODNjODI4MGRmZDExNDNmZDcxZWEyNzZkMjgwZGQ5YThkYTU4OGQ1NjFmMjdiNDZjMWVkZDUyNzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1YTExZGE0NGM4MDI0ODZiYzZmNjU2NDBhYTQ4YTczMGYwZjY4NGM1YzA3YTQyYmEzY2QxNzM1ZWIzZmIwNzAifQ"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/run_test.sh#L31-L47",
+          "version": "repo-lines-v1:sha256:94b8040d1bb8615970efbcaca9ea911c65423359c98b61ecdb5070ac7115663d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZjQ5NmZmYjZjN2IxMjVlYzY4YWQxMGJlMmNmYzk3Njc2YzZiZjA3YmEyZmNlNzViZDkyZDA5OTBkZGJjMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3NjlkMjM3Y2Q0MjBiOWQzOGI5ODFhMGE0ZjY3NzAxOTBhNGE4M2RjYTFmZTU2YzRmNWJhMWUyY2JjMGVmNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0ODAwNGZlMGNlMWJmMmU5MmYwZGMzMWIxN2IwMjAwOGI1YTllNzM3NzZiYWU1ZDVkZTEyNTVjM2EwNDJhZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViYWMyNDZlMmM5YjcxNzdkNzYwZDk5MGRlYzE3MzIzMzg5MWI2MDEzY2I2ZGQxMjU4NmJkMTRiYzQwMTYwMzkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_31c056e94a1f454a8ba98487b6b27468",
+      "statement": "The top-level test runner invokes scenario scripts using a remote CI token, and the CI OS matrix runs serially because its jobs share the same node, so these scenarios are remote, potentially destructive integration checks rather than harmless local diff scripts.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/test.yml#L10-L22",
+          "version": "repo-lines-v1:sha256:b396a602970e24ee05ae39df61818344171c22569df6ada46abae66703f79ed9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmZTU0MGUxZTFlYzkzZjk1YTRmMTBjNzJjYjI1Mzg0ZTA0OGIwMGMyNzRlZjRjZWYwMzZmYjM5OTY4Nzc5OTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyN2ZjYWRlNWU4ODY0OWIwOWU1ZDViMjE5ODJmNDU5MjUyMjdlN2M2NzdhZjU2NDcxNzVlNTA0NjUzZWYyZWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlNGJhODljMDlhNjFhYmJjZDM2ZTBlNmQ1MGRkNDAyMGE3NWQ1ZDNkZGJhOTViODc3ZjEyYmZmM2I3ZWUwZDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0YmI2MzhhMzM2MjlhOTM2NDlmZDZhZjEwMWNkYmFiMjgwYTdjMTQxYTA3ZjY2ODA1YmRiMmRlMjRkYWI5ZWMifQ"
+        },
+        {
+          "resource": "repo://.github/workflows/test.yml#L44-L48",
+          "version": "repo-lines-v1:sha256:683a974212b924ee552971a2df3a0218d7534b18401e9a7d9ab8dc1b31db23b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmQwZGIzODY2YzMwZjA2YmViY2VjMGZjM2QyOWM3N2JhNmY0MTlmMTMwYjhiZWVlMDg3ZDEzNWY0OTk2NjgwZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODE5NzEyYjg2YjY2MmEyMGUzNjQwNWNkMGQzM2Q0ZTMyNWVjNTAwZTI4ZDA4MWFlZDgxMTc1ODllNzY5OWJkMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmNiMjA5YmIwYjNiMzViYzAzYjliMmQxMjkwMTNmMzA3NGMyMDQwODk2NzVhNmExODgzNDIzNTUzYzQ3OGEzNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://test.sh#L17-L30",
+          "version": "repo-lines-v1:sha256:a3c28162504b73c26b8f6ca7d483da2af2c9a5d25f007e1bb806bde4d5d20727:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlNjZlNTgxODBkYmVkZTJkMGE1YjM5NDZiZGJmODNlYzU5MTkxNmFjZWU0MjI2NjUzNTg4NzdlN2NjZGMzZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxMTdmYTAwNmJhOTIwODUwMGIyOTMwY2U2OWNiZGU0MzZjNjQ3YWZhOTE3Y2I3Mzk2YTliYzkxMTFhNDZkZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI4MjExNjJjNWQzMTFjMDNiYjAyNmU3ZTJmZDk1YzA3NWI5MTk1NmEwNDg4MDYxN2YxZjMzZTI2MjJmYWU1NTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiZDE1OTdmNTZhNjM1ZDBiOGI3NDgwZjdkNjlhYmMwMjhjNDA3MTdkNTgxZjJkNjk2ZWFjMDNiMGQ2YTk0MGEifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L37-L46",
+          "version": "repo-lines-v1:sha256:c4e3cd16d330d3dc6d8f15e0d4058c9d6d95e74e3084402089b740df44295463:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjOWUwYzllZTc1ZDliMzJlOWIxOGNiOTNlYmY4MTRlZjdiNzI2YjRjZTNjYzZiZmU1NDEzZGViZTRiMWQwNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmMzdhZDJiZDM2ZWY0ZjhhMWQ5ZGI3OTcxYjA5ZWMwMjhiNDc2NzU2YWM3OGQwZWYxYzI3NTU0Yjc3MDM4MDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhMThmOGFlNDE5NTkzOWYzZmZiZWQ2MmU4YTRjMjBlZWQwNzZjMDllNzcyYWZhNjA3NDU5YzY5ODI0ZjA4OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1MjhjZjE4YjRjZmE1ODMzMmQ2NjBhNzZiMzYyNmE0NzNiMzg4MTllMWZjZjE4NWQ3ZGRmM2ExZmI3OGNkNmYifQ"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/run_test.sh#L31-L42",
+          "version": "repo-lines-v1:sha256:2d3cc5392786439782fb070658645438526a6f5fc978f3fe48af592eb5d394ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZjQ5NmZmYjZjN2IxMjVlYzY4YWQxMGJlMmNmYzk3Njc2YzZiZjA3YmEyZmNlNzViZDkyZDA5OTBkZGJjMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmMzdhZDJiZDM2ZWY0ZjhhMWQ5ZGI3OTcxYjA5ZWMwMjhiNDc2NzU2YWM3OGQwZWYxYzI3NTU0Yjc3MDM4MDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0ODAwNGZlMGNlMWJmMmU5MmYwZGMzMWIxN2IwMjAwOGI1YTllNzM3NzZiYWU1ZDVkZTEyNTVjM2EwNDJhZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1NTIyNmY3ZjEzMjE2ZDcwYjQyMzRlNWVlOTg2MTE5NGYzYTdjNzlkYWFkNGI0ODg1NGJlMmZhM2ExNTM2OTcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-21T12:48:03.329Z"
+  }
+}

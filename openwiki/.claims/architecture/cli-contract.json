@@ -1,0 +1,1080 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:a004fd7ad26623e19c0be94f8ed7c9937b486cac09f1508dcf69113e6914dd6c",
+  "claims": [
+    {
+      "id": "claim_80bf365c98a943bdaed570e5a0a91a0c",
+      "statement": "SesamParser and the sesam.py __main__ dispatcher own parsing and command admission, while SesamCmdClient owns orchestration, archive/whitelist state, expected-output comparison and scheduler coordination; its SesamNode starts as None and is assigned during online bootstrap.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L4044-L4307",
+          "version": "repo-lines-v1:sha256:28f5fdba3446c101b3b291ccaf7b89d68823669110d45bd430e995d998f24e28:eyJzZWxlY3RlZExpbmVDb3VudCI6MjY0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhOWI1NTQxMjBlNmQzOWE0ZDU5ODgwMzMzYTIyNjg3MTc0YTU1YjBiOTVhOGMyNDlhNGJmMTAzN2ZlMzkzNTNlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3ODJjZjBiOGIxMmYxNmQ3OWE0M2ViZmRiMjVhN2Q5NGU3NTg2ZmVlN2I1YjQzMTQ3OWEyNzA3M2I1MDQ0OGNiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3Y2I0ODRiYjJlYTA0MDRjMjllMzAxNjU3Y2Y1MDBjZjRhNzZmMjIzOGUxNzhiYWM0N2MxMzk5Y2QyODQ3YTc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://sesam.py#L828-L866",
+          "version": "repo-lines-v1:sha256:88dcbaebf88a098eea4f58da4ba1a04b3365abc69ee75959daf8831965161f08:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0NzVkMjE3Zjc3MmQyNzA2NzMxMjdmZmNhZDI4YTlmNWZhNDM5YTBhN2Y1MjAwYzM3NDE5ZDA5YmIwMjRlNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNmQyMzk2ZDMxNzMzNmViNGI1ZDBiNjYxNmI5ZjU3ODk0ZTcyNDBhNzU2MGQ5N2ZjMzE0ZDhlNzRlZDQ4N2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNmMzNzNiYzQ0OWFmMmQwOWExODI0YjdkYjk3NTQyMmMwNTQ1NmM4NDE5MzM2MmRmYWI4MDhiMjRkZGNmMDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiMzVjNjUzZjVmNzc0NzYxODdmNWI0MTVlMzkwNzAxMGFlNmNkODNhNWEzOGRkNWFjZTAwZGQyNjJmOTlkNjUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L86-L90",
+          "version": "repo-lines-v1:sha256:9b45f4bc36262869d9e50e5cb65b19316ffc6eca98fb8a7be20298bb937e593b:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGQ1MWUwZTQyOGVjNDk3N2VhYThlNTc2MDNhNDdlZDdhNDgxYTdhZmNjMzIyZmY0MzU3YmIwNWEyMWU0ZTIwOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTljOGFjMTc1NjNiNWUwNzYwOTgyZjY1Yjk0YmYyYjg4ZTM1YTM5NWU3MzA0MTk2YTc2ZTUxNjkxNDliYzNhMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGM1ZDQ0NDhkOTI5Yjk2ODFiNDg2OTQ4ZTM5ZWRiODljY2M4NzM4ZjQxYzg4OTIwY2M4ZWQyNTU5ZDg3MGQwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTQ2ZGMwOTcyOGI0NDA4ZWZhYjIwODk5YTg3OWJkYTJkOTgyZDVhN2NjNjY5NzVhOWYxYzM1NjI5MTU4Y2Y5YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_78ae7744ab844099a59f077e3cd4d4f6",
+      "statement": "The CLI parses positional command tokens with nargs='*', lowercases only the first to select one command, and treats the remaining tokens as arguments rather than an ordered multi-command pipeline; format and run-pytest use the first remaining argument and add-datatype uses all remaining arguments as names.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2751-L2758",
+          "version": "repo-lines-v1:sha256:9d67e5ffa0193058991a87be5307894c7be010da58c5b5aa37cb6547b074faec:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGRkMzM0MThlZjNkNzY4ZWVjYmFhMWQ4MjlmOGRlY2IwNDdkMTAxZDU2YThiNmYxY2ZkYzQ0MWY1ZjUxN2M1YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzM4MjA5ODIwYTIwNTA2MzliZGZkYzI3MDRlZmVkNzg3ZDM5MDZkOTFjZWFiZGUzNzkzMDFlYzFmZTU3ZTFmMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjYwYTk2ZDNkNDdjMDAyZjhhZjAwNzljMGU0YTA1NjgzOWVmMjMxMWI2NTFjNmI5YzUzZDMwODk2YTMzM2Q3MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmQ1ZGQ3OGVjM2FmNGM1ZDIyZTY3ZWRjYWY0MGU5NjYxZmI0M2IyZDZkYzBlYWU2NzIzNjFjMWMzOTM0MTQwMSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3756-L3761",
+          "version": "repo-lines-v1:sha256:96eed390516aff12b083bd6744bcef7055d9a5155729862b0fc77cbcf89e1582:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWQzNGYzNDFkMDY4OWM4ZWVlMWM4OWU5NGZhMDBhMDU5ZTI4NGQxNzAzYTE5ZTEzMWE2MjA3ZGU1YjFlZGRkNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTM2NDI4YzhmOWM4MWE4NGY4NDY4ZTcxMmE0ODVhMDNhZDk1ZDE5OGQ2MTAzM2E2ZDE5MzJiM2VjOGU2MmJkYiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4044-L4051",
+          "version": "repo-lines-v1:sha256:a8f2d8b8d920c3bc7adb3744e5db9a2ad8d14b5d353b35396d5fc367329316a8:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTliNTU0MTIwZTZkMzlhNGQ1OTg4MDMzM2EyMjY4NzE3NGE1NWIwYjk1YThjMjQ5YTRiZjEwMzdmZTM5MzUzZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY3ZjNiODhhYmY5MDM3MzViNWZlOTUyYTk1ZWQ0NmE4ZjJhMjg2N2QxZmEwYjliY2ZjYTEwMjRkMjZjNGRlZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2NiNDg0YmIyZWEwNDA0YzI5ZTMwMTY1N2NmNTAwY2Y0YTc2ZjIyMzhlMTc4YmFjNDdjMTM5OWNkMjg0N2E3NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzNhMTYzMjBiN2IxNDk0YWNkYWU3NWM1OTczZWM1ODQwZjg5OTViNDE2YmQ4MWEwOWEzM2NjZDI5YjQzZjRiMyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4260-L4281",
+          "version": "repo-lines-v1:sha256:e74f8b9f96351a61b7d7d42a78924d62ffce2f77d4bb3125828544a67e45a85b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMzJjOGQ2ZTU0OGZhMjRlZGFhNTNmMDA0MGUyMDU1Mzg3NzBlMTFjYjQ2MDlhYjM2ZGMxMzZiMzdmMWYwM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmNTk0YjlkNjE1MmNiMTk4OGRhNGRmODQ4ZmI0ZDQ2MDY2NDBjODQwNGFlY2FlZmRlOTY5MWM5Nzk2Njc2MWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiMGI5MjZlMzNlMmFlZmZjZGM4MGY1ZDM0YjlkMmY5NTZkN2FiMDUzNTdmZjM1ZDAzMzRhN2MxZWQ1NWNmOTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4NzgyNTlhZjNkMzQ5NDhmNDRlMjIyNDhhNDVmNDdkZjBiZTBjNTY5MWNmOGI4N2NkNTdhMmUyM2NlYmZiMGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f7d8bedfd6e44586a655954c073ca73b",
+      "statement": "The implemented connector scaffolding command is connector-init, although help spells it connector_init; add-datatype is admitted and dispatched but absent from the help command list.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3350-L3371",
+          "version": "repo-lines-v1:sha256:0e5e1e0486c210f008e8a05d6cb66127a007b77e4842dc740a03d7858bdc46da:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjNWRiOTBhMTVlMGMyMzdmZDYzNDRiYzUxZTU2NmM4ZDBmZTI2Y2Q5YzBlY2ViOTZlOWZjNzRlYTFhOGI2ZDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyYjI4ZGE2MDdhOTUzOWYxOWQwZmZlNGM0NzhkM2U4ZTc5Y2FkYjY5NTgwZmQ1ZjAxZmIyMDZkM2RmMWZiZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4ZmIyNGY4NzUzMmJmYzgzNWE0NWI1MmIyN2M0Y2VmYjFjMDUwMjRjN2M2YzNiNDRlMDdkYjM3ZjExNjVkNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyMDliZmZmZWYyYzYyOTA5M2YyMDY0MDQ5YTNiZDQzYzgzOTFjNWMyN2EwNDBhYTFkNTU1MzFlOTBjYmQzZjgifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4060-L4083",
+          "version": "repo-lines-v1:sha256:8ddbea41790a924fb708d66fe91e8e13bd2cbdb28b97a20bd44ea087a433f389:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYmIwNzI3YTJmOTU3MDdjNWNiNmYwZGZhMDk3MjI5NjY1NzUzOGNjMmFjNmUxZDE2M2EzNTRiY2QxOTZjZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2ZTIwYmVkNjQwNDI2ODliOTg0OTYwMDg0YjZmYTIyMjljOTAzMzY2MWU1NjJkYTdiYmIxZjJkMjNmZTJiZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ1N2ExYzNlOGJmOGJiYWI3OTAxNDMzNTI2MWNiODNjYWViZTZjZGQzNjM2Yzc5M2RmYzI3Yjg0MGI1ODNhMTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4ZWRmOGFiNGJkODJmY2MxYmY3YjZjNTczMWRkNTdkM2YyMjBmOWZjODExN2Y2OTEyODI5MDQ0NGJjMjEyZjYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4214-L4219",
+          "version": "repo-lines-v1:sha256:0200752854e4e8c437358c1ee89e39eb02bb3d9678dedac973cb4208ad5a0691:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Y0OTE1ZjcyMmVlOTBjODRhNDY0MTI0N2JlZWM3ZWUwMTM3ZTVlZTg1MjkzOTU3ZWRiNDU1YTg2MDc1ZDllZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWU5ZGZjZWYzOGVkNjU5YjdkMmNjNDhiMzkwNzUzMDFmMzZiZDkyN2YzZWEyZjMyN2M5N2Q2MDNhZDFlYzdiMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjI0MzNhM2JiZDVhOTYxYTZiNDYzMDZlZWY3MTc0ZjZkZTkwYWQ1OGVkNWZkNmFjOTgyN2FjM2I0ZmEzMjMxNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODc1ZjRiZjU1ZTllYWViN2QwMTk1NjliNDJjNzU1M2JjNmJmZDQ0YTUzZGQwNGQ1MDdjYzc4MDk4NzQ5MzczMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e22a163ec90a4595910aedd5249983d2",
+      "statement": "Validate and format are the exact offline dispatch set, skipping credential resolution, SesamNode construction and the developer-mode check; every other recognized command, including expand, dump, convert, init, connector-init, add-datatype and run-pytest, performs online bootstrap before its handler.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L4060-L4083",
+          "version": "repo-lines-v1:sha256:8ddbea41790a924fb708d66fe91e8e13bd2cbdb28b97a20bd44ea087a433f389:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhYmIwNzI3YTJmOTU3MDdjNWNiNmYwZGZhMDk3MjI5NjY1NzUzOGNjMmFjNmUxZDE2M2EzNTRiY2QxOTZjZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2ZTIwYmVkNjQwNDI2ODliOTg0OTYwMDg0YjZmYTIyMjljOTAzMzY2MWU1NjJkYTdiYmIxZjJkMjNmZTJiZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ1N2ExYzNlOGJmOGJiYWI3OTAxNDMzNTI2MWNiODNjYWViZTZjZGQzNjM2Yzc5M2RmYzI3Yjg0MGI1ODNhMTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4ZWRmOGFiNGJkODJmY2MxYmY3YjZjNTczMWRkNTdkM2YyMjBmOWZjODExN2Y2OTEyODI5MDQ0NGJjMjEyZjYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4100-L4166",
+          "version": "repo-lines-v1:sha256:ac13ef739b80080aaeba1a304bc9262957a75ff98fda909125bd8bd3a37a5095:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzNWFjM2Y3NGIyMjQzYTFkNDVhMDIyZDVlNWRjNzQ0ZmZlMDBiNDMzMmZiNjExYjc0YWNmZDcwNWQ2ZTEzMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNzcwMDY5NGYxZTY3NTlhYjVmOWU1MWYzMDdlYzYxY2FjNmU4OTkzNzM4NTlkYTQwNzM4MjY1YTE4Mzg4MTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhNmVmZjM3ODk1ZDk1YTJiODU0NWM0ZmU5MTE5NGVjN2ZlOTFiYmEwMmMzZTYyMzYwYTVhN2FkYTNjNDI0OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMGI0NDE0ZTc2MTM3NWJlNTk5NmU4MmEzMTQxMGNmZWE3Zjk5OTFmY2E5YjQ1ZmZlYWVlYjYxOWM5YTZkNTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6db642fb434945e28b2fd4d86e9cbed2",
+      "statement": "SesamNode decodes the supplied JWT payload to select the first subscription principal, attempts portal analytics before creating sesamclient.Connection, and delegates the external connection and its underlying behavior to the pinned sesamclient dependency.",
+      "evidence": [
+        {
+          "resource": "repo://requirements.txt#L1-L10",
+          "version": "repo-lines-v1:sha256:3f0d13af28e80dc08e3fb0c6831907a43049d056491929f884de17a1ab141735:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZWUyYzAxMjcwNDExZmNkNWM4YmY4ZTc4ZDA4MDIzN2M0ZDFjNjFhZTM0ZDE5N2M5MzVkMjljZjUwYTg4MzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiMzQ3NjlkZTc2NGJkYTRmY2YzN2UzMjA0MDFkOWY1MWI0MzFiZTM2MTBkOWQ3OGRiODE0NDIzYmRlODAzN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NzQ2NGVjZjQyNjNkMTYzNTdhZGMyNjM1ZWY0Yzk4ZDBiNzA0YjcyMWY1NjhmZmQ5NzBkNWQ2ZGI0Nzc3MmUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L234-L272",
+          "version": "repo-lines-v1:sha256:0a893884a8545e5c7b39f8feddb9635450f8287b2dd91eb248bdccb47278e650:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3NTNjNDcxMTU1Zjc1NGZhNWY5ZDBiMTgxZGM5NTRlYWM4Y2Q2OTJjZDlkM2YxNTNhYWIxN2EyOWQ5ZDNmYTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjMzU3YjMxYjMxNzliNzNjMGM3YmU2MjA4ODczZGYzYzMxOWU4MWY2ODcyOTM2MmY2MWQ1OGE3ODJmYmM2NjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxMzdmMThmOTM5NGFiZmYwYjU5OGNjOGJhMjA2OWRkODM1MTFiOGY1YjFiMTEyZGUxZjhjZWJmYjEyOGNjODEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a019696ab74b4973bbc7c1b475241a53",
+      "statement": "Portal user-interaction registration posts a subscription ID and api_call action to https://portal.sesam.io/api/analytics with the node JWT as bearer token, skips without a subscription ID, limits attempts to one per 60 seconds per object, has no explicit local POST timeout and debug-logs RequestException instead of propagating it.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L312-L337",
+          "version": "repo-lines-v1:sha256:ac54018bbda2038ef24906ff1a89d512994d7d599507bb3e9950d2853d18d35c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0MWE0ZDgxMTQzMWEzMWU1YWY0MjE4MGI3NTBlZTQ2MjBlNDFlMzVjMmU3Y2M1OGUwYjFiZWQyMjI0NzQ4ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5YzdhZmI3YjM2NGI2MmRlYjE1OTRmMGJmMzNiYjkxNTA4YWJkN2E3MjdiNDFhYWMxZTZlZGQ3ODkxZTgwN2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiYzNlOWRhMTVlMzFiNWNlZjA4MzMzOGEwOGM2Mjk3YzQ1MjQ2YTZlMTdkNWYyYzA2OTEyNDFjZjY0ZjU5NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1ZmVhYTQ0ZWQzMDk1OTVkOTg4ZjgzY2VlNDkyY2EzNGFjYmUyNmJhNTEwYjc1ZTM1MGE1NWY3NWQ0NGM1OTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9e626af9a20e4be8be84daf928dba755",
+      "statement": "Online dispatch requires truthy API status developer_mode, with a -force override limited to upload and download; upload also forwards force to configuration upload, and the override does not unlock other commands on non-developer subscriptions.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1515-L1522",
+          "version": "repo-lines-v1:sha256:7db9ce37494c36654074f18bce281f59411ef824259e9fdc367acda2445810ee:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjU2OWNiMDkyODBlZTA3ODE5NDVlNDhkNDA0MWJkMmRmYWFlNjkxYWQyZWFiZjVkM2NiYTA4NDZjNzIxNmNhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODI2ZDIzOTZkMzE3MzM2ZWI0YjVkMGI2NjE2YjlmNTc4OTRlNzI0MGE3NTYwZDk3ZmMzMTRkOGU3NGVkNDg3ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWY0MGZhZjhmZjgzYjA5OTdkMTI5ODVjZDhkNjdlNzg5MDcyZThkMWJlZjdhNWZkMDVhMmVmZWFiZjYzZWRlNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGRmNGE3NTMzYjUwY2UzMmI4YjQyNjJjY2JjNWFkOGZiOGEwY2VmY2FjOTcxYzAyZTM0NDEzZTVmYmY4ZmUyYyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4157-L4166",
+          "version": "repo-lines-v1:sha256:ee560700c0de42a06287bdf034312e9bb1116c6f40d951c4a0dfbf121b59f351:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjMzM2Y2NmNGM2Yjg4NzQzZGI2NWVlZDEzNzVhZDFkMzY0MGQxNmY3ZTFmOGZiYTI4MjRiNzFhYmI5M2M2MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNzcwMDY5NGYxZTY3NTlhYjVmOWU1MWYzMDdlYzYxY2FjNmU4OTkzNzM4NTlkYTQwNzM4MjY1YTE4Mzg4MTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1MTg2YmE4ZTFjMmFkYTBhNDFiY2JmMzJkYzM1MWNjMzM1Y2NiOTYyOWU1NzkzOWJlNGYyOGYzNzg5YTYzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMGI0NDE0ZTc2MTM3NWJlNTk5NmU4MmEzMTQxMGNmZWE3Zjk5OTFmY2E5YjQ1ZmZlYWVlYjYxOWM5YTZkNTAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4282-L4292",
+          "version": "repo-lines-v1:sha256:efee221c0ec58e6a957bd644974e5d43f700b94ee545780ad5a8ec9102dd4715:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5N2I0N2JiODFjZTkzY2JhNjdhZmMwODY5OGE4MGNmYTA5M2E4NjY3ZTljOWY5NjUzMzc4MThkNjU3OGQxODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZTdjYmQxNjhkMWE2ODMxOWMyOGUzN2E0NzYwNmIyY2FiZjE5OTc1ZTljODJjYjMwMjRiNTlkMGY1NTA4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiNTg3OWQyZTBiYTA1YzNiYjY5MjIwMTMxYTUwOTVlNDY4Yjk4NmNhOTRiZDc3NjcxOTdlNThjNDc5OGViYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhNjE1OWE2ZDM3YWRhNTk2ZDE2NDQwNGZiMzdlMTVkNGExYzJmMWVlMjAxOWE5NjI3NDdhZjJhNTdlMjQxYmIifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L435-L437",
+          "version": "repo-lines-v1:sha256:3caac734c6f19c8fa4a4aa59c8c1f798d8ded5ac748d1fd2eb460cebe0e76cd5:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjc1MzZkMDlhNzFjMGJkZDBlODYyNDQwZTQyZjAxMmM2ZjllMmYyODIyOGEyYzk1NDcxYTE5MDY2NWFjMzJiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTA4Yzc4OTEwYzEwODkwZjZmZjJjMzYwOWVmOWEyNTFmNmUxMjRhY2ZlY2E2MDA3NGQ3OTMwZjk3YjliYzc5YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2Q1ZDE5NDUxNzk2OGRkOWNjNTEzMWJlYjI4OGNlYjMxOTRmOThkYmNhNzFjM2FkNjZlMDZjZTZmNzM3MTAyZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDM2ZDk5OThlNWQzYjIyOGQ2OWVmZGE4NTNlZjAxZDRhYWEzN2E4ODU3MmQ0YzU4Y2JjMzRkNmVhMjZiYmVlOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_88018e94aca54a10a6a666268bc27dd9",
+      "statement": "Validate is connector-specific and mutating despite being offline: dispatch first regenerates expansion, then checks the manifest's datatype templates and literal .expanded for JSON, warning descriptions and collect/share conventions; template sink.dataset is rejected, invalid results exit 1 and successful validation is logged at WARNING.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L121-L167",
+          "version": "repo-lines-v1:sha256:23e1443194998bb60801e0b3bdcea7937789723cda0180e5e61e4809bf19789a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyYjM0YzEwNWM4N2YwZThjNzZmOGNlZmRmYzUzNmY1ZGM1NjIyYjY3MGNkMTJjYjNkNjM3ODM3N2M3NTgwODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxNTk3ZjE1M2E5YjExMjEyMjJlMTU1NmNmNWU3OGExMjE1ZTU0ZTRlZTQyNjBkZTQ0MzAzYzBmYmUwYTRmZjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3OWRhMThiY2E0OWY2NTdhZDhhMGI1MzVmOWI3MzNhMmM3ZTQ0ZDM1NjllMjgxYjNkNDczMTJlOWQwNWZkNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyYTllOTgzYTFjNjIxZTFlMzM2MTFhNzI5YWVhMWI3YmIyOGU1NTU5MGJiNDQ4ZDBmN2EzYWYyMzkzMDEyNzcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1218-L1409",
+          "version": "repo-lines-v1:sha256:964805d50291d9083d8b725abf0e114b650d73f0bd77f04f0172bd6971252ec1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTkyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NDAxNWU3ZWJjNmE0YzUzZjJhYmJlMTI5ODRkZDRmNjcwY2M0MDViMmY2NjZkYmU5MWJmOGM3OWNlYmMwYmY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwOWU3Y2JkMTY4ZDFhNjgzMTljMjhlMzdhNDc2MDZiMmNhYmYxOTk3NWU5YzgyY2IzMDI0YjU5ZDBmNTUwODUyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZGY1MjRlNTcwMWY3ZGE1ZGU5ZjNkZWQxODc5NzU4MWY2OGZmNTY5ZTMxYzQ3ZDEyZTVkNWRhOTQ4OWJlYTg2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkNDNjMmFmZTlmMzA1NTZlYTRkYmJlMTAyZmMwMDAzNGE2MmEyMzViN2ViNTRhNmE4YTljNzczYzQ2Mjg4MTUzIn0"
+        },
+        {
+          "resource": "repo://sesam.py#L4173-L4177",
+          "version": "repo-lines-v1:sha256:d5bcdf26c87a4b061fb23a18543ec019db804a639ae69a2350b3cea6e9c0193d:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI4NDc1ZmQwYjA1ZDc2OGQ4ODk4NzJkMGRiZDUwNjY3YWUxMTI0N2M0NDhjMDg4Y2Q0NzU5MDE4MjRkYTU1OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWEyYjg0OWVjMjA1ZGMwNDJmMDI3YjY0OWEwYmM0OTMxZDA3Mzk0YmU0NzFlMzhhYTI1ODY3ZGRhMzNmZjk3ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGU2YjBjMjg1NzZlMDg3M2RmOWJkZmQyNWQ3NTdjMTJiMGZkYjc4Mzk5YTY3OTNlNDA4NzljMDNmY2E2MmMzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTFhN2U4MzAwMGYzM2MwMjk5MDkzOWQ3ZjJjMjM5NDRjMzgwMmU0NmQ4ODNmYTQzYTY2YmZiYWVjODIyNTE4YyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e156c2af5ad043f0a57a0eab869ae5bb",
+      "statement": "Connector expansion reads launch-directory manifest/templates, renders systems, datatype pipes and shim pipes, removes/recreates the requested expanded directory, writes node metadata and copies or creates the selected profile; pipes using a differently named reusable template receive an ignored-during-collapse warning comment.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L50-L167",
+          "version": "repo-lines-v1:sha256:2546ab0495d088d4cce06fc6ea5b32c99beb23b535254b7c48b8aecc3659c894:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmZWU2YzhjODYyMjhjZWFkOWZjZDQzMzQyNTdlYzVmNGI4MDMyOGU0NzJiNTZiZTcwMWIyMDM3ZWViNGE4NjcyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI5MTU5N2YxNTNhOWIxMTIxMjIyZTE1NTZjZjVlNzhhMTIxNWU1NGU0ZWU0MjYwZGU0NDMwM2MwZmJlMGE0ZmYwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwOWY5MzA4M2MxOTcxMjFiOTgyNzAwYmE4YWZhYmQxNzIyY2YxZDNlNzQwNDUwOWU4MGVmYTI3MjQ3ZjYyZjA3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2MmE5ZTk4M2ExYzYyMWUxZTMzNjExYTcyOWFlYTFiN2JiMjhlNTU1OTBiYjQ0OGQwZjdhM2FmMjM5MzAxMjc3In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_c12ce75bdaac401baa8e5495e824af91",
+      "statement": "Expansion can overwrite webhook event-pipe permissions with anonymous write_data access when the manifest uses a webhook secret; collapse removes permissions from matching event pipe components and ignores datatype templates whose basename differs from the datatype.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L145-L160",
+          "version": "repo-lines-v1:sha256:1aab3e88539b6fad316b8a263a0ea061a960064cd6388a9e020aae8e49d43874:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjYzQzOWQxMGVhMTk3OWU5NzhjZjgyMjIxYTExODE4MmQwNmY5YTBkZWNjZThmZTVlZWYxNmI0NmExNWZkOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YzE2ZmRlN2JhNzdiOTk1M2Y3NzBiMGM1ODI1MjI0ZWZmYjNjNDM2YWZmODEzNzZlMzM5YjUxYjE2NjZiMTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNTcxYmNhYjEzNDJmY2U3YWI2YWM3ZmQ3Y2RjNDQ1MWFmMmU4NGRmNTJlNTBhYjM4ZjdmYTcyMWM2MTJjYzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkNDBmMjMxYjFjNjJjMWMyZDA2YjJkNjVkYWNkMTI4ZGJmYjEzNTBlZGE2MWM2ZWZhMjBkMjA1MThjYWQ5MmEifQ"
+        },
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L203-L230",
+          "version": "repo-lines-v1:sha256:0ceacb937e89ab7849552e5fa80996503ec04ec31747622dc84ab4e645fb74e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5MDE5N2IyNmE5ZmNlZWEyNmY5ZjhhNDc4M2ZhZjBkYWI3YTIyOWZmNTU4N2YzMmQ3NzdjZjY0MTRkYjA3ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2NWI5NjRkYWQ0ZTUwOTU3NzEyMWM2MDQwZjhhNWQ4NGM2MjgyODhjYTcwMWU5MjEyNjFkNDU0ZTFlYjcyZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0YTNiMTY3ZTZlN2I2NWU4YTEyNjcyMDliN2M3MWM5NDFkNzYyZTI0ZmViYTIzN2NjZDc4OWQ2MWNjYWNmYjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzZmNiZTBhYmI0Nzc0NTVhMTE0ODFhYTg2ODQ3ZmUzMDc0MjE0ODdiMTRhY2NiMzYwNWFiMmNkZDY5OTAxYTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fdbab9e7d8bd4387821dbfd224668178",
+      "statement": "Connector upload changes into connector_dir, expands, validates, uploads from expanded_dir and authenticates unless -skip-auth; test calls the upload method directly and does not use this connector dispatch wrapper.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2907-L2917",
+          "version": "repo-lines-v1:sha256:576b029d2736eb331bc0eaf92149feed52824b7048f0b6b7b6761396514cd1b3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzM2ZlNWM4ZDU5Zjc2MTliNWNhMjBiZTk4MDJmODhlNWE5ZTgwZTkyOWNlMzJjOGRmOTVkZTA1NDQ3ODg1YWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MjcyNjkxZjVlMmFmZTAyOTE3NTQwYzM4NmU4ZGZkZjBlYzNhYTk2MmUzYTQzYjU4NTZjNDBhMDcxNWIzMGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNzBjYTI1OWRjZWQyODIxZjNlYTNiMzczN2E4Yjg4MTRiNTY2YjIwNmY5ZTZiNWM5ZTI0NmUzZmEwNDI2ZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1ZjAxZDMxYjlkMmQ0ZDdiMTgwMjY0NDk4ZTNkZTEzMTgwZmU0M2UyMDQwZDBjZmFhYmQ3ZGFkZTFlYTJlNWMifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4178-L4193",
+          "version": "repo-lines-v1:sha256:0be13b6fb47d6dd838fca538a053d37962ca2aad720f422d9ac504bac73f7853:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMDM1NjEyYjA1NzY4MWU0MTU5M2JiYWIzNWU1NTViZmEzZDdkMDVlYmMyOWEzMjQ3ZTBkNzgxN2Y3NzdkOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxNjI0NDI5MTg0MTBhNGYzNjhlMmVhNTAyYjkzMmQyNGVmZGUxZWEwYWY2N2UxNDIxZmRlNDA2MDIwMmQxYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiMjI5YTAzMWI1ODIzOTcxM2M4NWZiNmNhY2FmZTg1ZDdiNDRjZDkxYmNiN2U3YjMyMGVhMmJkZjA1N2IyZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1ZjMzMWQxNWNmNmU0OGU4ZjBhMzBhZjg4MjA3MTE4ODExMjczN2I2NWU1ZjgyNzkzODA3NjJkOTI1NGJlZDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_50fc2e2b83774b309e69a3cd4c591f1b",
+      "statement": "The -d, -e and system-placeholder options are branch-specific: direct expand/validate dispatch does not change into -d, validate compares its list-valued args.command to the string 'validate' and scans hard-coded .expanded rather than -e, while update-schemas dispatch changes into -d without forwarding the custom placeholder to its helper.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L302-L324",
+          "version": "repo-lines-v1:sha256:f574e9c5588ff130f427df55e2baa1037426d7238c77fa2f4210d67db07b432d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwZDVjYzBiYjgzODVlMTc1MjEwZDQ0MzkxNzAxZWQ0OGNjNTc5NGY3OWFlNDRkYmZlNTdiNmFhMzI2YTkwZWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjYjg5YjY2ZmVlMDVkZmMwMTkyOGEwYjUxZDZkNDhmMzc4MTYxODZjMTYxNWM5NDQzZDE2ZmRkMzgzZmIzZTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiNWNmMTg3MDZiNTUzYTVkMzYzYWVlMjlhMDExZTEyZjhkY2E1MDAyMmI3YjU4ZmU3YzgzZDBlMmE5ZGY4ZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhM2Q5MjkxOWE0ZjRlZDE0Yzc5MGVjYzEzNDk2NjRiY2U5MTVmMjMxOWZmYzFlZDI2YzBiNTBjYTQyNWY3MGIifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1256-L1265",
+          "version": "repo-lines-v1:sha256:aa6b2bd16d856876dab93d5e6149f3d8ed6043fddfce4b524a910628f8371835:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2MmE2ODQ1NzVmNTg4YjdmYTQ0YWJiMTY5MGE1NGEyZmFkMzNjYTMxYmY2NjUyMDlhY2E2YTJhODJmMTM0ZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkYzEzMTU3YTQxMzE3MTMyMzYwYjRlYmMwNzc2OTU4ZWM4YWM1NDA2Yzg5MGMxNjQ3YjRlMWUzYTc4ZmZhMmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5ZmMwMzcxN2M3MmFkZTI3NWIwNGMyNzAyOWU5MGIwNjg2ZWNmYjg1MTBiMjZjYTA3YzQxYTViZmEyZDMyOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkxYzE0ZjE2MmFlZjk2ZDZmZTIzNzU0YmIxMzlmMDFkZTRkOTMyNDU5YmZmMDNjZDk1NGM3ZDdjY2EyNzQwODkifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3801-L3825",
+          "version": "repo-lines-v1:sha256:7149fbcb18eaf473b84c3a06a0a4de55bd931f14912e1c54d1e7d42610fd0565:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdkMTIyYjQ2ZGFkYTE5YjI5YTk0ZTFlNDg5MDJlOWY1NDA5ZDNhMjIwNzU1ZTdmZDdiOWM4OGUyZTA3OTUyNGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkxYzg1ZGE1NWQxYWQzZjQ2OTE0YmI5YTE1Y2M4OGYyODY0MjU1YThkNWQ3Y2ExNzM1MmU2OTdmMGZlNWUzZTcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4169-L4198",
+          "version": "repo-lines-v1:sha256:066589a4d2d19aef3b6d9e49c8ec7ddbc2d82f542b36d8e157deb6e21d6cc910:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyZjU0MmUzMGE2Nzc2ZDQ3ZThmN2YzNmMzYjgyNTZlMmUwMzJmMTI0ZGZkZmM1MTRjYjUyMDhmMTE5NWY2OGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3ZWI4OWMxMjY1NDMyNDQwMDJhMmJmZTI4Mzk0ZmM5OTBiOWMwZTdmZDU3MmQ2YjNlNTJhMDliYTQ3YjFiYTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiM2NiYzE5ZTVhNDU4NmNkZGYxNjNiMTlkZDlkZjA1ZGVjNzIzYWFhYTc3ZjhmYzQxNzI4ZDNmMDEwNGFhZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNiZGVhMzZhZjViMzcyZDFlYmU5ZjJmOTE4ZjAxMWJhNzFlZDQyMGEzZGFiNzdiOGNjM2JmNTU2MzI0MzI2YTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2d0d4e7fd51f41c98ca3b0255d31ff40",
+      "statement": "Local configuration archives contain .conf.json files under pipes and systems plus optional node-metadata.conf.json, exclude expected/testdata, replace any existing sesam-config.zip and remove the temporary archive unless retention is requested; dump retains this local archive.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1697-L1702",
+          "version": "repo-lines-v1:sha256:8de27f1c856c9595b068e37009bcf7ec9c78113028ee0733aede58b28a40b164:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQ1Y2Y5MjYzY2NmZTNhOWEwOTc5MDFhMzE1MGVmMDhlMmFiZDI5NjlmNTQ3NzIzY2M5ZWI4Y2Y2ZTMyOTcxOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDQ4ZmZjYmU5M2NmMjY1NjM4NWZlYmNmNTBmOTJkNTFmNDY1Y2QxMWRmZTc0NjUxNTc4MjczZWJlNDA1ZDE2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWMwNDA1OTE0MGFmOGZjYzc4ODM4ZGMyM2MzZGZmMTAyZDUzY2Q1NTQyYTkzYmEwNTE2NzRiZWJlNWVjMDU1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2ZiNjczOGJiOWU1MTI5MGI4NDIwNzU3MGQ4ZDEzMjJiNTk1ODQ2NjU2NzdlODczMjUxNDlmYTUwY2FiYTliZiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L938-L1005",
+          "version": "repo-lines-v1:sha256:952a99a3dd16223343259450fed98b854baa88b864cb9538d99275de4d3c0394:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2M2U0MzRmZTI4NzQ2Mjk5YTE5NjRjNzcxMTc2MmIzMDU0M2NhZDMwNzIxNDMzMmNlMWVlNDViZTI2ZTVmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYmY3YjYzMDQ4MTdmYmJiYjllMjQzMDBiYTY0Njg4ODcwYzYxYTYxYzk2OGRlYzYxYTFkYjA5ZjQ2M2FmMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwMzNiYTkyN2NjYzY4YmI0ZmIwOTdmODRjMTg5Y2Q2NzI0NzJhNDg3NWE0OTY4ODhjNTE3Y2EwYTlkOGI2MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZmZlZmMwNTA5OWRlMjY2ZDE2NjJlYWZkYTdkMDc1MWUzMzE3ODM0NjhhYzg0ZTlmZDAwZjBkOWNhYmRiYjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_65dbf03cfc894c60be5adb0d53d4715c",
+      "statement": "For regular configuration, online bootstrap optionally parses and logs .jinja_vars; local archiving substitutes its values and download can reverse-substitute them in pipe/system files, while connector configuration does not use this substitution path.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1769-L1779",
+          "version": "repo-lines-v1:sha256:dbd718ccdffdc26f04a5bcf29bf2b56758fc5fb87bb0a8404ef684408856234c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhYWQzMGQyYjU4NzQ0MDg1M2JlZWU3ZTY5OGFlMTM5NThkZjM5MDZmMWY0MjU5MTQ4YTFkYTliMDY3MDliNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMDEwNWUwYTY4NTIxYzNkMzMyNjE1MzkwZTg1OWUzOWNmMjQxMjc0YTdkNzgxZDE5NmEzYWRhMDdiMTBmZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzZjQwYWVjYjE5MDhhNDc5MWM3NWU4ODQ2NGY4M2IwOWEyNWQ3M2RhMTA2ZDQ4ZGE3YThmZGQ1ZjQzYWRjN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI4NGQ0MDlmMGI3ZGRmMzA1MmNiOTE3YTgyODUwYzI5MzFlMGIyNTAzZjY0MzY5N2ZlNTM4NTBiZmIwYTg3YzYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4117-L4134",
+          "version": "repo-lines-v1:sha256:7302a5e86c2037fa37e74957b5d28e2fd464a52532f7b3b8617978a23d5fc51e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2NDEzOTNkYzg3NDY5Y2VjY2FkZWZlMTU5ZDZiMjNmNmVkMzMxZTY5NmUwZDc2MmM1N2EwMWQ4ZDU2ZmE2ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYjk0ZTBhN2UwZjllNWQ2MzhjYjVjYjVmYjk4NzRkNzYxZWEwMGYxZDIzMjRiM2U0MzA2YzBmODMyYWIzN2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1MTg2YmE4ZTFjMmFkYTBhNDFiY2JmMzJkYzM1MWNjMzM1Y2NiOTYyOWU1NzkzOWJlNGYyOGYzNzg5YTYzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxYTFmMTU5OThhZjI5MjdkY2M4MGQzMjU1NDJhNzY5ZTFjMTJhZmRiY2VmMzI4YjQxZjc2ZTgxNGI1MDVkZGEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L947-L979",
+          "version": "repo-lines-v1:sha256:6dc8a46fde8c833fc9145b4f14772f73b8d970a53a98e8401a6f7167ddd7b55a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2MzI5ZjcwMzgwYjc0MjRhYjY4MzRkODZjMDllNDY2ODg4ZjY4MGNiM2NhYmFkZDE3MzQ5OTNkNjQ0MDlhMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkODc5MDE4YWQxZGJiNWI5Njk3NjZiNGNjNmU1ZGVmNzQwNWQwZjllZTY5Zjg4NzY2OWY4YjViOWZhNTVjNjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkxODM4YTNhN2VmOTVmOTk2MmQ0ODg0MGJjZjkxM2MxMGJhYzRkMTUzYTc5NTU3YjdlYWZlNDVhOTc0MWE5ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJkZTI2YjFlY2ZlMmVkM2I4MThlN2E5OTRhOWE2MDMwNTcwYjc1YmMzZDMzMGE1YjczZGYzNzE2NTVjNTliNzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4c1f72c825d344759d93b25ccc7dd73d",
+      "statement": "Upload requires the selected profile file, optionally deletes all remote sink datasets, merges parent .additional_parameters.json over profile values, replaces remote environment before uploading configuration, waits for user pipes to deploy and then posts test data; later failures do not roll back earlier remote writes.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1411-L1462",
+          "version": "repo-lines-v1:sha256:4505a1e1b2945082446203c5bb869676f0660c152cf0133add784144b09b7b2a:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NmJkY2IyYjcwMjBiYjA4YzFjZjQ4NDY3ZWYyODlkMGI4NzEzMzgzZjBkN2FmMTM5YzhjYzYzMGE0NzBmMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0ZWVmYjkwZTIyYmJhMTdlZTI4MzVmN2I3MWYzZTJjZTZhYzgyNjk0NzRkNmYyZWMzM2E3NGVjZTdiZTk5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYmNlN2I5ODU2OTgwZWM4YzAxNDdhNzE2M2MwOGFlM2U4MTM5NmZiNmY2NjM5NWY4NjVkNDZjMjA1ZmI1YmEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1515-L1592",
+          "version": "repo-lines-v1:sha256:e3f5a557147665c07c9b744b2adbd4e353e26ec1143dabc1a82ff43aea117776:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1NjljYjA5MjgwZWUwNzgxOTQ1ZTQ4ZDQwNDFiZDJkZmFhZTY5MWFkMmVhYmY1ZDNjYmEwODQ2YzcyMTZjYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyOGUxYzdlOGRkNDI3NjEyNWIwNGU3NTNlZjQ1YzYxNzlhZmM3YTk2OGZhMmU4YjRlYzMyMDFlNDNjMmUyZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmNDBmYWY4ZmY4M2IwOTk3ZDEyOTg1Y2Q4ZDY3ZTc4OTA3MmU4ZDFiZWY3YTVmZDA1YTJlZmVhYmY2M2VkZTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkNjkzOTkyNmUxZjZiZjA2ZmFjMGY4NzkxYjNhNDQ2NzBhY2M3NDVlMTViOGI3ODliOGMxNGJmMjVmYjBmZTMifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L282-L306",
+          "version": "repo-lines-v1:sha256:2d044aa2042c15e173425dd395641ca53c2d0f0a7b090ef238d70d27652cf654:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViYmQyZTNiOTBjY2NlYTg2OTMzNDZiNzk5ZDZiNzQzZTYyMGU0OWJlYmU1OTk0YzY1NGIzMjVjN2I1YjIxNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZjhhMGE5ZmE4NjRjYjdiMDU4MWYxZDdhNmQxNDFkMDRhYjc2MTg4Y2VkMTgzNzg5ZWI2NzAwYjgxMTg2YTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1NTg3MzM5NjRmYzUwZTQ0YjdhOTMzYjliNDM1OGNhNWQ1Y2I5M2ZlOTM3N2U0YmQ3M2IwNWI5ZTY4OTE2MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1Y2YwNzJlMGJmMjY5NmQxOGM0ZTc4ZDU4ZmMyMTBhNmYwOGViYzI1YWY1NGRiOGYyMDUzMDc0ZGY0M2Q2NzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4bd51591ee684eb3b0d05ebaa5740c91",
+      "statement": "Upload rewrites the archive's existing node-metadata entry to disable user scheduling by default and eager microservices by default, with enable-user-pipes, enable-eager-ms and disable-cpp-extensions altering that entry; an omitted entry is not synthesized, and setting these flags on run does not reconfigure the node.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1017-L1032",
+          "version": "repo-lines-v1:sha256:0368875144133b7857b1a7119f872a56a201eeb70f16235cff7fbade1b62a991:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkMzBkZGZiOTlkYjdiNGE5NTdmZGY4YjIzYWI0NjM2MmUzMTc3OTBlOTU4ZWYwOGFkYTRlMTNkZDhlMGU3YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzYzQzMzEwNDY4MjIxOGRmZGU3NjJkZDRjYjIyNWU3YjkwODQyOWFmMTNmZjc3MjQ3MDg5Y2ExOTFmZmM2OWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiNmY4YjQxYTQ4ZGI5Y2Y2YzFhZThhOWVlZTgzNWRkMjg3OTBlZTNiMGI1NzkwNGFmZDM5MTU4ZTQ5ZjYxYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1OTMxZDI0MDc4MDBmZWQwYWMyOTBhMGM5MzJlMGQ1ZmU4ZDE4MzJjOTg2M2E0NTY0MjU0ODBhZWQxNmExMjAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1464-L1513",
+          "version": "repo-lines-v1:sha256:dc05d6f6ae41b6f3daedcd81f39461fac6c366e0fa5fe3866feffae1bea2d483:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1NTM5YzlhOTQ0ZTgyZDE4ZDZiNjk4ZGJlMjdkY2E3NTcxNjY5ZTIwOTQzMjViYjIxYjVlYjYyZGZjZmNkZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3YmUzYjMwMTg1YjBmNTBkY2Q5NDIxZTVmYzBhNjg5ODJlNTQ0OTJiODFmY2QwYzlmNzUyMjU0Y2E5YWRmNzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzZWYyOTlmYzI5ZmI4MDBhNjY3NDA3ZTk5MmIwNGE3YjZmNzFkZTM5MDEzMzVlMzRmNGJmNDQxZjhjN2M4ZGYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4228-L4249",
+          "version": "repo-lines-v1:sha256:4ec6eb3124e998a7482373a2d6f6bf82583d90d4a6ab3378b8ee45ec012b7e49:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhM2Q2YzM5NzY2MDJjZTJiMDc3MjI1Y2M0MWRjMGVmYmFlZTA0MjA2MTY5NTgyYzhjZmJiMTU2MGQyMjhhMzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2Njg3YzEwMjhlODBhZDgwMDJiYjc0NWM2MTk0OTFhOTU0ZTYxNzhiNWMwNzQ2MzljNDNhYWUwYjc0MWRmYzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhY2E5NDNhODY1NzE1OWVlOGYwMTdmYmNlZjQ0NDQxNzY2ZjhkYWE5ZGU3MzgwYmRiMGI4N2M2ZmI3MDUzMDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkOWYzZDQzNWFjMDE1ODAxM2U4YzIwNTg3YTViYjc1OWZhNjc5NGY2OTJkZjdhMTQ4ODcyMGZmNjdmNjdiZWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1bc668b60f2d4e9190188ac5aa09aaa7",
+      "statement": "Testdata upload walks JSON files recursively and derives pipe IDs from filenames, uses 8 workers by default, switches to sequential processing with -single-thread-upload, and ignores custom worker counts in that sequential mode; --upload-workers below 1 and negative --upload-rate are parser errors.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1528-L1603",
+          "version": "repo-lines-v1:sha256:93f37e268d51c27809d04b4b2b1983bbc496385ae2a741b45af381c5de2433d8:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjYWRkM2YzNGQ3OGNhZGYwNjI3NzJkZmY1Mzg4ZWFmOThhMjBiMDU5ZjU5OTJhMDk0M2ViMDZkNWI5MWNkOGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczODVkYjBjYmIxMjUzMjNkMzA4N2E4ZGY3ZDZiYzA1ZmUwYjI1MzBlNjBlM2FhZmVmYTcxMWM5MDQ0MDk5YTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4Mzc2NDJhM2ZkYzQzNWM4MWU1NDgzMTQ3NDljMjcyNmQwMmQ4ODBhYTdjZmViZmYxMGE3NzhlZTEzMTM2M2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI1YzM4YjNhZTg2NWQ1MGQzNzNlYWIxMzkxZmM3YjA3MTMzNTQxNjljYzEyZDY0YTkwNjAxZDBiNGQ0YTAwNzYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3987-L3990",
+          "version": "repo-lines-v1:sha256:fc7146bec5483914fa9ec6ad66a19c888538b85a726ec756caed44f2ca9472e7:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzUzY2FjMTVkZjNhZmVjMmFjY2Q0ZDNiYjczYTg3OWY4MDQyY2JjNmE0NWUwY2NiNGFiMjc2ZTYxYjE0NjRmMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzZkYWQ1YTNjNzlmOTQxNWJiMGNkNTVjYjQzZmE1M2M3ODM3NjRlODU5NzE1YzQ1ZmNjZDk1MmJlM2IwZTI4OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjUwOTlhN2ZmNzZmNjViYjY4N2YwZTdkNjFhMjhhMGMxNDdmNGI0OWVlYmQ3NjYzY2VkZWQzZmRlYzIzMTkwYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTFkN2FmZWE4ZTdjYTI2YTEyZGE1YWY1MDIwYWJiYzczMjRhZjFkY2ZkYzNhYzNkN2ZjZjU1NjlmNzhhNjM1YSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4053-L4058",
+          "version": "repo-lines-v1:sha256:ed05f980016a17a91db92ec859eb311ca54bb162a2c2529135c28dbb14adef36:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY4ZGQ0MTIzMGM1N2QzOGMxM2QyNmIxMGIwNzE3MDEyYzI2ZWIyYTY0OTg0MjYzNzEwMGFjN2NmZDBiNDg1YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzE0MTI3ODliY2M0ZThjNzI3MmFiNTEyY2U1MDhkYzg1Y2FjODA5ZDRhZmY1NzFlMWZhMGZlNzIxNDQ3YWI4ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDVjNjViYzg1NGE5MzkyMTc5NWU0MmNhOTc4ZDYxNTYyYTFmMTg4MjE4Zjk1MDQ0YTM5NGQxMTkxZTM4ODhkOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGVlYjcxNTNiOGYxMjkzN2VhMmU4MDNjZGU2OWIyNTY1Y2ZjMzZlMGE1YzEzMGZlZTgxMWRhOTRmNzY1MTU0MSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L831-L836",
+          "version": "repo-lines-v1:sha256:5e29710f6124cd40ef7113674693160d8f50b740036a34acac6a1a663eb26960:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDU2NGI1NWU2Y2FkMjdlYzVlMzc4ZWRmYmQyODA3ZjAyYWI0ZWUxNDIyYWFjNGQ5MzQzYzJmMTM2MmYwNDczYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY0MjU4ZGFjYWRjY2EzZDNkM2IxMDJjZTM0OTVhNWVkZmZiMjY4NGZiYmI5MjM1OWY2MjFlYzg4OTEwOTI1NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODFiYzc3MmQ5MDAyMTdlMDI2ZmZmOWEzMmI3OWQ5ZTNmZTI5MmZmZmQ5MDJiNGVlNmZjNjBiZGJlN2IyNzdjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTU1Y2IyZmVlOTkxZWY1MWM4NzU1NzY0Yjg3Njk5NGZmMjIwZTUzMjlhNTAyNWIyZjY1NjJhNmNkNmMzMmUwYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2cb3d378fe8e486caa2cbab7e2f0b4aa",
+      "statement": "Testdata request attempts share a lock-protected rate limiter with default 0 meaning unlimited, including retries; each upload permits four attempts with exponential delay plus jitter for retryable request failures including 429 and server errors, while other ordinary 4xx errors are not retried.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1605-L1675",
+          "version": "repo-lines-v1:sha256:9fb76f13f89423b2890e4d893dc8733a91869eba8ceaf5e4494c9bbc4ff08ac8:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiODUxNGIxNTVhMmRhNTYyNTNjZDA4ZmRkN2RlOWJhOWU2NTM1MjcxNzQ1NzA5ZmU3Yjk4N2Q2YmE3NDk2NDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzODRlZWNhNGQ5MDM2MDRjYjU0NDYzNDdmZTI2OTdmMzdhNzUxYTRkNGEyMDQwYjM1OGNlYjRmNjMxYzY2YTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiYjMyNDE2NmFhNTgyMmVkYjliYWFjOGJmNmQ5ODRmZGM3N2E5YmViZmM5Njg5OGE5NjhkNzQxMGU0ZTczZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI4ZTJhZGYwNWQzMzQzNjJjN2Y4ZjE5NGE5NjAxMzczODQxZDk5NjgxYzFlM2Q1YTcyNzdmMTE1NmRjYzM5OWEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L831-L848",
+          "version": "repo-lines-v1:sha256:8330754a5161e97dbc11da4f73cc822c5ba5a2954d234eeb03df7b9a69097cc9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1NjRiNTVlNmNhZDI3ZWM1ZTM3OGVkZmJkMjgwN2YwMmFiNGVlMTQyMmFhYzRkOTM0M2MyZjEzNjJmMDQ3M2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0MjI4NzVkNzA5Y2Q0MGNmMTZkYmE0ZGQyMmNhNDUzYTIzNGIwOWNiNDVkMjYzYWM1YzViN2E0NDdhNGYxYmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxYmM3NzJkOTAwMjE3ZTAyNmZmZjlhMzJiNzlkOWUzZmUyOTJmZmZkOTAyYjRlZTZmYzYwYmRiZTdiMjc3YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMDMzZWQxMGE4ZWQ5YzI4ZGNmZWY1MjlhZGExMGQ4ZWJmYTgyZDY4NjcxZTNmMzZhMjlkYzU0YWJiYWU1YTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1287de8b41da4488b21e5946ff43f158",
+      "statement": "Parallel testdata upload collects failures into TestDataUploadException after processing futures, whereas sequential failure propagates immediately; both paths log progress/summary, and the parallel success message about waiting five seconds has no matching sleep at that point.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1535-L1590",
+          "version": "repo-lines-v1:sha256:e5488f9d334d89ba42e01ada65d8d95ef570ce21ca3bf6b0f10ea0805e414d3f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlYzg0ZDY4MTU3Mzg3ODQ2MzUwMjU2MTJkMDNlNmFmZWQ5NGMwNjcyZWJiZDhmMTFmZTdkMmExNmIxZmYwZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkZTFkNTg2MDQyYTUwNmFkOWUxNTMyMjIzYTY4ODNiM2M5ZDk4Y2VjZWQ0YzcwMTY0ZTJlZWQ5NmUwZTI2M2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxMWYyNGE5MWY3ODFkZThiMzA2M2UyOThiNTZlODY3OTBjMDcwNGFmYTA0ZjI1MTcyYjUwZjI4OWViNGIyNGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViNjJhYWViMzNhYmE1MDdlMTg0N2UwNTEwMjI4NTM5MjBiOTFiYjE1NWQ5MzhjY2NiNmUyMzg3MjlkMmIwNmUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L75-L83",
+          "version": "repo-lines-v1:sha256:d2286c9a3f6ce1275424af59fb103e9978a6ddbb3e6b7264df5d135a88cc94fd:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODQ2ZWNmMjI2MmE5NmVmMzU1NmY3OTcyNzkxOTUyYzgyNTliYjM5NjIzYTdiNGU3ZTlmODNiOTE3MjEwZmJiMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTNmYTFhZThhN2UyNjdjZDIxN2MwNmMzMTI1NDRhZGIwYzU1MDQ3YmQ0ZDM3ODY1MmIwMWVjODk0NGRhZjEyYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzZhZWRhMzI5OWY3ZTEwOGU5NmViMTJhZTIzMWE1MjhiZDFmNjg0NTgyMTg0NzY2MWI4YmJlYjg0ZjA5OWE1OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTAxYjIzMDkwMmQxOWIwN2JiZDRiN2IyZjA1NGI4YWRkNzMxZjE4NDEzYjMxYmRjNDE1NDE4N2VmMmIxMThjNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_06d23fd88c1349b19a359750a9853d5b",
+      "statement": "Download overwrites the selected profile, normalizes remote configuration and restores/removes temporary metadata settings, deletes selected old local pipe/system files then extracts the full remote ZIP; connector download changes into the expansion directory and subsequently collapses to rewritten templates and manifest.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L170-L299",
+          "version": "repo-lines-v1:sha256:3eb316a0c346917c057f7686d2297946fb5f9ebdbf90aebfc5f401e6f93af705:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiYTg3YmVkMTM4YmFiMTlhZjNjZjIzYjgzZGMyNTUwMzU1Nzc5NDVhZWY1MTBlMmViNTU1OTY1ZDdhYzU5M2E4IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI2NjViYTM1MDgxZWJjZGE1Nzg4N2U3ZmZjYTBhNDJmNDdmM2ZlMWNhMmE3N2M5YjIwMjlmYWIxZmJkMzRlMzk2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlNWY5OWYwODc2N2JkYTRjMDI3YjQ3NGMyOWJjNWFmMzVjM2UwNjM0MmE4ZmU3OTQ0NzZiNDE3MGY5OWQyZGQ1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJiMWEwOGIwODJhNGIxZGIwOTRmYWNkZWYwN2I1MWFlNDljNGM2MDEyZGI4Y2MxZTE0NGRlZGZhMzQ0YWNkZmYwIn0"
+        },
+        {
+          "resource": "repo://sesam.py#L1034-L1101",
+          "version": "repo-lines-v1:sha256:16541d40cd92c740076ca954eff961fd4ad451050b86e148dd10b22da15a6c2c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2OTg0MTM5Y2I0NmE0MjdmNzdmNzVmMzA3MjVhOWJhMDM4NWM5MDRhMmFlZTNhYmVhYjRhNTM4YjVjMGY3ZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYmY3YjYzMDQ4MTdmYmJiYjllMjQzMDBiYTY0Njg4ODcwYzYxYTYxYzk2OGRlYzYxYTFkYjA5ZjQ2M2FmMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5NTg0YjEwNTdiZTEyNmMwMWE0NmVhZTY2OTI1NzZhOWI0MDIzNjYwZTY0YzliYzFiODA0MjllMWY0YmIwMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmOTk2MTc0NjY5MTZhNzJkYjY5ZDAzYjA3Zjk4Mjg1ODRkYmZjYTQ5YjA5NDY4M2ZiODVmM2Q4MjNhYzcwODYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1704-L1793",
+          "version": "repo-lines-v1:sha256:c2411f73186a025f6fa4c0d616a91d8f1b28f3b02bf3392dca861bb37a19d885:eyJzZWxlY3RlZExpbmVDb3VudCI6OTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViYjdjOTlhMDkyYzEwMTdiNjEzOGRlNWEzZjkyOTkxNzEzYzNjNzVlOGE1OTk0ODcxZTY5NmFmMjViMTgyMjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMDM0ODFjNTdkMGYwZGMwZjc2Y2QyY2M4YjM2MDRjNGU4Mjk2ZGE0MTIyYWRkMTllODE3NDVkYzdlMzMxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmNDBmYWY4ZmY4M2IwOTk3ZDEyOTg1Y2Q4ZDY3ZTc4OTA3MmU4ZDFiZWY3YTVmZDA1YTJlZmVhYmY2M2VkZTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5ZjIxMTY4NjhkYjVhMDdjM2QzZjdkYWEyZGRiNmNmNDc1MThhNWM2ZDA3ZjA4M2MxNzE0ZTA5YzcxYWQwYzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3374f55d319f48d191a264dca34636e7",
+      "statement": "Status compares local archive/profile against remote configuration/environment using Python unified_diff with optional diff output and archive dump; differences and a missing local profile are logged without raising, and missing connector expansion in dispatch is also a log-only branch.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1795-L1878",
+          "version": "repo-lines-v1:sha256:e31a704ec618421b5fde026f17892c72f997583c484f3f16ef82f197cf88cc37:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwY2RhNjZmMGQ3ZDFmMzdiYzA5ZmM0ZmQ2Zjk0ZjMzODI0MmY2MDU5Y2I5OGYxOThmMzc1MTRmOWViZjM2ZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZmMwMjM3ZjAzYjE5OWE4NDFmYmJkOTQ3MTk2NmVjNmUxZTlkMzk1MTA2ZGUzYmFjMzI5NzJiNDAzM2VmNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlYjdlN2Y1MDVlMjQxZDE5OTFiZDU3ZGIyZGI4NDczODVlZGRhOGZmZGFiMGZhMzE3M2JjZmNiMjk5NzM5YjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJkYjdhMWY0Yzg3ZTY2Yjg3NDFkYzAwZWFmNGUzZWM2NjdkMDcyNzdmM2RiMjgxMDMzNjFkZTFmNjI5ZmI5N2EifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2013-L2017",
+          "version": "repo-lines-v1:sha256:65245cce1b3f73a4c091722f8eabc089c0757d28e6a2b55cbc26598f27f7faea:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjA4ZjU2NmY4OWI0M2VkMjEwMzU5NTQ4OWI1Y2I5YzExMGYyNGE4NTk2OGVlYjhlMzE0ZDA1YWVmMzBmMzZjZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjY1YjY2ODEyZmY2ZTZkNjNmMjNlNGYyZTdjZGJkOGFjNjQ1NmFiNzlmZjYwNDFlYTk0OGY4MGVjNmVhYTQ5YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzdjOWU1ZjFmNDFmM2MxNzZjNmExOTEyYTY3NTI1MTEyNDVhM2FmYTU2ZGU2MWRhOGQzYjhiYmQzODIzNzg0NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmVhYjUwMzNlMjgwNGNkMzc3NGZmMTMxYTU5MzIyNjYzMmRiNDJlYjIyYjcyOWFhYjBjY2NkNjgxM2E5YjFjMiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4199-L4213",
+          "version": "repo-lines-v1:sha256:25ac97457910b3d936ea51edce18fdd6590ad774bcba59739b33442c721214d4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjMmRhOTZlMmY0M2NmMTAxZGE5ZTA2MmYwMzc1ZDA5YWJiMDk2NmQ2Y2I0NWNkY2U3NzdkYzI2M2E4NmE5NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZDZjOGVhYTg1M2RmYjcwNzIwNTFhNWY1OTYyOWJiNzZmMDJkMTMzMDQyZjY0MTQzNDNmYTAxOWFiOGU2ZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0MjRjN2RhYTgyYTBkZTVhMjg1ZTQwMGRmMDc0NjhkMjU5ZjIyNDlmZWFiYzgzMDA2OThjMjA0NjgwYTBlNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxNGVmYmFlZGRhOWY2OTBlYWE1MzFmMjVjODA4ZDlhNWExNWZlMmZjZGI4NDU0ODg1NDY4NzIyNWVhZjFmNTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c01a1cd01e2947ea94ac9c45ac3b5815",
+      "statement": "Connector-init requires a directory name ending -connector and, when manifest is absent, writes an auth-dependent manifest/system template and README and copies a source LICENSE; an existing manifest skips initialization.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2543-L2641",
+          "version": "repo-lines-v1:sha256:2729cd7e84614de1a66ebf3f169dbb08753f5b0489fc5c2550aee772f6faa98d:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmY2U0ZmRlNjlkMDNjNmNhMGQ5NGRiMzkwYjgxZDIxZDI0YjQ1NGZhMDY0NDFkOGIxMmQ4YmUzNzkzMTdjMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2YTY2MTNiYzBhNzMyNTEzNTliYTk4MDE2NTJiMWJkOWI2MjRkNTJiNmYzNDMwNjhkODA1NGYxMDMzOGU5ZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3YTQxYTg5ODQ2ZWFmZjg2MzE1YzQzYWZiY2ExNGNlZjNkZmRiZWE1YmRjOTZmNGFhYzFjMWMxM2M0MWZkYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwYTZlZjhjMDEzZDcwMzM4Mzk5NjM5ZTAwNjJlMzJiY2Q4ZDQzYzg2OGJlMTA4NGViODYxMzdlYTRhNDQwNWEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3927-L3933",
+          "version": "repo-lines-v1:sha256:be0de3e99595f82d5699dfcd60e5b8a2c0728d529d6fde54f387dd65f09037e0:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDIxNjFkZjgzNTIzMzlkNGVhOTI3MDRhMWUwMDE4ZjEwMzA1ZTFkZGU3YWVhNDE1ZjcwNzc2N2Y5YzQ0MzEwZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGY2ZjQ2ODcyOWI0MTFlMGQwN2E3MmRhOWY1ZmMxNmUzNWM1N2NjMjc4NTIzMDY4MDllYzNjNGMwZjg0MjgzYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_cfc25c43f35c44da94e6711b3e284e15",
+      "statement": "Add-datatype requires positional datatype names, overwrites their manifest entries and templates and updates system operations; --share adds share pipes and REST operations, while parsed --datatype is not its datatype selector.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2643-L2790",
+          "version": "repo-lines-v1:sha256:283bcc737677d41f393c46681d2c40ea9014cb21495b56648afea4b579419786:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NjRiYzZmNjZiN2VjZDEwYzM3ODFhMGQ3NGU5MmUyMWRkNDljNDlmYThkYzkyMmUwZWY1NmUyNDY2NzJhMGRkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1MTAzNDgxYzU3ZDBmMGRjMGY3NmNkMmNjOGIzNjA0YzRlODI5NmRhNDEyMmFkZDE5ZTgxNzQ1ZGM3ZTMzMWE2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4NjVkYmMxNGVhNTAzOWI4ODRhMDFmNTk2YWQyOTgxZjVlYzdkZDg1MmQ0NmMwMDVmOTFlMTdlOTY1Y2ZiYTY3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIwMWIxYTU1YTA5YmVhZTJmOGNhMzQ4ZjY5YWZmZmU5MDZkMjBiOTY0ZmI5ZTkyNmIxMDdkMjE1MjI4YjNlZGRhIn0"
+        },
+        {
+          "resource": "repo://sesam.py#L3935-L3937",
+          "version": "repo-lines-v1:sha256:e643152e195c2bdbf2ee31afd673e52862cbe0ba8af419d250e00c35441e40f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjRlM2ZkYzZiODM4MjExNTYyZGNiZTAwYjI2ODRjYTU1NjBhYzM0MzQ4ODc2ZGI0OTNjZjA4NWEwYzJiMjQ3OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDEzNWE3MzNmOWQxMDk2YTYzZGQ5ZTRiYTMyMTE4YWUwN2U5N2QyZTU0NmJkMGQxMTVkMzAyODMyYjVmZWRhNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ac808507505b44a0a669e89f001815d5",
+      "statement": "Update-schemas attempts to enable inference metadata, waits for deployment, runs manifest datatype collect pumps, reads entity-types/sink through the external API, writes manual and merged JSON schemas and schema.csv, and warns/skips empty schemas.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L302-L450",
+          "version": "repo-lines-v1:sha256:f1b65a8f93e6a16584328660dfe6aa84d55f546fac4dcd4aa98c7ef1250b4a23:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzMGQ1Y2MwYmI4Mzg1ZTE3NTIxMGQ0NDM5MTcwMWVkNDhjYzU3OTRmNzlhZTQ0ZGJmZTU3YjZhYTMyNmE5MGVlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiMWRlYWVhOGZhMzc3OTRjNzhlMzk1N2E1ZDc1ZWQzNjA0MDRhNTA0YTIxZWQzMTdlNDU3Y2ZlY2MwMjdhZGM0IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwYjVjZjE4NzA2YjU1M2E1ZDM2M2FlZTI5YTAxMWUxMmY4ZGNhNTAwMjJiN2I1OGZlN2M4M2QwZTJhOWRmOGUzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1MzFlZjFhMjBhN2VlNTRjMjhkNDZkYjVlOTFmOWFhMmFlZmI2NjY4ZTFhMWY2NjNiZTBiYjYxOGZjYjA0NDQwIn0"
+        },
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L530-L542",
+          "version": "repo-lines-v1:sha256:b5987d6d241c5e57e26c5dce331cb27d48314628a70dd9cf540d155c261489f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiOTViODgxYTk5MzkyMjFhZmJiYWIyZGFiOWJmYjc1NjU5YWE4N2I1MzRhYzMxNjMxMzJjYTJjMDkyMTRiM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmMGRkMTQxZGNjZGEzN2ZmOTIyNTg0ZWZmOTdhNzMyYjhmNThkNDE5OGJmNDRlMTRhZmUzYmJkM2Y1ZjlmZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExODQyZTQwOGMzOWY3M2IwMzkyYjc5MTkwNmYxYjdhNTM5ODc1ZTliODVlNTA4OGI1Mjc3M2Y2NDQwMWI3YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_77e76130e6b2456f83137fffe693274b",
+      "statement": "Init rewrites local input pipes into conditional prod/test alternatives selected by $ENV(node-env), excludes dataset/merge/union/diff/embedded source types and adds missing test alternatives; optional -add-test-entities fetches at most ten live entities and -force-add permits overwriting existing samples.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2396-L2541",
+          "version": "repo-lines-v1:sha256:f5bb74460be248dfb27cf2ee8185014c8c3061370d593bf394b310450d087408:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiMTVmMDRhOWZlYzI5ODM5YzMyMTEyN2Q1MzM2YTlmNmY5ZTNkMGYxNTY1MTg1ZTM5MDYwNTA2NDY0Njg2ZGI5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1MTAzNDgxYzU3ZDBmMGRjMGY3NmNkMmNjOGIzNjA0YzRlODI5NmRhNDEyMmFkZDE5ZTgxNzQ1ZGM3ZTMzMWE2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3MGYwMDRhYmM2ZGU5ODU0NTQ1ZGU4MDBmYWNkNDJiN2ExYTE1YzE4MWJlZjQ2NTdmMGY4NTA4OWFjYTkwODQ0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkZTM3YmQwMzk4Njg2NDNjYTlhM2E1MTYzMGFhODFlMWZlNmYwMzQ0NDU2MTA0NGRlMDg0N2IwMjk4YjU2ZWNhIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_8c3e46d50a104ffa867d915ff1ba2e7a",
+      "statement": "Convert operates on conditional embedded source alternatives for the selected profile, changes those alternatives to http_endpoint and writes entities to testdata/<pipe _id>.json; optional -dump archives before conversion and plain embedded sources are not generally converted by this handler.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3175-L3231",
+          "version": "repo-lines-v1:sha256:6b0df86901756335c3e90ad3e6f006a11591d5c9d955ce0382b43889240c79df:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjZWIwMmFiZGE4NjBjNTNhNzNhZGUyNWYwMjlkZDIyZGM2OGY2MjM2YWIwMjhmN2VmOWM3ODBkOTFkMTc0MzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlMTRlNzgwZjEzMmMxNGYyMThmZjE1MDc1ODBkZGJkMDkwOWQwZGI0Mzg4MTQ4ODc5ODlkNzg4ZDhlNjkyZDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmODU1MjljYjFkZjMyMzMyYjE1OGIzY2M2NWM4ODQyNTQ5YWFkZWY4MjFjNDZhZTVkMzU1OTQ4ODAxZTcxMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1YTA2MjkwZWEwNjc2YWY4N2I5MDFlMTM3MmE5NGJhZjc0OTUyNmU0M2NiMjYxYzEwYTU2NGE5YzhlMjAwYmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f365dfb79dae4564adb3313aaa671d9e",
+      "statement": "Format uses the first positional selector with default all, supports pipes/systems/testdata/expected or an explicit .json path, rewrites nonrecursive grouped matches, skips .test.json only in grouped expected formatting, applies expected encoding/HTML-escape policy, and returns normally for invalid non-JSON selectors.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3233-L3311",
+          "version": "repo-lines-v1:sha256:497e1c9fd2034942e4bbf4a0ea883300a1bd50abf1d328f7066f4123e99e0fd5:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYjA3YzA5Y2E2NTRhY2QzNWQ0OTg5YjczMTExZWJlNTEyYzEzMDJiN2VlMDRmZDY0MTk3ZDJhNGRiMDM4MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMzQxMzBmMjY1MDA0ZDZhYTljNGFmZDkzNDE4YzQ0MTU0MjNlZDU3ZGY1NDgzYjAyYmUzNDVmZWFhOGU1YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzM3MDI4ZjA2YWFjMzg2MzExOGFlODk4ZGQ1ZTdkNjc4MzNjYmU5MzE1YzliYzQzNmU5ZDJlNDcxMjNjNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0ZDA1OTkxMmM5YWRlMzJmNjdkMTVmYmY5MWFmZTgxNzgzZDQ4NmFkM2UyZWIwNzU2MmYzZjIwYjlkM2E1ODAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4270-L4273",
+          "version": "repo-lines-v1:sha256:bc572d43f9123dd0c1133d179461c41f6666999d2fcc755c63d3e46fdfcc3dce:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTBhZWQzNzYyZmNhZTcyMGZhY2YzMzEyZjMyYzYzN2Y0ZDk3MzYwOGYwMTNiYmYzNjcwNDIwZDEwOGUxYWY5OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWUzNjRiYmYyZTI4MzUyOGQ0YmVhMDU1ZjBiZTczYzQxODM2MDlkOWMzOWExYWZiODVjMzdjYTRkYzEzOTBlNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzUzMmRkZjI2NDZjNDQ3N2QwYjBlMjZjMDQ4MzI1N2RiZWQxMjQwM2NkOTJlMTZlNmI0MDdmMjIyMDU1MDY5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWIzNjY5YzBmNDRhMWZkY2JiY2I4ZDk3OGUxMjMxOGMyYzkxZjVkZDVmNWNhNGU2ODgxMmQ5ZjNmNDE3ODQyZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3394bc8fa7ec40b9aa4f4ca9c68c11ba",
+      "statement": "Node URL/JWT resolution is delegated to sesamclient.utils.get_node_and_jwt_token with -node, -jwt and -sync-config-file, defaulting the filename to .syncconfig; internal environment/file precedence and URL normalization are not implemented in this wrapper.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1103-L1115",
+          "version": "repo-lines-v1:sha256:9535f33f7b397d24fe05b6d32da7a1a50661a4c7d353453058eaeb9ec648bc3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNDFiOTI3ZjdmY2RlYTY5ZWJhM2I3MTVhYTk2OGYyZTYyZDNkY2UyMjkzYWY2MmMxZjg5ZTExNWUxMTkxMzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNjY2MTBiMzFiYzgwYTM4YmI4ZDkzZTUwODFlMjFhZjU1MDhjODk2MmI1OWM3N2NmZGZhZDBkNjlkNjcyZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJjMzFiMGIwZGZhZGQyMGI5NTg5MGU0NGI2YTQ3YWIzYTcwNjA4YjNlNmIyZWU3NWUwYTNhZDRjMTViN2IxYmEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3412-L3419",
+          "version": "repo-lines-v1:sha256:c08e275a2f37d2cfdfbafaeaeee998b14e5a2e4e0389f5cbcd7a8f64388fd805:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTc3YjI3ODcxNTYzMWY0ZDhlYzJmOWExZTFkODc0MGY3MjFmYzNlMjU1YzMyNWIwMDNmMjQ2ODY1Mzc2M2QzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjdhNzI4NGZhNjNjNWMxYzBiZTBjZGNjNjdhNmE4MzJiMzAzNTQ3YzRhNTIwZjU3OWFlMjJiMmY3NTAzYWE3YSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3496-L3512",
+          "version": "repo-lines-v1:sha256:7ed5e397391a49d56e876293c6712274bf21545547a5590d172a3aa69312cec8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmODYxNjcyODMwZWI3NGZkYmU3Mjg5YmEzMGRiZWMwMTIwOWI3ZWEzOWRjODFhMmNjZDY3N2U5ZDg3MTkxMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM2NDBjMTc3Y2VmN2M4OGM5MWM4NjI0NTZjYjI4N2M3NzMyZmM0MDk1NGY1MTNhYmIyZTdkOWYzNWZhNWNlYzYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0055a40cca384533be21cab80a93f6dc",
+      "statement": "Profile defaults to test and selects upload/download environment filenames, connector expansion profile propagation and conversion alternatives, rather than providing a global filter over all node operations.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L133-L144",
+          "version": "repo-lines-v1:sha256:a3e9a6ba30f29084e30050d45150b1d7a1078e5f6b4c3775a09dd43ce6d91227:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwZDQzNTg5OGM4NTA0OTQxODNiMTJmNmQxZjM0MzQ1MzNmNTJmYmI2MWEwNmNiMWM2Y2MxMjQzMmYyMzUzYjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3NmE0YWE3NGE5NDQyNGRjMjFmNzE0NjVkMzRlOGU5NjQ5MDUwZTI4NTJkMTQxNzhhZDIyY2Q2YzhhZGRjZDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0YWQ4ODg3ZWE3YjFjNzUzZTJmOTkwZmRlOTU4MzU2YzM0YTRlZDgxMzQzZmU5Nzk5YTg1NjAzMTRjMGM1ZTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0NTVhODNmMDY5MTk3NmU5ZmQzOWQ3OWM4ZDFlODFiZjQ1NTc1NmEwYmJhNDU3YjA1MmE2MjhiMzFiM2RmNTcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1411-L1422",
+          "version": "repo-lines-v1:sha256:9b40af1398adf5cbc060eac887418201511de68a0be50374aae9d36b688d27a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NmJkY2IyYjcwMjBiYjA4YzFjZjQ4NDY3ZWYyODlkMGI4NzEzMzgzZjBkN2FmMTM5YzhjYzYzMGE0NzBmMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0ZWVmYjkwZTIyYmJhMTdlZTI4MzVmN2I3MWYzZTJjZTZhYzgyNjk0NzRkNmYyZWMzM2E3NGVjZTdiZTk5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmMTQ4NWFlOWZkYzBmYTUxNjEyYmRkYjEzNGU3NGQ2MTE0NTM0Y2MxMDM1MjFiNzc0MzAwYTJhYTkwODY2YjcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1714-L1721",
+          "version": "repo-lines-v1:sha256:9cdd438616f013df82a2d896fc38c7d5be34d94e922191cedb44894f539357f5:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTk3MTFiYjU4ODQwNmJjNmZhMGYwNzc4N2QyYWVkNTkwOTFjOGYwZTY2MTdlZDFmODYyMjcwZTNmYTNkZThjZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDQ4ZmZjYmU5M2NmMjY1NjM4NWZlYmNmNTBmOTJkNTFmNDY1Y2QxMWRmZTc0NjUxNTc4MjczZWJlNDA1ZDE2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2U1NzY1MjA3NzQyZTU1ZmE0NjU0Y2NlMDc0MTc4Njg2YjYwZWJjZjA0ZjY5MDZjYmQzZDZhMGQyZDcyZTY2NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjFkMDhiNTcwMDIyNDM3OGIwZGNlYzFmNjFmOTY0NzM1MWQyZjQyOWM3ZTQ1NDc4NjNkZTE1ZGI2NjY1MTlhNCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3180-L3198",
+          "version": "repo-lines-v1:sha256:25b3046df7789fb2a845c3c770bb3acbc5b861a4b8eaeebac0e34377aa3390c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwNjU3MjQyMTFmOGNmNDlkNGNlZDA1MzUwM2ZiM2ZiMjQ1NjM5MDU3MWYyZjJjNTA4YTVhNDE1OTAxMTQwNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5YWYzYzkyZGNhMjljODQxYjdhMDI2ZGYxMGMxNWJmMWQwNjUwNGU1NmFjNDI3NDcwMzE3Nzc1ZGQ1NjcwNDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5ZmQzZGZiNTljYWE2ZmJiNmY1YTU3YmY4MTljNTc1Y2YwY2YzYTY1ZmViMjhhYmIwMjRjOWY2NjIyMjFmM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY0NzVmOWFiZGJhNzk2YTYzOGNhZWQyZjg3NWYzZWI2NzM5NWMyYzU4YzQzOWMyNDJiOWNmNWIyMjA2OGZjY2MifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3603-L3610",
+          "version": "repo-lines-v1:sha256:e17664f991ad1185d4ea80fb0a3751e683ef6670281a794a2c6c576c01d5cb3d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDI5ZWVjZTg4NjQ4NGM5OTI0NzViMzA1ODIxMDMzYzZhMDkxYjU3ODc4MGRlNjEwZjlmOTU5ZWE5NDEyNjMxMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTVhZGU4Zjg0ODk4ZDdjMjg3YmUwNjllMTI4MzE2N2RlOGIzNGMzYTg2ZWQxN2RjYzYzY2ExZjhkODJmODAxYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_77c137339e2a44f89c2abd52ec924357",
+      "statement": "Although help documents -single and -sesamconfig-file, neither has an inspected consumer in the CLI/connector modules; current formatting calls use format_json's default style rather than establishing the documented .sesamconfig.json formatting override.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py",
+          "version": "repo-file-v1:sha256:471b5ccbe0b860832e1df4f53fd41b1492c4983d7e99f8ae7f017e83409053b1"
+        },
+        {
+          "resource": "repo://jsonformat.py#L9-L60",
+          "version": "repo-lines-v1:sha256:3a93c31dae8efa1d4a7b962cb07ea2088d467380f92badff182d2c1f2074ff34:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNzdhMTEzMDQ3YWVhN2Y3ZmFmOTc0MTZmMzhjMmVmOGUyMmM1N2FkYTJlNjI0MDMxMGZjYWY2NjNhMzIyZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2NjllNWEwNTA0M2E3MDliNzNiZTlhNWQ3ZGU1OWQzMTZkODgzMWE5NzNlZmJlNzZmOWI0M2MyM2MyOTYyYmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlN2E0MWQwYjlkMjY4YWRjODE5MTE0Nzg5MjEyZjM1NjYxZTE5NWRlODk1NTA1NjBhNWI1NjEyZGNjYjc5MzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjMDY4NjA3NzYxYzkxMWNmMjg2NjlkYTQxYjljM2MzNjkzZjgxYzQxMjg0NjQ5YmRhMGIxZmRkNjhkNTY1YjIifQ"
+        },
+        {
+          "resource": "repo://readme.usage.md#L52-L81",
+          "version": "repo-lines-v1:sha256:c321e2f7cab84294f3d820fb8578a6d243a65aebbd0b132cd7b95cadb802dba9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiYjQyYmNkNjdhZWMyYjMyMDYyODBhODAzMjc0NDA0Y2M1ZWEyOWRiYTQzZmE1YmYxODBlY2Y3ODEyNmQ4MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI4NDc3NGE1ZDU4NTZmZjUzMDg2M2U0OTUxODRlYTNhNjI4Mjc5ZTFlNjFhOTE2ZmUxYzE1ZWY4Zjc2NjY5MDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmY2M5ZmU0ZGVhOThiZGJmODI2NjFmOTg5MDQ5ZWM1ZGZkMDZlMzcwYWYzMWE5ZWJlZGJjZTUzYmRkODQzMDkifQ"
+        },
+        {
+          "resource": "repo://sesam.py",
+          "version": "repo-file-v1:sha256:5456e87363229d843b975dd2a960e4d4a43cd199ea878e779d0c7423447b067d"
+        }
+      ]
+    },
+    {
+      "id": "claim_004d1c5deda842939f1abdfbfda84d58",
+      "statement": "Whitelist loading derives filename, pipe and system lists once; local archive generation filters pipe/system paths and separately conditions metadata inclusion, but upload environment replacement and all-sink-dataset deletion are not whitelist-limited.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1424-L1462",
+          "version": "repo-lines-v1:sha256:d0f0554cff263a38d70c479621e65503171bedfb7a9e80ec92408a11de6067de:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlOWQ3M2NmOTBiMDk0MjdmMzJhNjdiNTViMjY4YTM3MTVkMDBmMzM1NjExMTBkZDI0MWRjNGFjYmYxZDNmYTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5Y2MzNTNiY2ExZmM3NTI4ZjM3OTU2MjNjNGFjZDg2MmIyZjQ3OTRjM2UyODJjMTU0MDZlZTYwM2Y2YzA5MjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYmNlN2I5ODU2OTgwZWM4YzAxNDdhNzE2M2MwOGFlM2U4MTM5NmZiNmY2NjM5NWY4NjVkNDZjMjA1ZmI1YmEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L850-L866",
+          "version": "repo-lines-v1:sha256:4507530831c91f9d167dfafb76a5ad5a582a4d23d4511e316084f739654662b3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1YmZiMDViOTQzODYxNDgwMjI4OWI4OTAzYjE3Nzg1ZTg0OTQ2MjhkODFiN2YxOWFiM2NjYzNmMmZkNmU1NzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNmQyMzk2ZDMxNzMzNmViNGI1ZDBiNjYxNmI5ZjU3ODk0ZTcyNDBhNzU2MGQ5N2ZjMzE0ZDhlNzRlZDQ4N2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkZjVhYTQxYWNiNTM3MTA5YzI2M2JlNDkwM2VkMGFjZWVhYTBkMzVkYmEzY2Q2NTljODc0MTYyZGE3YmM1MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiMzVjNjUzZjVmNzc0NzYxODdmNWI0MTVlMzkwNzAxMGFlNmNkODNhNWEzOGRkNWFjZTAwZGQyNjJmOTlkNjUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L938-L1005",
+          "version": "repo-lines-v1:sha256:952a99a3dd16223343259450fed98b854baa88b864cb9538d99275de4d3c0394:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2M2U0MzRmZTI4NzQ2Mjk5YTE5NjRjNzcxMTc2MmIzMDU0M2NhZDMwNzIxNDMzMmNlMWVlNDViZTI2ZTVmZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYmY3YjYzMDQ4MTdmYmJiYjllMjQzMDBiYTY0Njg4ODcwYzYxYTYxYzk2OGRlYzYxYTFkYjA5ZjQ2M2FmMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwMzNiYTkyN2NjYzY4YmI0ZmIwOTdmODRjMTg5Y2Q2NzI0NzJhNDg3NWE0OTY4ODhjNTE3Y2EwYTlkOGI2MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZmZlZmMwNTA5OWRlMjY2ZDE2NjJlYWZkYTdkMDc1MWUzMzE3ODM0NjhhYzg0ZTlmZDAwZjBkOWNhYmRiYjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_79a3913d68fc4c858d8f5534fa5531f2",
+      "statement": "Testdata, expected-spec loading, update and verify filter by pipe only when the derived whitelist pipe list is truthy, so a whitelist without pipe entries does not select zero pipes; download's whitelist limits old-file deletion but not whole-ZIP extraction.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1594-L1603",
+          "version": "repo-lines-v1:sha256:99e22ad6f36664feaba7e2ffbf5c1485ce6580413a597edce8249fd85042e333:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiNzcyNzhkNTY4ZjQ0YmI4MjA1YzAwMzA3MjgwYjc2NDIzZDIyYTkzN2JlY2FjNDE2NGVjODc5ZjE2NWQwMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczODVkYjBjYmIxMjUzMjNkMzA4N2E4ZGY3ZDZiYzA1ZmUwYjI1MzBlNjBlM2FhZmVmYTcxMWM5MDQ0MDk5YTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViNjJhYWViMzNhYmE1MDdlMTg0N2UwNTEwMjI4NTM5MjBiOTFiYjE1NWQ5MzhjY2NiNmUyMzg3MjlkMmIwNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI1YzM4YjNhZTg2NWQ1MGQzNzNlYWIxMzkxZmM3YjA3MTMzNTQxNjljYzEyZDY0YTkwNjAxZDBiNGQ0YTAwNzYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1740-L1768",
+          "version": "repo-lines-v1:sha256:d2eba744eff1aaa5b139e844e1608cb610d2e74812c5605a034c6665c2c01885:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1NjljYjA5MjgwZWUwNzgxOTQ1ZTQ4ZDQwNDFiZDJkZmFhZTY5MWFkMmVhYmY1ZDNjYmEwODQ2YzcyMTZjYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1ZTZkMjlhZWY1ZGI1ZTFmMzcxOWJmMzJmODBjZTA5OTNjNWI2MTE1NjFmZTgyMjg4MWViMjE2YzhjOWUxZjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkMDg4MDU5Mzk5Nzc5MTdhMTA1YjRlZWFkYWY4NjI3ZDU2YjUxYTgyNmZkNGVmYjU2NmY2MzY3ZGRjZjI1YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5NWM2NmFjM2MyOTE1NWRlZThmYTZlOTFiNTU4MmRkYWMxYWFhN2M1NzYxODc5MGM1ODE2MTQ5NWE4ZTE3ZmQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1912-L2009",
+          "version": "repo-lines-v1:sha256:d264e65e11668ef415871f4dd5ed6718ac01227a606bd84d5977497b64445c99:eyJzZWxlY3RlZExpbmVDb3VudCI6OTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhYjhmZDdlMGZiMGZmZmU1NWIxMmJhMWNhOGE0NjNkN2EyOTJkZWIwOTgxZTg5YjY5NGI4NGYwODUxNTEyZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0MzE2ZGU0MjQ4MmVkNTQ3NzdjOWYwNmZmMjU1YzFkODkxNDIzMjNjMTk2YTljOGU4MWIzMGQ1ZDVjYjE5OGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkZTNkMWE5ODdhNTU1NzQxYzE5YTA4Yzc0MWZkNzhjMmMyYTY5ZDQ0ZGExMzQzOTQyYzkxYTQzY2M1MDQzNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3YzllNWYxZjQxZjNjMTc2YzZhMTkxMmE2NzUyNTExMjQ1YTNhZmE1NmRlNjFkYThkM2I4YmJkMzgyMzc4NDYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2092-L2099",
+          "version": "repo-lines-v1:sha256:482fc09e93e902581d833801965c03183488cc56358ffd806b55c714fc348fde:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODE1ZWU4OTdmMjFlYTlhYWE4MDE2ZGJkNjI2NDM1NDlhYWNiYjcyZTMxMzVjMmFiM2RjNzgyMGEyYjZiYjI0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQ4YTllOWMzMjUyODIwYzY1YTgxNjUyMGI4ZGI0OTMyMjgwODQ5ZWM4YzdkMmViNjI3MmFmZGZlYmUwNTljMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmMwNjU3NmMxYWM1NWYxYjQzOGM3NmM2ZWY0MWE0OGEwMjhmMjNjNmU0ZTIyMjU3YTk3MTlkMjBjMjNhMDc2OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWUyZWIzYmNiZWFhYWRjNjJkZTgxMjVhMGRhMWUyNmYzMmYyYWE0ZjUxM2ZiNDI3MjllYjY1MWQwZDJiZDIyMiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L2805-L2812",
+          "version": "repo-lines-v1:sha256:2efe72128dc283b8dce6899be9df342f244c19ec21ff1e26091130bc1b743ad7:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODE1ZWU4OTdmMjFlYTlhYWE4MDE2ZGJkNjI2NDM1NDlhYWNiYjcyZTMxMzVjMmFiM2RjNzgyMGEyYjZiYjI0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTI2ZTQzNjhmMjFmODg5MWNlZDI0Y2ZhZjdjYTNiZjk5ODViM2Y0NjlkNGE2ODI1NmUxNjA5ZDY1NmYxYTc5ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTBiMmYzMGQ0NzBiY2YzNmExNzZiNDRjNWM5YmE4M2ViYTJjNTBjOWU5MGIyNDk4MWFlYzQ5MjBlMDVlYzkwOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWQ1MGFlN2ZhMjJmZWRkOTEwZGYyYWY5YWIxNjAwOTIwY2U3YWQ2N2I0OTU3NDU1MTgwNmVjNjNlN2YzMWI2OCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d38552dc049549538d91f8920919f5d0",
+      "statement": "Whitelisting is not a global safety boundary: the derived system whitelist has no inspected consumer, and run/stop/authentication/connector expansion and validation/local preparation/format/schema generation/destructive administration do not implement handler-wide whitelist filtering.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L31",
+          "version": "repo-lines-v1:sha256:16a103341374a91ac7e31e1670ad139f5290d294e5c69e5d4e89765ec65c84a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzMyMGZhMzg3MzdhODM1ZjQwZGUzMzI1YjdiNzQ1ZjU2N2NhNDlhOTJhMjk0MDYzMDJmODQzNzhlMjI5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5N2ExZDQ0N2Y3OTYzNDZmOWJhMWJjMGU0OTJhZGIwZTlkNDJiNmJiMjQxZTdjMjU4OTljY2Y4ZmVmNTRkMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGUyYTkyODI0NzllZTA0ZDM4YjZiYWY5ZDYzNGYxOGQwNzFmMTUyNTg5NDc0YjFhZWZjZWYyNjJiMWY2MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjZDU2ZGZjYmE5YzI2NmJjNTI5N2M3Y2Q4NWIwNjMzZTE4OTljY2NlMWY1NDU4MDc5ZDMyZDU1ZmUyYjEwOGUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/connectorpy.py",
+          "version": "repo-file-v1:sha256:471b5ccbe0b860832e1df4f53fd41b1492c4983d7e99f8ae7f017e83409053b1"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L121-L128",
+          "version": "repo-lines-v1:sha256:0d7f5291c1f0dc20afb572b822b7e209418efab7064f0579d06b6b19c7142450:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODk2YmNlYzJmNTBjZjA5NzQzMDIzMzQ5MzJmZTEzY2MzZTkyZjU0OWI0OTM1MDNjZTAwNmNhODcxNTBlZmRkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNkYWJjYjAyMTE0MWUyZmNiN2IyYjZkMWYzNDM5ZDU1MjZmMzRjYWExM2UxNTFmM2QzMmEwY2Y3ZTY3ZDNlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWMyZjEyZTkyODBhZTU2NzViMWIxM2JhODAyODJiNjVhMGYxMzY1OTNhNGVkOTVmNGZmN2Y4M2Y2Yzk3OTZmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDMwZjc5OTk0ZDIyOGRhYzUxZWNmZDkwM2UyZjhlNjEzYjRiOTUxMjU0NDk5NDhlMTM0YmFmOTllMDJmYWU3YyJ9"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L10-L67",
+          "version": "repo-lines-v1:sha256:43d9cc66643aa93acc072f79c45a5c2881f066ea062a18d4e42b6f7608b1e28e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1MzViZDRhNGRlZjU3ZWI0ODM1NmIwYjBlMzNhMTg1YTg5MDI5M2JjNzRmMjMyNTBiNTAwNTA4ZTRlYTQyZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZGZlZjQzOGVmODQ0Nzg0MzhkZDc4NWVkMjI3MmY0NzI4YTQ4ZWQzYzM2MjkzZWRiYWRjYWRjODJmMmU1ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU3NzVhNGYyNTY0YThiMTQyMWYyNmE3YzM3MmE0OGZiOTQwNGQ2ODFkOTRlZTg3ZjQ1ODM0YmM4ZTM0YmEyNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0OWY4MzRjM2Q5ZGY1OGFlMWMzZDBjZTdlNTM3MGJmODg4NDk3ZTMxYzNjZGFmOGIyNzBmYjFhMTMwNTNjNTAifQ"
+        },
+        {
+          "resource": "repo://sesam.py",
+          "version": "repo-file-v1:sha256:5456e87363229d843b975dd2a960e4d4a43cd199ea878e779d0c7423447b067d"
+        }
+      ]
+    },
+    {
+      "id": "claim_b866dd4faea2482fbf4f0b650d37028c",
+      "statement": "Run always stops the prior internal scheduler before starting execution; local node wrappers construct POST run-all-pipes and stop-run-all-pipes plus GET scheduler-log and pipe-runner-status routes under the node API, delegating actual scheduling and stabilization to the backend.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3094-L3101",
+          "version": "repo-lines-v1:sha256:0f2677eb1f32dd93a4628c80e6ec0785cf2f44b1b9321f1c2d1d6dd5570c6c6d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWFmMGE5NDJkYjAxNjI5YTcwZDg0ZWJlNTRjYWVkZDAzNDI2NDFhNzNlZDg3NzA2NjFjZDdiZDU1NWMwMTZjMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDQ4ZmZjYmU5M2NmMjY1NjM4NWZlYmNmNTBmOTJkNTFmNDY1Y2QxMWRmZTc0NjUxNTc4MjczZWJlNDA1ZDE2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTljYTE1NDliOGQyM2FhZTY0ZWQzZGUzMWRjYWVlMGIyMTZiNDcyMzQ0MDdjMzc4NzIxZmVlMGJhMGJjMzViNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDBlN2I3ZGY4NjA0MTM3NDE5ZWE5YzY5Nzc5NDcwODk2YmU3NTc3MjVlNTdkOWRjMGZlZTU1NGMwZDliZWJhYyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L561-L643",
+          "version": "repo-lines-v1:sha256:a82451de3fa7adba8e02e08005d8940a03ff929ca66b9ae16fcf6d38b9970efa:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZjU3YTk3OWZmYTE3OWVmOGM5NGExNGQwMmMxN2RkZjcxZmRkMzY5NzMwMzNlYWUxNTc2Nzk2OWQ5ZDY0ZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhNTk4NTQ4NDNjYTQ4MjAwOWVjMjJkZmU5OGJiN2E5MmE4NTE5M2RlMGJmZGI1OWY4YzczYTBmM2QxZmRmYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwZDc0MWQyOTgzZTA4NWZmMGZjYjhhM2JiMzQ1MTM5MzcwNjc0OThhMDY1ZGJjNzZmMjNiM2M3Mjk2ODliNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwZDQ2M2M4ZTg2ZjZhNjE5M2U3YjMwYjU0YzE0YTJjYjIzZjhiNmRjY2E0ODYyMzViNWMxMTEzMTY3NGUxZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ac5e224f997e47bab1ddb93631028e48",
+      "statement": "Scheduler controls default to two zero runs, 100 max runs, 900 seconds max time and sync requests; mode and request-mode are locally validated, input-dataset deletion is requested unless local testdata exists, and pipe reset/sink-dataset deletion is requested unless explicitly disabled.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2956-L2998",
+          "version": "repo-lines-v1:sha256:c88eab84a3512a3e444408244267d8ce5d3026ecdf1396f9368adc8396a215dc:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjZDRjMmJiNDMzZWM0ZmEwMWRkZjMxZjFjN2MyNmQwZGYyZjlhYjQzZWEyODY1MTUyMzkxMWQ4ZDU3YTk1NmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMDEwNWUwYTY4NTIxYzNkMzMyNjE1MzkwZTg1OWUzOWNmMjQxMjc0YTdkNzgxZDE5NmEzYWRhMDdiMTBmZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNiYTJjYzZjNjMwYWVjOGU2NTUyZDk0YWMzY2I0MjgxYjQ5NDdlOTc3OTBhNWVlODcxMDJmNmQ0ZDM0ZWQ4N2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzYmRiNzUwMDcyYTEyYmMzOWI2OTI3YzQ2ZWEyODI4YzdkNmZhMzA0MDhhYTRhNWRkNzU5Yjc2NzAzMGVhMmUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3620-L3678",
+          "version": "repo-lines-v1:sha256:1b9bc2f9211f3b83a030276e5df63c904f7838aeb405961587ac3455462acd6f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExNzRmZGFjZTRjNzk1YTAxNWJiZjk2NzMxOGUzMmFmZmM1MzVmODVkMTY4MTliM2EwZGFhZmY0YTFlNjU5ZDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5YzEwODJkYzQxZTBhN2YzNjI5ZTIxZWI5YmJjODNmM2VlZGZmYjQ3YWE3NmI3NTdhYjYyM2QwYzdjZmRkMTQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L575-L608",
+          "version": "repo-lines-v1:sha256:6ef81f34b79f47b755da0773684d2e3eab103cc1c3092bb309438400f7c6c22d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlZjBhYmNlNmNhYzU3MGFhZjU5NmFjZDcwNDA4ZWQ0NGFhOGY1ZTFjYmFjZjI4NzE2NzA1MjEyYjk5MTFiMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhNTk4NTQ4NDNjYTQ4MjAwOWVjMjJkZmU5OGJiN2E5MmE4NTE5M2RlMGJmZGI1OWY4YzczYTBmM2QxZmRmYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5ZTA0ZmFkZGM3ZjUxMjdlZGQ2OWViOTk0ODU5OGJkNzMyNTYyODBlMjZjNThiZWMyOGYwMmVkY2M3ODM4ZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3YTczNmRmOGRkOGU3ZWI3YjVkZWFjZTVlODZhNWM5ZTU2ZThjNTYxODFjN2MyOWMxNDZiYTY3NWJiNzI5MzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_55b87b3316cd4199824d90dfef6169ac",
+      "statement": "The scheduler worker interprets a sync response or requires an async token and polls status every ten seconds with interaction registration; the foreground completion/log loop sleeps one second, and failed or not-running results lead to RuntimeError.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2977-L3092",
+          "version": "repo-lines-v1:sha256:b80c115c47381b55275b09884849a3f1c642b05e6d3ca4c0284ffd41a3fc567b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyNDgyNTkyMGI1ODZmNzI0YTBlODA5NDEwNWEzYWMyNGY3YTZjMWZlZWFkZDIyYjlmNmRmN2E0MzI5YjFiMGNlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJlZTdjOTU3YmNiNDRmYjY3M2M5OGIwMDUwYTc1ZDM4MDgyZGI4MWQ5MThkZTMxM2EzZjA3YzEyMzUzMDZkN2VjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4M2Q1ODkyNjYxZDAyMWRkZTcxMWE4NDQ2ODc0NDhmMDhiYzNhMTc2NzljOWQ0NTIwNmU3MmJkMjZjMWJkNjFiIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxNGM3MThkZmM2NjUxNDg4NGNmYjE1OWZiNzA4NWU0ODE5MTdkN2VhZGQzMjc5MzhiZDA3N2VlMjk5YzRmNmI1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_65a4a1674cdf4c3087417fb7dced064d",
+      "statement": "Scheduler poll frequency is parsed but unused, deprecated scheduler-selection/removal flags do not select another implementation or restore cleanup, and scheduler-node does not redirect the inspected scheduler execution path.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2895-L3101",
+          "version": "repo-lines-v1:sha256:09f4da20983b9fff759e62066e26117d66c5e9739cdfae5c1d7a0f891d0e37de:eyJzZWxlY3RlZExpbmVDb3VudCI6MjA3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2MjIyMTM4N2I2ZTdmOGI1ZWQ0YTcwMDk3NzQ4YzE0MmQxZTAxODc4YWU2ODZhYTQ4ZTU4Y2M1YzJhM2QxMTA0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0NDhmZmNiZTkzY2YyNjU2Mzg1ZmViY2Y1MGY5MmQ1MWY0NjVjZDExZGZlNzQ2NTE1NzgyNzNlYmU0MDVkMTZlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJjYWM0ODc2MjdlZGI0YTRmN2Y5NGNlNjU0MTkzMjI0NThhN2E2ZTQ3YjUxOWQ0ZjBiNmNhNjY3Y2UxZTRiMDY1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkMGU3YjdkZjg2MDQxMzc0MTllYTljNjk3Nzk0NzA4OTZiZTc1NzcyNWU1N2Q5ZGMwZmVlNTU0YzBkOWJlYmFjIn0"
+        },
+        {
+          "resource": "repo://sesam.py#L3429-L3485",
+          "version": "repo-lines-v1:sha256:be95a3feba96abbfc16df43970691866698b53b736e99f0e4dfc3acd9f4feb3c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMxODAzNGQ3MGIxZmY4NjRkY2Q5NjQwYzMyOTAyNWY3ZGNkYWEwOGU1OWY5YWYzOTA0MzBlNWVjNGRmMDI1NTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkNjQ3MmVhYjc2YTQwOTZiYWE1YWMwNzQ4NDVjMjI3OTA2YTEyYjQzOTNhYjVjYzY5YjkzMDA1NjViYzEzNGMifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3499-L3505",
+          "version": "repo-lines-v1:sha256:20a5b66eb908d5be00223e0d24ec90a2d5e8aa19a62e668930a48998dc63eb6c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjBlMGYzYTM3ZTVlZDE4ZjdkYTZlN2ZjNWYzNjg0NDhhYTM0YTVjNThjNGNmZDRmOWM0MzRhY2I1ZjY0MzZmZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2Q4YTliNmQ3NzllZWZjZTgzYmMwZWNkNWJiNGMzYzdhYzNlZWUyNjY0NzcxNmEyNmI5ZThmYzJmZGViMWJkMSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3612-L3618",
+          "version": "repo-lines-v1:sha256:88e740a77787333634168d900d3f2287c4c166913ee5afcf0b445a6579ae8745:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDdkNDIxMDljNGNlYjJmYjc1YjgzZDU1MjM3MmY2NmEzODVjNDRiNzUzNTJjNTZlNWU2YWFkZDQyN2Q5MjcxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWU3N2Y4YThjZmU4ZWEwMGE3OTgwYTJkYWU0Njg4YTBhYWViN2ZmZmVhMjE5MzYyNzczOTMxY2JjMTI4YzZlZiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3712-L3720",
+          "version": "repo-lines-v1:sha256:3578dc662c92c4270e6058b6219c1cec5acd1043e24c0ba3a6b5bcc7ba3282dd:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWE4YmYwMjMyMGE0ZjIzNDU0OWNlOTQ5Mzk5ZTMxNzNjYTMxOTJmMGE2N2FjYTA0OGE3MjAxMmM2MjgyZTk4MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTMxMTQxNjdjYmNiNGVlMTA0MGFhNDY4ODU0NTRjYzAwODRiM2ZlMTE0NDJhODI0OWVjNGNhZjFhNTYwNmUwZiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4305-L4307",
+          "version": "repo-lines-v1:sha256:47de1a030d9d40ef6a9b1c8704cea533a498670b4053bb7ffbefc14830941b02:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTcwZGEwMzJmYmZkYmQxYjQyNGU4MTRjMjEyYWU1ODQ4NGU3NmY1N2RjNTZkYmZkMTNiZjgwMzczNmQzMjRiMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzgyY2YwYjhiMTJmMTZkNzlhNDNlYmZkYjI1YTdkOTRlNzU4NmZlZTdiNWI0MzE0NzlhMjcwNzNiNTA0NDhjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzdjM2EyMTkyNDdhMjRlZWRhMzY1ZGU0YzczMTQ2OTg0NWVlOGYyMGRkZWJhZmNlZDEyODc5MzI2NzFkNTcyMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4adf8970ae2446b48178ad64d7fdb2dd",
+      "statement": "The dispatch finally block only reports elapsed time and performs no automatic scheduler cleanup; timing begins after bootstrap, explicit stop is used before run and wipe, and reset/restart attempt stop with throw_error=False so a stop failure can be logged while administration continues.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2895-L2905",
+          "version": "repo-lines-v1:sha256:00493c0717836fecebfa538158b625fa87bf24a051e12849b6c7b49d39917d54:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyMjIxMzg3YjZlN2Y4YjVlZDRhNzAwOTc3NDhjMTQyZDFlMDE4NzhhZTY4NmFhNDhlNThjYzVjMmEzZDExMDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNmQyMzk2ZDMxNzMzNmViNGI1ZDBiNjYxNmI5ZjU3ODk0ZTcyNDBhNzU2MGQ5N2ZjMzE0ZDhlNzRlZDQ4N2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhYzQ4NzYyN2VkYjRhNGY3Zjk0Y2U2NTQxOTMyMjQ1OGE3YTZlNDdiNTE5ZDRmMGI2Y2E2NjdjZTFlNGIwNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlMTA2NDJkMzA5MzYzZjYwYzVlZWY3YjM3NzFmMDZlNTE3YmFmOWJlMTEyMTQ3NzlhZTJjNzhkM2FiYzQxZmYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3094-L3173",
+          "version": "repo-lines-v1:sha256:a89c7f1718a1a608dec11530795a9d025d04ec3646cbc9a38e50b151a6ba3dc4:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhZjBhOTQyZGIwMTYyOWE3MGQ4NGViZTU0Y2FlZGQwMzQyNjQxYTczZWQ4NzcwNjYxY2Q3YmQ1NTVjMDE2YzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1OTY5Zjk5YzdhZDg3N2Y3OTFmMGQ4YTllMjgzODhkMDNhNTUxODU4OTkzZjVlNTAyYjE1MDI5YmEzMTAwNTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5Y2ExNTQ5YjhkMjNhYWU2NGVkM2RlMzFkY2FlZTBiMjE2YjQ3MjM0NDA3YzM3ODcyMWZlZTBiYTBiYzM1YjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0MmMzMGU1NWIyY2RlMjUyYWFhYTRiMTM1ZThiMjU4YWRlZDVkMDJiM2YwNDYxZmViMjNkYWU5M2U1ZjBhNmUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4157-L4159",
+          "version": "repo-lines-v1:sha256:b0884392ff2aabe2475ed702d113cc584836b5c70458f53ffaefee8857ba9bdd:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWMzMzZjY2Y0YzZiODg3NDNkYjY1ZWVkMTM3NWFkMWQzNjQwZDE2ZjdlMWY4ZmJhMjgyNGI3MWFiYjkzYzYwMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWRhNWM2NmUxN2IxNDUzOTc4MzRiOGM4NTRkYzQxOTNlMjEyNTE4MGE4OTk2YTE0YzMxODgzMzI2YjJlZmJjZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTUxODZiYThlMWMyYWRhMGE0MWJjYmYzMmRjMzUxY2MzMzVjY2I5NjI5ZTU3OTM5YmU0ZjI4ZjM3ODlhNjM3ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTg4MWU4ODdlZDAyMzI1M2VmZWI2MmY0NDM3YjNmNzg2ZGVhYTZiMDFkYjhmYTc5ZjdhMDZlN2ZkZWIzNzgxZSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4305-L4307",
+          "version": "repo-lines-v1:sha256:47de1a030d9d40ef6a9b1c8704cea533a498670b4053bb7ffbefc14830941b02:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTcwZGEwMzJmYmZkYmQxYjQyNGU4MTRjMjEyYWU1ODQ4NGU3NmY1N2RjNTZkYmZkMTNiZjgwMzczNmQzMjRiMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzgyY2YwYjhiMTJmMTZkNzlhNDNlYmZkYjI1YTdkOTRlNzU4NmZlZTdiNWI0MzE0NzlhMjcwNzNiNTA0NDhjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzdjM2EyMTkyNDdhMjRlZWRhMzY1ZGU0YzczMTQ2OTg0NWVlOGYyMGRkZWJhZmNlZDEyODc5MzI2NzFkNTcyMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4b75fcc950fa4629adc1cef3f703374f",
+      "statement": "Wipe stops scheduling, uploads metadata disabling user scheduling/signalling/C++ extensions followed by an empty configuration, both with API force=True, clears environment and waits for user pipes to disappear; the local code does not independently establish help's user-dataset deletion guarantee.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3103-L3147",
+          "version": "repo-lines-v1:sha256:8dbc13290cb52740d730f06ef98cd0844b45bebea409eab72db6abb1843e4410:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhYzVkOWQ3ZWVlNDNlNDY4OTVhMjcwN2FjZmIwMmQ4NGZkZWQ2NjQ5N2QwYjJjYjBiZjczOTI3NDdiMjNlNzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwMGQ4MGEyMDg0YTVhMWYxMTkwMTMzNDAwMTE0OWI5YTFiYzljN2Y2Y2MwZDNmNDlhOWQyODE2Mjk4OGVhZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlNmI0MjNkYmQxYWQxZTQwZThkNTBiNzk5YjZjOTk3NzUyYTEzZmQwN2Q5Y2YyNWM5ZWQ1YzI2YWFiYjFlYzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxZjg2MWU4YmI5YmQ3NWJhODNhM2NlMTk3MDBmMjRjNjdhMmI1MzE0ZjYzYjNhOTdkMGUwZTg0ZmZlNzkzYmQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3352-L3354",
+          "version": "repo-lines-v1:sha256:bddd0e4b299727dad04c9da7a86e065cb5e758bc8f0f96e1975db72aa2aee976:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTk4OTMxYzEzMzM0OGM0NzA5MjNjZDI5MDFhZWFhODEwNjBjMjFlMjdjMDM5NWQzY2VkMTU3ZDkxNjIyMjllZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjc5ZTQ0OTc0YjI5OWViNDVhOWE4OWExYjkyYWMwZWU2Y2E3YzY1N2ViOGRlZGU2ZDIzYTAzYWY2NzBlMjVlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTlkZjc1MjAxMWY2ZmM1NzU1ZDcyNDZiMTZiNDJjODM0OTRlYTdkZGM0ZDk2YTQ0YmRmYWZjMzQwOGViOTcxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTZjMmZiNzZlNzg3ZmY0NDA3YmQ0YjkyNjA1OTViYjYyNDBmNDI5ZTUwZmIyYjZhNTc4ZGY4YmUxYTQxODlkNCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L435-L441",
+          "version": "repo-lines-v1:sha256:53b94cd71577ebf942503f506adffcb829c3de1d4660d48db8c28652e4712a3c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjc1MzZkMDlhNzFjMGJkZDBlODYyNDQwZTQyZjAxMmM2ZjllMmYyODIyOGEyYzk1NDcxYTE5MDY2NWFjMzJiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQwOTExYTY4OTcxMDYwMTJjZDMyYmFmYjkwZmQ4YzUwMjQ1ZjYyMWNjOGFjNWU0MmRjZWEyZmQxYWJlM2M3NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2Q1ZDE5NDUxNzk2OGRkOWNjNTEzMWJlYjI4OGNlYjMxOTRmOThkYmNhNzFjM2FkNjZlMDZjZTZmNzM3MTAyZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzM5ZDY2MzYwYTlmM2RlZjkzYmFhZWVjZWNiODBmMGYwNmNkMjM3ODFiMjFmZmNmZjIwNjVlZDI2ZTY3YWIxNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9f5742707683431bbe7142b33ef55db4",
+      "statement": "Reset delegates to reset_node, which help describes as entire database deletion and restart, checks an OK response and polls for changed node_start_time using restart_timeout; it remains developer-gated without a -force override.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3149-L3160",
+          "version": "repo-lines-v1:sha256:62e5d455329650f565a7a9bbd48668ef051ff52a323429eb2fa3589f7ad5e11d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzNTE2Y2NmZDZjNDkzY2UzMGVkODIxODE3MjU5NDc1NDc1MDk3Njc5Y2RhNThlMzZhOWUwOTJlNTQ2MTk5MWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3NjlhNjk3N2ZlM2M4YmI0OGY3YzQ0MzMzMTIwYzYyOGRmYTlmOWQ0M2Y1YWZjOGRjMmMyODc2Y2QwNjdiNWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3ZTc3NDZkNzcxOGM0ZDIwNmZkNzQwMWRiMjZiNzgxYTQ0NDI2Nzc0MDY1YjdmYjAwMzM0NDllNGFiODI1NmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjMzY1OGM1MDFhNTc5NGIxOTE4OTMzODZjM2I0N2M3OWU0NjYzOTEwM2M3MzQ5NjM4NWNhMDQ4ZjJhYzJhZjUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3354-L3354",
+          "version": "repo-lines-v1:sha256:f79e44974b299eb45a9a89a1b92ac0ee6ca7c657eb8dede6d23a03af670e25e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjc5ZTQ0OTc0YjI5OWViNDVhOWE4OWExYjkyYWMwZWU2Y2E3YzY1N2ViOGRlZGU2ZDIzYTAzYWY2NzBlMjVlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjc5ZTQ0OTc0YjI5OWViNDVhOWE4OWExYjkyYWMwZWU2Y2E3YzY1N2ViOGRlZGU2ZDIzYTAzYWY2NzBlMjVlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTUzNWYzMGUzYjg5NWIxYWFjODZhYmFjNWIyNmU5NGRjYjEzODAzZjY4MmIzYTRmOWNiMGRiZmMxMmU1MGM0ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTZjMmZiNzZlNzg3ZmY0NDA3YmQ0YjkyNjA1OTViYjYyNDBmNDI5ZTUwZmIyYjZhNTc4ZGY4YmUxYTQxODlkNCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3680-L3690",
+          "version": "repo-lines-v1:sha256:00c4d79fe0ed831de92cadb292e458387b36dc75e0654a59ff60c950ec367c3e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5ZDUzOGJiMDg2N2IzODc2ZWVjNTE5YjViNzNiNDExOWI5NDlhMjU0YjAyMTQ2NjZlZTM0OTdkNDkwMjAxOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkNDkwNzg2NTAzODQ5ZjliOWJkMDg0YzkzZDY4NDg5ZGY5YTNjNDRkYTMyODg5MGI3OGViZGE3YTM1MzNkNTgifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L406-L433",
+          "version": "repo-lines-v1:sha256:56c69977c867bf9590041d6bda60a08631ccc7d1efff4395f6c99feaf9c94fe1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxM2Q1Njk1YWRhZTNlY2FkNjcwZmQyMGFiMWNiMjcyNjhmYTFjZjkyZmMzMWJiY2MxNDI2MTAxNTNjYTk3NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwY2ZlNDdiYTAzMWE4NDg5NmYxMjVjOGFkOTFiYzZhZDZhOWQyYmQ5OWJlYzI5MzQ3NjI2MzNmZjkzOTNjYWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkNWQxOTQ1MTc5NjhkZDljYzUxMzFiZWIyODhjZWIzMTk0Zjk4ZGJjYTcxYzNhZDY2ZTA2Y2U2ZjczNzEwMmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyNmViNWRkOTdjNzVjMGY5MWEzZjQ4YTNkNTIyYTQ2ZDZhM2JjNWU2ODE1NzJhZWZlODM2MjIxMDA5ZDIxMWQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4157-L4166",
+          "version": "repo-lines-v1:sha256:ee560700c0de42a06287bdf034312e9bb1116c6f40d951c4a0dfbf121b59f351:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjMzM2Y2NmNGM2Yjg4NzQzZGI2NWVlZDEzNzVhZDFkMzY0MGQxNmY3ZTFmOGZiYTI4MjRiNzFhYmI5M2M2MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNzcwMDY5NGYxZTY3NTlhYjVmOWU1MWYzMDdlYzYxY2FjNmU4OTkzNzM4NTlkYTQwNzM4MjY1YTE4Mzg4MTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1MTg2YmE4ZTFjMmFkYTBhNDFiY2JmMzJkYzM1MWNjMzM1Y2NiOTYyOWU1NzkzOWJlNGYyOGYzNzg5YTYzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMGI0NDE0ZTc2MTM3NWJlNTk5NmU4MmEzMTQxMGNmZWE3Zjk5OTFmY2E5YjQ1ZmZlYWVlYjYxOWM5YTZkNTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_030b2008c7634a2bb7e3a5b9330e95e8",
+      "statement": "Restart delegates to restart_node rather than wipe, requires an OK response and polls for changed node_start_time with restart_timeout after a best-effort scheduler stop.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3162-L3173",
+          "version": "repo-lines-v1:sha256:2f311bf039bc82b24e05dae10a150335f9e14899cf138724034723358f048dbf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzZmE5NjA3ZTdlMzg4NWQ0ZDc4NGMwOWU5ODdiZTZmMDcwOTM1M2QwNDg3YWExNmNhNjFlZmVkNjdjYjhlNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1OTY5Zjk5YzdhZDg3N2Y3OTFmMGQ4YTllMjgzODhkMDNhNTUxODU4OTkzZjVlNTAyYjE1MDI5YmEzMTAwNTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1MTdlNWI5ZDQ2MDBiZTYyNjI1ZGQwNDU0M2JmNDI0MzJiOTMyMjljOGYyOGYzYzQ2NGZiODAwNjZiNTgzOTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0MmMzMGU1NWIyY2RlMjUyYWFhYTRiMTM1ZThiMjU4YWRlZDVkMDJiM2YwNDYxZmViMjNkYWU5M2U1ZjBhNmUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L377-L404",
+          "version": "repo-lines-v1:sha256:943c0d15cd0961dc74384799a6cd8f7650cfed1dbddb7b6788b9da53498adbd4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmYTM2ZmM5NjY5NzRhNDE4NzIyNWJlY2RlMmFiMjMxYTUwZDBjOTQyNWJjYjBiZjFiYjAzYjRmNGE1ZWZiN2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwY2ZlNDdiYTAzMWE4NDg5NmYxMjVjOGFkOTFiYzZhZDZhOWQyYmQ5OWJlYzI5MzQ3NjI2MzNmZjkzOTNjYWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhNTRiMmNmNzQxYTY1MzI3MzFhYjJjZjlkNmM5M2U5ZmE4Y2E5YzRmY2NlYzhkYTc1MTEwZjcxMmVhODk4OGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjN2QwMTM2OWM5MzFjZmU4ZDRjYmE4YjI1ZjAzY2RkN2MzMTM3ZmU0NTI1NmQ3MzgyZTg0NjNkOTM2NzE3ZWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1b18bd3be4ac4904a71ff2261e69a4b9",
+      "statement": "TestSpec binds expected/*.test.json to pipe/file/endpoint/stage and policy: defaults infer the pipe and .json expected filename from the spec name, use endpoint json and ignore_deletes=True, and sort by _id with serialized-entity tie-breaking; specs may override ignore, blacklist, parameters and sorting fields.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1912-L1917",
+          "version": "repo-lines-v1:sha256:9228642ebb88083dd30688c3874485c28c4528b4a2c279f8d1ce37fb5950b543:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFiOGZkN2UwZmIwZmZmZTU1YjEyYmExY2E4YTQ2M2Q3YTI5MmRlYjA5ODFlODliNjk0Yjg0ZjA4NTE1MTJlMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTFmZGJiMThiYjViYmZhNWNjODk0NjBjZjU0MjMzYjAxMmM5NTk1MTdmYjMyYTEyZGM3YWZhMzNjMDc2Y2MyYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWRlM2QxYTk4N2E1NTU3NDFjMTlhMDhjNzQxZmQ3OGMyYzJhNjlkNDRkYTEzNDM5NDJjOTFhNDNjYzUwNDM0NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTNjZjg2YzMzNzgzYjk2ZDYxNjgwMjQ2OGIxNTc5ODM3OGRhNDE3NjQwMWY4NmI4OTBmMjJmNDIwZjIwMGFhYiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L93-L228",
+          "version": "repo-lines-v1:sha256:dfae0385e000e2ccab92139e37717d178028d771ca86435e8bc0df14511d4710:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0NmFmNzI2YzUyNzU2NWExOTE5ZTJiZTkwYzY0MTkzNmVmMTIzNDc1ZGMwOWIzOTA2Y2JiY2M1NTZkM2YyMThhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiOTdjNzEyNDdhZjNjZDFlZGY1NTVhN2QxMDc1OTMxNTdmNmRjMmEyMmFmMGRlODJlNzc3NGFiZjEwZjhhZGUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxOTAyMWJiNDI0NGI0NjFmYTg3MTcyMDY1MDEyMDY1MDNlNDY1Yzk1MTVmMjVkNjExY2Q4MDE1ZDhkNGRkZWI4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjMzlhZGIwYTFiNDcyOWZlYjZiNDMzNzFkMDFiN2VmOTliMWQxYTE4ZmFiNmI5YmJlNjAyOTJiYzc1MWFlNzcxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_b8420f6c4132480e96ffa38275108ac4",
+      "statement": "JSON/Excel expected-output testing compares normalized entities: current entities are recursively filtered by blacklist and underscore-key policy retaining _id and true _deleted, unexpected deletes can be ignored, integral floats/Decimals are normalized and legacy large-integer rounding is reproduced unless -no-large-int-bugs is set; XML uses normalized serialization with fallback and other endpoints compare bytes.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1880-L1905",
+          "version": "repo-lines-v1:sha256:138907aa9f3ec66f3dd20b01c81795059c17000ee6115106d16cf5aaeacefab2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4NjIwMzU2Yzk4NGU0YjYzN2FjYzY5NjY3NmU0OGYxMWQwYzRiNTNmMDdiZGZjZmMzYzAwYWUzMTYxZjUxZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3NDQ1ZjE4NWU4YmExODQwNjlmNmIzNmUyOTA3ODAwYzI5OWNjNWE2ODM2NjllY2M2YjI5ZThkYjkyN2E0NzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlMGYzZjI3MTkyMTQ1NTM3NTQyMDc1ZjVlYWJjZDJkMDY4NzU5YzhkMzIwNTEwZGExNTVkMmY3MmY1ODBjMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3MTYwNzIyMzk1ZWY3OGE2YjU3MjEwOWM3OWUyYjVkYTFjZTdlYzAwMTVjMWRhOTJiYjM2MzY4YjQyNTJiMGYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2048-L2067",
+          "version": "repo-lines-v1:sha256:72f09bfce4bd3b3de70b1910d555d189ee941ce471cde6e5e7498f935fe04b3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiYjA1ZWI2ZjE5NDExNmU2ZWM4NWQ3ZjFhMjM1NzlmZWI1MTlhMTU5OTJiMTM5MjdhMzBkMWQyZGM2ODQzMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlM2NmY2ViMzNlMDExZjliNjk1MDg4ZTBiM2FhODNiMTYwM2Q2OWRiNGRjNjU4MDNhYTgzNjM1M2U4MWIwZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ2ZDlkMDNlMDM3N2FhMzA4MzI5NWI5Yzk1NzJmMTkwNzA3ZTY5Y2M1NzU1NTgwYjNlNTRiZjNiMWE0MjdlYzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzMmJmNzQ4MTM2YzQ5ZjUyYTY4MTY4Njc5OGRhN2JiN2Y3ZjNjNjI0MWUwMDA0MTQwYjRkYWY2MjQ0YTI4ZWQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2113-L2347",
+          "version": "repo-lines-v1:sha256:00653d77777605eb546b907ea08c68f4933f1dca7b05c8538fe763e7cd4f067c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjM1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0OTc5YTNiYzIzNDllNjVjMTE4NDJkOTYzZDAxMDJiM2M0OGMxODc4YjRmZTQ3MmE5MmI1OWQ2M2FmNDk2MGI3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3MjhiNmIxYzA2OTFjZDU4NzMwZjVkMDJkODJhYjNmYmU2YThkMWNhM2YyMzFkMTkzNjRkYmExNWE2YmY0ZDgyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiMmYzMTEyZTYxNjFhYjg5MGRiYzljZjJhODRkYTBmNGFiYjg1MmFiNDY4MDhlMTY1Y2I2ODc5M2U1MDZjYTgwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1ZGRkNjk1NTE5NjZkY2Y5MmViYTE0ZjdhZTNjYzNiNzZlMDI3YWY3NjQ4M2UzMGEwMjJmYjIxZTdkNzQwOTM1In0"
+        },
+        {
+          "resource": "repo://sesam.py#L2828-L2888",
+          "version": "repo-lines-v1:sha256:ecbb85f783a5df98f8eecc5dd15e85b454e0cec26e5e24819b871103eeab8e24:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViYzk4MzIzOTYzMTc5ZDI3NTQ0M2I2MGY2ZmFiNzhhMjgwNmExYmUwNTJlZGQxYzdiZjk0N2RkZGEzNWYxNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZDZjOGVhYTg1M2RmYjcwNzIwNTFhNWY1OTYyOWJiNzZmMDJkMTMzMDQyZjY0MTQzNDNmYTAxOWFiOGU2ZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzMDEyMDU0ZjBiYTQzNTg4MDY3NTg1ZGQyMjRlYTVkZTAwOTU3ZGVkY2EwMGMyNGYzM2I2ZDVjNmUxOTFiNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3MzI5M2RlMzQxOWEwODQ3YzcwZTNmNGVkOGM2MTZlNGQ2NGE1N2ViNDFlYTdhZGRmNjY4NDdjZmZmZDNkZjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fa1886331b8f4504b622fc65422da137",
+      "statement": "Expected-spec loading treats absent pipes/files as verify failures, while update can remove obsolete non-ignored specs, create missing output files/default specs and remove ignored output files; update accepts current live output as a rewritten baseline without running pipes first.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1907-L2011",
+          "version": "repo-lines-v1:sha256:22cae3fce78f519a385c03f121fe282e12669fc141c0227f9580478a3896c52d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwNDVjN2JjODc0MzEzNmRkNTczY2FhMWFjYjEwYzJiY2U3MDZhZmJjNTNlZGQ4ZjYzZWVmZDY5NDM0YTBmZjA2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJkZjFhZDgyYjc4Njc5ZmQxNzA2YTVjYmUyZGIzNDE1OWVmOWM2YWY0MGE3MTQ4ZTE0MzgxM2FmZGE2ZTBlM2VhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4NTZhZmYzNDIzODFmMWE5NzcxYzczZGE5ZjU2MDc3ZWE3MmRiYmI3YjExNTNmZmY2MmEwYzU2YmFjMTcwN2ZlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkMGZiYTE4MWVlOTQ0OWJmM2I1YmUyM2VmYzcxMzJiN2E3N2NhMTA0MWEzYTFkMDAwZGMyMzg2ZTU4OTE2YzEwIn0"
+        },
+        {
+          "resource": "repo://sesam.py#L2792-L2893",
+          "version": "repo-lines-v1:sha256:2f1a5b50d083cdf1e4ce3f15ae59141cfe5b0c51ecb4d167099780625bc0260f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzZGI4ZTc1Yzg0MzUzYjA5YzEwMWFjZTJlNDlmMzVmMTcyOGQ0YzlkZDQ3YTM1MDRmNmYxNTdkODlkYjdhYWY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjNzQ2ZGViN2IwMDAyMjkwYjlmMWU4MWI1NmM0YTg2MjJlNDg2YjJmMWMxNjgwOTFjNTcyOWU0NDI1MDI0MjFjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlN2E0MWE4OTg0NmVhZmY4NjMxNWM0M2FmYmNhMTRjZWYzZGZkYmVhNWJkYzk2ZjRhYWMxYzFjMTNjNDFmZGI1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxYjk2OThmZmVhNTRlNTFhYzYxZTVkYzkwYWYzMjdkYzhjZjFlYjhkNDZhZGE2NTAzYTc4MmVhYWYzMWIzYTRkIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e705e0df054a4931a4c978217d3505ca",
+      "statement": "Verify reads live output/endpoint pipes without upload/run, raises for mismatches or missing coverage when specifications exist, but returns with a warning when no test specifications are found; invalid-config pipes are logged and excluded before spec loading.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2069-L2088",
+          "version": "repo-lines-v1:sha256:ae80768ea13ea29c192aab9bda78ea7ab0d0852a203ea27a07a6d36670a30f33:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZDBkNzMwYzdiMjgwNjFjODliZTM0ZDNhODA4NTgwNzZlMGRjODZkNzkyYTVkNzA3ZDVkNDE1MmZlODQ0NzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlN2JjZDM2ZWY1M2I0NDUyM2U2NWU5OGQxOTQ0OTkzZTBmZjE3NDZmNTUzNmMxYTUxMTc0NmYzZTAxZTc1NmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViOTE3MjMxOGFlYmVjZjNmY2YxYzg0YmM2ZWEyNjc1ZTJmM2E4MDMzYTEzNWRkYzU1MDhlOWExYWEyNGNmYjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjMDY1NzZjMWFjNTVmMWI0MzhjNzZjNmVmNDFhNDhhMDI4ZjIzYzZlNGUyMjI1N2E5NzE5ZDIwYzIzYTA3NjkifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2344-L2368",
+          "version": "repo-lines-v1:sha256:47d6c81a099a54136020c5e4538e690c70b68ccdb835a2037cc434dff8917101:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1N2QyYmZkYWI1ZjI1ZTc5ZTIzZWI0MjlhMjg1N2EwYTcxOTc3NTM3NDA0N2ZiNjViZGM1MDU0ODkzMzQyMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4YmNhOWQ4NTI1YjBiMjdmZjY5MDJlZTEyNGM5NDhlZGExYzdmM2QzZWQ0YjMxMzMzMDJjMjk1NDQ4ZDVmMzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmYTAwNmM5Nzg0MmIyYWU4MTVlZjAxZWQ3NzliODZmN2U4OGFkZWVjMGQxMTg1MmU1MDNmZTdhOGM3MTc2NTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViN2UxYTdjY2NmZTJlYjQxZTZiYmU1ODk2ODMyZTIxNDdkMDA4OWIyYTMwYTU5ZmI0Y2U5ZmJjZTU1MjVjZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e58516c2ee084d7bb3daad71b4b388d8",
+      "statement": "Published-data retrieval is not purely read-only: SesamNode.get_published_data enables a disabled pump before its GET, affecting publisher-based expected-output update and verification.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2256-L2262",
+          "version": "repo-lines-v1:sha256:c26a7100ffa321de4bbf48eff248537abad100908d900b50f6adbf268f0dde71:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQ1MWYyZmEzMWY4OTZjYjJhYjc3MjhkYmNkZTMwY2U1ZTBmZmY5MDJlNmQyOTZjYWVhNWJlMWViZTQ3ZDkwNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWFkNmM4ZWFhODUzZGZiNzA3MjA1MWE1ZjU5NjI5YmI3NmYwMmQxMzMwNDJmNjQxNDM0M2ZhMDE5YWI4ZTZkOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTEwZDQyZjkzMWFhMzhmZWQ3MjcwMTIzMzgzMmI2Nzk3NDhlOTMxNWE5ZmI2OWMwOWY2MzUzNTJkODJjN2ViNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTk0YzY1OGYxYTZhN2NlZWQ3MGE4NWMxNGY4Y2E1NTEzYTY3ODVjNDY0ODViNTc5ZDExNjhlNGE1OGI4NjZiYyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L2305-L2313",
+          "version": "repo-lines-v1:sha256:c54c4d24ae149da63af6ee4d07dc6869d19f15194c536e852a5f704325d0b690:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGNjMjJiZjY0NmE3YWJkNjg5MTY5ZTBjMjVjNzYwN2U3ODcxNDIxOTM5ZWQwZDRmNjNhMjZjNjgxZTdiZjUzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWFkNmM4ZWFhODUzZGZiNzA3MjA1MWE1ZjU5NjI5YmI3NmYwMmQxMzMwNDJmNjQxNDM0M2ZhMDE5YWI4ZTZkOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDIyYmY1NGIxMzQxNjUyZjBiZWQyYjE0ZmMyZTU2ZjE3YWQ3NTQ3YmZkODg2NTVkMzVjYzM3M2VkZjQ5MzNjNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzZjNTI1MDE0YWFiNGU1NTdhYmE4MmE3MjUxOWJkOWU2ZGIxYTM5NTM5NWZlMzM2MzcwZDA2MGJkY2VjYzg5ZiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L2865-L2888",
+          "version": "repo-lines-v1:sha256:88c7721dd72d1da36015d2e7cd0e858ebde83489035b583705e4740cb993ddd4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0NTFmMmZhMzFmODk2Y2IyYWI3NzI4ZGJjZGUzMGNlNWUwZmZmOTAyZTZkMjk2Y2FlYTViZTFlYmU0N2Q5MDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZDZjOGVhYTg1M2RmYjcwNzIwNTFhNWY1OTYyOWJiNzZmMDJkMTMzMDQyZjY0MTQzNDNmYTAxOWFiOGU2ZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3NmJlM2JhZGJmZDU2YmI1OGFiZjhjYmEwYmY1NTMwMGI5ZTYwMTQ5ZTBmYWIzYjJiNWYwMWI0ZjM1Mjk4MGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3MzI5M2RlMzQxOWEwODQ3YzcwZTNmNGVkOGM2MTZlNGQ2NGE1N2ViNDFlYTdhZGRmNjY4NDdjZmZmZDNkZjUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L656-L670",
+          "version": "repo-lines-v1:sha256:35b8bb4cfa2a786e879ae3c5126f000d4fb6362d50815cc34af67d22dec4f5a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwOWM4MDZmMjNmYjRmZGRmNWE3M2ZiYzZkYWMwNzFkZTE4YzJmNDQxZDcxY2VhM2UwZjE1ZTY1ZTc3ZWY4NjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2NDYzYzIxMzE1YjYzMWIyNTU1NmEwMmU0NTFlMmEwNzYyOGZhY2IyODQ0N2QyNTc2YjgxYzk1ZGUwNDIxYjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBlNDAwYmRlOTFiZTQzNWFlNDlmN2UxYjJjYjBmYTM1MWNlYzMyZDBkYjExZmI5ZWVhOTliNTAwNWJiNjA5NDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3MzNjNGU4ODM4YTU5NjQ5NDRjNjVjZTA1NzZjNTJmZTNiOTMyY2NmNzNhYjRkZjM1MGY1YzM2N2QzMjg4M2YifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ff30b9b372ed48148f645cf93744ca04",
+      "statement": "Test sequences upload, deployment wait, run repeated by -runs (default one), then a single verify; run repetitions do not each perform verification.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2907-L2923",
+          "version": "repo-lines-v1:sha256:9d1e8685f487e8c5eb0b2237a7e7c9abf077e5aaaffc921b0131865527882dfd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzM2ZlNWM4ZDU5Zjc2MTliNWNhMjBiZTk4MDJmODhlNWE5ZTgwZTkyOWNlMzJjOGRmOTVkZTA1NDQ3ODg1YWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNzBjYTI1OWRjZWQyODIxZjNlYTNiMzczN2E4Yjg4MTRiNTY2YjIwNmY5ZTZiNWM5ZTI0NmUzZmEwNDI2ZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5YWJhNmYwM2MxYjMyOTlkMDdiMzQ3YjE4ZjViYTM1N2U0YmZjM2U1M2VhNTg3YjU0NGFkNWVjOGJiMzliZjIifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3692-L3700",
+          "version": "repo-lines-v1:sha256:38f91e3a95e44dea673792104c32dc728ad59c252d7838036952f8c77379b616:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2QyMDAwYjg2NDk5ODU5ODM3Y2Q2M2IyMTY0Y2JiNzRhZDEzZTg5NTRkNzA0YmEzMGE4MTAxNGNmNzMxNTI2NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGI0ZTk5MzQ5YmFhODUxNTk5NWM5OTgxZTlkNGRjMTk1ODRmZjQ0YjgyYzdhZmZkMjkwYWQ4OWE0NDcxYmJkMSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2a2f52179e6540cc85497b4e2582c4c9",
+      "statement": "Standalone run-pytest requires the first positional folder, checks direct test_*.py files and warns/returns if none exist, splits -pytest-args by whitespace before pytest.main and raises RuntimeError for nonzero pytest results; it does not upload or run first.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2925-L2954",
+          "version": "repo-lines-v1:sha256:2e55286b144b478171e0d3940c408626857f56aff9e532f5bc51a4bbad8d999f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjYTQwNmUzMTE5ZDhhOTViYWEwMWQ4OTczZGQxZTU5Njc2NjU1NWQ2NWFkNjc4MmNhNGU2NWY2YzQyYjhmNWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3ZGNkN2I3NzE5MDA4OGE1ODM1Mjk1NTk2MDhhMjBiNmYyZjdlMzgxYzY3NWQ1YTIyYjA1NmVhYzA4NDMwNzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU3MTEyMmY1MGNkZDY3ZjE4MGFkNzVjOTRjNzNiOTA2OTMyNWNjNjZmOGRiNmI4NTE2Y2RhYzE5MjZhMzE0NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjODcyNmQ4ODRhZjNjMWI2MmU5NGYwMzgyMDJhNjkwMjVkNzM0MzE5ODM1MzI2Y2U0MjYyZWJkYmQ4MzBjZmYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3782-L3791",
+          "version": "repo-lines-v1:sha256:a56e2c7239542e1b5db1e10d9a87fa061f353cc9e3255d87919b1b34e1e9f689:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiZTQzOWE0NzUwMzQyN2E0Yzc5ZjliZDNjM2MzZmMxZjkzZmQxZTdiNGM3YTE1MWQ1YWZhZDA0MDJkMWE4ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzNzQzYjU3MzcwYzE2ODNhMzhiNmE4OWUwZjU2MzNkNjEyY2E4YWE5YWRkZGFjZmZjODRhNmNhZmFjODU5YTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUwNjQwNTczZDA2OGZlNzg4OWQyODA2NzYwMmNhZGViMjE4NDQ4N2VjZmU1MTRmMDYzNTYxM2FlNzM3YmNjMDIifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4260-L4269",
+          "version": "repo-lines-v1:sha256:de0a734274361abdaf62c632506fab936a3a156ba2415310b73729f4f25e3004:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMzJjOGQ2ZTU0OGZhMjRlZGFhNTNmMDA0MGUyMDU1Mzg3NzBlMTFjYjQ2MDlhYjM2ZGMxMzZiMzdmMWYwM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYTdiYWFhZDhkNTgxMWVjZWE2NGFjNTM0MmJjODIyOGQyZmE0MGZkZjE2ODliYjhlZjNhZTU5MjA2MWVlYmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiMGI5MjZlMzNlMmFlZmZjZGM4MGY1ZDM0YjlkMmY5NTZkN2FiMDUzNTdmZjM1ZDAzMzRhN2MxZWQ1NWNmOTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjljOTI0M2VhZDZmMzQyOTNlODdhY2Q0YmU5YWY4ODgyMDgwZTg5ZGE3MDMzYjQ3NzE5MDdmYmMyYzBiNzI2MzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b7b1b6e0d4f4d84a33878509322b108",
+      "statement": "The -run-pytest folder option executes tests only after the selected non-run-pytest handler returns, including offline handlers; after test it follows upload/repeated runs/verify, while other main commands use the standalone warning about needing recent upload/run.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L2907-L2917",
+          "version": "repo-lines-v1:sha256:576b029d2736eb331bc0eaf92149feed52824b7048f0b6b7b6761396514cd1b3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzM2ZlNWM4ZDU5Zjc2MTliNWNhMjBiZTk4MDJmODhlNWE5ZTgwZTkyOWNlMzJjOGRmOTVkZTA1NDQ3ODg1YWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0MjcyNjkxZjVlMmFmZTAyOTE3NTQwYzM4NmU4ZGZkZjBlYzNhYTk2MmUzYTQzYjU4NTZjNDBhMDcxNWIzMGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNzBjYTI1OWRjZWQyODIxZjNlYTNiMzczN2E4Yjg4MTRiNTY2YjIwNmY5ZTZiNWM5ZTI0NmUzZmEwNDI2ZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1ZjAxZDMxYjlkMmQ0ZDdiMTgwMjY0NDk4ZTNkZTEzMTgwZmU0M2UyMDQwZDBjZmFhYmQ3ZGFkZTFlYTJlNWMifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L2925-L2954",
+          "version": "repo-lines-v1:sha256:2e55286b144b478171e0d3940c408626857f56aff9e532f5bc51a4bbad8d999f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjYTQwNmUzMTE5ZDhhOTViYWEwMWQ4OTczZGQxZTU5Njc2NjU1NWQ2NWFkNjc4MmNhNGU2NWY2YzQyYjhmNWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3ZGNkN2I3NzE5MDA4OGE1ODM1Mjk1NTk2MDhhMjBiNmYyZjdlMzgxYzY3NWQ1YTIyYjA1NmVhYzA4NDMwNzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU3MTEyMmY1MGNkZDY3ZjE4MGFkNzVjOTRjNzNiOTA2OTMyNWNjNjZmOGRiNmI4NTE2Y2RhYzE5MjZhMzE0NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjODcyNmQ4ODRhZjNjMWI2MmU5NGYwMzgyMDJhNjkwMjVkNzM0MzE5ODM1MzI2Y2U0MjYyZWJkYmQ4MzBjZmYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4278-L4281",
+          "version": "repo-lines-v1:sha256:9fbc2d7b48b13377057131a594e9d9d672b6e334ac3f542493523f96d2e2a90f:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTg1YmIwZmI5NmU0YWRiMWRjZWU5NmIzZWYxZjBjZjgyODYxOTUwNjNlM2IzODExZmYwMDQ5ZDRkZTRiNzFmMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWY1OTRiOWQ2MTUyY2IxOTg4ZGE0ZGY4NDhmYjRkNDYwNjY0MGM4NDA0YWVjYWVmZGU5NjkxYzk3OTY2NzYxYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWUzZmZkMTI4MDhhOTBjMDg3YmM3MjQ2ZWZjNDM2MjYxMjk3MjY5NDkxMTAxNDdjNTIwNjg5YThkYTU4MmEwZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTg3ODI1OWFmM2QzNDk0OGY0NGUyMjI0OGE0NWY0N2RmMGJlMGM1NjkxY2Y4Yjg3Y2Q1N2EyZTIzY2ViZmIwYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3a417cf52189473d8d6791e881b572b7",
+      "statement": "SesamParser errors exit 2, including explicit upload worker/rate validation, while unknown/missing commands, bootstrap failures, developer denial and command exceptions exit 1; dispatch catches BaseException including handler exits/interrupts, specially reports upload/testdata errors and limits generic underlying tracebacks to extra verbosity, while -version exits 0 before command admission.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3975-L3990",
+          "version": "repo-lines-v1:sha256:7ab5f242bef9c62ea04da2fd3f7a75f948d0c966c1e4db69f1b7a6408ffbeeea:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkYTVjNjZlMTdiMTQ1Mzk3ODM0YjhjODU0ZGM0MTkzZTIxMjUxODBhODk5NmExNGMzMTg4MzMyNmIyZWZiY2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2ZGFkNWEzYzc5Zjk0MTViYjBjZDU1Y2I0M2ZhNTNjNzgzNzY0ZTg1OTcxNWM0NWZjY2Q5NTJiZTNiMGUyODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3M2U4NzM1NDY4YTkxYmUxODFmM2U1ZWYxMWE1ZGRkZWU0ZWQyMjFmNDkyZThlNThkMGE4MDY0NjJjYmE3MGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxZDdhZmVhOGU3Y2EyNmExMmRhNWFmNTAyMGFiYmM3MzI0YWYxZGNmZGMzYWMzZDdmY2Y1NTY5Zjc4YTYzNWEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4084-L4155",
+          "version": "repo-lines-v1:sha256:f197c4d5f210ec6630c319a8f50bcb6ad18700d32b5be81b35a09b7d495ef6f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhMjc5NzRjOTQwYWE2YjAzOTMyMzNjMzA1ZThjY2I2ZWY1YjZkY2U2NGViZGVhNDUxNjRjZTEzZTM2Mzg3MmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZTdjYmQxNjhkMWE2ODMxOWMyOGUzN2E0NzYwNmIyY2FiZjE5OTc1ZTljODJjYjMwMjRiNTlkMGY1NTA4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlZDg3ODMyODA4M2Y5NGJmZWNjMmM2MjU3YWFjMmZhZjRhOGExMmI0OGMyY2Q1NWE1YjkxNGM1MWQ1MWNiMjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0NWI1NmQ4NmE3ZTQ0ODU1ODMyMzNlODk3ODVlZmRiMjEzZjgwNWQyZDgyNmE5NTgxZWI5ZGExNTQ4NmM2NzMifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4282-L4307",
+          "version": "repo-lines-v1:sha256:ad127a7420999452926fd94233e883a4e902cd76b2a5287d5323c57d82c44207:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5N2I0N2JiODFjZTkzY2JhNjdhZmMwODY5OGE4MGNmYTA5M2E4NjY3ZTljOWY5NjUzMzc4MThkNjU3OGQxODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4MmNmMGI4YjEyZjE2ZDc5YTQzZWJmZGIyNWE3ZDk0ZTc1ODZmZWU3YjViNDMxNDc5YTI3MDczYjUwNDQ4Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiNTg3OWQyZTBiYTA1YzNiYjY5MjIwMTMxYTUwOTVlNDY4Yjk4NmNhOTRiZDc3NjcxOTdlNThjNDc5OGViYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L49-L83",
+          "version": "repo-lines-v1:sha256:cdb6c0e373a831334b931a5ee1be44eae2088e752ebbd9f56b4e23576480633a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkODAwMWMyYTk3M2YxOTExODg2NDBjNTBiNGQzYTI0ZmI4NDc5ODNkZTA1NjllNTBhYWY1NDMyMGQwYzZiNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzZmExYWU4YTdlMjY3Y2QyMTdjMDZjMzEyNTQ0YWRiMGM1NTA0N2JkNGQzNzg2NTJiMDFlYzg5NDRkYWYxMmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiOWI3MjU4N2FlM2NiYjRkYTlkYmNlOWI3NGEyODM1YjdmYmZkZmQyMzZmMjcyYjhmZTE3OTMxYmE3MTQ1YzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwMWIyMzA5MDJkMTliMDdiYmQ0YjdiMmYwNTRiOGFkZDczMWYxODQxM2IzMWJkYzQxNTQxODdlZjJiMTE4YzYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L86-L90",
+          "version": "repo-lines-v1:sha256:9b45f4bc36262869d9e50e5cb65b19316ffc6eca98fb8a7be20298bb937e593b:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGQ1MWUwZTQyOGVjNDk3N2VhYThlNTc2MDNhNDdlZDdhNDgxYTdhZmNjMzIyZmY0MzU3YmIwNWEyMWU0ZTIwOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTljOGFjMTc1NjNiNWUwNzYwOTgyZjY1Yjk0YmYyYjg4ZTM1YTM5NWU3MzA0MTk2YTc2ZTUxNjkxNDliYzNhMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGM1ZDQ0NDhkOTI5Yjk2ODFiNDg2OTQ4ZTM5ZWRiODljY2M4NzM4ZjQxYzg4OTIwY2M4ZWQyNTU5ZDg3MGQwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTQ2ZGMwOTcyOGI0NDA4ZWZhYjIwODk5YTg3OWJkYTJkOTgyZDVhN2NjNjY5NzVhOWYxYzM1NjI5MTU4Y2Y5YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_48e239a01fce472d89c447c44309322f",
+      "statement": "Authentication dispatch uses manifest auth/variant to select Tripletex, OAuth2 with optional SuperOffice-ticket, or API-key login and sets service credentials from the resolved node; the API-key helper is invoked only when .authconfig exists, and unrecognized auth falls through without work.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1131-L1216",
+          "version": "repo-lines-v1:sha256:aa4c3e599dd121bfd7efc8c20fa138a41b50b6120855188207c31804c5de023f:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwYmQ3MTlmYTEwYzgyYWZiMWYwMTM0NGQ0OWYwOWQ3NjdhMjg3ZDZjNTEwMzc4ZWEyZjEyM2E5OTk5YmFjZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmMDg2OGQ4NjJlNTk2ZTFmYTBhMGE1ODc4YjA1MGVlYWZjNmUzNGQwZTE2MmJlMzhjNmFmM2IxY2JhY2U4ZmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5NTg0YjEwNTdiZTEyNmMwMWE0NmVhZTY2OTI1NzZhOWI0MDIzNjYwZTY0YzliYzFiODA0MjllMWY0YmIwMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmNDMxYmUyYjhmOThkZTM4M2JlODJiOWEyYzgwYmVmZGM2MTE2ZTFlOTdjZDM4YjZhMmExMjM2NDQxOGZhMDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_adb3b96b21a34a3d89841ed4ecc23f94",
+      "statement": "OAuth2 authentication starts a Flask callback server on port 5010 and logs an authorization URL, exchanges callback codes against an external token endpoint, may call identity/SuperOffice services, writes secrets to all returned node systems and updates node environment; its shutdown helper shells out to lsof on port 5010 and kills the returned PIDs.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L168-L237",
+          "version": "repo-lines-v1:sha256:87705f5c13d3a268dafa5a46a0e009d3308397b92616420f7d052c1fcface47d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhNWI5NjYwY2I0OTE5Yjk5YmY5NDBjMjFkZDI0OWQxOGE1YWIwYWNlNDQzNDNmMWZmZjQwNzQ0Mzk2MTdmYjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyMjg0MGQ3ZTY2NWU2ODhhZTU3ZDg5MzkyODE3ZWU3ZTgxYmQyNjcwNzRkODc3NWIzYzE5NjE0YTc5NmY1NjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYjg3MDAxN2M2ZWI4NWNmMjllNjY5ZGI1MGI4MDY1NmVhNTk2MjllNjAxMGRiMTgxZTIyZWM3OWVjNzBhMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L17-L39",
+          "version": "repo-lines-v1:sha256:e3cca3983e856c15f577978947ca2e7cdd0fde7c37bd67d474d658c490589a89:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkNjY1OTc4MGY3M2QwYmI4NWQyY2YwZmMxODRmMmFiMzJlOThlZGE3NjU3N2M5MmEyYTQzMTYzZTk4ZjZiOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1NzExZTE4OTY1NjRlZDU2ZGQ5OGE0YmVlOWYxYWM4NDAxODc3MWI5M2NkY2U1OWE0NjMyMThjYjYzOGY0ZTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3OTlkOWI1MTZhOGJjNTNkYTI3YTJiOGVmOTc3YTAxYWM0MGJhYjFkOTA0MzZlNzY2MWJhNDZhOTMwMmIxZjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkYzdlYjNmNzE2ZGE4YjdjZTY1NDg0NzhjZGM4ZjgzOTUzMmFmN2Q5OGM5NTMxMzY4OGNhNTUzMGU2ZDJjYTQifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L65-L165",
+          "version": "repo-lines-v1:sha256:8dcab1ba332bbf11d305e411b62b8c7200f6e973ae6b92020d546d61afcfd3a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyY2RjN2Q5Y2MzZjVmN2Q0NGVlODQyYjQ4ZjhhOWQyZDAzYTUzMmNmZjNiNjM0ZDE2NzdhYzJlOWFhOTYzMGY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJhNDgzYTMyMWQwM2Y4ZGZiNWVmN2RjMmUwMmEyODljZDk5NmE1ODk4Nzc1OTQ5ODk5YjEwZDNhZWFkNzMwODY2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5NmQ2OTY5OTVkMjZjMGZkNWFjYmEyOTkxNzA4MjlkN2IyYzRhMTliMTU0OWYyNGYzZTNhYjMzMzgyMzc1MzY1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2NTIxMjY2NGEzMGYzNDFhODM1NGI4NzU3NjUyOTg5NWNkNzcyNGFjOTNmYjZiMjhhMTRhYzg4OGFkNmQ5Y2VhIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ddf5776a3ea849f99b08f5f3edc341e5",
+      "statement": "API-key login writes secrets to all returned systems and can exchange a manifest JWT login request for access/refresh tokens; unlike OAuth2/Tripletex, this inspected helper does not write environment variables despite its success message.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L49",
+          "version": "repo-lines-v1:sha256:ca9bc2651e8a82203a112cbf73ee301ca3de603e0bde32bc46d1be09c9b31658:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzMyMGZhMzg3MzdhODM1ZjQwZGUzMzI1YjdiNzQ1ZjU2N2NhNDlhOTJhMjk0MDYzMDJmODQzNzhlMjI5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGUyYTkyODI0NzllZTA0ZDM4YjZiYWY5ZDYzNGYxOGQwNzFmMTUyNTg5NDc0YjFhZWZjZWYyNjJiMWY2MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8168bea639f144e39aeb5e7839f7a74d",
+      "statement": "Tripletex login writes credentials to the selected placeholder system and updates environment/profile values, constructing a session token URL rather than directly requesting that token endpoint in this helper.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L10-L82",
+          "version": "repo-lines-v1:sha256:1fd340a4c63caa92ff91e5d3c03a7b4aac1a3641f4c902d0b41870a8847ed141:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1MzViZDRhNGRlZjU3ZWI0ODM1NmIwYjBlMzNhMTg1YTg5MDI5M2JjNzRmMjMyNTBiNTAwNTA4ZTRlYTQyZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU3NzVhNGYyNTY0YThiMTQyMWYyNmE3YzM3MmE0OGZiOTQwNGQ2ODFkOTRlZTg3ZjQ1ODM0YmM4ZTM0YmEyNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_54a916ee0aa24b0f86abca4dca36393f",
+      "statement": "SuperOffice-ticket OAuth2 delegates to a helper that uses manifest JWKS and RSA_PRIVATE_KEY to obtain/verify external system-user ticket data and perform SuperOffice API requests, adding external boundaries beyond the basic OAuth2 token exchange.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L114-L117",
+          "version": "repo-lines-v1:sha256:54d426db8a9253912e57b076aae9f413b0294f67f0c2041f2910983944e6b772:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODhjYTM4ZjM4NTFhYjgzYTNlM2IxZjZiMmFjNjQxMTBhNWZjOWM3NTYwZjRjMjQwMDkxNmZmMjM4ZDY0OWJlZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjk5MjcyMTMzZTZiZWEyNjU2NTcwZjk4OTk3MzE5NmRiOTU4Nzg5YTRkMGIwMDgxZjk0NjBmMWMwZjg3MTBjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTZhM2IwNGNhMGQyZTBmYWY1ZmQwYjBiODU4ODM3ZGUwOWY2M2M1YzYwNDUzMTEwODM2MjVhOTVlNGNhNmIxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWMyZjEyZTkyODBhZTU2NzViMWIxM2JhODAyODJiNjVhMGYxMzY1OTNhNGVkOTVmNGZmN2Y4M2Y2Yzk3OTZmOCJ9"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L77-L157",
+          "version": "repo-lines-v1:sha256:383a5718b95032e78a6cae6198711602b725d8c0159dd6fea7ecf6e0fea4c5a0:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyOTk4Nzg0NDgwOWJkYTc4NGNlMGRiMzk2ZmZlNmUyMTNkY2IyNzg4YmY2ZDkxNGUyMzEyODI1ZDFhODlhMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNThjMGM5ODc2ODA4MmUwZjNiY2FlNzcwN2Y5N2UwMjM1ZWYwZWJlZWFmZmRmOGJmYzlkMjE0ZjIyYTBmZTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFhMDJhYzcwMjc2NTM2NTgwNTNhZDdkMzhiZDgzOTg2NGQ0YmI2YjEzYWM0YmViMDBlMmMyMmJhNGQ5ZWFkYjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1205-L1208",
+          "version": "repo-lines-v1:sha256:f277c33e5624e3e8df21d884ba36413a4ede3b01f3820984c93dfc9d0612fdde:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzBlNjU4ZTkyYjVhNWIxMzBhZDFlMzFmZjI4MWRmNzAwYWRiODEwNGExNzZkNTA0YzQzMTFlNTkwY2M4NTI1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FhZjAzODhiYTA2Nzc5NTBmYjdkZjFhZjZiODEyNzM5ZTQ0NTVhMDQ1MmQyMDcyYzcwYmMxOWIzMzgyYWMzMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWI3ODgyN2JhOWJiMGEzYTc2ZGIxMDAwZmM2NDA4NzkzM2U1NDIxNjYzMjRmNTFiZGM5YWE1ZDMxZTVmMGQzZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIzY2M3MzY0NGQ1MTNiYTRlZDk1MDExMGE2MzA4NjIyZDcwNDkxYTRhYWZkMzYwOGVkZmJmODJkNjg1NTMzYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fb12d190168e40b18674a813bd56ac58",
+      "statement": "Authentication helpers often catch errors and report failure through logs or callback text rather than raising to command dispatch, so successful CLI return does not reliably certify transactional secret/environment updates.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L32-L49",
+          "version": "repo-lines-v1:sha256:1379ff65720eef3b67cf2a29cfef395e1b8328e7c81138eabf459dcd0dc4d3ae:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjODRlY2ZiNDBlZjU5OTgyNTE4NzVmMWE4OGU2NWFhNjA0YmFiNzkwNjA5YjdmN2FhYmYyMzE2OGNmOWYyNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiZDkxMmNmNTJlN2ExYzIxMTAxYzdiYjQwYmIyNWVmOTkzM2M5YmFiZjY3MWNmZGJiNTFmOTEwMDZmMzc1OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L110-L165",
+          "version": "repo-lines-v1:sha256:a273f9631e0b0220ded6ba27e704c894cc0701ab012f1994b6f499ff7accf915:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjZDcwYjg0YjYzMjEwOTg4NWNmNzhhNzU4NTQwNzRhMGYyNjA2NDE2ZWE1ODY0ZDhmM2E0OTk2ODFlMzMyMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ODNhMzIxZDAzZjhkZmI1ZWY3ZGMyZTAyYTI4OWNkOTk2YTU4OTg3NzU5NDk4OTliMTBkM2FlYWQ3MzA4NjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiZTJmNzEzMDM4ZWYxNGE4ZGQzNTY4MmQ4Y2FlMGYwMmY0YzkwMjNkMTRiZWJlZjhlZDgwYjQ4Zjk1Y2NlMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1MjEyNjY0YTMwZjM0MWE4MzU0Yjg3NTc2NTI5ODk1Y2Q3NzI0YWM5M2ZiNmIyOGExNGFjODg4YWQ2ZDljZWEifQ"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L36-L82",
+          "version": "repo-lines-v1:sha256:055427d1233fcc8cdfa1e0b33e52965b7b49eb512c84f8d4c142845210a5e9bf:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjODRlY2ZiNDBlZjU5OTgyNTE4NzVmMWE4OGU2NWFhNjA0YmFiNzkwNjA5YjdmN2FhYmYyMzE2OGNmOWYyNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmMWMyNDBkY2E4N2M1ZDM4ZDFiNTFjM2NmZmJjMzZkMTY4ZDQ1MDYyZTE3N2U4NDE5MjBmYzQ2OTYzM2Q1Y2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_567cf07180354349ab5557ca5a6e82de",
+      "statement": "Credential logging is hazardous: SesamNode debug logging masks JWT but connection failure prints full URL/JWT, -vvv enables HTTP debugging, regular .jinja_vars values are logged, and --use-client-secret can place the client secret in the logged OAuth2 authorization URL; -skip-tls-verification affects the external node connection rather than establishing a universal policy for independent requests.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L197-L222",
+          "version": "repo-lines-v1:sha256:da8105ae02865737292ba9cc30527b06c4bef276e90d532043fb81cdce8e5046:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxMTJmM2Q3NDA4YjQ0MDQzOGI2NjBkNTUzZjdlMGNkMGQ5MDEwZDUxMGE3MGRjZmYyNjYyZTU0MGZkZGRjZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmZTg2NTNlNTc0NGJhYjcxY2ViN2ZjNzg3ZTVmMjA4ZDAxZWMzYTRkMDM1NmY3OGFmNzVlODZiMzMxNDM0ZGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlNjc5MzE2MDc0YTg2YWE5ZDg4NzQwY2QxYTJmMjdiZTlmZTBhM2VjNTRhMDhjYjdkMjU5ZmE1YjA4MGRlNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjOTIzNTM1YjBhZmY2NDcwN2I0OTIxMmEwODRiNWZkZmIzZTZiZDg0OWEwYjg4NmNlMDE5ZTA2NGZkOTQxNDYifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L254-L272",
+          "version": "repo-lines-v1:sha256:f341078416e0edf1695ed87c438051ec83aafcd497c66f924ffe38a32ea12b6e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllNGQ3MjI2ODVmMmI4ZjYwZmQ0NGY4MTM0ZTU4ZjNiZWY3YThkMjdmNjNkNzU2Y2UxYTlhNzI2YTQxOWQwMTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkMzMwM2E4YmNhNmZkZGYwOTk4YTM3ZjU3ODkyYjI1MDVlMTY2YTQxZjFhYmIzODcyNWJlZGUxYzdlZWQ4YzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxMzdmMThmOTM5NGFiZmYwYjU5OGNjOGJhMjA2OWRkODM1MTFiOGY1YjFiMTEyZGUxZjhjZWJmYjEyOGNjODEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L327-L334",
+          "version": "repo-lines-v1:sha256:fd6a615e9ff48f4128124655cda96a4f7c369d9587d59efaa4e20f0d4aed4c14:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODYyODk0MTVlM2IxMThkNmRkNGMwYWIwMGFhMzgwNTViZTM2OTFhYTQ3NGM0ZTI5MDU2MWVlZmM1ZDk4N2JmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUwMzJlOTY0ZDA5MzIzNTFlNWQxODUyNjkyODFiMTcxYTNhMDliMDhiMjg2ZTY2MWVhNDcwMzIzYzgyZWI0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWIzOTk4NjY4ODRiYzUxMDQyMzI3MjA5YzQ5YWM5NzdjODYxMTNiYmI4MGY1MmY3ZTJmMGJmNjkzZTkyYWNhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDkwMzU0MTA0MmM2ZDAxMmM5NTA5OGI0ZTZlMWY1ODA1ZTI5ZGM4YTVkZTQyYjk2NTIyNDVmYjg2ZjhjMDI5MCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4027-L4036",
+          "version": "repo-lines-v1:sha256:5b98d5a3010adf9495eb89df63035753b8cf05093b8bac3c02535e91462548f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwMmVkZmI2OTI4ZGE3NmM4N2RhM2ZkZTY4NGNjNWI2NGY3NzQxN2M5OTM2YjVlOTFkYTQzYjY5NDRkYjBmNDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjZGY4NDA4ZWM2NmVmMzc5OTczYTNlNGY4NzdmMzFjMjM0MGVhZjRjZjI2NmJmZmVjZjZlOGFiYWEzZGQ2MmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmYzc5MjdmZjQwZjRlMWNiYWMwMWY0MzVmZTU4OTA5NmZjYzUxMDk3NmJlNThkMjY1MzExNWQyMzg2ZWNjMGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjZTQzM2I5NjlhNTYzOWFiODc0YTQzMTJmMDk2NGRlNmJmOGJjNmQ4ZjJkMDc0YTVhZWRmZmM0ZDk3YTg3ZDEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4117-L4155",
+          "version": "repo-lines-v1:sha256:e64d944b7664261db5d0cff4c3bc668e717000ba13c98b5a67fe12cd6149f607:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2NDEzOTNkYzg3NDY5Y2VjY2FkZWZlMTU5ZDZiMjNmNmVkMzMxZTY5NmUwZDc2MmM1N2EwMWQ4ZDU2ZmE2ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZTdjYmQxNjhkMWE2ODMxOWMyOGUzN2E0NzYwNmIyY2FiZjE5OTc1ZTljODJjYjMwMjRiNTlkMGY1NTA4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1MTg2YmE4ZTFjMmFkYTBhNDFiY2JmMzJkYzM1MWNjMzM1Y2NiOTYyOWU1NzkzOWJlNGYyOGYzNzg5YTYzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0NWI1NmQ4NmE3ZTQ0ODU1ODMyMzNlODk3ODVlZmRiMjEzZjgwNWQyZDgyNmE5NTgxZWI5ZGExNTQ4NmM2NzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f3b0de2f558b458990f33cf079d66480",
+      "statement": "The connector modules provide expansion/collapse and login helpers rather than establishing the historical standalone connectorpy command dispatcher shown in README examples; connector_cli.__init__ is empty and sitecustomize adds connector directories to Python site paths.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/README.md#L5-L24",
+          "version": "repo-lines-v1:sha256:30355a562054077cfa7bff1f5b8cd93bee248158d2c4b091c89e31a5a9aab8c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNmFlODgwYmM4NTE0NTFhMTRkOTNhYjI5YWUxNjcxNzgzZmE4ZmFkNDg5MjI1ZGFlOGYxMDk0NDUzYmI4YmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3OWRjNDg2ZDcwNTEwNzZhODI4YmExMWMwZmQ0ZmE1MDE4ZjYzZmQxZTZhMzcyZjM2NjcxNmJmNzAxNTdkMWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFjNzA4MTcxOGVhOTRmNTcwYmFiM2ZkYzU4NjdiNjcxMWYxOWM4OGRmNmY4OTM1YjBlMWJmZDMwOWUzZjllNWUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/README.md#L84-L97",
+          "version": "repo-lines-v1:sha256:b2ed59d4188200974346f739f7122b32c7c6542b45dfa8abe7ceadbc21d95bb2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlNzE5OWNkYmUwYWVhOWZhNzJmYTZlYTk4MWUzZTMxYWVjZTgwOTgzYjYwOWM5ZGQ3ZmMyNmYxODJlOWNlZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmMmI3YWRhMGQxNmMyMzdkZGUyZDgxNmVjZDM2ZjJkMWZjZjJhMTJiYzkyNmYyMjg1MTY2Zjc4OWM2NWJiNDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjMTAxODJmOGQ4ZGRkMGUzMWViY2RlNjMyOWU1ZDg5NzFhYzk1ZjQ4ZDU4ZTEwNzdjYTU5MTNjYWI4ZWVhNmUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/__init__.py",
+          "version": "repo-file-v1:sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "resource": "repo://connector_cli/connectorpy.py",
+          "version": "repo-file-v1:sha256:471b5ccbe0b860832e1df4f53fd41b1492c4983d7e99f8ae7f017e83409053b1"
+        },
+        {
+          "resource": "repo://sesam.py#L33-L34",
+          "version": "repo-lines-v1:sha256:e0ff47d189625e94a5187ba00c1db71c0fa67ae06c990385444f7ef54be03ec5:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDY0Yjg4MDFjMzQ0MjQyOGRhOWM4NTk2OGNmY2ViZmZlYWJmNjNjMTE0ZjA4MDliY2I2NDcxOTg3YTVmM2I4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2IxNDhkZTQ0MzNjYWQ1YWY5ZDcwMTYwMzU3YmRkYTIxNzRmOWQwMTUwY2Q1YWEzYTkzMDc4YTM4M2EwY2EwYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmMwMTFhNGQzMWQzZmM3ZTBhYWU4YzYzZWVhMWYwZmFiZWEyZjZjMmE1YjdiYjliNTEyMWVjMGNmNzJhZWY5YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTRmMDliMTY0NWExZTRmM2EyN2QwMjUzZGQ3NTMxMjcyZjM3N2RkNWI3MGQ4NTJlODg3YTA4NTE2YjY0OWRlNiJ9"
+        },
+        {
+          "resource": "repo://sitecustomize.py#L1-L4",
+          "version": "repo-lines-v1:sha256:53c9a12f8d34e181743ddd6d03fd261a0eaf9be3b41a76e19523307e0b2ea76e:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQyMzRjYjk1N2EwNWYwNGRlZTVjNTBmZjg0MDVhYzBiYjllOTAwMTAwNDFmYjhhMjFkOGZkMDZjNjE3OTMwNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmY5NTVkMmI4YjBjNzYxMmRmZmI4NmJjYjFiNzIwYmI1MTRjM2U0ZGVjMTI4MjlhY2NiZGM5ODk3MTY5ZTNiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f46c0b9dd41c4acabbbb03728eb6b58c",
+      "statement": "The fair-weather shell scenario exercises credentialed reset, whitelisted test with post-command pytest, update, status, dump download and final reset, while its nested Python test only checks underscore-free pipe filenames/IDs; passing -sesamconfig-file there is not proof that the option has a consumer.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L3722-L3729",
+          "version": "repo-lines-v1:sha256:b5ef505f630b29a865dcd3fae505117f83093514aafb35f78815e3696dbca36c:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTUwODQ1ODlhYmUwNmM2MGUwODg0OTIzMjU0MWMwMmMxOTFhNjQ3MGNjNTFhNDQwMDY4ZTA3NDVjZmQ3OWM3NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDRiYzA2MmIwNzVkYzk0YWYwMmYwZWE5M2M5NjQyZWQwZTYzMzIwZjFlMTU5Y2RmMDU4ZTczZWNlNTM2NzhlNSJ9"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/run_test.sh#L31-L49",
+          "version": "repo-lines-v1:sha256:679f8bc1b9fa7c8f22603e2a38a8eb2671fcaf5d789ec893405944bd6083bc7e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZjQ5NmZmYjZjN2IxMjVlYzY4YWQxMGJlMmNmYzk3Njc2YzZiZjA3YmEyZmNlNzViZDkyZDA5OTBkZGJjMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiNmYxMTFlYjRkMzZhYTkzNWYyMDIwNzFlYTI0MDU2NmEwNmFiMjc5Yjg0MGViN2ZkNDViNTc0M2RhOTZmMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0ODAwNGZlMGNlMWJmMmU5MmYwZGMzMWIxN2IwMjAwOGI1YTllNzM3NzZiYWU1ZDVkZTEyNTVjM2EwNDJhZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/tests/test_pipe_id.py#L6-L18",
+          "version": "repo-lines-v1:sha256:b25413eac6580a8e47226f132236e79dcd0359b8ace27197187bfbb0a77207ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MTFkYTg0MWFmZDk1ZGYwOTNlNmIyODQyZjZkMGVmMDRhMjMxYjk0NjE3YWVlNmVkNGRmMDgzMWM5MmY5Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYjZjODQ0MWQwMDRiNTIzYmI2NjViMGRmNTc3YjM3MTFiYWY1NDBkZGExNjA1ODdiNjI0OTQ1OTNmMzE3NmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjM2QxYWYzNDhhZTgyYjQzMjBhMmQ5NzcyZGNiYjI4OThiMzgzNjA4ZmMxOWE2OWYzNjNmZTQ5ZDlhMDA0NmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_49d10aff6ac14cc28553bd1cd17bcc29",
+      "statement": "The embedded-conversion integration scenario copies local fixtures, wipes, converts, tests, resets and compares resulting trees; its before/after fixture specifically shows conditional test embedded source becoming http_endpoint while prod is unchanged.",
+      "evidence": [
+        {
+          "resource": "repo://tests/embedded_conversion_test/before/pipes/input-pipe-1.conf.json#L4-L29",
+          "version": "repo-lines-v1:sha256:34e8c8def82f104537447a0f69d0eb6db01a5f87d2bc7c3b757d5cbdb799d859:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmYWQ3YWNkNWZiYWY0MmNlNzJmZDgxODQ1MGMwYmRkMWFlYjc2YTlkNDFkNmZjZTI4Y2NkMzNlZTJiZjIzN2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlYzQ5YTM3ZmZlZjc1MzJhMjdjMWQ4ZTQwZjNhZTdjOTU2NjgyNzM3ZWYwOTMxZGI5ODFkNDhiMzA0ZjU3YjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/expected_after/pipes/input-pipe-1.conf.json#L4-L15",
+          "version": "repo-lines-v1:sha256:87d0067463c86e813ce0f22f274e765a593cdd2f787eb337c68cbfb9d7a293af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmYWQ3YWNkNWZiYWY0MmNlNzJmZDgxODQ1MGMwYmRkMWFlYjc2YTlkNDFkNmZjZTI4Y2NkMzNlZTJiZjIzN2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwZGIxM2IzYzJlOGJmYjlhMzNmNTBhODc4ZjgwODM0NmI5MjUxODlkYjk2MTM4MzVkYTUxZjUxMmYwNjU1OGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlYzQ5YTM3ZmZlZjc1MzJhMjdjMWQ4ZTQwZjNhZTdjOTU2NjgyNzM3ZWYwOTMxZGI5ODFkNDhiMzA0ZjU3YjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L31-L58",
+          "version": "repo-lines-v1:sha256:2d72a772ba362c191ddcb8dabafab6a768d697acce57b470bc2c516defed749c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMmFhOWE5ZTgyZjAwN2RkOTY1OTFiYWI2NTJlNTQ3NjRkNDQ3MTY5Nzg3ZWYwYTNkMGYxZDRlOTJmZjRjZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3NjlkMjM3Y2Q0MjBiOWQzOGI5ODFhMGE0ZjY3NzAxOTBhNGE4M2RjYTFmZTU2YzRmNWJhMWUyY2JjMGVmNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwNDI4NDYyODNjODI4MGRmZDExNDNmZDcxZWEyNzZkMjgwZGQ5YThkYTU4OGQ1NjFmMjdiNDZjMWVkZDUyNzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1YTExZGE0NGM4MDI0ODZiYzZmNjU2NDBhYTQ4YTczMGYwZjY4NGM1YzA3YTQyYmEzY2QxNzM1ZWIzZmIwNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_68208622bcf14b09bb98754979fe3de6",
+      "statement": "test.sh performs executable help smoke checking and runs the authored scenario directories using a credentialed node, so these reset/wipe-containing checks are remote integration scenarios rather than safe offline contract tests.",
+      "evidence": [
+        {
+          "resource": "repo://test.sh#L15-L30",
+          "version": "repo-lines-v1:sha256:19e3bec7919827f37759d269df266dc3a3dcdb29cbb6600f79bc3ebe8ddb2577:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViOGNmMDkzMjM5NTdmYzNhZTIxMDZlZDZiYjYxZDk2YzRkYWQ4MWYyNDM2OTBlM2Y0ZGNhMGUxZDJiNGMxYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxMTdmYTAwNmJhOTIwODUwMGIyOTMwY2U2OWNiZGU0MzZjNjQ3YWZhOTE3Y2I3Mzk2YTliYzkxMTFhNDZkZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjZTI1MjlmZjdjMTgzYTBkMTEyYzc1NmM5NTU4YzFjNDQwOTJkMzUzMjg4YjA4ZDk2NDRlYzEzYzlkMWQ5OGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiZDE1OTdmNTZhNjM1ZDBiOGI3NDgwZjdkNjlhYmMwMjhjNDA3MTdkNTgxZjJkNjk2ZWFjMDNiMGQ2YTk0MGEifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L37-L46",
+          "version": "repo-lines-v1:sha256:c4e3cd16d330d3dc6d8f15e0d4058c9d6d95e74e3084402089b740df44295463:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjOWUwYzllZTc1ZDliMzJlOWIxOGNiOTNlYmY4MTRlZjdiNzI2YjRjZTNjYzZiZmU1NDEzZGViZTRiMWQwNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmMzdhZDJiZDM2ZWY0ZjhhMWQ5ZGI3OTcxYjA5ZWMwMjhiNDc2NzU2YWM3OGQwZWYxYzI3NTU0Yjc3MDM4MDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhMThmOGFlNDE5NTkzOWYzZmZiZWQ2MmU4YTRjMjBlZWQwNzZjMDllNzcyYWZhNjA3NDU5YzY5ODI0ZjA4OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1MjhjZjE4YjRjZmE1ODMzMmQ2NjBhNzZiMzYyNmE0NzNiMzg4MTllMWZjZjE4NWQ3ZGRmM2ExZmI3OGNkNmYifQ"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/run_test.sh#L31-L42",
+          "version": "repo-lines-v1:sha256:2d3cc5392786439782fb070658645438526a6f5fc978f3fe48af592eb5d394ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZjQ5NmZmYjZjN2IxMjVlYzY4YWQxMGJlMmNmYzk3Njc2YzZiZjA3YmEyZmNlNzViZDkyZDA5OTBkZGJjMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmMzdhZDJiZDM2ZWY0ZjhhMWQ5ZGI3OTcxYjA5ZWMwMjhiNDc2NzU2YWM3OGQwZWYxYzI3NTU0Yjc3MDM4MDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0ODAwNGZlMGNlMWJmMmU5MmYwZGMzMWIxN2IwMjAwOGI1YTllNzM3NzZiYWU1ZDVkZTEyNTVjM2EwNDJhZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1NTIyNmY3ZjEzMjE2ZDcwYjQyMzRlNWVlOTg2MTE5NGYzYTdjNzlkYWFkNGI0ODg1NGJlMmZhM2ExNTM2OTcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-21T12:48:03.329Z"
+  }
+}

@@ -1,0 +1,734 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:fce62fca02862ec8479739a7c36b02c7ff4fcf949f7f47ed56fbf48ffbd2ff2a",
+  "claims": [
+    {
+      "id": "claim_989c0a10683c48d0ac2d7b1c651a76a0",
+      "statement": "SesamCmdClient.authenticate selects manifest branches in order: Tripletex auth_variant first, then auth oauth2 with an optional superoffice-ticket continuation, then auth api_key; unmatched manifests do nothing. auth jwt is not its own branch, and the API-key helper recognizes the JWT variant only by the exact lowercase string jwt.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L19-L27",
+          "version": "repo-lines-v1:sha256:dab551b37c6aeedb4627078138e9f4f58765fbd947e34baf95da4fb0eb05a9db:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTJiNzZkNjgyNjFmZTUxY2M4MWVmOTUzZmFlZWMwN2JmZWZlNzM5NDdhODlmM2ZmNTRkMzk3ODdlYTViMGNkZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTI1YjVmMDlkMzllNzE1ZGViYzQzMDI5ODg4YTU5ZjkyN2FiMDc3NWNiZjhkMjU1ZGIxODgzZjU5YmVlMDJmOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGE2ZmVhMTM0OWNjM2Y3NzE3N2E0ZGE0MWJlNjY1OTU4Zjc4NmI2Y2E3YjE5YjI1NTgwNDc1ZWU3MjZmYzhiMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWZiZWE5YWU4OTcyMmU1YWExZTFlYjJjNGQwODU2YzE1M2U3ZmUyMTM4MzllNzk2NDAzN2YxMWJhMjUzYjEyMiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L1161-L1216",
+          "version": "repo-lines-v1:sha256:d5fa86b1502e181cd142e0bc5b1144304a0a2a455c2cf36e749b34da3b5be72b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiZWI3ZmU0NTNmODQzZGMwYzFhZGIzZWZjMWY4YTc5MjA5NWQxYzFkMzkzZWE1YWEwNTFhZDY5NGU2MjY1ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmMDg2OGQ4NjJlNTk2ZTFmYTBhMGE1ODc4YjA1MGVlYWZjNmUzNGQwZTE2MmJlMzhjNmFmM2IxY2JhY2U4ZmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4YjAwOTMwNDc5NmM3NjQyYmY3ZWNkOTdkNTRmODRmYTJlZWZlYTg1Mjg2NDJmMmVmZDM3NTY0OWRlMTJlMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmNDMxYmUyYjhmOThkZTM4M2JlODJiOWEyYzgwYmVmZGM2MTE2ZTFlOTdjZDM4YjZhMmExMjM2NDQxOGZhMDcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3927-L3933",
+          "version": "repo-lines-v1:sha256:be0de3e99595f82d5699dfcd60e5b8a2c0728d529d6fde54f387dd65f09037e0:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDIxNjFkZjgzNTIzMzlkNGVhOTI3MDRhMWUwMDE4ZjEwMzA1ZTFkZGU3YWVhNDE1ZjcwNzc2N2Y5YzQ0MzEwZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGY2ZjQ2ODcyOWI0MTFlMGQwN2E3MmRhOWY1ZmMxNmUzNWM1N2NjMjc4NTIzMDY4MDllYzNjNGMwZjg0MjgzYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c673ae8c35c34f159530be4dee01e89c",
+      "statement": "The CLI delegates node credential resolution to sesamclient.utils.get_node_and_jwt_token and stores its result; authenticate changes into connector_dir and overwrites service_url and service_jwt with that resolved node URL and JWT rather than retaining separate service arguments.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1103-L1115",
+          "version": "repo-lines-v1:sha256:9535f33f7b397d24fe05b6d32da7a1a50661a4c7d353453058eaeb9ec648bc3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNDFiOTI3ZjdmY2RlYTY5ZWJhM2I3MTVhYTk2OGYyZTYyZDNkY2UyMjkzYWY2MmMxZjg5ZTExNWUxMTkxMzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNjY2MTBiMzFiYzgwYTM4YmI4ZDkzZTUwODFlMjFhZjU1MDhjODk2MmI1OWM3N2NmZGZhZDBkNjlkNjcyZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJjMzFiMGIwZGZhZGQyMGI5NTg5MGU0NGI2YTQ3YWIzYTcwNjA4YjNlNmIyZWU3NWUwYTNhZDRjMTViN2IxYmEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1144-L1159",
+          "version": "repo-lines-v1:sha256:02c23eca5bb3cd6c833ae2c9436b6870763325595ad57908ebc8d9aa1b808cdf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNjNiOWZjMTQ4MTJiZDc2NWI1Yjg3MGZmNDQ5NjE4MTgxNmY5MGQ0NzFjN2NiYzA1MTc4ZmFhOWFlODE3YzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwY2Y5ZWIwMDcyZTY4NDhmN2U4Zjg0YjQyNDkzOWMwMTE3ZTFhZDY4MzBhZDliYzE3YjM0NzM4MWNhMDA4YTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3NmJkY2FhNGYxNDRhZWQ1NWUzOWQ3ZTkwZmU3NTQ3N2Q0ODFlNDVkM2FiZGI0N2IwMGRkNzQwOGQzNjI1MmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM2MDBjMWYwMTc1OTJlMGExNDhjZTNhZGQ0ZDdlMGIyYTUyMjJlZjkyMmE1YzJlOTY0ZmMwOGJjMjI3YmNiOTkifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4100-L4139",
+          "version": "repo-lines-v1:sha256:f05921614af1a79bbbdbd0cc2cdb89d8ddfcc262be830e5ddff0cbd2b59e2c36:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzNWFjM2Y3NGIyMjQzYTFkNDVhMDIyZDVlNWRjNzQ0ZmZlMDBiNDMzMmZiNjExYjc0YWNmZDcwNWQ2ZTEzMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhNmVmZjM3ODk1ZDk1YTJiODU0NWM0ZmU5MTE5NGVjN2ZlOTFiYmEwMmMzZTYyMzYwYTVhN2FkYTNjNDI0OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4ZTBmOWExODJkYjcwOGM3NzM3YjVkYmVhMmM3OThhZTM1NWY2MDk4YjY5ZTM0NzMyMTU0ZTRkMWI0NTgxMjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4c3c5199f8a54007b29f6ceb891507d1",
+      "statement": "Connector detection uses manifest.json under connector_dir, and connector upload expands, validates and uploads from the expanded directory before calling authenticate. -skip-auth only suppresses this post-upload authentication call, not explicit authenticate or upload's environment/configuration mutations.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1411-L1466",
+          "version": "repo-lines-v1:sha256:8a4d68141e8f867e250fc82d4287974791875c5bc18a059c9784696d0cf6cbf2:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NmJkY2IyYjcwMjBiYjA4YzFjZjQ4NDY3ZWYyODlkMGI4NzEzMzgzZjBkN2FmMTM5YzhjYzYzMGE0NzBmMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YWI5NjRjZDMwZmQ5MzMyYmYwMzMzODMwNmIzYWQ3YmViMjJmNDNkMmRiZmQ3ZTgwMTFkMDVhNmM0OWIzOWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0ZWVmYjkwZTIyYmJhMTdlZTI4MzVmN2I3MWYzZTJjZTZhYzgyNjk0NzRkNmYyZWMzM2E3NGVjZTdiZTk5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjMjdlNmI4MzBjNThhNWFiZjJkNDNjZDg4MGE5ODRlNTQ5YmQ1NjBjZDBiNjRiMzc1MGRlODgxZTI2NGQxNTMifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3793-L3799",
+          "version": "repo-lines-v1:sha256:ab5714037d3a038c02efab14f09a988594a03f00ccd717ac143492e563b8cc1f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWM0NzQxZDJiMWQzOTM1NjAzMDA1MzFjYTgwZGE1NmVhN2IyNWMwNmI4MGNkNzQ4MDAwODkzYWUyNGIwZWEzZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDllYjNjNjE1NGI3MjFiMDk2YzA3MWE1YjBhOWM4ZTYxYTJjZGEwZTlhOGExZDljMmZiYzE1MTE0NmI1OGM2NyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3975-L3979",
+          "version": "repo-lines-v1:sha256:e59843561f2cd4d0975686068adcbe5bd09c08da44740c897d303f7d4558d45c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWRhNWM2NmUxN2IxNDUzOTc4MzRiOGM4NTRkYzQxOTNlMjEyNTE4MGE4OTk2YTE0YzMxODgzMzI2YjJlZmJjZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBhOTZiYWYyM2I0NzE2MWY1YmJiN2QzNWE3NGM5MWMxNTE0MGYyY2FmM2Q2NDU4ZTUxNWYyYjc0ZTQxMjFjNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjczZTg3MzU0NjhhOTFiZTE4MWYzZTVlZjExYTVkZGRlZTRlZDIyMWY0OTJlOGU1OGQwYTgwNjQ2MmNiYTcwZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTYzMmY1MzA5ZjVkN2M2NzljMTJiZTAzNDNhZDc5OTgxOTgxMTEyZGQ5NDViZDJkYTc1YTllMzI3YzVkMTZhOCJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L4178-L4193",
+          "version": "repo-lines-v1:sha256:0be13b6fb47d6dd838fca538a053d37962ca2aad720f422d9ac504bac73f7853:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMDM1NjEyYjA1NzY4MWU0MTU5M2JiYWIzNWU1NTViZmEzZDdkMDVlYmMyOWEzMjQ3ZTBkNzgxN2Y3NzdkOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxNjI0NDI5MTg0MTBhNGYzNjhlMmVhNTAyYjkzMmQyNGVmZGUxZWEwYWY2N2UxNDIxZmRlNDA2MDIwMmQxYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiMjI5YTAzMWI1ODIzOTcxM2M4NWZiNmNhY2FmZTg1ZDdiNDRjZDkxYmNiN2U3YjMyMGVhMmJkZjA1N2IyZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1ZjMzMWQxNWNmNmU0OGU4ZjBhMzBhZjg4MjA3MTE4ODExMjczN2I2NWU1ZjgyNzkzODA3NjJkOTI1NGJlZDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_47376037eb904540a34a60716be1dd9a",
+      "statement": "Standalone authenticate is subject to the main CLI's developer-mode gate; the non-development -force exception is limited to upload and download.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L4157-L4168",
+          "version": "repo-lines-v1:sha256:24baa5aad5c7d7bd35f9c2d6967efcfe2ef0ad26133c2a8597cd2adddbb2d754:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjMzM2Y2NmNGM2Yjg4NzQzZGI2NWVlZDEzNzVhZDFkMzY0MGQxNmY3ZTFmOGZiYTI4MjRiNzFhYmI5M2M2MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlOTVhZjQ0NmY5Mjc4NzFhMmRiODAzMWMxM2Q4MTRjNTZjY2U2NzdiODFmZjVkMGRiODkxMjI0Mjc2MmVlNWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1MTg2YmE4ZTFjMmFkYTBhNDFiY2JmMzJkYzM1MWNjMzM1Y2NiOTYyOWU1NzkzOWJlNGYyOGYzNzg5YTYzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmZmM0ODc1OGJmN2NkOGZlZGE1NmZmNTg5ZjI3OTJlMmU5MWY4N2EzNjUwYjgwYmMxMDM1M2M3OTI0OTNjODkifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4282-L4292",
+          "version": "repo-lines-v1:sha256:efee221c0ec58e6a957bd644974e5d43f700b94ee545780ad5a8ec9102dd4715:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5N2I0N2JiODFjZTkzY2JhNjdhZmMwODY5OGE4MGNmYTA5M2E4NjY3ZTljOWY5NjUzMzc4MThkNjU3OGQxODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZTdjYmQxNjhkMWE2ODMxOWMyOGUzN2E0NzYwNmIyY2FiZjE5OTc1ZTljODJjYjMwMjRiNTlkMGY1NTA4NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiNTg3OWQyZTBiYTA1YzNiYjY5MjIwMTMxYTUwOTVlNDY4Yjk4NmNhOTRiZDc3NjcxOTdlNThjNDc5OGViYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhNjE1OWE2ZDM3YWRhNTk2ZDE2NDQwNGZiMzdlMTVkNGExYzJmMWVlMjAxOWE5NjI3NDdhZjJhNTdlMjQxYmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_75a62d2d95544ffdb06c262ea6ecf872",
+      "statement": "Authentication checks for a local .authconfig before invoking its shared reader. Requested file values overwrite argument values with surrounding double quotes stripped; a missing key warns and stops the grouped lookup, leaving prior argument values intact, while OAuth account_id is looked up separately. The shared parser supports JSON or INI-like files and parent search, but a parent-only .authconfig does not activate the authentication branches' lookup.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1131-L1142",
+          "version": "repo-lines-v1:sha256:c87742d3ef1813bbccc826853a2fd318fb18a72ca3d10005735131df61d3411b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwYmQ3MTlmYTEwYzgyYWZiMWYwMTM0NGQ0OWYwOWQ3NjdhMjg3ZDZjNTEwMzc4ZWEyZjEyM2E5OTk5YmFjZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0ZjBhMDU4MzE1MjViNTJkNDFhM2MwODJmODMwMzBiYTA3MTQxMmFmNTI0MGUxMjQyNmM4ZjQzNTBkN2UyY2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5NTg0YjEwNTdiZTEyNmMwMWE0NmVhZTY2OTI1NzZhOWI0MDIzNjYwZTY0YzliYzFiODA0MjllMWY0YmIwMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5ZjdkNmRjOGEzM2JkMWU0YmYwN2U1M2FjZGQ3ODRiMGYxMTkzZjVkNTI2NmUyYTAzODgyYTQwY2I2YTQ4ODgifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1161-L1213",
+          "version": "repo-lines-v1:sha256:e447b7f4b46a1abbaaf295d51d47066542828b1585d2e2dc852d3e295c91cca8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiZWI3ZmU0NTNmODQzZGMwYzFhZGIzZWZjMWY4YTc5MjA5NWQxYzFkMzkzZWE1YWEwNTFhZDY5NGU2MjY1ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5YzIzMzdlNDQzOWZlNjZmYzQ0MjJkYmUzYzllNTUxZDEwNjcyYzA1MzAxZjkyOWRkMGVjOTQ5ODE5NWE3YjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4YjAwOTMwNDc5NmM3NjQyYmY3ZWNkOTdkNTRmODRmYTJlZWZlYTg1Mjg2NDJmMmVmZDM3NTY0OWRlMTJlMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxMjk1ZTBkMTQyNTRjYjMwMjg0OWZmMWVjMDJiZTA3Y2VjZDZlZWU3MjgzYTE1MTA3MTUzOWI0ZGNmMjQyM2IifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L868-L931",
+          "version": "repo-lines-v1:sha256:e473bd95789fc72da194494b2fbb2ca252ca85ad121a2cc7759145a7ebeb12a9:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4Nzk1ZGFkMjg0ODRhZjA5MTQ2ZWY1N2Y0YmZjOGVjOWYxYzBjNDA1ZGQ4Y2VkY2NkZWRhODQ1NWNhNDIwZDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwMmFiNWE4MjBhYzA1YTMxZTRjMDcwOWNlNzI4MmJlNTZiZDI0YjEyNmRjZjc2NTQzYWI3MTcxZTlhMWQyMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhY2NjNzc4NDk3YzRhZTA3ZDBmYzU0NWUzMDQ3NmU2ZDJlMmUyMWM4NWE3NzBhNmIwNTM3NDkwMzBiZjBhMjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cd2c37e347664b148451dbfd2050b9a7",
+      "statement": "authenticate exits when the manifest is missing and does not restore the process working directory. Each login helper obtains its manifest through expand_connector_config, which also renders connector system, datatype and shim templates, so login setup depends on valid expansion inputs.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L13",
+          "version": "repo-lines-v1:sha256:2fa0915214133fd2f2d5578fac98633041f30184cff336a79cc4d1af31e69385:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjQ3MzIwZmEzODczN2E4MzVmNDBkZTMzMjViN2I3NDVmNTY3Y2E0OWE5MmEyOTQwNjMwMmY4NDM3OGUyMjlkNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGQ3Y2M0MmJhZjRmNjYwODA4MzNlYTI2NjVmMzdhZmEwNjQ2NjUzYTIyMjEwOWFlZTE4NGVjY2RhNzUzMTliNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmFkZTJhOTI4MjQ3OWVlMDRkMzhiNmJhZjlkNjM0ZjE4ZDA3MWYxNTI1ODk0NzRiMWFlZmNlZjI2MmIxZjYxZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWFhOGMxMzhmYTQ3ZDJkZDY3NDgzNDE4NzczN2Y1NTUzMWZkMzRiZGI1M2FiMDlmZGE5OGZhZjEzNGY0OGU5NCJ9"
+        },
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L50-L118",
+          "version": "repo-lines-v1:sha256:fce2bf59576f94b64ecab59b66d3b5388be87ea21052436f2c4e1b9a538f781b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZTZjOGM4NjIyOGNlYWQ5ZmNkNDMzNDI1N2VjNWY0YjgwMzI4ZTQ3MmI1NmJlNzAxYjIwMzdlZWI0YTg2NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1NDU1YWQwYzcwNjg4ZDVhMmE3MjFhZWU3MWZiYjViZDQ5ZGIwNzFlYzAyOWFjOTQwN2MxZGExZmRlMWJiMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5ZjkzMDgzYzE5NzEyMWI5ODI3MDBiYThhZmFiZDE3MjJjZjFkM2U3NDA0NTA5ZTgwZWZhMjcyNDdmNjJmMDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkNWNjOGNlMjMzZmM2YmEyZGIwNTA5ZDZjMTEzMmEzOWFlOTVhM2ZkNDcyNmEwOTMzMzUwNzEwZmU4OTJiYmIifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L173-L187",
+          "version": "repo-lines-v1:sha256:75d78546c0e62e210ec4d9129567dfa622395e41f9270f9370edbb46e7b45c5b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2YzQxNTllOTVlNzQyNTE0NmJmZjg2N2YzOGQxNjRkNjI4OWI5ODVhMGNlMDAyY2MwNzIyMGZiMjlhYTQ0ZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjNDE0ZjM4YmYzNWY5YzQ4YmM5ZDBjNjUwZGFkYjE3NDE0MGQ3YzhjYTYxMGM3ZWM2NTk4MWU1YjBlZmI5OTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwNGUyZmI3ZTY5MTg1MzU5NTA2ZGExMTk1M2M3ZWJjZDBkNTAyMzc5NzU1OTUzNjAyNzY4YTQyNmUzNjBjNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwYjhjYzUxN2M5YjA5MDFhMzJlZjQ4MmMwMzBhOTAzYzMxZTQ3MWJmNzg4OTUyNTc0NGE3MzNiMWJhYzJhMDEifQ"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L10-L16",
+          "version": "repo-lines-v1:sha256:2e661505de00a934f0c78dfbd2707b2291c5657e9c784d7434e7b0cd396c1e44:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUzNWJkNGE0ZGVmNTdlYjQ4MzU2YjBiMGUzM2ExODVhODkwMjkzYmM3NGYyMzI1MGI1MDA1MDhlNGVhNDJkMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2M0MTRmMzhiZjM1ZjljNDhiYzlkMGM2NTBkYWRiMTc0MTQwZDdjOGNhNjEwYzdlYzY1OTgxZTViMGVmYjk5MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTc3NWE0ZjI1NjRhOGIxNDIxZjI2YTdjMzcyYTQ4ZmI5NDA0ZDY4MWQ5NGVlODdmNDU4MzRiYzhlMzRiYTI2MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjEzNGVhMWVlMzY2YjBjNGZmMGUxYmZkNDA4YjdhZGI2MWE5MmU0MDkwNWRhMTZlMzE2NDVhMzA1Y2UyNzQyMyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L1144-L1159",
+          "version": "repo-lines-v1:sha256:02c23eca5bb3cd6c833ae2c9436b6870763325595ad57908ebc8d9aa1b808cdf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNjNiOWZjMTQ4MTJiZDc2NWI1Yjg3MGZmNDQ5NjE4MTgxNmY5MGQ0NzFjN2NiYzA1MTc4ZmFhOWFlODE3YzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwY2Y5ZWIwMDcyZTY4NDhmN2U4Zjg0YjQyNDkzOWMwMTE3ZTFhZDY4MzBhZDliYzE3YjM0NzM4MWNhMDA4YTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3NmJkY2FhNGYxNDRhZWQ1NWUzOWQ3ZTkwZmU3NTQ3N2Q0ODFlNDVkM2FiZGI0N2IwMGRkNzQwOGQzNjI1MmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM2MDBjMWYwMTc1OTJlMGExNDhjZTNhZGQ0ZDdlMGIyYTUyMjJlZjkyMmE1YzJlOTY0ZmMwOGJjMjI3YmNiOTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d024f6a223664ba39fae6ec881ed6558",
+      "statement": "OAuth dispatch uses a non-default base_url argument or otherwise derives scheme and authority from token_url; Tripletex dispatch uses the base_url argument whose CLI default is https://api.tripletex.io.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1176-L1190",
+          "version": "repo-lines-v1:sha256:3b09c3a7aaea88fcb8ce603fd0a8da0cd8c743be0da451693d3ef5d46ad81e60:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3NGRhMGIxODNlYmVlYWJkYjFhZjk1ZTdhYTRhYWY0M2Q3ODY5MjU2N2MyYmQ3MzUzZDc0NDE0MDMzZjkxMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0Y2QxZGVlOWY1NDcxOTkzMjgzNmVjNThiMjc1NTQ0ZmUxYTA3MjExYTljZWZlNTgwMjAyNjI2ZDQ5ZGFjYTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjODY5OTg2ZGM4YjRhMTIxOTJjMzI0ODEwNTc0MzFkNmI5OTc1NWY1M2QxMmE5NTg1ZWFmMGRlNzhlNGIxZTgifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3892-L3898",
+          "version": "repo-lines-v1:sha256:4731ac7baa64ee23e5aae803620f3858e89b46091021023c779a61afc58faf7c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWEwYzNhZjcwYzExMjExZTdjMWEwNWU2MTk0NWZjM2UxYjQ5ZjdiZDFkNmZhZjBlNWZlNGYzNWE0YjIyZTc2YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWEyNGU2OGI2M2IwMjNlZDhmYTM1ODFlZjdkNTJhMzliZDUxZTdkODQ1Mzg3MmNjMDRhYzQyZmMwZTM3ZjQwNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_457c16cb5e3f4db881723f4d873c353c",
+      "statement": "SesamCmdClient.authenticate mixes self.args with module-global args and parser initialized under the main guard, so direct library calls and isolated tests require more context than an argument object alone.",
+      "evidence": [
+        {
+          "resource": "repo://sesam.py#L1144-L1213",
+          "version": "repo-lines-v1:sha256:d8480aa5d14e4d48f17217850b742e9a7e42bed1e4f39cda5b38a39697f7e555:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNjNiOWZjMTQ4MTJiZDc2NWI1Yjg3MGZmNDQ5NjE4MTgxNmY5MGQ0NzFjN2NiYzA1MTc4ZmFhOWFlODE3YzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5YzIzMzdlNDQzOWZlNjZmYzQ0MjJkYmUzYzllNTUxZDEwNjcyYzA1MzAxZjkyOWRkMGVjOTQ5ODE5NWE3YjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3NmJkY2FhNGYxNDRhZWQ1NWUzOWQ3ZTkwZmU3NTQ3N2Q0ODFlNDVkM2FiZGI0N2IwMGRkNzQwOGQzNjI1MmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxMjk1ZTBkMTQyNTRjYjMwMjg0OWZmMWVjMDJiZTA3Y2VjZDZlZWU3MjgzYTE1MTA3MTUzOWI0ZGNmMjQyM2IifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3345-L3347",
+          "version": "repo-lines-v1:sha256:1bd19506cb89857864a9573abf14a3091a76fc73675729381ff77ca64be69581:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjQ4NmZmNWNmOTM2M2I0NDI5MzM2ODAzYjJjOTYwZTczZGE4YzQ3ZmEwYzZmNjc2NThkMTRiMzIzY2QyMmQzNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGFiOWY5MDA4OGE5YmQ5NmM2ODA3N2IxYjQ1ZDhkZTBiMzcyNzZjODIwYTgxMjJmODU5YjMyMmRlYjg3MGEzOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzE5NjExZWEyMTc3YmY0NzUxMzMzOTY1MGFkZjVkNjI3N2YzYzQwNTAxNDI3Njg2ODc0OTA4YThhNTQ4NmEzMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzY5Njc4YjAxMDQxZGQwZDg3N2VlZGQ5ZjAzYjliNWYxYWIxMTgzM2FmZjFhZmUzYzIzYjc1YmJhMzljYjc3YiJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3975-L3977",
+          "version": "repo-lines-v1:sha256:6e085bd0b4c20a0921e00a2893bc97688ae9ce9173c4fa22f12c628e98f79383:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWRhNWM2NmUxN2IxNDUzOTc4MzRiOGM4NTRkYzQxOTNlMjEyNTE4MGE4OTk2YTE0YzMxODgzMzI2YjJlZmJjZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQzYjU2MWNkNWUwNTVjNDNlM2VkOTk0OWMwNzJlMzEzMTlhMjQzMTdiZjZhNzJhMjU5OGJlMjEwNTgzYzM3ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjczZTg3MzU0NjhhOTFiZTE4MWYzZTVlZjExYTVkZGRlZTRlZDIyMWY0OTJlOGU1OGQwYTgwNjQ2MmNiYTcwZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzk4ZjhiZGYxYTZiNzdjN2JlZjk4ODNiMTE5YTIzNzg2OTdkOTdhMzc2NDViMTkwODJlNTE4ZjIyODNhZWUyNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4fe7c9148c4d44acad56cc6c9835274c",
+      "statement": "OAuth start_server starts Flask on port 5010 only when system ID, client ID, client secret, service URL, login URL, token URL and scopes are truthy. It logs an authorization URL containing client_id, joined scope, fixed localhost callback URI and response_type code, with optional_scopes and optionally client_secret, choosing a query separator from the existing URL.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L168-L222",
+          "version": "repo-lines-v1:sha256:f911ca3444ded62a405342197e305f5d87829e699776d0ca1ad69aaa1b27fff7:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhNWI5NjYwY2I0OTE5Yjk5YmY5NDBjMjFkZDI0OWQxOGE1YWIwYWNlNDQzNDNmMWZmZjQwNzQ0Mzk2MTdmYjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmZTg2NTNlNTc0NGJhYjcxY2ViN2ZjNzg3ZTVmMjA4ZDAxZWMzYTRkMDM1NmY3OGFmNzVlODZiMzMxNDM0ZGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYjg3MDAxN2M2ZWI4NWNmMjllNjY5ZGI1MGI4MDY1NmVhNTk2MjllNjAxMGRiMTgxZTIyZWM3OWVjNzBhMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjOTIzNTM1YjBhZmY2NDcwN2I0OTIxMmEwODRiNWZkZmIzZTZiZDg0OWEwYjg4NmNlMDE5ZTA2NGZkOTQxNDYifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L17-L20",
+          "version": "repo-lines-v1:sha256:3a13a397004581e70e219abcae88785bae78469f0e4d3d19a9977b7d42af12f9:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Q2NjU5NzgwZjczZDBiYjg1ZDJjZjBmYzE4NGYyYWIzMmU5OGVkYTc2NTc3YzkyYTJhNDMxNjNlOThmNmI5ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRjNWMyMjcxMTljNGQxYWI4MDA1Zjg1YmY4MjZkNmFiOTFlZDIwZTk1ZTQ5YzYzZjU2MzJmMWFhOTMxYjk2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzc5OWQ5YjUxNmE4YmM1M2RhMjdhMmI4ZWY5NzdhMDFhYzQwYmFiMWQ5MDQzNmU3NjYxYmE0NmE5MzAyYjFmMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWNjZDNlODY5MWU3ZjA1ZjAwYzAyZjhjOTc1Yjg2ZGNmYTgzYTdmMDM0NjBkNTRkMjA0YWM3ZWY1Y2Q4YWE1MSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3909-L3916",
+          "version": "repo-lines-v1:sha256:7916f2c2b9c3bc02684656544abe6015362c1abc683d59b554b0c225da77993a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTNiYzg3Y2Q3M2VhNzE2YWMzZWNkYmM3YWMzMzY5MWQ2MmQ4NzljN2I2ODk1OWE1NjAzNmUxMWVjOTBjYmUwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmFjYjkyMTUzZGM4ZTdmMzg3YjAyYzk0ZTkwYjA5MmQ1ZDU0YzJlYmNkYzUzODVmNGU3NWZmMmUxNGFjMGY2ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a74bc64114da41b2a1a76bb75169ac42",
+      "statement": "OAuth's callback takes code from query arguments and POSTs it with client credentials, authorization_code grant type and the fixed redirect URI, parsing the JSON response directly. It has no explicit missing-code or OAuth-error rejection, status raising, state generation/validation, PKCE or nonce checking; the root route redirects to login_url without assigning the logged encoded parameters back to that URL.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L197-L222",
+          "version": "repo-lines-v1:sha256:da8105ae02865737292ba9cc30527b06c4bef276e90d532043fb81cdce8e5046:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxMTJmM2Q3NDA4YjQ0MDQzOGI2NjBkNTUzZjdlMGNkMGQ5MDEwZDUxMGE3MGRjZmYyNjYyZTU0MGZkZGRjZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmZTg2NTNlNTc0NGJhYjcxY2ViN2ZjNzg3ZTVmMjA4ZDAxZWMzYTRkMDM1NmY3OGFmNzVlODZiMzMxNDM0ZGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlNjc5MzE2MDc0YTg2YWE5ZDg4NzQwY2QxYTJmMjdiZTlmZTBhM2VjNTRhMDhjYjdkMjU5ZmE1YjA4MGRlNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjOTIzNTM1YjBhZmY2NDcwN2I0OTIxMmEwODRiNWZkZmIzZTZiZDg0OWEwYjg4NmNlMDE5ZTA2NGZkOTQxNDYifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L42-L44",
+          "version": "repo-lines-v1:sha256:5b32c6f7743c6317c5c15a7b712824f64ee391003d02dba15b678be14bb0d5d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFjMjU5NGUzMTM5M2FiMGZiZTQzYTE1OTZkYzFiOTVlYWVlNmNlNDNjMjI5YTYxM2U4OGEwMTJjYjUzN2Y0OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJiYTRiY2Y1OTkzMmVhMGMzOWE2YmUyODAzZmI2YmFiYTE5MThlMmVkNDNkNmRhY2VkMThhN2E4ZTQ1MTRjMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTVhNzIxN2RhNWFiMThkZTc3ZjFmMTlkYmQ0MGVlMTM0ODg1YWY2ZDFiMmU4MmJmY2EwM2E2MWZiYWVmZjc4NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjViNzQyOWFmYzA0ZjY1YzQ0ZTdjNTJkODMxN2I2ODMxMGVlNGJhYWI4NmY0NDgyMzEwMWEwMmVlMzYwNjA2MiJ9"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L65-L103",
+          "version": "repo-lines-v1:sha256:e0ff4ff9dba2e7e61ff1ea99a7192006f74ff846fefbb74be0a6d4b5202af782:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjZGM3ZDljYzNmNWY3ZDQ0ZWU4NDJiNDhmOGE5ZDJkMDNhNTMyY2ZmM2I2MzRkMTY3N2FjMmU5YWE5NjMwZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMDM0ODFjNTdkMGYwZGMwZjc2Y2QyY2M4YjM2MDRjNGU4Mjk2ZGE0MTIyYWRkMTllODE3NDVkYzdlMzMxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk2ZDY5Njk5NWQyNmMwZmQ1YWNiYTI5OTE3MDgyOWQ3YjJjNGExOWIxNTQ5ZjI0ZjNlM2FiMzMzODIzNzUzNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1NjYxZjQ3YWNhOWQzYThlZmE0NjUyNjMwZTVkY2Q0NTI5ZjJmMjVlNmE2YTFmZmM5ZmU5NzBmMmU0MTlkNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_42bd90ede0274fe2b7685480c39cd393",
+      "statement": "OAuth account selection uses a truthy override first, then a list-valued tenant_id_expression to extract an ID-token payload field, then a matching token-response field, then identity_url concatenated with the access token for a GET. Generic ID-token extraction only splits and Base64-decodes the payload without signature verification or padding repair.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L47-L62",
+          "version": "repo-lines-v1:sha256:4e8a4e2afcbc27061a3bdfbb88396e4735410e318bcb526bd7ac80b55d0031c2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkYmJhNGRhODlkNWY2MjNmN2U2OWE4NDU3Y2E5ZWZmMjI2NDdhNWVhODI4MTVkYzU0Yjk5Nzc1ZmNkYTdlNjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYWQ4MDkxNmE4MDlhYmRiMjBmMTg0NjMyMTliOGYyZDU0ZGYzNWY0NDk2MWZiNmJlMWExYzZiODlkZGFhMWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjZjdmOTlkZjc3NDZmOWQ3OTAzZDEyODFiZDQ0YjkzODczY2NkNTQ1MjY1OTljY2FlYzFkNzI5NjBiN2Q5YmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5MzlkMDFiMzIyYmJkOWE5ZjE4OThkZDc1ZjNlYzE3OGViMzIyZmQzN2I3NjVhZjgzZTk5OGFhMGFjMjAwMWYifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L70-L103",
+          "version": "repo-lines-v1:sha256:c6b4acc2940dc94babfb9b998fa01296cd0632806c4a26be19a0570ffb0f0468:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiNzAwY2MwMTRhYzM4NTNiOGFmNzQ5ODA2OTQwYjk0OGFmZTU5ZDQ4ZjBmNjYxNjBmOTlhZTdiY2Q2ZjBiZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMDM0ODFjNTdkMGYwZGMwZjc2Y2QyY2M4YjM2MDRjNGU4Mjk2ZGE0MTIyYWRkMTllODE3NDVkYzdlMzMxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkMTdhN2NjZTk4ZTdmMWRlYzNmMGNhMjYzNjVkZjM4YzEzYzkzNzgwMDljMTUxNTY2Y2UzMzUwYzQ4Y2VhOTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1NjYxZjQ3YWNhOWQzYThlZmE0NjUyNjMwZTVkY2Q0NTI5ZjJmMjVlNmE2YTFmZmM5ZmU5NzBmMmU0MTlkNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1dd5c615c6c84fbfb8d90307ecba568f",
+      "statement": "OAuth and API-key helpers call put_secrets on every system returned by api_connection.get_systems without a system-ID filter, whereas Tripletex calls get_system(system_id) and writes only that selected system.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L31",
+          "version": "repo-lines-v1:sha256:16a103341374a91ac7e31e1670ad139f5290d294e5c69e5d4e89765ec65c84a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzMyMGZhMzg3MzdhODM1ZjQwZGUzMzI1YjdiNzQ1ZjU2N2NhNDlhOTJhMjk0MDYzMDJmODQzNzhlMjI5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5N2ExZDQ0N2Y3OTYzNDZmOWJhMWJjMGU0OTJhZGIwZTlkNDJiNmJiMjQxZTdjMjU4OTljY2Y4ZmVmNTRkMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGUyYTkyODI0NzllZTA0ZDM4YjZiYWY5ZDYzNGYxOGQwNzFmMTUyNTg5NDc0YjFhZWZjZWYyNjJiMWY2MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjZDU2ZGZjYmE5YzI2NmJjNTI5N2M3Y2Q4NWIwNjMzZTE4OTljY2NlMWY1NDU4MDc5ZDMyZDU1ZmUyYjEwOGUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L121-L128",
+          "version": "repo-lines-v1:sha256:0d7f5291c1f0dc20afb572b822b7e209418efab7064f0579d06b6b19c7142450:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODk2YmNlYzJmNTBjZjA5NzQzMDIzMzQ5MzJmZTEzY2MzZTkyZjU0OWI0OTM1MDNjZTAwNmNhODcxNTBlZmRkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNkYWJjYjAyMTE0MWUyZmNiN2IyYjZkMWYzNDM5ZDU1MjZmMzRjYWExM2UxNTFmM2QzMmEwY2Y3ZTY3ZDNlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWMyZjEyZTkyODBhZTU2NzViMWIxM2JhODAyODJiNjVhMGYxMzY1OTNhNGVkOTVmNGZmN2Y4M2Y2Yzk3OTZmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDMwZjc5OTk0ZDIyOGRhYzUxZWNmZDkwM2UyZjhlNjEzYjRiOTUxMjU0NDk5NDhlMTM0YmFmOTllMDJmYWU3YyJ9"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L39-L45",
+          "version": "repo-lines-v1:sha256:f4d4bfe54e75d0502927b99d608588df0dcbebbb19739a3caa2ba186f9b166a1:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjQ1NzdkYzI4ZjZjYmQ3Y2ZhYmQwNDdlZjEzZWFiZjdjZmUwOWMzMTRhODY3MGFhZDk4NTVjMzM2Njk5ZTI3OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Y2M2NhNDRlMDVlMjY5MmJjOWUyMmNhZmU2MjU1ZDUzN2FlNzUxZjc5YjFhM2YzODk2YzAzYzQ4ZWJjZjM5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGNmZmY5ZDg0OWRkN2JmN2VkOTg5ZGQ5MDQxMmUyYWNiNTA5MDU4NWE4M2MwNjViZTA4NzkyNzAwOGQwMmNmZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjIwOTlkYzE3Zjk4NmIzNGVjMGVhNGYwYzE1YjVkYjBhMTZkOGEzZjU2NDU2ZTVmMjRlNTA3Njk2OGQ0ZjIwOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2854e0abde194595a818f3168bddefd5",
+      "statement": "OAuth constructs oauth_access_token, oauth_client_id and oauth_client_secret secrets, and requires and stores oauth_refresh_token unless ignore_refresh_token is enabled. The connector README documents system templates referencing these named secrets and environment token_url, but its described setup does not establish verified provider behavior.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/README.md#L30-L81",
+          "version": "repo-lines-v1:sha256:f5b989e60097baf8a7f1e8310c1345b17c39390582cab0c5cf59055959e7bc82:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiNzhlZWU5MjMzYWRiMmU0YTg2MTRjNjAyNWU5YzI3Mzk5NTE2NmQ4NGZmNDRkYWViMDQ5N2Y0NzJiNTIxZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkZTUxMGZlYzg3OThkOTIyOTQ2N2RmODdjZTdjYTI3YmU0ZGZlMjBhOWEyOTE5ZjcyN2U2ZTRlNTQxOGZiZWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyYWEwZmRkZDhjMjA5MGJhYTk4YzViMjk1ZjM5MDIxZTI5NzI4NDdkYzljNGU1NGY1YjEwYmJjNWJmYTkxNGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJhMzNmOGI2YjY2YTYxYjIyNDIyODVlNTVmM2VkOWVkMWIyN2QxMzQxZTQ1NjVmZGIyNDg0NTM1MDYyNjIwOWIifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L73-L90",
+          "version": "repo-lines-v1:sha256:f1a60a24d63ce4ed1664c0fb8d9efdbf6d90b9b1155a4628a8c9ee1d7dd16dd6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNDkyM2FhMDUzMGJkZWZmMjhkODI0NjM1YzM2NjYzZWQ0NWNiZTE4NTdmYTU0Y2Y1YThkNTczOGFiOGI5MmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhZjQ0MzM0MmQ4MDIxOGRmMDY0MWM5ZjRlYjdjNzM4OThiYWJhMWM1MTMwNGI1MzQzMDc5ODRmZGJlNWNmNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0NDNkNGI1MmEzYTM4N2ZhYzhkZTZjZGRlZjgxOGMyYjk2NmU4NDA0NGE3OTU4NzdmMTgyYmI1MzUyZGQ3NjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhMjAxNmI2NGU5YmRiMzA2ZjJlMzE3ZTlhODc5NGMwNTU3YTBlOWE3MWVhNjc1ZGEzNTRhNGMyMWZiYjljZGEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3848-L3855",
+          "version": "repo-lines-v1:sha256:473f339fd4bf575ccd8cbbf6dd645d1d379b0e5147677d9d26eec7e02a5a25cd:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDA4YjlhY2M5OWM1MTQ3OTdmZmQyZTFiYmFmOGFhYWFhMjI5Y2ZjMmFkZTk3MjNjNmQyYzg5YjEyMWZjNzdhOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzY4YmIwMDBhNTk1Mzg2NTVjZWEzOTM2NTg0MWU5OWYwZjU3YWE2MThhMmFlYTQ3NGRhNWFhYTc1NjgwZmY4NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6f1e4f5c6a3b405aa35fcc86b9517e66",
+      "statement": "For OAuth and Tripletex, requires_service_api_access adds service_jwt to system secrets and service_url to environment values. Through authenticate these are resolved node credentials; a subsequent local profile merge can override the environment URL without changing the JWT secret. The API-key helper does not implement this propagation.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L49",
+          "version": "repo-lines-v1:sha256:ca9bc2651e8a82203a112cbf73ee301ca3de603e0bde32bc46d1be09c9b31658:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzMyMGZhMzg3MzdhODM1ZjQwZGUzMzI1YjdiNzQ1ZjU2N2NhNDlhOTJhMjk0MDYzMDJmODQzNzhlMjI5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGUyYTkyODI0NzllZTA0ZDM4YjZiYWY5ZDYzNGYxOGQwNzFmMTUyNTg5NDc0YjFhZWZjZWYyNjJiMWY2MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L105-L138",
+          "version": "repo-lines-v1:sha256:069f7bcc9fde61800212d64746c2ecd4ba51e03d521bae4bd6cb208dab2a0dd6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBhNjcxMTU5ODM3OWUxODZjYzVhM2FmNTE0ZjJmZTg5ZWM4ZmQzZWQ1ZGJkYzEwMDllNGYyMWEwNTU2ZGZkOGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlY2U1YzIxYjY3MWIyNDkyN2MyYjdkODg4NTUzNTZhNmRmOTI5ODFmOGVkYjBkZDNlOGU0MWYyMTBkOWQ1ZDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkODE4NmU2MGQyZDYzYjhjZDgwNzVhYTQxY2YxMDNjOGE1MmY2YzhiOWFjYWEwYTgyMzdjOTVmOGNkMjQ3Y2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2OWQzZjU3ZWE4ZDdhMzQ3MmE3ZmY4ZWU0NmUxNGIwZWI4NzZiMzU0MmE0YjQ2YWI0NDNiYjI4OWQ3N2E3MTAifQ"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L29-L56",
+          "version": "repo-lines-v1:sha256:c3dc7c2601aa061216411b1f38c87ac75d7c2ad9ee0206808006f938d2cfef67:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MTQyZjJkMGQxYjAyMzMwYmE1ZDM3ODNkNDY4NWVlNzNhN2U4Yzg1MmYwZDBlMWY5ZGJmMDlmMTdhZGZhZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4MGE4NmI5ZjNiYzI0NWJjNzg5NDE5YTM0YjYwMDhkMzQ1MjczYWE5YjE5YWRlZWU4ODY1ZDE3MWZmNWNiZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNDMxMTZkYWZmNDRjNzVhMjQxOGYzOWIwOGY3MTQwZGQwYWQzOTJhZTMwNDJjNDNiYWM5OTVkOTNmYjg2MjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4YWU4M2VkNmNmNTE0Y2ZmNDBhYmM5NTRhYjUxYjEyOTM3Mjc5ZTlhMzdjNjYxZGVmYjQzNzY4YzU4N2M0OTAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1144-L1147",
+          "version": "repo-lines-v1:sha256:b992739f6049bed4464e2181e44ea7742fee0f1d875e04a1d188f229da1f92b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY2M2I5ZmMxNDgxMmJkNzY1YjViODcwZmY0NDk2MTgxODE2ZjkwZDQ3MWM3Y2JjMDUxNzhmYWE5YWU4MTdjNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdmYzhlMjZmM2JkY2I5ZjY1ZTA3NTU3N2VhNDY2NDJjYmY0YTRmOGUwNDRhNmViYTc3N2NjZjU5MzZkNWZmMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTc2YmRjYWE0ZjE0NGFlZDU1ZTM5ZDdlOTBmZTc1NDc3ZDQ4MWU0NWQzYWJkYjQ3YjAwZGQ3NDA4ZDM2MjUyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGZjM2U2YTRiOTIzMWM4OWRmNzA1ZDYwMzlkYmQ0MjgxNDMxZWQ4ZDFhYTFjMDI4MWNlZWI0YjZiMmFkMmMxYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7b23388ba8d64331b34e8499f6db6b8b",
+      "statement": "OAuth and Tripletex implement use_webhook_secret by taking the first 12 hexadecimal characters of SHA-256 of service_url plus slash plus system_id encoded as utf-8-sig. The derivation is deterministic, does not narrow OAuth's all-systems scope, and is absent from the API-key helper.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L49",
+          "version": "repo-lines-v1:sha256:ca9bc2651e8a82203a112cbf73ee301ca3de603e0bde32bc46d1be09c9b31658:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzMyMGZhMzg3MzdhODM1ZjQwZGUzMzI1YjdiNzQ1ZjU2N2NhNDlhOTJhMjk0MDYzMDJmODQzNzhlMjI5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGUyYTkyODI0NzllZTA0ZDM4YjZiYWY5ZDYzNGYxOGQwNzFmMTUyNTg5NDc0YjFhZWZjZWYyNjJiMWY2MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L107-L109",
+          "version": "repo-lines-v1:sha256:cbe2f713038ef14a8dd35682d8cae0f02f4c9023d14bebef8ed80b48f95cce2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U0MGY0ZGQ5ZTkzNjkyYWJiY2NhYTVkOTdlMzk4N2Q2NmQ0OTI0YTUzZmYxNzc5OTQzMWJmZmIyOGZjNDFkZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTM0Y2E0ZDNhZWYyZWE0NWZmMjFjODhhODAzMWJmZWM2NDgyN2VkNmFhOWE5ZGQyOTllYjZiMGU4MGQwYTdiZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTU2NjFmNDdhY2E5ZDNhOGVmYTQ2NTI2MzBlNWRjZDQ1MjlmMmYyNWU2YTZhMWZmYzlmZTk3MGYyZTQxOWQ3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODgzYmUzYzBjZTZmMDMwNGY1Yzk4ODQxNmUxMWRiYmE2NmQ2OTE1NDg5YmNhOTM0MzE0Y2MwZWI1MWRjMDcwOSJ9"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L123-L125",
+          "version": "repo-lines-v1:sha256:1d6c5e244baabaed8c2eb14304c86a48d2681a5c116f1476b7ba3a1086666128:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzA1MTk4NzhiMjM5YmE0YTBjNzE2MDdhOWE3NWFjMGM2ZGY5YzgwNjM5YTkxZGQxOWE0Y2Q5NjcwYTgzYTk0MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjEzZTliMjYzMzQ5MDRmMTc1OGVjNDk1NWI5NTM5MDZhMzczZDcwMTFjZGI2ZjIzNzM4ZTY0ZWU3MThlMDk3MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTBiM2YxMmEwOWM0ODRkMTZhMzRkODU4ZTc3YWE3YWIyOTc0YWJiNTE5OGZiMzFhOTBhYzUyNDQ2MzdlNTRjZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2Y4NGQ1MzQwOWNiNzViYjQ4Y2ZkYzY3NTBjYTVmMmU5YjRlYzRiNzhmNjg3MGZhZjIzNGQ4YmUwMGY5ODljMSJ9"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L31-L35",
+          "version": "repo-lines-v1:sha256:07d4d2dbad749b1facc6d0e94e01171ed104c55a79369ea820a239c1b0716cce:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjRlYWVmODI3MGQ1NTU5NmMxZjExZmU5MzE0OGY5YzI4ZTMwZTFhYzQ3OGEzM2JmMDk0ZjExMmRlNzY2NTM2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGM1MjBkZmRiNjY5M2I2ODAxMGNjMmE2YTJlMzdhM2UxY2ZhODU0ZmUwYWVhYWE2NDMwYTI3MmE1NWFhNGQzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDNiMTA2MDFkMWEzODg3MjZiMGYwNDU4YTQyODU5ODhhZmZmMTZmMmE1YjQ1OTZiZDQyNzVhYmRhZGJkNWQ4NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGNmZmY5ZDg0OWRkN2JmN2VkOTg5ZGQ5MDQxMmUyYWNiNTA5MDU4NWE4M2MwNjViZTA4NzkyNzAwOGQwMmNmZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fd26bd18172b46e2a303f5aa0cf25861",
+      "statement": "OAuth environment precedence is existing remote environment, optional service_url, local profile values, then forced token_url, base_url and account_id, followed by a full put_env call; the profile is named from args.profile and read with utf-8-sig.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L129-L150",
+          "version": "repo-lines-v1:sha256:def4257534e88cafd148df1e96105d440e832ef3ea75bba40c767c4b7b0161c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhOTYzNTZiMTBkZWViN2RjYTk2ZTg1ZGE0ZTY4NTJiODg5NjhlMjBkZDE5YWI4ZTY5Zjk0ZDc5NmM3NjNhODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyZTg5MmY4YzNjNmRmMmNjNjU3NTNjMTVlZjQ2MmU4NDk3MGQzMTY5OTk1MTMzZGQ0YWVmNzQ2YWZhMWUyM2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmODRkNTM0MDljYjc1YmI0OGNmZGM2NzUwY2E1ZjJlOWI0ZWM0Yjc4ZjY4NzBmYWYyMzRkOGJlMDBmOTg5YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzZTEyMmJiYTFiODU1ODE0Yjk3ZGNlMDg5YjNjNDQyN2Q3MzcyMmRiNDQ5YTNlMjA3ZjQwZDczY2NlNzdkNjcifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L173-L179",
+          "version": "repo-lines-v1:sha256:bb37d0b6d61b1ca7b8b896345d871ed5cf5549cc1af41324d7822c4d1d59d970:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjZjNDE1OWU5NWU3NDI1MTQ2YmZmODY3ZjM4ZDE2NGQ2Mjg5Yjk4NWEwY2UwMDJjYzA3MjIwZmIyOWFhNDRkZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjAzZDFkMzAzNjdlNDA0ZjI2Y2UwNGQ3NmYyNjZmMmVhOGNlMmY5MzQ5MzBlYThkYWRmNjZiNWU3NzcwMzJhMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTA0ZTJmYjdlNjkxODUzNTk1MDZkYTExOTUzYzdlYmNkMGQ1MDIzNzk3NTU5NTM2MDI3NjhhNDI2ZTM2MGM2ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmYwN2EwMzQ2NTBmOTY4NTczYjI3YzE1M2NiNDNhNjg1MmFkYzhkMmRkZTY0ODM0NWQzNGZhYTM0NTE5ZTc2OSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_0ba438a0b44a4afeb9c148c4faf7a89d",
+      "statement": "Tripletex environment precedence is existing remote environment, optional service_url, local profile values, then forced base_url and token_url, followed by put_env(dict(env.items())); it does not assign account_id and reads the profile with utf-8-sig.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L46-L67",
+          "version": "repo-lines-v1:sha256:c2a748726b1ed0b3513fbc6d6d83c335af7d843317997d0e6d08f891e5dc6203:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiZjFiNjFmNmFmM2FiZTY5NDMwMTI5MzE0ZDRhNmE2N2ViMjU4ZjQ0ZTc1ZWQ0ZTIxMmI4Mzk1ODk5MzlkNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZGZlZjQzOGVmODQ0Nzg0MzhkZDc4NWVkMjI3MmY0NzI4YTQ4ZWQzYzM2MjkzZWRiYWRjYWRjODJmMmU1ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjZDU2ZGZjYmE5YzI2NmJjNTI5N2M3Y2Q4NWIwNjMzZTE4OTljY2NlMWY1NDU4MDc5ZDMyZDU1ZmUyYjEwOGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0OWY4MzRjM2Q5ZGY1OGFlMWMzZDBjZTdlNTM3MGJmODg4NDk3ZTMxYzNjZGFmOGIyNzBmYjFhMTMwNTNjNTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3c09cc17d4ac4e95a9cc1e45a1a72bf3",
+      "statement": "The API-key helper requires truthy base_url, system ID and API key, but does not read a profile or call get_env or put_env; its success message nevertheless claims that both secrets and environment variables were updated.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L49",
+          "version": "repo-lines-v1:sha256:ca9bc2651e8a82203a112cbf73ee301ca3de603e0bde32bc46d1be09c9b31658:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzMyMGZhMzg3MzdhODM1ZjQwZGUzMzI1YjdiNzQ1ZjU2N2NhNDlhOTJhMjk0MDYzMDJmODQzNzhlMjI5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGUyYTkyODI0NzllZTA0ZDM4YjZiYWY5ZDYzNGYxOGQwNzFmMTUyNTg5NDc0YjFhZWZjZWYyNjJiMWY2MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a32fce9a78364c4bad4f737d5e0d1a92",
+      "statement": "API-key dispatch currently invokes its helper only when local .authconfig exists, so supplying --api_key without that file silently bypasses authentication in this branch, despite usage documentation describing command-line credential alternatives.",
+      "evidence": [
+        {
+          "resource": "repo://readme.usage.md#L39-L50",
+          "version": "repo-lines-v1:sha256:4dd28b672c2fd5b9c213327586314745b69210a2e39a2a7a8cfb836205714c7c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YTJiMzc3MmQ3NjVmZWM4ZmEwODNiYjU1YTUwYWFlZTQ2MWRlZTA5ZDBiNjA5YzI2OTBhZDY3OTIyYTE0OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MzFjZTRmYjIxNzE4ZTc3ODFkZDViYmYyMzdiMzA0NDYwMjFhYmRmY2RhNGIxNGQ1ODMyMGM5ZWI3NGJiMTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjZGNlNTQxZTZlNDViOTYyMzNmMDRhMTAwZjhjNGYxNmE4MjMwMWMwZDliYTdhYzBhOWE0YjJiMDJjOTMzNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyZTBjMzA4MTljYzE0NDM2NGZkOTM3NDhhYzc3NzBhZDM3OGM4M2VhMzU2MTk4MmQyZjkwMGRhNjE3ZDAxNjcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1210-L1216",
+          "version": "repo-lines-v1:sha256:6a91594045883bb15e1761a78a5add385f646b7739f043f30d1f73c68c8a8c1b:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmE2NzBjNTA2ZWU2YmMwMzhlYzMyNDliNjMxYTc3NzQ0NDkzOWRlMWIzN2ZkZDljYTVhMmMzYTQwMTBhMDFlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGYwODY4ZDg2MmU1OTZlMWZhMGEwYTU4NzhiMDUwZWVhZmM2ZTM0ZDBlMTYyYmUzOGM2YWYzYjFjYmFjZThmYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg0N2YzMjlmZDNhNzczOGY4ZmU3OGIyNGUyODk1OTY2YTUwZGZiMDhhYjJkNmI0Yzg3OGFkMjZjOWVmOWUxZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWY0MzFiZTJiOGY5OGRlMzgzYmU4MmI5YTJjODBiZWZkYzYxMTZlMWU5N2NkMzhiNmEyYTEyMzY0NDE4ZmEwNyJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L3857-L3862",
+          "version": "repo-lines-v1:sha256:91ac0dde0b471039c66eb882a80787c7d11f4ca65d8a9477201fe9a1d14cd6bd:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDJlMWQzZGQ1ZjExYjIyZmQxMDFmMWQ4MzEyZjg0YTE2YTJhOTI3NDZkMDRiYWI3ZGI0ZjVkY2I2MDM5MWJhMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2ZjODhkZTUwMGZiZTEzM2IxMjQ3NzMyMmIwNGNhYTU1MzVhODZjMjY3M2FhYjAzYWQyMWIxYWZjM2Q5MmM3YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_23b3cb1fb2a946b0be52ba876774aa74",
+      "statement": "SesamNode.get_env and put_env delegate to sesamclient get_env_vars and put_env_vars with full dictionaries. Local code uses this as a replacement-style interface, but the external dependency owns backend behavior and secret-merge or transactional guarantees are not established here.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L121-L150",
+          "version": "repo-lines-v1:sha256:57de30e97cf665a9bbed6bdc845340fb13283e14353435ee10a58314d3cfa632:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5NmJjZWMyZjUwY2YwOTc0MzAyMzM0OTMyZmUxM2NjM2U5MmY1NDliNDkzNTAzY2UwMDZjYTg3MTUwZWZkZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyZTg5MmY4YzNjNmRmMmNjNjU3NTNjMTVlZjQ2MmU4NDk3MGQzMTY5OTk1MTMzZGQ0YWVmNzQ2YWZhMWUyM2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljMmYxMmU5MjgwYWU1Njc1YjFiMTNiYTgwMjgyYjY1YTBmMTM2NTkzYTRlZDk1ZjRmZjdmODNmNmM5Nzk2ZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzZTEyMmJiYTFiODU1ODE0Yjk3ZGNlMDg5YjNjNDQyN2Q3MzcyMmRiNDQ5YTNlMjA3ZjQwZDczY2NlNzdkNjcifQ"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L39-L67",
+          "version": "repo-lines-v1:sha256:b19ef53baae37ea3212193477a4d81d8aa982d3bb0324ae676b619ece12192b2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NTc3ZGMyOGY2Y2JkN2NmYWJkMDQ3ZWYxM2VhYmY3Y2ZlMDljMzE0YTg2NzBhYWQ5ODU1YzMzNjY5OWUyNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZGZlZjQzOGVmODQ0Nzg0MzhkZDc4NWVkMjI3MmY0NzI4YTQ4ZWQzYzM2MjkzZWRiYWRjYWRjODJmMmU1ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjZmZmOWQ4NDlkZDdiZjdlZDk4OWRkOTA0MTJlMmFjYjUwOTA1ODVhODNjMDY1YmUwODc5MjcwMDhkMDJjZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0OWY4MzRjM2Q5ZGY1OGFlMWMzZDBjZTdlNTM3MGJmODg4NDk3ZTMxYzNjZGFmOGIyNzBmYjFhMTMwNTNjNTAifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1458-L1462",
+          "version": "repo-lines-v1:sha256:03ba720d83eaed012da951db6d5d63fae300d03d4177e0ede2a70094b2fd3a2e:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjU2OWNiMDkyODBlZTA3ODE5NDVlNDhkNDA0MWJkMmRmYWFlNjkxYWQyZWFiZjVkM2NiYTA4NDZjNzIxNmNhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDQ4ZmZjYmU5M2NmMjY1NjM4NWZlYmNmNTBmOTJkNTFmNDY1Y2QxMWRmZTc0NjUxNTc4MjczZWJlNDA1ZDE2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjEyMDgyZGRhYTVkNzg2NWM0MjVjZjM2YmQwMzU2YTVkMzFmMmJhN2YzMWVmZTUzOTExMDgzM2QxNmMxMzJjNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2FiY2U3Yjk4NTY5ODBlYzhjMDE0N2E3MTYzYzA4YWUzZTgxMzk2ZmI2ZjY2Mzk1Zjg2NWQ0NmMyMDVmYjViYSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L267-L272",
+          "version": "repo-lines-v1:sha256:08a25aab21abca88d5c87e9907c28e0371abdd30d4cd59667d6a14980df74185:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDQ1NDg5NzI3ODMxMTA3NjAxYmNkNDdkMzFmMzVlZWQ2MTIxZTg1ZGYxYzdkODRjOGUwMmEwNjIwMjFhOWFlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkwOWE1M2E2MThkMDI4ZTFkMzAwMGMwYTdhYmNlZWNiZTVmYjM3ZjRlNTExZWZlNDY2NDNmYWQ2ZTY2ODcyZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWZkN2NmODNmNWFhYjhmZDc3NzA1ZWQ3OWIyOWU2ZGYyNGIxNDExMTQ0ZjZlMzU5MjcxMDExNTcwMGRiNjM5MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjEzN2YxOGY5Mzk0YWJmZjBiNTk4Y2M4YmEyMDY5ZGQ4MzUxMWI4ZjViMWIxMTJkZTFmOGNlYmZiMTI4Y2M4MSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L439-L445",
+          "version": "repo-lines-v1:sha256:1396d64fbfd78b18aa9b743d21f5750881da75403471052c4d5e1e62e53d6c76:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzE1NGE0ZjM2NDM3ZWU4ZDRmZjk5MTNjNGQ1ZTY1NDA1NmMwMTkyNWNlNjY1ZWIyZDRiZGM4ODdkMjNmNTAyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmE4NWNjNzIzOGJlMTYyNzRlNzU5N2MzZmU5OGNjNTcxNWNmODA5ZWRjYjQ4MGFjNzQyMDgwOTczNzg5ODY1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ5ODE4N2RiNTUwZjI5ZGJhY2U1ZTI5YjRhNGRhNWYyZjBiMmY3ZGVkN2EwODYwNzQ5MWYyM2IwNWRhNThhMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDEyM2RiOTE0ZWZlMzIyMjI0YmRjZWNjNjZiMDYyOTQwMTIzNDFkYmMyNGJjM2IyNzU3Yzg2Y2QxMDVhNzhkMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2cc7af73e6d44ff688c41a3fd0972ff4",
+      "statement": "Connector upload overlays .additional_parameters.json onto the uploaded profile before environment replacement, while OAuth and Tripletex later read remote environment and overlay the original local profile without directly reading additional parameters; the authentication merge can therefore override values just uploaded from additional parameters.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L129-L147",
+          "version": "repo-lines-v1:sha256:4bcebae4b6c0426350edac3b74d43201662e89a226385a5a8b6dc29ef018bf5e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhOTYzNTZiMTBkZWViN2RjYTk2ZTg1ZGE0ZTY4NTJiODg5NjhlMjBkZDE5YWI4ZTY5Zjk0ZDc5NmM3NjNhODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjZmU5MjgzNGZiYTkzNjA1MjBiOTQ3NTJlNDE0OTk0NWIzNmUxMTZjYTY2MGQ5Y2M4ODIzMzA3YmIxYWNmYTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmODRkNTM0MDljYjc1YmI0OGNmZGM2NzUwY2E1ZjJlOWI0ZWM0Yjc4ZjY4NzBmYWYyMzRkOGJlMDBmOTg5YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIxZmVkZWFkZTk3NmMxNTZhYmNjYTc2MGE1ODI4YzdhOTcxNDYxMzkwMzgyOWE3YTlkODcxZTcwZThlNTlhM2YifQ"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L46-L64",
+          "version": "repo-lines-v1:sha256:865b6fc983310d139e5df33f698c5eaf1850f16edec60b244a306cadd04a7814:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiZjFiNjFmNmFmM2FiZTY5NDMwMTI5MzE0ZDRhNmE2N2ViMjU4ZjQ0ZTc1ZWQ0ZTIxMmI4Mzk1ODk5MzlkNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlYzZmNDQwNzY0ZmU3MDQ4ODhhZTU3NjM2MWFhN2ZmYTlmNTMzZTA5YTJhZGY1ZGMwNDExNmNhNGZkZGM5NmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjZDU2ZGZjYmE5YzI2NmJjNTI5N2M3Y2Q4NWIwNjMzZTE4OTljY2NlMWY1NDU4MDc5ZDMyZDU1ZmUyYjEwOGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0OThlMzcxZWI4NWJmMmNkOWQ3ZDE3MWIxMjhlOWUzMGNjZWY1MTMyNTY2YzA5OWRmNzI5YmI1OGYyMTEyNmQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1411-L1422",
+          "version": "repo-lines-v1:sha256:9b40af1398adf5cbc060eac887418201511de68a0be50374aae9d36b688d27a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NmJkY2IyYjcwMjBiYjA4YzFjZjQ4NDY3ZWYyODlkMGI4NzEzMzgzZjBkN2FmMTM5YzhjYzYzMGE0NzBmMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0ZWVmYjkwZTIyYmJhMTdlZTI4MzVmN2I3MWYzZTJjZTZhYzgyNjk0NzRkNmYyZWMzM2E3NGVjZTdiZTk5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmMTQ4NWFlOWZkYzBmYTUxNjEyYmRkYjEzNGU3NGQ2MTE0NTM0Y2MxMDM1MjFiNzc0MzAwYTJhYTkwODY2YjcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1439-L1462",
+          "version": "repo-lines-v1:sha256:06c06a4acc183009edfbd1d640f4da154c5b0083154e28209cdcc3f3bfcc38a4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxNWJiOGVkMTI5Y2Y3ZDk4YTFhZmM4ZDc2OWFhYjFiZWZiMzNkYTQ2NDk4YjFkYTE4ZjQwZGU2YmMxZmNkZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGZmY2JlOTNjZjI2NTYzODVmZWJjZjUwZjkyZDUxZjQ2NWNkMTFkZmU3NDY1MTU3ODI3M2ViZTQwNWQxNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYzOWMyMGMwYWViMTQyODUzZWUyNGRiOTY1MzE1ZmFkYzFjM2M4YWMwOTUyOWZjYmNmNmM3ODI1MzAzMzM5YjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYmNlN2I5ODU2OTgwZWM4YzAxNDdhNzE2M2MwOGFlM2U4MTM5NmZiNmY2NjM5NWY4NjVkNDZjMjA1ZmI1YmEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4182-L4193",
+          "version": "repo-lines-v1:sha256:b5e9d59fb4ce9e0094762eb0d41926ebc3d6bf74eb52736ca8c3bf244e612291:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1NjY4N2I4MTlmNmJjMjA5MGQwODdkOGZmZWNjNjExMzg0OWI2YWNlMDYyZTQxN2JiZWJhOTY4ZDZiOWRmYmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxNjI0NDI5MTg0MTBhNGYzNjhlMmVhNTAyYjkzMmQyNGVmZGUxZWEwYWY2N2UxNDIxZmRlNDA2MDIwMmQxYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5ZjVjZjkxYzA2ZDRjZDJmYmQyYTdhNzkyZGUyZjJmN2FmNjA3ODkwODcxNzdjNjE4YjRmODJhMzRlMTM3ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1ZjMzMWQxNWNmNmU0OGU4ZjBhMzBhZjg4MjA3MTE4ODExMjczN2I2NWU1ZjgyNzkzODA3NjJkOTI1NGJlZDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6c2bc342b07945969f4ed4108003355b",
+      "statement": "Connector expansion with use_webhook_secret overwrites permissions on generated http_endpoint source pipes whose IDs end in event with anonymous write_data access. The authentication helpers derive and store the webhook secret rather than implement incoming webhook validation.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/connectorpy.py#L145-L160",
+          "version": "repo-lines-v1:sha256:1aab3e88539b6fad316b8a263a0ea061a960064cd6388a9e020aae8e49d43874:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjYzQzOWQxMGVhMTk3OWU5NzhjZjgyMjIxYTExODE4MmQwNmY5YTBkZWNjZThmZTVlZWYxNmI0NmExNWZkOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YzE2ZmRlN2JhNzdiOTk1M2Y3NzBiMGM1ODI1MjI0ZWZmYjNjNDM2YWZmODEzNzZlMzM5YjUxYjE2NjZiMTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyNTcxYmNhYjEzNDJmY2U3YWI2YWM3ZmQ3Y2RjNDQ1MWFmMmU4NGRmNTJlNTBhYjM4ZjdmYTcyMWM2MTJjYzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkNDBmMjMxYjFjNjJjMWMyZDA2YjJkNjVkYWNkMTI4ZGJmYjEzNTBlZGE2MWM2ZWZhMjBkMjA1MThjYWQ5MmEifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L107-L109",
+          "version": "repo-lines-v1:sha256:cbe2f713038ef14a8dd35682d8cae0f02f4c9023d14bebef8ed80b48f95cce2e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U0MGY0ZGQ5ZTkzNjkyYWJiY2NhYTVkOTdlMzk4N2Q2NmQ0OTI0YTUzZmYxNzc5OTQzMWJmZmIyOGZjNDFkZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTM0Y2E0ZDNhZWYyZWE0NWZmMjFjODhhODAzMWJmZWM2NDgyN2VkNmFhOWE5ZGQyOTllYjZiMGU4MGQwYTdiZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTU2NjFmNDdhY2E5ZDNhOGVmYTQ2NTI2MzBlNWRjZDQ1MjlmMmYyNWU2YTZhMWZmYzlmZTk3MGYyZTQxOWQ3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODgzYmUzYzBjZTZmMDMwNGY1Yzk4ODQxNmUxMWRiYmE2NmQ2OTE1NDg5YmNhOTM0MzE0Y2MwZWI1MWRjMDcwOSJ9"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L31-L35",
+          "version": "repo-lines-v1:sha256:07d4d2dbad749b1facc6d0e94e01171ed104c55a79369ea820a239c1b0716cce:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjRlYWVmODI3MGQ1NTU5NmMxZjExZmU5MzE0OGY5YzI4ZTMwZTFhYzQ3OGEzM2JmMDk0ZjExMmRlNzY2NTM2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGM1MjBkZmRiNjY5M2I2ODAxMGNjMmE2YTJlMzdhM2UxY2ZhODU0ZmUwYWVhYWE2NDMwYTI3MmE1NWFhNGQzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDNiMTA2MDFkMWEzODg3MjZiMGYwNDU4YTQyODU5ODhhZmZmMTZmMmE1YjQ1OTZiZDQyNzVhYmRhZGJkNWQ4NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGNmZmY5ZDg0OWRkN2JmN2VkOTg5ZGQ5MDQxMmUyYWNiNTA5MDU4NWE4M2MwNjViZTA4NzkyNzAwOGQwMmNmZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5c004c28b2e84fdb9de173f390a43e89",
+      "statement": "OAuth and Tripletex catch and log failures in separate secret construction, secret-write, environment-read/merge and environment-write stages but continue to later stages without rollback. Failed token/secret construction can lead to empty or partial secret writes, and failed environment reads or merges can lead to empty or partial environment replacement.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L70-L165",
+          "version": "repo-lines-v1:sha256:132a8c24512799a88083e24626666567583f5ac8f67cfe1c80ed9f2f5d8feffd:eyJzZWxlY3RlZExpbmVDb3VudCI6OTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiNzAwY2MwMTRhYzM4NTNiOGFmNzQ5ODA2OTQwYjk0OGFmZTU5ZDQ4ZjBmNjYxNjBmOTlhZTdiY2Q2ZjBiZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ODNhMzIxZDAzZjhkZmI1ZWY3ZGMyZTAyYTI4OWNkOTk2YTU4OTg3NzU5NDk4OTliMTBkM2FlYWQ3MzA4NjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkMTdhN2NjZTk4ZTdmMWRlYzNmMGNhMjYzNjVkZjM4YzEzYzkzNzgwMDljMTUxNTY2Y2UzMzUwYzQ4Y2VhOTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1MjEyNjY0YTMwZjM0MWE4MzU0Yjg3NTc2NTI5ODk1Y2Q3NzI0YWM5M2ZiNmIyOGExNGFjODg4YWQ2ZDljZWEifQ"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L18-L78",
+          "version": "repo-lines-v1:sha256:1662982c61f0035272aaf33dc9b6d1e8e6f930a77fc66ee61bede7ee21395547:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MjExM2U0MmQzMWIwMDMyNGM2YjgxMGRlZjlhOThjNWZjZDViNjJkMTFlMmFmNDIwODNmMDYyZDQwNDM4ODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyYmNhOTg4NmVmNzE4OGJmNTkzMGZlNjY2MTdkMTQwMzBjM2IwZTkzMTlhZjUwNDhiNWZmNGViODQ3ZTVkZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4NThiMmFhMjJiYTJkYzZjYThiYTNjYzdhMTFhNWY5OWI1ZTVhMTUxYzUwYzg2YzFmNGI2MThiOGNhMjg2ZDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c03aa6c8d5e844feb486896aef22124b",
+      "statement": "OAuth and API-key all-systems writes use one try block around the loop, so a failure on one system leaves earlier calls completed and skips the remaining systems; there is no local rollback of those writes.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L15-L34",
+          "version": "repo-lines-v1:sha256:37af9bd1192763e4917680ec5640f9d7104caf8cb89127596ef92335b7de101e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1NjljYjA5MjgwZWUwNzgxOTQ1ZTQ4ZDQwNDFiZDJkZmFhZTY5MWFkMmVhYmY1ZDNjYmEwODQ2YzcyMTZjYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmNjNjYTQ0ZTA1ZTI2OTJiYzllMjJjYWZlNjI1NWQ1MzdhZTc1MWY3OWIxYTNmMzg5NmMwM2M0OGViY2YzOTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhMmI5Yzk4N2I2MDI3NDhiMTM1NTc2NGIzMDhiOTA0NTgyYjk4MDcyYjBjZjVmOGMxYjQ3OTdiZDVkYzUxNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0OWY4MzRjM2Q5ZGY1OGFlMWMzZDBjZTdlNTM3MGJmODg4NDk3ZTMxYzNjZGFmOGIyNzBmYjFhMTMwNTNjNTAifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L121-L128",
+          "version": "repo-lines-v1:sha256:0d7f5291c1f0dc20afb572b822b7e209418efab7064f0579d06b6b19c7142450:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODk2YmNlYzJmNTBjZjA5NzQzMDIzMzQ5MzJmZTEzY2MzZTkyZjU0OWI0OTM1MDNjZTAwNmNhODcxNTBlZmRkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNkYWJjYjAyMTE0MWUyZmNiN2IyYjZkMWYzNDM5ZDU1MjZmMzRjYWExM2UxNTFmM2QzMmEwY2Y3ZTY3ZDNlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWMyZjEyZTkyODBhZTU2NzViMWIxM2JhODAyODJiNjVhMGYxMzY1OTNhNGVkOTVmNGZmN2Y4M2Y2Yzk3OTZmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDMwZjc5OTk0ZDIyOGRhYzUxZWNmZDkwM2UyZjhlNjEzYjRiOTUxMjU0NDk5NDhlMTM0YmFmOTllMDJmYWU3YyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_0e2deea469ed4e72b4285a310c674bf7",
+      "statement": "Login helpers log outcomes without returning a structured status checked by authenticate, so caught failures do not automatically produce a failing main-CLI exit. API-key system retrieval/expansion occur outside its catch block, and the SuperOffice continuation occurs outside OAuth's secret-construction catch block.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L7-L49",
+          "version": "repo-lines-v1:sha256:ca9bc2651e8a82203a112cbf73ee301ca3de603e0bde32bc46d1be09c9b31658:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NzMyMGZhMzg3MzdhODM1ZjQwZGUzMzI1YjdiNzQ1ZjU2N2NhNDlhOTJhMjk0MDYzMDJmODQzNzhlMjI5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZGUyYTkyODI0NzllZTA0ZDM4YjZiYWY5ZDYzNGYxOGQwNzFmMTUyNTg5NDc0YjFhZWZjZWYyNjJiMWY2MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L110-L165",
+          "version": "repo-lines-v1:sha256:a273f9631e0b0220ded6ba27e704c894cc0701ab012f1994b6f499ff7accf915:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjZDcwYjg0YjYzMjEwOTg4NWNmNzhhNzU4NTQwNzRhMGYyNjA2NDE2ZWE1ODY0ZDhmM2E0OTk2ODFlMzMyMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ODNhMzIxZDAzZjhkZmI1ZWY3ZGMyZTAyYTI4OWNkOTk2YTU4OTg3NzU5NDk4OTliMTBkM2FlYWQ3MzA4NjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiZTJmNzEzMDM4ZWYxNGE4ZGQzNTY4MmQ4Y2FlMGYwMmY0YzkwMjNkMTRiZWJlZjhlZDgwYjQ4Zjk1Y2NlMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1MjEyNjY0YTMwZjM0MWE4MzU0Yjg3NTc2NTI5ODk1Y2Q3NzI0YWM5M2ZiNmIyOGExNGFjODg4YWQ2ZDljZWEifQ"
+        },
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L69-L82",
+          "version": "repo-lines-v1:sha256:898b5cad5176a43062dc4a26689f79944e9b17b32217f90f97062005dd700ca0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkNmRhYTFlZmVjNTM3ZGNlN2M1N2ExMjU3ZDIwODU5Y2I5ZDQwNjg2NWQ3ZDkwMjdkODkyMDlkNmIyMDc1NjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyODgyNTU0YzQyZWIwYzFiMDY1MzNmY2M4MjU2MmE5MTk3MjYwZTdkZmEwNDlhZDMyZjkxOGI3ZDMwYzI0ODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1176-L1213",
+          "version": "repo-lines-v1:sha256:55b8a8c260500af837d1cf879e76037d1da656c288dbc63e7dbfc06f6b4d3600:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3NGRhMGIxODNlYmVlYWJkYjFhZjk1ZTdhYTRhYWY0M2Q3ODY5MjU2N2MyYmQ3MzUzZDc0NDE0MDMzZjkxMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5YzIzMzdlNDQzOWZlNjZmYzQ0MjJkYmUzYzllNTUxZDEwNjcyYzA1MzAxZjkyOWRkMGVjOTQ5ODE5NWE3YjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0Y2QxZGVlOWY1NDcxOTkzMjgzNmVjNThiMjc1NTQ0ZmUxYTA3MjExYTljZWZlNTgwMjAyNjI2ZDQ5ZGFjYTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxMjk1ZTBkMTQyNTRjYjMwMjg0OWZmMWVjMDJiZTA3Y2VjZDZlZWU3MjgzYTE1MTA3MTUzOWI0ZGNmMjQyM2IifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4293-L4304",
+          "version": "repo-lines-v1:sha256:3e3a718c8554693eaad2b6e9980cc55864d1c7c247490ad290ccef816604013c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVhOGFhYjllOTIzMDcyMjM2YzVjNDc0MTM5OGM0ZDVmZmVhMjgxMGE1ZjlkN2Y2YzhlNjYzYjc2N2EwYjI0MTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmYTIwODU4YWY2NDI0N2FhNDdmMzFkMWUwMDQ0ZjcxMDc1NmJkMjc0Y2Y1MmYwODk3ZjgxNTU3YzU1MjViZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0MWIyYjc2M2NhZWRmNjFhNWFmM2MwYzFjZjNlYjBmNTgzMWVmNGUzZTlkN2E3NDc3YzI2MjE2NDVlMjYzYjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3ZGUxYTAzMGQ5ZDQwZWY2YTliMWM4NzA0Y2VhNTMzYTQ5ODY3MGI0MDUzYmI3ZmZiZWZjMTQ4MzA5NDFiMDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4d19b6497bec4ac5a14e21aeff5afac8",
+      "statement": "The API-key JWT variant POSTs the API key under manifest jwt.jwt_header_key to jwt.login_url, parses AccessToken and RefreshToken from JSON, and adds jwt_access_token and jwt_refresh_token to its secrets alongside api_key.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L15-L31",
+          "version": "repo-lines-v1:sha256:ae993a1b5873e48337528c492c4d01c35affb7cff11f769dddb78def3e771c9c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1NjljYjA5MjgwZWUwNzgxOTQ1ZTQ4ZDQwNDFiZDJkZmFhZTY5MWFkMmVhYmY1ZDNjYmEwODQ2YzcyMTZjYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5N2ExZDQ0N2Y3OTYzNDZmOWJhMWJjMGU0OTJhZGIwZTlkNDJiNmJiMjQxZTdjMjU4OTljY2Y4ZmVmNTRkMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhMmI5Yzk4N2I2MDI3NDhiMTM1NTc2NGIzMDhiOTA0NTgyYjk4MDcyYjBjZjVmOGMxYjQ3OTdiZDVkYzUxNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjZDU2ZGZjYmE5YzI2NmJjNTI5N2M3Y2Q4NWIwNjMzZTE4OTljY2NlMWY1NDU4MDc5ZDMyZDU1ZmUyYjEwOGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7310de79c2d9426d845ed81ca4e533db",
+      "statement": "Tripletex constructs base_url plus /v2/token/session/:create and stores it as environment token_url while storing consumer_token and employee_token on the selected system. The helper makes no direct session-token request and never consumes the CLI's --days option, whose default is 10; falsey required inputs only log a missing-arguments error.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/tripletexlogin.py#L1-L82",
+          "version": "repo-lines-v1:sha256:2572c3b0f7f1d61ca270e65cd0df3fa6b9d6a5087c3a64555073897dfdbacaf2:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiM2VhM2NkYzcwNjhhOWU5N2NmY2RkYmNkOWQ4ZTBjNTRmZTRkMDY4MzQ3YjgwYjE1OGZkZDhiMTQ2NzZlM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L3900-L3907",
+          "version": "repo-lines-v1:sha256:8b75d99d3e0925a6eeb9a9fa8ad08c598d7b3416c93dcf4458cd691e73ea9f42:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmJlNDM5YTQ3NTAzNDI3YTRjNzlmOWJkM2MzYzNmYzFmOTNmZDFlN2I0YzdhMTUxZDVhZmFkMDQwMmQxYThlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjBjMDZmMTMwNTMzMmU3NDY5ZGU3NTE2NDM3ODRhMjA5ZjZiZmUwZmYxMzIzMWZjYTVmOWU3OTUwOTEzZTI1ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWRlZTE5OTFkODE2MmVmMjQ3MTA5MjU3MDBkNmI3N2E4NTU5ZTRmZjUyNDIwMzRiMTYzYTNlN2MwOTkyODhhMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9a1fb46e318549e18c31be80bd26229a",
+      "statement": "The SuperOffice OAuth continuation expects get_so_ticket to return ticket, account_id and base_url, then persists only ticket['so_ticket'] in system secrets; the returned signed_so_token and timestamp remain outside the caller's persisted secret dictionary.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L114-L117",
+          "version": "repo-lines-v1:sha256:54d426db8a9253912e57b076aae9f413b0294f67f0c2041f2910983944e6b772:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODhjYTM4ZjM4NTFhYjgzYTNlM2IxZjZiMmFjNjQxMTBhNWZjOWM3NTYwZjRjMjQwMDkxNmZmMjM4ZDY0OWJlZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjk5MjcyMTMzZTZiZWEyNjU2NTcwZjk4OTk3MzE5NmRiOTU4Nzg5YTRkMGIwMDgxZjk0NjBmMWMwZjg3MTBjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTZhM2IwNGNhMGQyZTBmYWY1ZmQwYjBiODU4ODM3ZGUwOWY2M2M1YzYwNDUzMTEwODM2MjVhOTVlNGNhNmIxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWMyZjEyZTkyODBhZTU2NzViMWIxM2JhODAyODJiNjVhMGYxMzY1OTNhNGVkOTVmNGZmN2Y4M2Y2Yzk3OTZmOCJ9"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L109-L109",
+          "version": "repo-lines-v1:sha256:609b3351547e50ce6d0e4a10b777019e12175bb2e4ba6cf9af01f5f30aacb764:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjA5YjMzNTE1NDdlNTBjZTZkMGU0YTEwYjc3NzAxOWUxMjE3NWJiMmU0YmE2Y2Y5YWYwMWY1ZjMwYWFjYjc2NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjA5YjMzNTE1NDdlNTBjZTZkMGU0YTEwYjc3NzAxOWUxMjE3NWJiMmU0YmE2Y2Y5YWYwMWY1ZjMwYWFjYjc2NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmI5ZDFkNGNmNzJlOTdmZTQ1MzliZjQ0YWZlYmM3Mjc4Yjg4NWE3ZGI3MTJiZWUwZTZkMDQ5ZmUwOThlMTUxYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTU1ZjBlNjVmODQ5MzY3YWUwZWI1ZjMwODU1NzI2YjNkNGFkM2M5MmEwMzNmYjk0YzRkZDgwNzFmMmYzMmU2MCJ9"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L127-L157",
+          "version": "repo-lines-v1:sha256:b3b938a18af3523fc6ca7c90cfc2b28cfb3e03ae33c12717c1d2c8249792fc40:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTM3ODFhODdiNmE4Njg1ZDdkMjNiYjc0NjQ0M2ZmYzg5MjYzYmVhN2I4NmNlYmY5ZTI3YjBiMzA1NmIyZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNThjMGM5ODc2ODA4MmUwZjNiY2FlNzcwN2Y5N2UwMjM1ZWYwZWJlZWFmZmRmOGJmYzlkMjE0ZjIyYTBmZTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjZDk1N2I5YWMwOTBhZDBkNWUwMGQxN2UzMWVmYjRlZjY3M2FhN2Y4YzZkNGY1YWM2MTY3MDQ4MzE1ZjFhNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L1205-L1208",
+          "version": "repo-lines-v1:sha256:f277c33e5624e3e8df21d884ba36413a4ede3b01f3820984c93dfc9d0612fdde:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzBlNjU4ZTkyYjVhNWIxMzBhZDFlMzFmZjI4MWRmNzAwYWRiODEwNGExNzZkNTA0YzQzMTFlNTkwY2M4NTI1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FhZjAzODhiYTA2Nzc5NTBmYjdkZjFhZjZiODEyNzM5ZTQ0NTVhMDQ1MmQyMDcyYzcwYmMxOWIzMzgyYWMzMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWI3ODgyN2JhOWJiMGEzYTc2ZGIxMDAwZmM2NDA4NzkzM2U1NDIxNjYzMjRmNTFiZGM5YWE1ZDMxZTVmMGQzZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIzY2M3MzY0NGQ1MTNiYTRlZDk1MDExMGE2MzA4NjIyZDcwNDkxYTRhYWZkMzYwOGVkZmJmODJkNjg1NTMzYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f1e99e55c3be4eafbcb2391ad8a70528",
+      "statement": "SuperOffice derives a customer context by splitting access_token, reads id_token and RSA_PRIVATE_KEY from the process environment, obtains jwks_uri from local manifest.json and treats oauth_client_secret as the application token. It GETs JWKs and decodes the ID token with JWT using the first JWK to extract the system_token claim, without local kid selection or an explicitly supplied issuer/audience policy.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L57-L96",
+          "version": "repo-lines-v1:sha256:6eae33ba20c22644e6ceebc9f19cbfcc632aba123e8ded95b6ffc281d8b6edd2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5NzUwMTg2OTEwZjYyMDlhYmU5MTQxMDA5OTgyNzM3ZWM0MGJmMjYyYjhiOWUzZGIxYjczMzdmMTU0ZTFlNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlYTg5OTJkMmM1N2Q1Mjk0MWNmMmNiOWVmZmZkZDMyODQ0NWRlZDU4MjgwYTkxYWZkNzc1ZDhmNzM2YWU2MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjczM2U4NDg3Yzg1ZGZkY2Y5ZmE3YjkzYzc0NmM5NDYyNWFlNDdlMTIwYzc5N2U3OTFlNzM3ZjllZDdmZmM3M2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzMWE3ZjI2YWNkZTA0OTQ0ZDFmZWQ0NTliYWQyZjQ5MTUzM2VhZTI1YWMxOTgwNmU0NjMyNjI3NGY0NTE3MWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0697e7353e0a4e8ab3362412acc7d654",
+      "statement": "SuperOffice converts an XML RSA private key to PEM, appends a UTC timestamp in %Y%m%d%H%M form to the system-user token, signs with OpenSSL crypto.sign using sha256 and appends a Base64 signature. It infers the service environment from jwks_uri and POSTs SignedSystemToken, ApplicationToken, ContextIdentifier and ReturnTokenType JWT to PartnerSystemUser/Authenticate.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L15-L36",
+          "version": "repo-lines-v1:sha256:9c1350b477a7dfed6847c91fd863d1fc91697dc783f128c54a5e71a8ee1df414:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyZjZlNzc5ZGZiN2U0M2MyZWY0NGY1ZjNiZDQ3ODM3ZjM2MmViNjZkNjg4OTc0Y2UwMGE0NmRmNmM5ZjY1MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMzE1ZGJkM2I1ZjkzYzc5MDMyNzY0YmM3MjJiZTBiZjE3YjdkOGQ5MzU0M2RlYThjMDJkM2NkNWVmOWUxMDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViN2JiZTg2NGRiODE4ODJhN2E1ZWRmZTIzNjA4NDBhZjA1NmU2M2M1NzMwMzkyNDZkOTVlYzA3OTdjNWQ2ZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2MjAzNTBjMGJhY2YxZmY0MTdhM2U5ZmMzYWM1MGJjZWMzMDI4YmVlNGY2NTViM2RjOWFmMjY1Y2MwMmM4YTkifQ"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L98-L125",
+          "version": "repo-lines-v1:sha256:57207ea3d0646e6d1f5bda29a89726936a3af9863e77c3809ef87ba3c9aac54a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkZDBiODYyYzk0YTNmZTJmNmZlODU3NzY1NGJhMTA2NjFiZGQwNjZkNGIxM2RlMWUyYzk0ODBhMmEwYjFiM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyOTg3NDAxMTI2ZDI0N2E2OThkMjJkNzhkNjdmNWIxMzY3MDVkYmRmMTMxY2M5MjExYWY5MTYyZjJhYWQ1ZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjMDVhZDgyNWM5MzE5NWM2OGE4ZGYyYjA2ZmFmMDc4OTRmZWEzNzI3OWE5ZTNmNTBjMzk1ZDY4YjJmNDM3MjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmOTQ0MTE2N2M0NWUzZGE5ZmQ4ODk2ZjFlMjEzNWNhZDMwY2M2OGQxYWU4ZmNlYzUyMWY0MDY0ZWJjOTQ2MGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e65f3857f88f442a835270d433ee8ddd",
+      "statement": "On a successful SuperOffice ticket response, the helper fetches JWKs again, decodes the returned token with the first key, extracts ticket/context claims and timestamps the ticket. It discovers base_url from the state API's v1 or Api field, then calls currentPrincipal with SOTicket and SO-AppToken headers; a non-200 principal response is logged without preventing the normal tuple return.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L127-L157",
+          "version": "repo-lines-v1:sha256:b3b938a18af3523fc6ca7c90cfc2b28cfb3e03ae33c12717c1d2c8249792fc40:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTM3ODFhODdiNmE4Njg1ZDdkMjNiYjc0NjQ0M2ZmYzg5MjYzYmVhN2I4NmNlYmY5ZTI3YjBiMzA1NmIyZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNThjMGM5ODc2ODA4MmUwZjNiY2FlNzcwN2Y5N2UwMjM1ZWYwZWJlZWFmZmRmOGJmYzlkMjE0ZjIyYTBmZTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjZDk1N2I5YWMwOTBhZDBkNWUwMGQxN2UzMWVmYjRlZjY3M2FhN2Y4YzZkNGY1YWM2MTY3MDQ4MzE1ZjFhNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L39-L54",
+          "version": "repo-lines-v1:sha256:760bd5a79f1f8da65ece931ac47e7b2f1ff219a376fbd0ffdfb47b30ab20fadf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhMmZmZWU1MGFjNzFlZDI0YzU4ZTBiZTVmNzI3NmFhN2NjNTdhNzIwY2JjMjJjMWIwNzE2MWViYWM2YTAyMzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlN2M5NTdiY2I0NGZiNjczYzk4YjAwNTBhNzVkMzgwODJkYjgxZDkxOGRlMzEzYTNmMDdjMTIzNTMwNmQ3ZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4NWE1YTIwOTFhOTdiYjBkOGRkMWRmOWE4ZjQyN2VjOWY2OThmZTI3Yzc0OTE4NmExMjhmY2E2MGFiYzFmN2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjYjAyNGVjODFiZTNjZDIyOWIxNmE3M2MxZThjNDZjMzNmYzcwZmNiM2JiNDI5N2ViNzMzNzI3NDlkZjc0YWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_155a451492c645848397fd8952033263",
+      "statement": "SuperOffice's missing-system-token path returns an empty dictionary instead of the three-value tuple expected by OAuth, while a failed exchange returns None values that the caller subsequently indexes. These can raise outside OAuth's catch blocks before the callback sets its shutdown flag, despite the helper comment claiming callback recovery.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L110-L151",
+          "version": "repo-lines-v1:sha256:ee564185d7c34c022c680c872df03296003351be43438fbf9cd8849bdbccaddf:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjZDcwYjg0YjYzMjEwOTg4NWNmNzhhNzU4NTQwNzRhMGYyNjA2NDE2ZWE1ODY0ZDhmM2E0OTk2ODFlMzMyMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiYTc1MzlhZWQzNjkzZjg1MmNhMzU1NzcxNGE3OWJkODA5ZWY1ZmU2ZDRmZjY2ZmEwYzhlMzFjODQyZDUzNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiZTJmNzEzMDM4ZWYxNGE4ZGQzNTY4MmQ4Y2FlMGYwMmY0YzkwMjNkMTRiZWJlZjhlZDgwYjQ4Zjk1Y2NlMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5NDQ0YTMxODFhMDZjYTgxM2Q5OWEzYjhiMDFhOTVjYmQzODczYjE2ZDYwNDlhZjc0MWRmMzlhNjc5OGEwNzgifQ"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L149-L157",
+          "version": "repo-lines-v1:sha256:bb4f426acfb8281c867e277d7ea66137fc484da4ec95099415d4aac14127c03e:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTljNzE0OTdjZmM4MmU2ZmUwZmZmZjBiMDYyMzY1ZWY0OTcxNTM4OGE2NTQ3Yjk3YTEzMDBmN2VlYTI4ZjAyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmE1OGMwYzk4NzY4MDgyZTBmM2JjYWU3NzA3Zjk3ZTAyMzVlZjBlYmVlYWZmZGY4YmZjOWQyMTRmMjJhMGZlMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjZlNzljM2MxN2M2MmQ0NmJmNzVhMWUxZGNiYWE0ZTcyZTBkNDJkMzg0MTM2MzEwNzFkZWQ0MzdkZTBhMTRkNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L93-L96",
+          "version": "repo-lines-v1:sha256:71427464317fdc98e2a2e4986aa3e0f7ed2cc60c6e2b9f3c717003a7c02379f9:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGE4YzA5NTEwNWE5NjZiMjlhMzViMGE3ZWZlODAwNDRlYzM3YTRkMzBjNjhjZTYyODc0Yjk2NDBhYmFkYjlmNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGVhODk5MmQyYzU3ZDUyOTQxY2YyY2I5ZWZmZmRkMzI4NDQ1ZGVkNTgyODBhOTFhZmQ3NzVkOGY3MzZhZTYyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDNjYTMyNTQ0NzI4NTMxZGZjMjNhYTkwMDJiYWFkZDZkODhiOTBlYzdmNGNlMGQ5YzhhOWI2MWE3N2FkOGFjYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjMxYTdmMjZhY2RlMDQ5NDRkMWZlZDQ1OWJhZDJmNDkxNTMzZWFlMjVhYzE5ODA2ZTQ2MzI2Mjc0ZjQ1MTcxYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7f14df6bec1c4908a29c934000c7116f",
+      "statement": "get_so_ticket has no local exception recovery for malformed or absent RSA_PRIVATE_KEY, unexpected access-token delimiters, missing JWK/token claim fields, JSON parsing errors or signing failures, so those shape and dependency errors can escape its OAuth continuation.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L114-L117",
+          "version": "repo-lines-v1:sha256:54d426db8a9253912e57b076aae9f413b0294f67f0c2041f2910983944e6b772:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODhjYTM4ZjM4NTFhYjgzYTNlM2IxZjZiMmFjNjQxMTBhNWZjOWM3NTYwZjRjMjQwMDkxNmZmMjM4ZDY0OWJlZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjk5MjcyMTMzZTZiZWEyNjU2NTcwZjk4OTk3MzE5NmRiOTU4Nzg5YTRkMGIwMDgxZjk0NjBmMWMwZjg3MTBjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTZhM2IwNGNhMGQyZTBmYWY1ZmQwYjBiODU4ODM3ZGUwOWY2M2M1YzYwNDUzMTEwODM2MjVhOTVlNGNhNmIxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWMyZjEyZTkyODBhZTU2NzViMWIxM2JhODAyODJiNjVhMGYxMzY1OTNhNGVkOTVmNGZmN2Y4M2Y2Yzk3OTZmOCJ9"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L25-L36",
+          "version": "repo-lines-v1:sha256:0a39cd22cbd4b1c642e862b4fda9e266a85f6c0c84fd61719cb821739ad015c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmZjMxMWRjYmFkOWUzMmFlZjNkNWMxYmQ0MGJkNmI3MTBiMGJlNDliNzMzYWMyM2U0MWE3MzA4M2YzOWIyYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMzE1ZGJkM2I1ZjkzYzc5MDMyNzY0YmM3MjJiZTBiZjE3YjdkOGQ5MzU0M2RlYThjMDJkM2NkNWVmOWUxMDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0NzBmMTJlYTFmNzgwMTQ1OWI0NWExY2EyODgzNTY5ZjI5N2Y3NzAxMDVhNmU0MTg3YmVjMjdjYTA1NGRmYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2MjAzNTBjMGJhY2YxZmY0MTdhM2U5ZmMzYWM1MGJjZWMzMDI4YmVlNGY2NTViM2RjOWFmMjY1Y2MwMmM4YTkifQ"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L57-L157",
+          "version": "repo-lines-v1:sha256:8d2565acb00a59becbb02cf7d49ed8b92954a219f9055d73157ab6433eb6aafd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0OTc1MDE4NjkxMGY2MjA5YWJlOTE0MTAwOTk4MjczN2VjNDBiZjI2MmI4YjllM2RiMWI3MzM3ZjE1NGUxZTY0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiYTU4YzBjOTg3NjgwODJlMGYzYmNhZTc3MDdmOTdlMDIzNWVmMGViZWVhZmZkZjhiZmM5ZDIxNGYyMmEwZmUyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3MzNlODQ4N2M4NWRmZGNmOWZhN2I5M2M3NDZjOTQ2MjVhZTQ3ZTEyMGM3OTdlNzkxZTczN2Y5ZWQ3ZmZjNzNkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_0b244e3f9e3f425f80b983e05072f7ba",
+      "statement": "SuperOffice depends on JWT and jwk_from_dict from jwt and on OpenSSL.crypto.sign, while requirements declare both PyJWT 2.10.1 and jwt approximately 1.3.1 together with pyOpenSSL 25.1.0, cryptography 45.0.6 and pycryptodome 3.23.0. Namespace resolution and signing API compatibility are unverified review risks; the unconditional CLI-to-OAuth-to-SuperOffice import chain can expose other commands to import failures.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L11-L15",
+          "version": "repo-lines-v1:sha256:1bc7e1c852445796435748d5dc0db8fbc12b4eb1e62baca9206106fae6d77c72:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzMzZDFiNjUyYWU2NGZlYmFhOGI3MWIxMmM4ZmEzMzU5OGFiOWE2NTkzZDc0YWU3YWJmNmJhYzU5MmVmNDg4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmViNDkxMTgwMjkxYTU0ZjA2NzM4MTdmNzQwOGM3MzM1N2MyZTdjNGNmMWU2YzYzNDdmNzkyMTI1ZWMwYjg1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTk0MDNkM2NkNmQ2YTJjYTllMDYyYjBkOTk0YjJlMDY5NmE1ZmEwYTYwOTZkOGExNjQ5YzMzZDIzYzQwNTMxMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTNiNWQwYjg2NWE2NWIwZGFlZjk4MWZhMTAzNTA5YzU5ZWE2ZjJiNDdjMGQ2N2JmNWUwMjRjNGY2M2QzNzg2YyJ9"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L1-L12",
+          "version": "repo-lines-v1:sha256:a93a9401d22027d85b296032b7a8ef67591eba31fb5bb5f08f3df3604222b87c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzM2QxYjY1MmFlNjRmZWJhYThiNzFiMTJjOGZhMzM1OThhYjlhNjU5M2Q3NGFlN2FiZjZiYWM1OTJlZjQ4ODQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNzgwYjA5YmFkNjIwOTQ3N2E0YWMyOTViMTIwNTdiZjIyZDY2NzJmNzgzNTcyZTg4OGQ0NWI0YTY5NWQ3YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU3YTY0MzVhN2E4NDI1MDFmNGE0ODMyOGU1Y2MyNWQ5NmQ4ZDkxOGI5ZTczNGJhMzczMmZjNzA5N2YwZTM4OTYifQ"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L100-L107",
+          "version": "repo-lines-v1:sha256:ee6fcde4edf2edcb58691a269ac5ac888dae1969bc4a9287392bc6b23a8ecf36:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGE2OWEwYzQzNGY4Y2Q3MmFhMzJkYjY1YjJjOWRhYWYzZTJlMTY1NmUwMGY2YTY2Y2IyMmVhYzY0MjEzZWY1MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI0MjI3OWJhY2QxNzI4YjljNzEyZWU3ZDFiMGZiODdhMWIzOTU3NGU0MmUzMjIwMThkNjRkOTRkZTYyMjIwYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjMxYTdmMjZhY2RlMDQ5NDRkMWZlZDQ1OWJhZDJmNDkxNTMzZWFlMjVhYzE5ODA2ZTQ2MzI2Mjc0ZjQ1MTcxYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjU2ZTVlNjE0YjkyOThlNzQxMzcxYWEwZjZhZGJlNzIxMTY4ZWRjZGYxNWU1ZmE2MGU4ZDZjYTIyN2MyNDY0YyJ9"
+        },
+        {
+          "resource": "repo://requirements.txt#L7-L14",
+          "version": "repo-lines-v1:sha256:6239dec77e4725ece8966e1a51971ca35b17b420504b197d27942a09813f3030:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDUwYjBkMmNjMWIyOTBlMjNjODk5MzYxNTRlOTM0ZjVjNmQzYmVlNDljNzI2MzIzNzNmZGNkMWQ3MmFmZTJiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGFmNmQ1Y2ZlYmM1YzY1NjE0ZDU4YWVlMWQ0MGI3MzRkNjFkOWNlNDc0MWVmMDNiYWQ5Nzc0OWE0YWEyNDE0NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWM1YjRhNWIwOTJjNzVkODIyMjdhZDQ5NTM5NzIwNzhmNmZiMjhlOWJkZTdmMjY1ZTAxOGIxZGNiZTRhZTVkMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://sesam.py#L27-L34",
+          "version": "repo-lines-v1:sha256:4d73c2ba6b2ab37ec471958edaf123c835d1c6863bbf2aae36f6a11de92e5b12:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjc1YTgzMDJjNjIxOTA3NDZjZDhmYzIyOWM2MTg2ZjExZmI1MzE0MjE4YjIwZDFiNzQyOTIwMzAxYTQ5NWI3NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2IxNDhkZTQ0MzNjYWQ1YWY5ZDcwMTYwMzU3YmRkYTIxNzRmOWQwMTUwY2Q1YWEzYTkzMDc4YTM4M2EwY2EwYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTRhZjVmODBiNTQwNTFlZDY5ZjEzYjU2OWM4ZTIyNWQzY2RjZDdmODEyOGViMTU5ZTQwMTcyMDUwZjE1YjFjZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTRmMDliMTY0NWExZTRmM2EyN2QwMjUzZGQ3NTMxMjcyZjM3N2RkNWI3MGQ4NTJlODg3YTA4NTE2YjY0OWRlNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a9aea3ae7bd44a5aa28a2cab1a58d37b",
+      "statement": "OAuth callback completion sets g.shutdown_server, whose app-context teardown signals a global event. The shutdown waiter executes lsof -i tcp:5010, parses the PID column and sends SIGKILL to every returned PID without ownership or LISTEN-only filtering. It assumes lsof output and Unix-style signaling, can target unrelated matching connections, and can kill the whole CLI process because Flask runs in a thread rather than a separate managed process.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L145-L151",
+          "version": "repo-lines-v1:sha256:b4987a5ccf34771bf9f6725ffdba9164e206e82e32a20bc1cc1bead44d41a76c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjBkZDE4ZTIzNzk5NTVhNjllM2I5ZTE1ZTQ4NjhhYmE5MzE5ZjQzZDkxZWRkMmZjZWNmNmNhNDU5NTA2N2UyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmJhNzUzOWFlZDM2OTNmODUyY2EzNTU3NzE0YTc5YmQ4MDllZjVmZTZkNGZmNjZmYTBjOGUzMWM4NDJkNTM2OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWUxZDMxMGM2M2RjM2NiNmI1OWM3ZTE0Yzk2MWJhMGQ5ODQ3NDJiNzg3ZmU5NmNmMTMzYjEwZDJkNmRmODZiNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjk0NDRhMzE4MWEwNmNhODEzZDk5YTNiOGIwMWE5NWNiZDM4NzNiMTZkNjA0OWFmNzQxZGYzOWE2Nzk4YTA3OCJ9"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L17-L39",
+          "version": "repo-lines-v1:sha256:e3cca3983e856c15f577978947ca2e7cdd0fde7c37bd67d474d658c490589a89:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkNjY1OTc4MGY3M2QwYmI4NWQyY2YwZmMxODRmMmFiMzJlOThlZGE3NjU3N2M5MmEyYTQzMTYzZTk4ZjZiOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1NzExZTE4OTY1NjRlZDU2ZGQ5OGE0YmVlOWYxYWM4NDAxODc3MWI5M2NkY2U1OWE0NjMyMThjYjYzOGY0ZTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3OTlkOWI1MTZhOGJjNTNkYTI3YTJiOGVmOTc3YTAxYWM0MGJhYjFkOTA0MzZlNzY2MWJhNDZhOTMwMmIxZjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkYzdlYjNmNzE2ZGE4YjdjZTY1NDg0NzhjZGM4ZjgzOTUzMmFmN2Q5OGM5NTMxMzY4OGNhNTUzMGU2ZDJjYTQifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L222-L237",
+          "version": "repo-lines-v1:sha256:543ba7023ed0cacb76769f21c1384268ae4c413770252d1acfc92135b3900dfc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmZTg2NTNlNTc0NGJhYjcxY2ViN2ZjNzg3ZTVmMjA4ZDAxZWMzYTRkMDM1NmY3OGFmNzVlODZiMzMxNDM0ZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyMjg0MGQ3ZTY2NWU2ODhhZTU3ZDg5MzkyODE3ZWU3ZTgxYmQyNjcwNzRkODc3NWIzYzE5NjE0YTc5NmY1NjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmMWE3NzA3MDI4M2NiYzJlNzBiOTZjN2Y4NDA1MGUwMWZmMzVlMzJkNmMxMWUwMWJhNGJhYWI3YzBkMWE5NzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b3afdd99c164566b14f4e511ac45356",
+      "statement": "login_via_oauth starts a server thread and event-waiter thread and joins both without deadlines. Falsey required server inputs, server-start exceptions, absent browser callbacks or uncaught callback errors before the shutdown flag can leave threads waiting indefinitely.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L110-L151",
+          "version": "repo-lines-v1:sha256:ee564185d7c34c022c680c872df03296003351be43438fbf9cd8849bdbccaddf:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjZDcwYjg0YjYzMjEwOTg4NWNmNzhhNzU4NTQwNzRhMGYyNjA2NDE2ZWE1ODY0ZDhmM2E0OTk2ODFlMzMyMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiYTc1MzlhZWQzNjkzZjg1MmNhMzU1NzcxNGE3OWJkODA5ZWY1ZmU2ZDRmZjY2ZmEwYzhlMzFjODQyZDUzNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiZTJmNzEzMDM4ZWYxNGE4ZGQzNTY4MmQ4Y2FlMGYwMmY0YzkwMjNkMTRiZWJlZjhlZDgwYjQ4Zjk1Y2NlMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5NDQ0YTMxODFhMDZjYTgxM2Q5OWEzYjhiMDFhOTVjYmQzODczYjE2ZDYwNDlhZjc0MWRmMzlhNjc5OGEwNzgifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L168-L237",
+          "version": "repo-lines-v1:sha256:87705f5c13d3a268dafa5a46a0e009d3308397b92616420f7d052c1fcface47d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhNWI5NjYwY2I0OTE5Yjk5YmY5NDBjMjFkZDI0OWQxOGE1YWIwYWNlNDQzNDNmMWZmZjQwNzQ0Mzk2MTdmYjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyMjg0MGQ3ZTY2NWU2ODhhZTU3ZDg5MzkyODE3ZWU3ZTgxYmQyNjcwNzRkODc3NWIzYzE5NjE0YTc5NmY1NjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYjg3MDAxN2M2ZWI4NWNmMjllNjY5ZGI1MGI4MDY1NmVhNTk2MjllNjAxMGRiMTgxZTIyZWM3OWVjNzBhMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L23-L24",
+          "version": "repo-lines-v1:sha256:5e2c388bfb8e85611afee18275f893fb8c1c0c74fccf9df1a344b22a6f5b2893:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTJlZjNhNmNhMWM2M2I0NWRkMGMzNDJiODQ5NzZiZDY1Yjk1YTgzYzhiMTdmNGM4MGRlMWY2NmE3YzM3NmY2OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4ZjYyOTEyNDA5MTI2OWJhMmM2NzQxM2RjNzBiZDNjZmZmZDQzMjkzMjVmZjZiNTZmMzEwZDVkZDZkYzg2YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGYwYzE4ZmZiY2RjZTM2OGI1OGU2YzdmODViNjM0NThlYzJjY2E5ZTUzMWMwY2U3ZGRhMTcxNDgzZDdiMTk4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzVjZWQ3ZTFlZjI1N2FmZjU2MDZhMzRkMTE4NjMwNDdlMTlmN2JmMmIzN2Q0ZDlmNmUxMDE5NDZiNDA1Yzc2NiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ff87f0d634d247999fe20c2714428acc",
+      "statement": "OAuth stores node, manifest, credentials, URLs and shutdown event in module-global state and never resets the event between logins, so repeated or concurrent use is not isolated.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L168-L237",
+          "version": "repo-lines-v1:sha256:87705f5c13d3a268dafa5a46a0e009d3308397b92616420f7d052c1fcface47d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhNWI5NjYwY2I0OTE5Yjk5YmY5NDBjMjFkZDI0OWQxOGE1YWIwYWNlNDQzNDNmMWZmZjQwNzQ0Mzk2MTdmYjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyMjg0MGQ3ZTY2NWU2ODhhZTU3ZDg5MzkyODE3ZWU3ZTgxYmQyNjcwNzRkODc3NWIzYzE5NjE0YTc5NmY1NjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYjg3MDAxN2M2ZWI4NWNmMjllNjY5ZGI1MGI4MDY1NmVhNTk2MjllNjAxMGRiMTgxZTIyZWM3OWVjNzBhMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L17-L20",
+          "version": "repo-lines-v1:sha256:3a13a397004581e70e219abcae88785bae78469f0e4d3d19a9977b7d42af12f9:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Q2NjU5NzgwZjczZDBiYjg1ZDJjZjBmYzE4NGYyYWIzMmU5OGVkYTc2NTc3YzkyYTJhNDMxNjNlOThmNmI5ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRjNWMyMjcxMTljNGQxYWI4MDA1Zjg1YmY4MjZkNmFiOTFlZDIwZTk1ZTQ5YzYzZjU2MzJmMWFhOTMxYjk2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzc5OWQ5YjUxNmE4YmM1M2RhMjdhMmI4ZWY5NzdhMDFhYzQwYmFiMWQ5MDQzNmU3NjYxYmE0NmE5MzAyYjFmMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWNjZDNlODY5MWU3ZjA1ZjAwYzAyZjhjOTc1Yjg2ZGNmYTgzYTdmMDM0NjBkNTRkMjA0YWM3ZWY1Y2Q4YWE1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf15b1188d9e4d008cd75e7589fb93c0",
+      "statement": "The main CLI TLS bypass is passed to SesamNode's sesamclient.Connection, and warning suppression does not disable verification globally. OAuth token/identity, API-key JWT and SuperOffice requests use separate requests calls without the forwarded bypass or explicit timeouts; response handling is direct JSON parsing for OAuth/JWT and IsSuccessful or 200 checks at selected SuperOffice steps.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/api_key_login.py#L19-L27",
+          "version": "repo-lines-v1:sha256:dab551b37c6aeedb4627078138e9f4f58765fbd947e34baf95da4fb0eb05a9db:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTJiNzZkNjgyNjFmZTUxY2M4MWVmOTUzZmFlZWMwN2JmZWZlNzM5NDdhODlmM2ZmNTRkMzk3ODdlYTViMGNkZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTI1YjVmMDlkMzllNzE1ZGViYzQzMDI5ODg4YTU5ZjkyN2FiMDc3NWNiZjhkMjU1ZGIxODgzZjU5YmVlMDJmOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGE2ZmVhMTM0OWNjM2Y3NzE3N2E0ZGE0MWJlNjY1OTU4Zjc4NmI2Y2E3YjE5YjI1NTgwNDc1ZWU3MjZmYzhiMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWZiZWE5YWU4OTcyMmU1YWExZTFlYjJjNGQwODU2YzE1M2U3ZmUyMTM4MzllNzk2NDAzN2YxMWJhMjUzYjEyMiJ9"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L73-L103",
+          "version": "repo-lines-v1:sha256:427fab2799cfba38bb5e641ed8fd78ddec25c8ea901c18c38ed04a06d33db2a7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwNDkyM2FhMDUzMGJkZWZmMjhkODI0NjM1YzM2NjYzZWQ0NWNiZTE4NTdmYTU0Y2Y1YThkNTczOGFiOGI5MmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMDM0ODFjNTdkMGYwZGMwZjc2Y2QyY2M4YjM2MDRjNGU4Mjk2ZGE0MTIyYWRkMTllODE3NDVkYzdlMzMxYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0NDNkNGI1MmEzYTM4N2ZhYzhkZTZjZGRlZjgxOGMyYjk2NmU4NDA0NGE3OTU4NzdmMTgyYmI1MzUyZGQ3NjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1NjYxZjQ3YWNhOWQzYThlZmE0NjUyNjMwZTVkY2Q0NTI5ZjJmMjVlNmE2YTFmZmM5ZmU5NzBmMmU0MTlkNzAifQ"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L122-L154",
+          "version": "repo-lines-v1:sha256:e3830e4623fe318838848ac218b269ef8105e6454b98a5779eb9da0fcbe087e5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlNjJhYWE0NmM1MTUyMWRmYmY1NTUyYWEzODY2NDllMzllYzZjNjBmZDIxOTQ3MGU5ODQzYTU1YjlhMjM5YzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlZWEzNTdmNDBiZWU2YjVhOTFjYTNmNTBmOTI0YzVjMjlmYWZmOTk5NzUwZGY3ZWMyMjZhNmQ0NWNkN2EyOTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1OWE2YjZhNjIzZjExNGFkOGMxMGMwNzA5NmFkZDljYTkwZGQ0ZTI5NzEwNDE0NWMxNjk2ZjBhNjg3MTMzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4Nzk1ZDhhNzAwOGZhZWY1M2M3Njk1N2E1ODQ0MzIwY2E4OWIyNTNkNWRhZTJiNzgyNzU2MmRiZjU1N2MzNmYifQ"
+        },
+        {
+          "resource": "repo://connector_cli/superofficelogin.py#L39-L63",
+          "version": "repo-lines-v1:sha256:a03fdf42bafdc3b39a747e60db31402a1af9048adda325cc95732225ab7bfb52:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhMmZmZWU1MGFjNzFlZDI0YzU4ZTBiZTVmNzI3NmFhN2NjNTdhNzIwY2JjMjJjMWIwNzE2MWViYWM2YTAyMzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjOTQzNGFhNjExNGVmY2Q0OTU1NDhmZjk3NDM2MTcwNzc0NWNiMDhlZjgwNThmOGEyYmI1ZDRkZjI1YmM0OWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4NWE1YTIwOTFhOTdiYjBkOGRkMWRmOWE4ZjQyN2VjOWY2OThmZTI3Yzc0OTE4NmExMjhmY2E2MGFiYzFmN2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1NGU0MjNhZDgxZGUxYzZkYmIwZWJmY2M3NTA1OWNlOGVkMjQ4OTg3MTUwY2VkOTI3YzM2YmEwM2RkYzc0YWQifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L257-L272",
+          "version": "repo-lines-v1:sha256:590b585b4615deb6cf0397ccfb546c4c88843fbe101ec8244806c88dfefdea03:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzOGVkYmRkMzI1MTFkYjVjOTEzNzM3MzM1NDQ0NmRhNThjNTUwMjQwNjllYmUxNzhhYmYyZTQzNDdkNTZlMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzMWJkZjJiZjcxYTM1Y2JiZWZkNDk0NzdiYjQxMDE3YjFlZWQ4N2I0ZjcxODVhNTM4NTUzYzRmNDE5YTc4ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxMzdmMThmOTM5NGFiZmYwYjU5OGNjOGJhMjA2OWRkODM1MTFiOGY1YjFiMTEyZGUxZjhjZWJmYjEyOGNjODEifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4136-L4139",
+          "version": "repo-lines-v1:sha256:f91dc98b034fbf088db2bc987819df3aa5d7135b64ebbb1024b49162f60b711e:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjU2OWNiMDkyODBlZTA3ODE5NDVlNDhkNDA0MWJkMmRmYWFlNjkxYWQyZWFiZjVkM2NiYTA4NDZjNzIxNmNhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUwMzJlOTY0ZDA5MzIzNTFlNWQxODUyNjkyODFiMTcxYTNhMDliMDhiMjg2ZTY2MWVhNDcwMzIzYzgyZWI0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDJiNzk3MmJhYzVjZWJlYmIxNmY0YTgzYjZhOGE3MzJiZDE3YTdhYzM4MzJkMjlhNzQxZTY3YjVmNWVkODU5MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzhlMGY5YTE4MmRiNzA4Yzc3MzdiNWRiZWEyYzc5OGFlMzU1ZjYwOThiNjllMzQ3MzIxNTRlNGQxYjQ1ODEyNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ebe47486bf9344148398118cbfb90638",
+      "statement": "Credential exposure surfaces include the fully logged optional client-secret-bearing authorization URL, the identity request URL containing an access token, and the main connection-error log containing the supplied JWT without masking at that site.",
+      "evidence": [
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L100-L103",
+          "version": "repo-lines-v1:sha256:907b5aa87a0ef1b3b86ff3d7ead74c7e0c2fc7ae1299cde6cd1092a8a95622f1:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI5MTk4MTk5ZTQ2N2FmYTZjMGUzZmZlNTRlMjFjMzJmYzFlMTZhOTRlZDMyODEzZjllNjdiOWM5OTI1MDQ0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTEwMzQ4MWM1N2QwZjBkYzBmNzZjZDJjYzhiMzYwNGM0ZTgyOTZkYTQxMjJhZGQxOWU4MTc0NWRjN2UzMzFhNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDI0NTkzN2ZhYWFjZDdjZWNjOGM2MWE3NTViZjk5OWIxZWUzZmI4ZjM3NWM0NzIyZWU3MGE2NGZkZmZiOTFjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTU2NjFmNDdhY2E5ZDNhOGVmYTQ2NTI2MzBlNWRjZDQ1MjlmMmYyNWU2YTZhMWZmYzlmZTk3MGYyZTQxOWQ3MCJ9"
+        },
+        {
+          "resource": "repo://connector_cli/oauth2login.py#L206-L220",
+          "version": "repo-lines-v1:sha256:f77ee88fb603d9f016d66893d971e12b5cd38f8b7b76fe162d276701ea4bfa28:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0MTNhMjJiOWFhYWU2NDliMzY1M2VlMmEzOGJjZGFmNWIyNTljMDhjZmM4MTM5MmNmMTQzMTE1MGZhOTNlODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwMmEwNjY1ZTA2ODg5ZmQ5OTcwYTg1YTlkMjc4MmYzOTMyMjI3Yjc1NzZhNjNjYzFkMzhhYjRmZjMzMjI1YzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3N2JlNDg5ZWI1ZGZiMmRlMmRlNDI3NWNlOTY1NGNhNmM1MmM1NzkzYzA2OWMxZDQ2ZTYxMTVlNjk1OTU4NWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmZWJiNzNjNjFhMzEyMWE0M2ZlNjJhNTU0M2NiZjA4MWUyMDE5MWM3ZjZiZGU2ZmQ3YjFkY2IwYWEzY2NiYzcifQ"
+        },
+        {
+          "resource": "repo://sesam.py#L4147-L4150",
+          "version": "repo-lines-v1:sha256:7bca599f4c8679f46be5a8d834df448ee08d447b98ef91250380b2eeebe084f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzE3YWMxYTFkMGNhMjZhMzhkZDMzNzczM2NkZjQzZDBhYTc2NmVhNGM4NmQzNWExN2EzNmFkZDA5NzMwNzA4YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUwMzJlOTY0ZDA5MzIzNTFlNWQxODUyNjkyODFiMTcxYTNhMDliMDhiMjg2ZTY2MWVhNDcwMzIzYzgyZWI0ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzgzZTU1NGFlMjE4NWUzMjZhMjg3YWU3MDk2ZjI2MGU4OGU4ODQ3ODRiMGVhM2RmYmIxNTkyM2ZmMTVlMTE5OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDhiZDczMTczNmJlNTI0YzNlZWNmYzViMjk3MThmM2Q3NjgwY2Y2ODk5ZGQyMDI2ZTdmYzFlNTBkNWQ0N2Y4NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_25892e52c59d4b39b701091cde20d9c2",
+      "statement": "The inspected authored test scenarios run remote-node configuration/runtime and embedded-source conversion operations, and the nested Python test checks pipe IDs rather than connector login. CI serializes Linux, macOS and Windows jobs against a shared credentialed node; these tests do not establish OAuth callback, Tripletex, JWT or SuperOffice provider/dependency compatibility.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/test.yml#L13-L48",
+          "version": "repo-lines-v1:sha256:dfda9603e46714249b76c740d98555221bf49df140d825583a5bcbc6f3691e52:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4MmIzMWRiY2E5MmY1YzQ1NDFiYWI2YmE2MGE5YzkyMDkxOTFhZGNjODBjYmQ4ZTZlOGY3YjViNWIwNTRlOGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxOTcxMmI4NmI2NjJhMjBlMzY0MDVjZDBkMzNkNGUzMjVlYzUwMGUyOGQwODFhZWQ4MTE3NTg5ZTc2OTliZDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExZjk1M2UwNmM2Y2VlNzIyZTU5MDVjM2NmYjA0YTUyMTcyYmE1YmYyOGYyMzBmZjZkMjI4MzFmNGUwNTQ4YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://test.sh#L15-L32",
+          "version": "repo-lines-v1:sha256:770073754803fc50af4a0cc11ee3d97b09fba59beb85456682541005eef4491f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViOGNmMDkzMjM5NTdmYzNhZTIxMDZlZDZiYjYxZDk2YzRkYWQ4MWYyNDM2OTBlM2Y0ZGNhMGUxZDJiNGMxYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YzI4ZTBiYjAwNmQ5MDAxMjc1MTE0N2Q2ODFkMjFmMjZjNTg4MTc4NDhhMzkxY2QxM2Y0MzU3MmNiNmEzMGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjZTI1MjlmZjdjMTgzYTBkMTEyYzc1NmM5NTU4YzFjNDQwOTJkMzUzMjg4YjA4ZDk2NDRlYzEzYzlkMWQ5OGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/embedded_conversion_test/run_test.sh#L29-L58",
+          "version": "repo-lines-v1:sha256:e0528167a2320c0011343ea5d91812eb8ed8c81daa79bd60fb29abccbfdad143:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMDUwNzkzYWViMDZjY2JhZjU1YzI0NjdhNzM4YjA4NjFiNjNmOWIzMmI5ODU4MWI1YWYzMmU2OWFmNjY4YzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3NjlkMjM3Y2Q0MjBiOWQzOGI5ODFhMGE0ZjY3NzAxOTBhNGE4M2RjYTFmZTU2YzRmNWJhMWUyY2JjMGVmNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3OTkyNDdjN2IxYmVmZmU5MWI2M2IwYjQ4MTI2OTFiMjU3OTc4Yzg4NzFkYThhYTgxOTZjOTU1MDM4ZGFlYmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1YTExZGE0NGM4MDI0ODZiYzZmNjU2NDBhYTQ4YTczMGYwZjY4NGM1YzA3YTQyYmEzY2QxNzM1ZWIzZmIwNzAifQ"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/run_test.sh#L29-L49",
+          "version": "repo-lines-v1:sha256:3ce9268e5d237c1f07eee7843ef1d5f1fdb05824c41f98882bf6b2ac8c7756fe:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0ODhhMTAxYzZhZGI1MGQyMWY2N2UzNzlhOTY1NDFiMWY0MmYxYmY0Y2MwNTExOGMyYTk0MzIwMDBmZTMwNjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiNmYxMTFlYjRkMzZhYTkzNWYyMDIwNzFlYTI0MDU2NmEwNmFiMjc5Yjg0MGViN2ZkNDViNTc0M2RhOTZmMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3OTkyNDdjN2IxYmVmZmU5MWI2M2IwYjQ4MTI2OTFiMjU3OTc4Yzg4NzFkYThhYTgxOTZjOTU1MDM4ZGFlYmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://tests/fair_weather_test/tests/test_pipe_id.py#L6-L18",
+          "version": "repo-lines-v1:sha256:b25413eac6580a8e47226f132236e79dcd0359b8ace27197187bfbb0a77207ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MTFkYTg0MWFmZDk1ZGYwOTNlNmIyODQyZjZkMGVmMDRhMjMxYjk0NjE3YWVlNmVkNGRmMDgzMWM5MmY5Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYjZjODQ0MWQwMDRiNTIzYmI2NjViMGRmNTc3YjM3MTFiYWY1NDBkZGExNjA1ODdiNjI0OTQ1OTNmMzE3NmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjM2QxYWYzNDhhZTgyYjQzMjBhMmQ5NzcyZGNiYjI4OThiMzgzNjA4ZmMxOWE2OWYzNjNmZTQ5ZDlhMDA0NmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-21T12:48:03.329Z"
+  }
+}
