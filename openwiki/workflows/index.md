@@ -1,0 +1,6 @@
+# Files
+
+- [Upload, download, status and testdata synchronization](configuration-sync.md) - Trace configuration ZIPs, environment profiles and receiver testdata between the local workspace and a Sesam node. Covers replacement order, metadata normalization, drift comparisons, retries and partial-failure risks.
+- [Connector templates, expansion, collapse and schemas](connector-development.md) - How authored connector manifests and templates become generated node configuration, and how development downloads reconstruct templates with explicit loss risks. Covers scaffolding, validation, dispatch, webhook permissions and live schema-generation side effects.
+- [Prepare test sources, convert embedded data and format files](local-configuration-preparation.md) - File-rewriting contracts for init, convert and format, including live sampling risks, profile-selected embedded conversion, serializer selection and fixture expectations. Explains what local preparation changes and what still requires remote upload, execution and verification.
+- [Scheduler execution and expected-output testing](run-and-verify.md) - Trace upload, scheduler execution, and TestSpec verification, including expected-file maintenance and optional pytest ordering. Explain comparison normalization, failure propagation, and cleanup limits before interpreting a test result or updating a baseline.

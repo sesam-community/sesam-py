@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/architecture/cli-contract.md": {
+      "pageVersion": "sha256:a004fd7ad26623e19c0be94f8ed7c9937b486cac09f1508dcf69113e6914dd6c",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/concepts/configuration-and-credentials.md": {
+      "pageVersion": "sha256:f35696a7ff7f2d8b657a81158c968029bf97e2c3dfb2bc17d92c038af910262e",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/integrations/connector-authentication.md": {
+      "pageVersion": "sha256:fce62fca02862ec8479739a7c36b02c7ff4fcf949f7f47ed56fbf48ffbd2ff2a",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/operations/troubleshooting-and-releases.md": {
+      "pageVersion": "sha256:a728a99f31e84d5ba62cdce113b3601af0eca6a94f6a7675eeb39c7144f99ad6",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:e045391717b85b30008dd20e919429085bf19594752491ce004e1e0fa07abe4c",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/testing/change-validation.md": {
+      "pageVersion": "sha256:d0240679a2070290505a3abd9fc641541057b1a207cf5c0f11adbf55c8bcbd9f",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/workflows/configuration-sync.md": {
+      "pageVersion": "sha256:15d607edf0390b4bf53c00dd5a04367eb9f69b07643f40b0b059cf3e5c48628b",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/workflows/connector-development.md": {
+      "pageVersion": "sha256:fc9a6804473c481cf1a71ebc94859cba52a2568362658c2a94e13cd22e602744",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/workflows/local-configuration-preparation.md": {
+      "pageVersion": "sha256:ba9264f1f533434b117ef45fe1a56f215636711467d4353ad7eb16fc64898841",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    },
+    "/openwiki/workflows/run-and-verify.md": {
+      "pageVersion": "sha256:cc887f7a1a7dbd78630dac8a9a836aab12016765d904c39d99a5c3b885fd1111",
+      "completedBy": "openwiki/0.7.2",
+      "completedRunId": "91b70814-55b7-41de-80a5-af31f2b403de",
+      "gitHead": "e66bc18d63f59a1fd4b2704adb3a737dddde7942",
+      "sourceFingerprint": "sha256:6157605f4bbbde5e306445f9dc408440877c180ceebd0bb76e0bc3ca4b0667ae"
+    }
+  }
+}
